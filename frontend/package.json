@@ -7,7 +7,14 @@
     "dev:frontend": "next dev",
     "dev:backend": "cd ../backend && . .venv/bin/activate && uvicorn main:app --reload",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "preview": "next build && next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --check './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.js",
+    "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.js",
+    "formatandlint": "npm run format:fix && npm run lint:fix",
+    "postbuild": "next-sitemap"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1",
@@ -24,21 +31,38 @@
     "dayjs": "^1.11.13",
     "lucide-react": "^0.438.0",
     "next": "14.2.8",
+    "next-sitemap": "^4.2.3",
     "next-themes": "^0.3.0",
     "react": "^18",
     "react-dom": "^18",
+    "sharp": "^0.33.5",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@eslint/js": "^9.9.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^8.4.0",
+    "@typescript-eslint/parser": "^8.4.0",
     "concurrently": "^8.2.2",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.8",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.6",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-tailwindcss": "^3.17.4",
+    "globals": "^15.9.0",
+    "lucide-react": "^0.436.0",
     "postcss": "^8",
+    "prettier": "^3.3.3",
+    "prettier-eslint": "^16.3.0",
+    "prettier-plugin-tailwindcss": "^0.6.6",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^5",
+    "typescript-eslint": "^8.3.0"
   }
 }

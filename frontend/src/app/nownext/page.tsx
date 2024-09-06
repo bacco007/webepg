@@ -1,17 +1,13 @@
 'use client';
 
+import React, { useEffect, useState } from 'react';
 import { AlertCircle, Clock } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
 
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-
-// export const metadata: Metadata = {
-//   title: 'Now & Next',
-// };
 
 interface Program {
   title: string;
@@ -28,6 +24,7 @@ interface Channel {
   name: string;
   icon: string;
   slug: string;
+  lcn: string;
 }
 
 interface ChannelData {
@@ -55,7 +52,15 @@ const ChannelGrid: React.FC = () => {
           throw new Error('Failed to fetch channel data');
         }
         const data = await response.json();
-        setChannels(data.data);
+        const sortedChannels = data.data.sort((a: ChannelData, b: ChannelData) => {
+          const aLcn = parseInt(a.channel.lcn) || Infinity;
+          const bLcn = parseInt(b.channel.lcn) || Infinity;
+          if (aLcn === bLcn) {
+            return a.channel.name.localeCompare(b.channel.name);
+          }
+          return aLcn - bLcn;
+        });
+        setChannels(sortedChannels);
         setIsLoading(false);
       } catch (err) {
         setError('Error fetching channel data. Please try again later.');
@@ -134,6 +139,9 @@ const ChannelGrid: React.FC = () => {
                   <h3 className="text-card-foreground text-lg font-semibold">
                     {channelData.channel.name}
                   </h3>
+                  {channelData.channel.lcn !== 'N/A' && (
+                    <p className="text-gray-500">Channel {channelData.channel.lcn}</p>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="grow p-4">

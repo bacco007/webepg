@@ -1,8 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-
+export async function GET() {
   try {
     return NextResponse.json(
       {
@@ -13,11 +11,11 @@ export async function GET(req: NextRequest) {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': '*',
           'Access-Control-Allow-Methods': '*',
-          // "Content-Type": "application/json",
         },
       }
     );
-  } catch (e) {
-    return NextResponse.error();
+  } catch (error) {
+    console.error('Error in API route:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

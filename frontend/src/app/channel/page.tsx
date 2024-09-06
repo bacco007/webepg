@@ -1,8 +1,8 @@
 'use client';
 
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
 
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import { Card, CardContent } from '@/components/ui/card';
@@ -48,7 +48,15 @@ const ChannelList: React.FC = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: ApiResponse = await response.json();
-        setChannels(data.data.channels || []);
+        const sortedChannels = data.data.channels.sort((a, b) => {
+          const aNumber = parseInt(a.channel_number) || Infinity;
+          const bNumber = parseInt(b.channel_number) || Infinity;
+          if (aNumber === bNumber) {
+            return a.channel_name.localeCompare(b.channel_name);
+          }
+          return aNumber - bNumber;
+        });
+        setChannels(sortedChannels);
       } catch (error) {
         setError('Failed to fetch channels');
         console.error('Error fetching channels:', error);
@@ -92,9 +100,11 @@ const ChannelList: React.FC = () => {
                   <h3 className="text-center text-lg font-bold">
                     {decodeHtml(channel.channel_name)}
                   </h3>
-                  <p className="text-center text-sm text-gray-500">
-                    Channel {channel.channel_number}
-                  </p>
+                  {channel.channel_number !== 'N/A' && (
+                    <p className="text-center text-sm text-gray-500">
+                      Channel {channel.channel_number}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </Link>

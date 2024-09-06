@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import React from 'react';
+import Image from 'next/image';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

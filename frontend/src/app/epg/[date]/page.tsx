@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useEffect, useRef, useState } from 'react';
 import { differenceInMinutes, format, parseISO } from 'date-fns';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
@@ -7,7 +8,6 @@ import utc from 'dayjs/plugin/utc';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
 
 import ChannelFilter from '@/components/snippets/ChannelFilter';
 import DateDropdown from '@/components/snippets/DateDropdown';
@@ -155,8 +155,8 @@ export default function Page() {
             programData.title === 'No Data Available'
               ? 'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]'
               : isCurrentProgram
-              ? 'bg-red-500'
-              : defaultColorClasses[index % defaultColorClasses.length],
+                ? 'bg-red-500'
+                : defaultColorClasses[index % defaultColorClasses.length],
           channel: channel.id,
           subtitle: programData.subtitle,
           episodeNum: programData.episode,

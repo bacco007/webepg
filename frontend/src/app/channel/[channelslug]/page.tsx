@@ -1,10 +1,10 @@
 'use client';
 
+import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
 
 import ChannelDropdown from '@/components/snippets/ChannelDropdown';
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
@@ -92,7 +92,7 @@ export default function Page() {
   const timeSlotHeight = 60;
   const timeColumnWidth = 60;
   const gridGap = 0.25 * 16;
- 
+
   useEffect(() => {
     const fetchData = async () => {
       if (!channelslug) {
@@ -159,8 +159,8 @@ export default function Page() {
             program.title === 'No Data Available'
               ? 'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]'
               : isCurrentEvent
-              ? 'bg-red-500'
-              : colorClasses[eventIndex % colorClasses.length],
+                ? 'bg-red-500'
+                : colorClasses[eventIndex % colorClasses.length],
           description: program.description,
           categories: program.categories,
           subtitle: program.subtitle,

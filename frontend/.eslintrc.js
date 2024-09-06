@@ -10,12 +10,12 @@ module.exports = {
   ],
   plugins: ['simple-import-sort', 'prettier', '@typescript-eslint'],
   rules: {
-    // 'prettier/prettier': [
-    //   'error',
-    //   {
-    //     endOfLine: 'auto',
-    //   },
-    // ],
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
+    ],
     'sort-imports': 'off',
     'tailwindcss/no-custom-classname': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
@@ -24,18 +24,18 @@ module.exports = {
     '@typescript-eslint/no-empty-object-type': 'warn',
     'simple-import-sort/imports': 'warn',
     'prettier/prettier': 'warn',
-    // 'simple-import-sort/imports': [
-    //   2,
-    //   {
-    //     groups: [
-    //       ['^.+\\.s?css$'],
-    //       [`^(${require('module').builtinModules.join('|')})(/|$)`, '^react', '^@?\\w'],
-    //       ['^components(/.*|$)'],
-    //       ['^lib(/.*|$)', '^hooks(/.*|$)'],
-    //       ['^\\.'],
-    //     ],
-    //   },
-    //],
+    'simple-import-sort/imports': [
+      2,
+      {
+        groups: [
+          ['^.+\\.s?css$'],
+          [`^(${require('module').builtinModules.join('|')})(/|$)`, '^react', '^@?\\w'],
+          ['^components(/.*|$)'],
+          ['^lib(/.*|$)', '^hooks(/.*|$)'],
+          ['^\\.'],
+        ],
+      },
+    ],
   },
   settings: {
     tailwindcss: {

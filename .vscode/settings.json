@@ -100,7 +100,7 @@
   "eslint.run": "onSave",
   "eslint.ignoreUntitled": true,
   // Prettier settings
-  "prettier.enable": false,
+  "prettier.enable": true,
   "prettier.singleQuote": true,
   "prettier.trailingComma": "es5",
   // React settings

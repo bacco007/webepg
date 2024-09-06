@@ -42,7 +42,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head />
       <body
         className={cn(
-          'bg-background min-h-screen font-sans antialiased from-background to-secondary bg-gradient-to-br',
+          'bg-background from-background to-secondary min-h-screen bg-gradient-to-br font-sans antialiased',
           fonts
         )}
       >
@@ -56,7 +56,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <Header />
             <div className="flex flex-1">
               <Sidenav />
-              <main className="flex-1 overflow-auto pl-4 pr-4">{children}</main>
+              <main className="flex-1 overflow-auto px-4">{children}</main>
             </div>
             <Footer />
           </div>
