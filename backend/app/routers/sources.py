@@ -1,0 +1,101 @@
+from fastapi import APIRouter, BackgroundTasks
+from app.config import settings
+from app.utils.file_operations import load_json, download_file, load_sources
+from app.utils.xml_processing import process_xml_file
+import os
+import time
+import aiohttp
+import asyncio
+from datetime import datetime
+
+router = APIRouter()
+
+# Global variable to store process status
+process_status = {
+    "is_running": False,
+    "start_time": None,
+    "end_time": None,
+    "current_source": None,
+    "processed_sources": [],
+    "errors": []
+}
+
+@router.get("/py/sources")
+async def get_sources():
+    return load_sources(settings.XMLTV_SOURCES)
+
+async def process_source(session, source):
+    global process_status
+    process_status["current_source"] = source['id']
+
+    file_id = source['id']
+    file_url = source['url']
+    save_path = os.path.join(settings.XMLTV_DATA_DIR, f'{file_id}.xml')
+
+    if os.path.exists(save_path):
+        file_age_hours = (time.time() - os.path.getmtime(save_path)) / 3600
+        if file_age_hours < 2:
+            await process_xml_file(file_id, save_path)
+            process_status["processed_sources"].append({
+                'id': file_id,
+                'status': 'skipped',
+                'file_age_hours': round(file_age_hours, 2)
+            })
+            return
+
+    try:
+        success = await download_file(session, file_url, file_id)
+        if success:
+            await process_xml_file(file_id, save_path)
+            process_status["processed_sources"].append({
+                'id': file_id,
+                'status': 'success',
+                'file_age_hours': 0
+            })
+        else:
+            raise Exception("Download failed")
+    except Exception as e:
+        process_status["errors"].append({
+            'id': file_id,
+            'error': str(e)
+        })
+        process_status["processed_sources"].append({
+            'id': file_id,
+            'status': 'failed',
+            'error': str(e)
+        })
+
+async def process_all_sources(session):
+    global process_status
+    process_status["is_running"] = True
+    process_status["start_time"] = datetime.now().isoformat()
+    process_status["processed_sources"] = []
+    process_status["errors"] = []
+
+    xmltv_sources = load_sources(settings.XMLTV_SOURCES)
+    for source in xmltv_sources:
+        await process_source(session, source)
+        if process_status["processed_sources"][-1]['status'] != 'skipped':
+            await asyncio.sleep(2)  # 10-second pause between downloads
+
+    process_status["is_running"] = False
+    process_status["end_time"] = datetime.now().isoformat()
+    process_status["current_source"] = None
+
+@router.get("/py/process-sources")
+async def process_sources(background_tasks: BackgroundTasks):
+    global process_status
+    if process_status["is_running"]:
+        return {"message": "Process is already running", "status": process_status}
+
+    async def run_process():
+        async with aiohttp.ClientSession() as session:
+            await process_all_sources(session)
+
+    background_tasks.add_task(run_process)
+    return {"message": "Processing sources in the background", "status": process_status}
+
+@router.get("/py/process-status")
+async def get_process_status():
+    global process_status
+    return process_status

@@ -1,0 +1,4 @@
+# .gitignore
+backend/.venv/
+backend/xmltvdata/remote/*.xml
+backend/xmltvdata/remote/*.json

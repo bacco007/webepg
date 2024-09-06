@@ -1,0 +1,76 @@
+'use client';
+
+import { Calendar, Clock, Home, Tv } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React from 'react';
+
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+
+interface RouteProps {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+}
+
+const routeList: RouteProps[] = [
+  {
+    href: '/',
+    label: 'Home',
+    icon: Home,
+  },
+  {
+    href: '/epg',
+    label: 'Daily EPG (by Day)',
+    icon: Tv,
+  },
+  {
+    href: '/channel',
+    label: 'Weekly EPG (by Channel)',
+    icon: Calendar,
+  },
+  {
+    href: '/nownext',
+    label: 'Now and Next',
+    icon: Clock,
+  },
+];
+
+export const Sidenav = () => {
+  const pathname = usePathname();
+  return (
+    <aside className="bg-muted/40 flex flex-col gap-4 border-r p-4">
+      <nav className="flex flex-col gap-2">
+        {routeList.map((route) => {
+          const Icon = route.icon;
+
+          return (
+            <TooltipProvider key={route.href}>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Link
+                    href={route.href}
+                    className={cn(
+                      'flex items-center gap-2 rounded-lg px-3 py-2 transition-all',
+                      pathname === route.href ? 'bg-muted text-primary' : 'text-muted-foreground'
+                    )}
+                    prefetch={false}
+                  >
+                    <Icon className="size-6" />
+                    <span className="sr-only">{route.label}</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={1}>
+                  <p>{route.label}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+      </nav>
+    </aside>
+  );
+};
+
+export default Sidenav;
