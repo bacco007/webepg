@@ -20,8 +20,8 @@ class DateResponse(BaseModel):
 @router.get("/py/dates/{source}", response_model=DateResponse)
 async def get_unique_dates(
     source: str,
-    timezone: str = Query(default="UTC", description="Timezone for date conversion")
-):
+    timezone: str = Query(default="UTC", description="Timezone for date conversion"),
+) -> DateResponse:
     # Load the programs file for the source
     programs_filename = f"{source}_programs.json"
     programs_path = os.path.join(settings.XMLTV_DATA_DIR, programs_filename)
@@ -36,8 +36,10 @@ async def get_unique_dates(
     # Handle timezone conversion
     try:
         target_timezone = pytz.timezone(timezone)
-    except pytz.UnknownTimeZoneError:
-        raise HTTPException(status_code=400, detail=f"Unknown timezone: {timezone}")
+    except pytz.exceptions.UnknownTimeZoneError as err:
+        raise HTTPException(
+            status_code=400, detail=f"Unknown timezone: {timezone}"
+        ) from err
 
     # Set to collect unique dates
     unique_dates = set()
@@ -54,8 +56,5 @@ async def get_unique_dates(
 
     # Return the response in the desired format
     return DateResponse(
-        date=current_time,
-        query="dates",
-        source=source,
-        data=sorted(list(unique_dates))
+        date=current_time, query="dates", source=source, data=sorted(unique_dates)
     )

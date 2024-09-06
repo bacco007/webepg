@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import {
   Select,
@@ -25,7 +25,6 @@ interface ChannelDropdownProps {
 
 const ChannelDropdown: React.FC<ChannelDropdownProps> = ({ channelslug }) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +40,8 @@ const ChannelDropdown: React.FC<ChannelDropdownProps> = ({ channelslug }) => {
         }
         const data: { data: { channels: Channel[] } } = await response.json();
         setChannels(data.data.channels || []);
-      } catch (error) {
+      } catch (err) {
+        console.error('Error fetching channels:', err);
         setError('Failed to fetch channels');
       } finally {
         setLoading(false);

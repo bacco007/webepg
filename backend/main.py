@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any, Dict
 
 import aiohttp
 import psutil
@@ -6,6 +7,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -18,7 +20,7 @@ app = FastAPI(title=settings.APP_NAME, docs_url="/api/py/docs", openapi_url="/ap
 scheduler = AsyncIOScheduler()
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,7 +37,7 @@ app.include_router(dates.router, prefix="/api", tags=["dates"])
 app.include_router(nownext.router, prefix="/api/py/epg/nownext", tags=["nownext"])
 
 # Function to process sources
-async def process_sources_task():
+async def process_sources_task() -> None:
     async with aiohttp.ClientSession() as session:
         await sources.process_all_sources(session)
 
@@ -49,21 +51,21 @@ scheduler.add_job(
 )
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     scheduler.start()
 
 @app.on_event("shutdown")
-async def shutdown_event():
+async def shutdown_event() -> None:
     scheduler.shutdown()
 
 @app.get("/")
 @limiter.limit("5/minute")
-async def root(request: Request):
+async def root(request: Request) -> Dict[str, str]:
     return {"message": "Welcome to the FastAPI XMLTV App"}
 
 @app.get("/api/py/health")
 @limiter.limit("10/minute")
-async def health_check(request: Request):
+async def health_check(request: Request) -> Dict[str, Any]:
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
@@ -79,8 +81,12 @@ async def health_check(request: Request):
 # Endpoint to manually trigger process_sources
 @app.get("/api/py/trigger-process-sources")
 @limiter.limit("1/minute")
-async def trigger_process_sources(request: Request, background_tasks: BackgroundTasks):
-    return await sources.process_sources(background_tasks)
+async def trigger_process_sources(
+    request: Request, background_tasks: BackgroundTasks
+) -> JSONResponse:
+    result = await sources.process_sources(background_tasks)
+    return JSONResponse(content=result)
+
 
 # # Endpoint to get process status
 # @app.get("/api/process-status")

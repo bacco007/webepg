@@ -63,6 +63,7 @@ const ChannelGrid: React.FC = () => {
         setChannels(sortedChannels);
         setIsLoading(false);
       } catch (err) {
+        console.error('Error fetching channel data:', err);
         setError('Error fetching channel data. Please try again later.');
         setIsLoading(false);
       }

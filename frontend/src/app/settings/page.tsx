@@ -1,11 +1,19 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import SourceDropdown from '@/components/snippets/SourceDropdown';
 import TimezoneSelector from '@/components/snippets/TimezoneSelector';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export default function SettingsPage() {
   const [timezone, setTimezone] = useState('');
@@ -33,25 +41,42 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="container mx-auto py-10">
-      <Card>
-        <CardHeader>
-          <CardTitle>Settings</CardTitle>
-          <CardDescription>Manage your application preferences</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-medium">Timezone</h3>
-              <p className="text-muted-foreground text-sm">
-                Select your preferred timezone for the EPG
-              </p>
-            </div>
-            <TimezoneSelector value={timezone} onChange={handleTimezoneChange} />
-            <Button onClick={handleSave}>Save Settings</Button>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="flex max-h-screen max-w-full flex-col">
+      <header className="bg-background flex items-center justify-between border-b p-4">
+        <h1 className="text-2xl font-bold">Settings</h1>
+      </header>
+      <div
+        className="relative max-h-[calc(100vh-210px)] max-w-full"
+        style={{ display: 'flex', overflow: 'scroll' }}
+      >
+        <div className="container grid gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Timezone</CardTitle>
+              <CardDescription>Select your preferred timezone for the EPG</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TimezoneSelector value={timezone} onChange={handleTimezoneChange} />
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+              <Button onClick={handleSave}>Save Settings</Button>
+            </CardFooter>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Source</CardTitle>
+              <CardDescription>Select your preferred EPG Source</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SourceDropdown />
+            </CardContent>
+            {/* <CardFooter className="border-t px-6 py-4">
+        <Button onClick={handleSave}>Save Settings</Button>
+      </CardFooter> */}
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

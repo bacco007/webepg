@@ -83,10 +83,7 @@ export default function Page() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [daysLength, setDaysLength] = useState<number>(7);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [channelName, setChannelName] = useState<string>('');
-  const [xmltvDataSource, setXmltvDataSource] = useState<string | null>(null);
-  const [timezone, setTimezone] = useState<string>('UTC');
   const [error, setError] = useState<string | null>(null);
 
   const timeSlotHeight = 60;
@@ -103,9 +100,6 @@ export default function Page() {
       try {
         const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
         const clientTimezone = dayjs.tz.guess();
-
-        setXmltvDataSource(storedDataSource);
-        setTimezone(clientTimezone);
 
         const url = `/api/py/epg/channels/${storedDataSource}/${channelslug}?timezone=${encodeURIComponent(
           clientTimezone
@@ -167,14 +161,14 @@ export default function Page() {
           episodeNum: program.episode,
           rating: program.rating,
           lengthstring: program.length,
-          previouslyShown: false, // This information is not provided in the new data structure
+          previouslyShown: false,
           date: program.original_air_date,
-          icon: '', // This information is not provided in the new data structure
-          image: '', // This information is not provided in the new data structure
-          premiere: false, // This information is not provided in the new data structure
-          country: '', // This information is not provided in the new data structure
-          language: '', // This information is not provided in the new data structure
-          new: false, // This information is not provided in the new data structure
+          icon: '',
+          image: '',
+          premiere: false,
+          country: '',
+          language: '',
+          new: false,
           channel: data.channel.channel_name,
           category: program.categories,
         };
@@ -243,8 +237,8 @@ export default function Page() {
           <ChannelDropdown channelslug={channelslug} />
         </div>
       </header>
-      <div className="mx-auto w-full p-4">
-        <ScrollArea className="h-[calc(100vh-2rem)] w-full">
+      <div className="mx-auto max-h-[calc(100vh-210px)] max-w-full p-4">
+        <ScrollArea>
           <div
             className={'relative grid gap-1'}
             style={{
@@ -290,7 +284,7 @@ export default function Page() {
               <ProgramDialog
                 key={event.id}
                 event={event}
-                onOpenChange={(open) => !open && setSelectedEvent(null)}
+                onOpenChange={() => {}}
                 trigger={
                   <div
                     style={getEventStyle(event)}
@@ -299,7 +293,6 @@ export default function Page() {
                       event.color,
                       'cursor-pointer transition-opacity hover:opacity-90'
                     )}
-                    onClick={() => setSelectedEvent(event)}
                   >
                     <div className="truncate font-semibold">{decodeHtml(event.title)}</div>
                     <div className="text-[10px] opacity-90">

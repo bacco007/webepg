@@ -45,7 +45,7 @@ class NowNextResponse(BaseModel):
 async def get_nownext(
     source: str,
     timezone: str = Query(default="UTC", description="Timezone for date conversion"),
-):
+) -> NowNextResponse:
     # Load the programs and channels files for the source
     programs_filename = f"{source}_programs.json"
     channels_filename = f"{source}_channels.json"
@@ -54,13 +54,15 @@ async def get_nownext(
         programs_data = load_json(programs_filename)
         channels_data = load_json(channels_filename)
     except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=f"File not found: {str(e)}")
+        raise HTTPException(status_code=404, detail=f"File not found: {str(e)}") from e
 
     # Handle timezone conversion
     try:
         target_timezone = pytz.timezone(timezone)
-    except pytz.UnknownTimeZoneError:
-        raise HTTPException(status_code=400, detail=f"Unknown timezone: {timezone}")
+    except pytz.exceptions.UnknownTimeZoneError as err:
+        raise HTTPException(
+            status_code=400, detail=f"Unknown timezone: {timezone}"
+        ) from err
 
     # Get the current time in the target timezone
     now = datetime.now(target_timezone)
@@ -116,7 +118,9 @@ async def get_nownext(
     )
 
 
-def format_program(program: Dict[str, Any], timezone: pytz.timezone) -> ProgramInfo:
+def format_program(
+    program: Dict[str, Any], timezone: pytz.tzinfo.BaseTzInfo
+) -> ProgramInfo:
     start_time = datetime.fromisoformat(program["start_time"]).astimezone(timezone)
     end_time = datetime.fromisoformat(program["end_time"]).astimezone(timezone)
     duration = end_time - start_time

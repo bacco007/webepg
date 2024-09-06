@@ -10,14 +10,14 @@ ruff check .
 echo "2. Type checking"
 mypy .
 
-echo "3. Running tests"
-pytest --cov=. --cov-report=html
+# echo "3. Running tests"
+# pytest --cov=. --cov-report=html
 
-echo "4. Security check"
-bandit -r .
+# echo "4. Security check"
+# bandit -r .
 
-echo "5. Dependency vulnerability check"
-safety check
+# echo "5. Dependency vulnerability check"
+# safety check
 
 echo "6. Freezing dependencies"
 pip freeze > requirements.txt

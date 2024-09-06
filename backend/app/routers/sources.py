@@ -2,18 +2,20 @@ import asyncio
 import os
 import time
 from datetime import datetime
+from typing import Any, Dict, List
 
 import aiohttp
 from fastapi import APIRouter, BackgroundTasks
+from fastapi.responses import JSONResponse
 
 from app.config import settings
-from app.utils.file_operations import download_file, load_json, load_sources
+from app.utils.file_operations import download_file, load_sources
 from app.utils.xml_processing import process_xml_file
 
 router = APIRouter()
 
 # Global variable to store process status
-process_status = {
+process_status: Dict[str, Any] = {
     "is_running": False,
     "start_time": None,
     "end_time": None,
@@ -22,22 +24,24 @@ process_status = {
     "errors": [],
 }
 
-
 @router.get("/py/sources")
-async def get_sources():
-    return load_sources(settings.XMLTV_SOURCES)
+async def get_sources() -> List[Dict[str, Any]]:
+    sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)  # type: ignore
+    return sources
 
 
-async def process_source(session, source):
+async def process_source(
+    session: aiohttp.ClientSession, source: Dict[str, Any]
+) -> None:
     global process_status
     process_status["current_source"] = source["id"]
 
-    file_id = source["id"]
-    file_url = source["url"]
-    save_path = os.path.join(settings.XMLTV_DATA_DIR, f"{file_id}.xml")
+    file_id: str = source["id"]
+    file_url: str = source["url"]
+    save_path: str = os.path.join(settings.XMLTV_DATA_DIR, f"{file_id}.xml")
 
     if os.path.exists(save_path):
-        file_age_hours = (time.time() - os.path.getmtime(save_path)) / 3600
+        file_age_hours: float = (time.time() - os.path.getmtime(save_path)) / 3600
         if file_age_hours < 2:
             await process_xml_file(file_id, save_path)
             process_status["processed_sources"].append(
@@ -50,7 +54,7 @@ async def process_source(session, source):
             return
 
     try:
-        success = await download_file(session, file_url, file_id)
+        success: bool = await download_file(session, file_url, file_id)
         if success:
             await process_xml_file(file_id, save_path)
             process_status["processed_sources"].append(
@@ -64,40 +68,43 @@ async def process_source(session, source):
             {"id": file_id, "status": "failed", "error": str(e)}
         )
 
-
-async def process_all_sources(session):
+async def process_all_sources(session: aiohttp.ClientSession) -> None:
     global process_status
     process_status["is_running"] = True
     process_status["start_time"] = datetime.now().isoformat()
     process_status["processed_sources"] = []
     process_status["errors"] = []
 
-    xmltv_sources = load_sources(settings.XMLTV_SOURCES)
+    xmltv_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)  # type: ignore
+
     for source in xmltv_sources:
         await process_source(session, source)
         if process_status["processed_sources"][-1]["status"] != "skipped":
-            await asyncio.sleep(2)  # 10-second pause between downloads
+            await asyncio.sleep(2)  # 2-second pause between downloads
 
     process_status["is_running"] = False
     process_status["end_time"] = datetime.now().isoformat()
     process_status["current_source"] = None
 
-
 @router.get("/py/process-sources")
-async def process_sources(background_tasks: BackgroundTasks):
+async def process_sources(background_tasks: BackgroundTasks) -> JSONResponse:
     global process_status
     if process_status["is_running"]:
-        return {"message": "Process is already running", "status": process_status}
+        return JSONResponse(
+            {"message": "Process is already running", "status": process_status}
+        )
 
-    async def run_process():
+    async def run_process() -> None:
         async with aiohttp.ClientSession() as session:
             await process_all_sources(session)
 
     background_tasks.add_task(run_process)
-    return {"message": "Processing sources in the background", "status": process_status}
+    return JSONResponse(
+        {"message": "Processing sources in the background", "status": process_status}
+    )
 
 
 @router.get("/py/process-status")
-async def get_process_status():
+async def get_process_status() -> Dict[str, Any]:
     global process_status
     return process_status

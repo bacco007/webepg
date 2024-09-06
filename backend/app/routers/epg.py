@@ -1,10 +1,10 @@
 from datetime import datetime
+from typing import Any, Dict
 
 import pytz
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
-from app.config import settings
 from app.utils.file_operations import load_json
 from app.utils.time_utils import (
     adjust_programming,
@@ -21,8 +21,10 @@ class ChannelInfo(BaseModel):
     slug: str
     lcn: str
 
-def program_overlaps_date(program, date_str, target_timezone):
-    def parse_datetime(dt_string):
+def program_overlaps_date(
+    program: Dict[str, Any], date_str: str, target_timezone: pytz.tzinfo.BaseTzInfo
+) -> bool:
+    def parse_datetime(dt_string: str) -> datetime:
         dt = datetime.fromisoformat(dt_string.replace('Z', '+00:00'))
         if dt.tzinfo is None:
             return pytz.utc.localize(dt)
@@ -43,13 +45,19 @@ def program_overlaps_date(program, date_str, target_timezone):
 async def get_programming_by_channel(
     id: str,
     channel: str,
-    timezone: str = Query("UTC", description="Timezone for adjusting program times")
-):
+    timezone: str = Query("UTC", description="Timezone for adjusting program times"),
+) -> Dict[str, Any]:
     try:
         programs_data = load_json(f"{id}_programs.json")
         channels_data = load_json(f"{id}_channels.json")
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Required files not found for {id}")
+    except pytz.exceptions.UnknownTimeZoneError as err:
+        raise HTTPException(
+            status_code=400, detail=f"Unknown timezone: {timezone}"
+        ) from err
+    except Exception as err:
+        raise HTTPException(
+            status_code=500, detail="An unexpected error occurred"
+        ) from err
 
     channel_metadata = next((ch for ch in channels_data if ch.get('channel_slug') == channel), None)
     filtered_programming = [program for program in programs_data if program.get('channel') == channel]
@@ -59,8 +67,10 @@ async def get_programming_by_channel(
 
     try:
         target_timezone = pytz.timezone(timezone)
-    except pytz.UnknownTimeZoneError:
-        raise HTTPException(status_code=400, detail=f"Unknown timezone: {timezone}")
+    except pytz.exceptions.UnknownTimeZoneError as err:
+        raise HTTPException(
+            status_code=400, detail=f"Unknown timezone: {timezone}"
+        ) from err
 
     adjusted_programming = adjust_programming(filtered_programming, target_timezone)
     grouped_programs = group_and_fill_programs(adjusted_programming, target_timezone)
@@ -77,23 +87,30 @@ async def get_programming_by_channel(
 async def get_programming_by_date(
     date: str,
     source: str,
-    timezone: str = Query("UTC", description="Timezone for adjusting program times")
-):
+    timezone: str = Query("UTC", description="Timezone for adjusting program times"),
+) -> Dict[str, Any]:
     try:
         selected_date = datetime.strptime(date, "%Y%m%d")
-    except ValueError:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {date}. Expected format is YYYYMMDD.")
+    except ValueError as err:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid date format: {date}. Expected format is YYYYMMDD.",
+        ) from err
 
     try:
         programs_data = load_json(f"{source}_programs.json")
         channels_data = load_json(f"{source}_channels.json")
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Required files not found for source: {source}")
+    except FileNotFoundError as err:
+        raise HTTPException(
+            status_code=404, detail=f"Required files not found for source: {source}"
+        ) from err
 
     try:
         target_timezone = pytz.timezone(timezone)
-    except pytz.UnknownTimeZoneError:
-        raise HTTPException(status_code=400, detail=f"Unknown timezone: {timezone}")
+    except pytz.exceptions.UnknownTimeZoneError as err:
+        raise HTTPException(
+            status_code=400, detail=f"Unknown timezone: {timezone}"
+        ) from err
 
     adjusted_programming = adjust_programming(programs_data, target_timezone)
     grouped_programs = group_and_fill_programschannels(adjusted_programming, target_timezone)
@@ -126,5 +143,5 @@ async def get_programming_by_date(
         "query": "epg/date",
         "source": source,
         "date": selected_date_str,
-        "channels": channels_list
+        "channels": channels_list,
     }

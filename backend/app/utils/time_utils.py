@@ -1,11 +1,19 @@
 from collections import defaultdict
 from datetime import datetime
+from typing import Any, Dict, List, Union, cast
 
 import pytz
 
+# Define a type alias for pytz timezone objects
+PytzTimezone = Union[
+    pytz.tzinfo.BaseTzInfo, pytz.tzinfo.StaticTzInfo, pytz.tzinfo.DstTzInfo
+]
 
-def adjust_programming(programming, target_timezone):
-    adjusted = []
+
+def adjust_programming(
+    programming: List[Dict[str, Any]], target_timezone: PytzTimezone
+) -> List[Dict[str, Any]]:
+    adjusted: List[Dict[str, Any]] = []
     for program in programming:
         utc_start = datetime.fromisoformat(program["start_time"])
         utc_end = datetime.fromisoformat(program["end_time"])
@@ -43,25 +51,29 @@ def adjust_programming(programming, target_timezone):
 
     return adjusted
 
-
-def group_and_fill_programs(programs, timezone):
+def process_timezone(timezone: Union[str, pytz.BaseTzInfo]) -> PytzTimezone:
     if isinstance(timezone, str):
-        tz = pytz.timezone(timezone)
-    elif isinstance(timezone, pytz.tzinfo.BaseTzInfo):
-        tz = timezone
+        return cast(PytzTimezone, pytz.timezone(timezone))
+    elif isinstance(timezone, pytz.BaseTzInfo):
+        return cast(PytzTimezone, timezone)
     else:
         raise ValueError(
-            "Invalid timezone format. Expected string or pytz.timezone object."
+            "Invalid timezone format. Expected string or pytz.BaseTzInfo object."
         )
 
-    grouped = defaultdict(list)
+def group_and_fill_programs(
+    programs: List[Dict[str, Any]], timezone: Union[str, pytz.BaseTzInfo]
+) -> Dict[str, List[Dict[str, Any]]]:
+    tz = process_timezone(timezone)
+
+    grouped: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     for program in programs:
         date = program["start_time"].split("T")[0]
         grouped[date].append(program)
 
     for date, day_programs in grouped.items():
         day_programs.sort(key=lambda x: x["start_time"])
-        filled_programs = []
+        filled_programs: List[Dict[str, Any]] = []
         current_time = tz.localize(datetime.fromisoformat(f"{date}T00:00:00"))
         day_end = tz.localize(datetime.fromisoformat(f"{date}T23:59:59"))
 
@@ -87,24 +99,22 @@ def group_and_fill_programs(programs, timezone):
 
     return grouped
 
+def group_and_fill_programschannels(
+    programs: List[Dict[str, Any]], timezone: Union[str, pytz.BaseTzInfo]
+) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+    tz = process_timezone(timezone)
 
-def group_and_fill_programschannels(programs, timezone):
-    if isinstance(timezone, str):
-        tz = pytz.timezone(timezone)
-    elif isinstance(timezone, pytz.tzinfo.BaseTzInfo):
-        tz = timezone
-    else:
-        raise ValueError(
-            "Invalid timezone format. Expected string or pytz.timezone object."
-        )
-
-    grouped = defaultdict(lambda: defaultdict(list))
+    grouped: Dict[str, Dict[str, List[Dict[str, Any]]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
     for program in programs:
         date = program["start_time"].split("T")[0]
         channel = program["channel"]
         grouped[date][channel].append(program)
 
-    filled_grouped = defaultdict(lambda: defaultdict(list))
+    filled_grouped: Dict[str, Dict[str, List[Dict[str, Any]]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
 
     for date, channels in grouped.items():
         day_start = tz.localize(datetime.fromisoformat(f"{date}T00:00:00"))
@@ -112,7 +122,7 @@ def group_and_fill_programschannels(programs, timezone):
 
         for channel, channel_programs in channels.items():
             channel_programs.sort(key=lambda x: x["start_time"])
-            filled_programs = []
+            filled_programs: List[Dict[str, Any]] = []
             current_time = day_start
 
             for program in channel_programs:
@@ -135,16 +145,16 @@ def group_and_fill_programschannels(programs, timezone):
 
     return filled_grouped
 
-
-def parse_datetime(dt_string, tz):
+def parse_datetime(dt_string: str, tz: PytzTimezone) -> datetime:
     dt = datetime.fromisoformat(dt_string)
     if dt.tzinfo is None:
         return tz.localize(dt)
     else:
         return dt.astimezone(tz)
 
-
-def create_no_data_program(start, end, channel, tz):
+def create_no_data_program(
+    start: datetime, end: datetime, channel: str, tz: PytzTimezone
+) -> Dict[str, Any]:
     return {
         "start_time": start.isoformat(),
         "start": "N/A",

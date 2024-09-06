@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+// import dayjs from 'dayjs';
 
 interface FooterProps {
   className?: string;
@@ -8,17 +9,23 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = () => {
   const [xmltvDataSource, setXmltvDataSource] = useState<string>('unset');
+  const [clientTimezone, setClientTimezone] = useState<string>('unset');
 
   useEffect(() => {
     const storedDataSource = localStorage.getItem('xmltvdatasource') || 'unset';
     setXmltvDataSource(storedDataSource);
+    // const timeZone = dayjs.tz.guess();
+    // setClientTimezone(timeZone);
   }, []);
 
   return (
-    <footer className="rounded-lg bg-white p-2 antialiased shadow sm:flex sm:items-center sm:justify-between sm:p-6 xl:p-8 dark:bg-gray-800">
+    <footer className="rounded-lg bg-white px-4 py-1 antialiased shadow sm:flex sm:items-center sm:justify-between dark:bg-gray-800">
       <p className="mb-4 text-center text-sm text-gray-500 sm:mb-0 dark:text-gray-400">
         Data Source: <span className="font-medium">{xmltvDataSource}</span>
-      </p>
+      </p>{' '}
+      {/* <p className="mb-4 text-center text-sm text-gray-500 sm:mb-0 dark:text-gray-400">
+        Timezone: <span className="font-medium">{clientTimezone}</span>
+      </p> */}
       <div className="flex items-center justify-center space-x-1">
         <a
           href="#"
