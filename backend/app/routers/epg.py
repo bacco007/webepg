@@ -1,10 +1,16 @@
+from datetime import datetime
+
+import pytz
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
+
 from app.config import settings
 from app.utils.file_operations import load_json
-from app.utils.time_utils import adjust_programming, group_and_fill_programs, group_and_fill_programschannels
-from datetime import datetime
-import pytz
-from pydantic import BaseModel
+from app.utils.time_utils import (
+    adjust_programming,
+    group_and_fill_programs,
+    group_and_fill_programschannels,
+)
 
 router = APIRouter()
 
@@ -61,10 +67,10 @@ async def get_programming_by_channel(
 
     return {
         "date_pulled": datetime.utcnow().isoformat(),
-        "query": f"epg/channels",
+        "query": "epg/channels",
         "source": id,
         "channel": channel_metadata,
-        "programs": dict(grouped_programs)
+        "programs": dict(grouped_programs),
     }
 
 @router.get("/py/epg/date/{date}/{source}")

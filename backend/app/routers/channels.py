@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from fastapi import APIRouter, HTTPException
+
 from app.config import settings
 from app.utils.file_operations import load_json
-from datetime import datetime
 
 router = APIRouter()
 

@@ -430,5 +430,35 @@
     "group": "Testing",
     "location": "Perth (Test)",
     "url": "https://www.xmlepg.net/clients/02/ftaper.xml"
+  },
+  {
+    "id": "acidjesus_uk",
+    "group": "International",
+    "location": "United Kingdom",
+    "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/UK_guide.xml.gz"
+  },
+  {
+    "id": "acidjesus_us",
+    "group": "International",
+    "location": "United States",
+    "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_guide.xml.gz"
+  },
+  {
+    "id": "acidjesus_uslocal",
+    "group": "International",
+    "location": "United States (Local)",
+    "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_local_guide.xml.gz"
+  },
+  {
+    "id": "nzxmltv_freeview",
+    "group": "International",
+    "location": "New Zealand (Freeview)",
+    "url": "https://nzxmltv.github.io/xmltv/guide.xml"
+  },
+  {
+    "id": "nzxmltv_sky",
+    "group": "International",
+    "location": "New Zealand (Sky)",
+    "url": "https://nzxmltv.github.io/sky/guide.xml"
   }
 ]

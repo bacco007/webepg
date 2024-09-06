@@ -1,5 +1,5 @@
-import os
 from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     APP_NAME: str = "FastAPI XMLTV App"
@@ -10,5 +10,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+
 
 settings = Settings()

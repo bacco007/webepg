@@ -1,7 +1,9 @@
-import xml.etree.ElementTree as ET
 import re
+import xml.etree.ElementTree as ET
 from datetime import datetime
+
 from app.utils.file_operations import write_json
+
 
 def get_child_as_text(parent: ET.Element, tag: str) -> str:
     node = parent.find(tag)

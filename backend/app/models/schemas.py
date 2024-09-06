@@ -1,5 +1,7 @@
+from typing import Dict, List, Optional
+
 from pydantic import BaseModel
-from typing import List, Dict, Optional
+
 
 class ChannelInfo(BaseModel):
     channel_id: str

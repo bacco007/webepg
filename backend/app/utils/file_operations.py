@@ -1,8 +1,10 @@
-import os
-import json
-import aiohttp
 import gzip
+import json
 import logging
+import os
+
+import aiohttp
+
 from app.config import settings
 
 logger = logging.getLogger(__name__)

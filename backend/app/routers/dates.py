@@ -1,11 +1,13 @@
+import os
+from datetime import datetime
+from typing import List
+
+import pytz
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
+
 from app.config import settings
 from app.utils.file_operations import load_json
-from datetime import datetime
-import pytz
-import os
-from typing import List
-from pydantic import BaseModel
 
 router = APIRouter()
 
