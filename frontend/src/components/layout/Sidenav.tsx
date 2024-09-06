@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Calendar, Clock, Home, Tv } from 'lucide-react';
+import { Calendar, Clock, Home, Settings, Tv } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -37,10 +37,17 @@ const routeList: RouteProps[] = [
   },
 ];
 
+const settingsRoute: RouteProps = {
+  href: '/settings',
+  label: 'Settings',
+  icon: Settings,
+};
+
 export const Sidenav = () => {
   const pathname = usePathname();
+
   return (
-    <aside className="bg-muted/40 flex flex-col gap-4 border-r p-4">
+    <aside className="bg-muted/40 flex h-screen flex-col justify-between border-r p-4">
       <nav className="flex flex-col gap-2">
         {routeList.map((route) => {
           const Icon = route.icon;
@@ -69,6 +76,26 @@ export const Sidenav = () => {
           );
         })}
       </nav>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <Link
+              href={settingsRoute.href}
+              className={cn(
+                'flex items-center gap-2 rounded-lg px-3 py-2 transition-all',
+                pathname === settingsRoute.href ? 'bg-muted text-primary' : 'text-muted-foreground'
+              )}
+              prefetch={false}
+            >
+              <settingsRoute.icon className="size-6" />
+              <span className="sr-only">{settingsRoute.label}</span>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right" sideOffset={1}>
+            <p>{settingsRoute.label}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </aside>
   );
 };
