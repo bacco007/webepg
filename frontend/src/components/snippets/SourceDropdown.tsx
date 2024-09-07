@@ -27,7 +27,7 @@ type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>
 
 interface SourceDropdownProps extends PopoverTriggerProps {}
 
-export function SourceDropdown({ className }: SourceDropdownProps) {
+export default function SourceDropdown({ className }: SourceDropdownProps) {
   const [open, setOpen] = React.useState(false);
   const [sources, setSources] = React.useState<Source[]>([]);
   const [selectedSource, setSelectedSource] = React.useState<Source | null>(null);

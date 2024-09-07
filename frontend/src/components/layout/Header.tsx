@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { Icons } from '@/components/snippets/icons';
-import { SourceDropdown } from '@/components/snippets/SourceDropdown';
+import SourceDropdown from '@/components/snippets/SourceDropdown';
 import { ModeToggle } from '@/components/theme/ModeToggle';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
