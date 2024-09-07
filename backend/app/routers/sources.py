@@ -2,11 +2,12 @@ import asyncio
 import os
 import time
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import aiohttp
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from app.config import settings
 from app.utils.file_operations import download_file, load_sources
@@ -24,10 +25,64 @@ process_status: Dict[str, Any] = {
     "errors": [],
 }
 
+class FileStatus(BaseModel):
+    status: str
+    date: str
+
+
+class SourceStatus(BaseModel):
+    source_file: FileStatus
+    channels: FileStatus
+    programs: FileStatus
+    group: Optional[str] = None
+    subgroup: Optional[str] = None
+    location: Optional[str] = None
+
+
 @router.get("/py/sources")
 async def get_sources() -> List[Dict[str, Any]]:
     sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)  # type: ignore
     return sources
+
+@router.get("/py/sources/status")
+async def get_sources_status() -> Dict[str, SourceStatus]:
+    try:
+        sources = load_sources(settings.XMLTV_SOURCES)
+    except FileNotFoundError as err:
+        raise HTTPException(
+            status_code=404, detail="XMLTV sources file not found"
+        ) from err
+
+    status_dict: Dict[str, SourceStatus] = {}
+
+    for source in sources:
+        source_id = source.get("id")
+        if not source_id:
+            continue  # Skip this source if it doesn't have an ID
+
+        source_file = f"{source_id}.xml"
+        channels_file = f"{source_id}_channels.json"
+        programs_file = f"{source_id}_programs.json"
+
+        status_dict[source_id] = SourceStatus(
+            source_file=get_file_status(source_file),
+            channels=get_file_status(channels_file),
+            programs=get_file_status(programs_file),
+            group=source.get("group"),
+            subgroup=source.get("subgroup"),
+            location=source.get("location"),
+        )
+
+    return status_dict
+
+
+def get_file_status(filename: str) -> FileStatus:
+    file_path = os.path.join(settings.XMLTV_DATA_DIR, filename)
+    if os.path.exists(file_path):
+        last_modified = datetime.fromtimestamp(os.path.getmtime(file_path))
+        return FileStatus(status="downloaded", date=last_modified.isoformat())
+    else:
+        return FileStatus(status="missing", date="")
 
 
 async def process_source(
@@ -102,7 +157,6 @@ async def process_sources(background_tasks: BackgroundTasks) -> JSONResponse:
     return JSONResponse(
         {"message": "Processing sources in the background", "status": process_status}
     )
-
 
 @router.get("/py/process-status")
 async def get_process_status() -> Dict[str, Any]:

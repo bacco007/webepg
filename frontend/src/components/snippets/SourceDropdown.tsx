@@ -68,7 +68,9 @@ export default function SourceDropdown({ className }: SourceDropdownProps) {
     );
     return groups.map((groupLabel) => ({
       label: groupLabel,
-      sources: sources.filter((source) => getGroupLabel(source) === groupLabel),
+      sources: sources
+        .filter((source) => getGroupLabel(source) === groupLabel)
+        .sort((a, b) => a.location.localeCompare(b.location)),
     }));
   }, [sources]);
 

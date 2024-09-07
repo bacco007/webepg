@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, Package2 } from 'lucide-react';
+import { Menu, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -85,9 +85,15 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
         </NavigationMenu>
       </div>
       <div className="flex items-center space-x-4">
+        <Link href="/settings">
+          <div className="w-9">
+            <Settings className="size-4 text-white" />
+            <span className="sr-only">Settings</span>
+          </div>
+        </Link>
         <Link href={siteConfig.links.github} target="_blank" rel="noreferrer">
           <div className="w-9 px-0">
-            <Icons.gitHub className="size-4" />
+            <Icons.gitHub className="size-4 text-white" />
             <span className="sr-only">GitHub</span>
           </div>
         </Link>

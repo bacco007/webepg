@@ -16,8 +16,8 @@
   {
     "id": "xmltvnet-albury-wodonga",
     "group": "Australia",
-    "subgroup": "Regional - NSW/VIC",
-    "location": "Albury / Wodonga",
+    "subgroup": "Regional - NSW",
+    "location": "SNSW - Albury",
     "url": "http://xmltv.net/xml_files/Albury_Wodonga.xml"
   },
   {
@@ -58,7 +58,7 @@
   {
     "id": "xmltvnet-cairns",
     "group": "Australia",
-    "subgroup": "QLD Regional",
+    "subgroup": "Regional - QLD",
     "location": "Cairns",
     "url": "http://xmltv.net/xml_files/Cairns.xml"
   },
@@ -66,21 +66,21 @@
     "id": "xmltvnet-canberra",
     "group": "Australia",
     "subgroup": "Regional - NSW",
-    "location": "Canberra / ACT",
+    "location": "SNSW - Canberra / ACT",
     "url": "http://xmltv.net/xml_files/Canberra.xml"
   },
   {
     "id": "xmltvnet-central-coast-nsw",
     "group": "Australia",
     "subgroup": "Regional - NSW",
-    "location": "Central Coast NSW",
+    "location": "NNSW - Central Coast NSW",
     "url": "http://xmltv.net/xml_files/Central_Coast.xml"
   },
   {
     "id": "xmltvnet-coffs-harbour",
     "group": "Australia",
     "subgroup": "Regional - NSW",
-    "location": "Coffs Harbour",
+    "location": "NNSW - Coffs Harbour",
     "url": "http://xmltv.net/xml_files/Coffs_Harbour.xml"
   },
   {
@@ -89,13 +89,6 @@
     "subgroup": "Regional - NT",
     "location": "Darwin",
     "url": "http://xmltv.net/xml_files/Darwin.xml"
-  },
-  {
-    "id": "xmltvnet-geelong",
-    "group": "Australia",
-    "subgroup": "VIC",
-    "location": "Geelong",
-    "url": "http://xmltv.net/xml_files/Geelong.xml"
   },
   {
     "id": "xmltvnet-gippsland",
@@ -163,7 +156,7 @@
   {
     "id": "xmltvnet-melbourne",
     "group": "Australia",
-    "subgroup": "Regional - VIC",
+    "subgroup": "Metro",
     "location": "Melbourne",
     "url": "http://xmltv.net/xml_files/Melbourne.xml"
   },
@@ -233,7 +226,7 @@
   {
     "id": "xmltvnet-qld-regional",
     "group": "Australia",
-    "subgroup": "QLD",
+    "subgroup": "Regional - QLD",
     "location": "QLD Regional",
     "url": "http://xmltv.net/xml_files/QLD_Regional.xml"
   },
@@ -289,7 +282,7 @@
   {
     "id": "xmltvnet-sydney",
     "group": "Australia",
-    "subgroup": "Regional - NSW",
+    "subgroup": "Metro",
     "location": "Sydney",
     "url": "http://xmltv.net/xml_files/Sydney.xml"
   },
@@ -310,7 +303,7 @@
   {
     "id": "xmltvnet-tasmania-regional",
     "group": "Australia",
-    "subgroup": "Regional - Tas",
+    "subgroup": "Regional - TAS",
     "location": "Tasmania Regional",
     "url": "http://xmltv.net/xml_files/TAS_Regional.xml"
   },
@@ -332,20 +325,20 @@
     "id": "xmltvnet-wa-regional",
     "group": "Australia",
     "subgroup": "Regional - WA",
-    "location": "W.A. Regional",
+    "location": "WA Regional",
     "url": "http://xmltv.net/xml_files/WA_Regional.xml"
   },
   {
     "id": "xmltvnet-wagga-wagga",
     "group": "Australia",
     "subgroup": "Regional - NSW",
-    "location": "Wagga Wagga",
+    "location": "SNSW - Wagga Wagga",
     "url": "http://xmltv.net/xml_files/Wagga_Wagga.xml"
   },
   {
     "id": "xmltvnet-wide-bay",
     "group": "Australia",
-    "subgroup": "QLD",
+    "subgroup": "Regional - QLD",
     "location": "Wide Bay",
     "url": "http://xmltv.net/xml_files/Wide_Bay.xml"
   },
@@ -353,7 +346,7 @@
     "id": "xmltvnet-wollongong",
     "group": "Australia",
     "subgroup": "Regional - NSW",
-    "location": "Wollongong",
+    "location": "SNSW - Wollongong",
     "url": "http://xmltv.net/xml_files/Wollongong.xml"
   },
   {
@@ -365,9 +358,9 @@
   },
   {
     "id": "mjh-kayo",
-    "group": "mjh.nz",
+    "group": "Australia",
     "subgroup": "Subscription",
-    "location": "Hubbl - Kayo",
+    "location": "Hubbl - Kayo Sports",
     "url": "https://i.mjh.nz/Kayo/epg.xml.gz"
   },
   {
@@ -386,16 +379,16 @@
   },
   {
     "id": "mjh-optus",
-    "group": "mjh.nz",
+    "group": "Australia",
     "subgroup": "Subscription",
     "location": "Optus Sport",
     "url": "https://i.mjh.nz/Optus/epg.xml.gz"
   },
   {
     "id": "mjh-nz",
-    "group": "mjh.nz",
-    "subgroup": "FTA",
-    "location": "New Zealand",
+    "group": "International",
+    "subgroup": "New Zealand",
+    "location": "New Zealand (MJH)",
     "url": "https://i.mjh.nz/nz/epg.xml.gz"
   },
   {
@@ -408,20 +401,32 @@
   {
     "id": "mjh-auall",
     "group": "Australia",
-    "subgroup": "FTA",
+    "subgroup": "Streaming",
     "location": "Australia - All",
     "url": "https://i.mjh.nz/au/all/epg.xml.gz"
   },
   {
     "id": "mjh-plex-au",
-    "group": "Australia",
-    "subgroup": "Plex",
-    "location": "Australia",
+    "group": "Streaming",
+    "location": "Plex - Australia",
     "url": "https://i.mjh.nz/Plex/au.xml.gz"
   },
   {
+    "id": "mjh-samsungtvplus",
+    "group": "Streaming",
+    "location": "Samsung TV Plus - All Regions",
+    "url": "https://i.mjh.nz/SamsungTVPlus/all.xml.gz"
+  },
+  {
+    "id": "mjh-samsungtvplus",
+    "group": "Streaming",
+    "location": "Pluto TV",
+    "url": "https://i.mjh.nz/PlutoTV/all.xml.gz"
+  },
+  {
     "id": "dp247-freeviewuk",
-    "group": "United Kingdom",
+    "group": "International",
+    "subgroup": "United Kingdom",
     "location": "Freeview (dp247)",
     "url": "https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml"
   },
@@ -434,19 +439,22 @@
   {
     "id": "acidjesus_uk",
     "group": "International",
+    "subgroup": "United Kingdom",
     "location": "United Kingdom",
     "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/UK_guide.xml.gz"
   },
   {
     "id": "acidjesus_us",
     "group": "International",
-    "location": "United States",
+    "subgroup": "United States",
+    "location": "National Channels",
     "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_guide.xml.gz"
   },
   {
     "id": "acidjesus_uslocal",
     "group": "International",
-    "location": "United States (Local)",
+    "subgroup": "United States",
+    "location": "Local Channels",
     "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_local_guide.xml.gz"
   },
   {
@@ -462,5 +470,12 @@
     "subgroup": "New Zealand",
     "location": "Sky",
     "url": "https://nzxmltv.github.io/sky/guide.xml"
+  },
+  {
+    "id": "mjh-dstv",
+    "group": "International",
+    "subgroup": "South Africa",
+    "location": "DStv",
+    "url": "https://i.mjh.nz/DStv/za.xml.gz"
   }
 ]

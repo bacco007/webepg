@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { decodeHtml } from '@/utils/htmlUtils';
 
 interface Program {
   title: string;
@@ -126,7 +125,7 @@ const ChannelGrid: React.FC = () => {
         className="relative max-h-[calc(100vh-180px)] max-w-full"
         style={{ display: 'flex', overflow: 'scroll' }}
       >
-        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
           {channels.map((channelData) => (
             <Card key={channelData.channel.id} className="bg-card flex flex-col">
               <CardHeader className="flex flex-row items-center justify-between p-4">

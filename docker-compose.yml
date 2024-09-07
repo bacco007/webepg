@@ -20,85 +20,12 @@ services:
       retries: 5
       start_period: 10s
       start_interval: 1s
-  # traefik:
-  #   image: traefik:v2.3
-  #   container_name: traefik
-  #   restart: always
-  #   command:
-  #     # Tell Traefik to discover containers using the Docker API
-  #     - --providers.docker=true
-  #     - --providers.docker.exposedbydefault=false
-  #     # Set up LetsEncrypt
-  #     - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
-  #     - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
-  #     - --certificatesresolvers.letsencrypt.acme.email=$EMAIL
-  #     - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-  #     # Set up an insecure listener that redirects all traffic to TLS
-  #     - --entrypoints.web.address=:80
-  #     - --entrypoints.web.http.redirections.entrypoint.to=websecure
-  #     - --entrypoints.web.http.redirections.entrypoint.scheme=https
-  #     - --entrypoints.websecure.address=:443
-  #     # Set up the TLS configuration for our websecure listener
-  #     - --entrypoints.websecure.http.tls=true
-  #     - --entrypoints.websecure.http.tls.certResolver=letsencrypt
-  #     - --entrypoints.websecure.http.tls.domains[0].main=$DOMAIN
-  #     - --entrypoints.websecure.http.tls.domains[0].sans=*.$DOMAIN
-  #     - --accesslog
-  #     - --log
-  #     - --api
-  #   environment:
-  #     - CLOUDFLARE_EMAIL=$EMAIL
-  #     - CLOUDFLARE_DNS_API_TOKEN=$CLOUDFLARE_DNS_API_TOKEN
-  #   ports:
-  #     - 80:80
-  #     - 8080:8080
-  #     - 443:443
-  #   networks:
-  #     - proxy
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #     # Change traefik location to your directory
-  #     - ~/traefik:/letsencrypt
-  #   labels:
-  #     - traefik.enable=true
-  #     - traefik.docker.network=proxy
-  #     - traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080
-  #     # Make Traefik use this domain (from an environment variable) in HTTP
-  #     - traefik.http.routers.traefik-dashboard-http.entrypoints=http
-  #     - traefik.http.routers.traefik-dashboard-http.rule=Host(`traefik.${DOMAIN}`)
-  #     # traefik-https the actual router using HTTPS
-  #     - traefik.http.routers.traefik-dashboard-https.entrypoints=https
-  #     - traefik.http.routers.traefik-dashboard-https.rule=Host(`traefik.${DOMAIN}`)
-  #     - traefik.http.routers.traefik-dashboard-https.tls=true
-  #     # Use the "le" (Let's Encrypt) resolver created below
-  #     - traefik.http.routers.traefik-dashboard-https.tls.certresolver=letsencrypt
-  #     # Use the special Traefik service api@internal with the web UI/Dashboard
-  #     - traefik.http.routers.traefik-dashboard-https.service=api@internal
-  #     # https-redirect middleware to redirect HTTP to HTTPS
-  #     - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-  #     - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-  #     # traefik-http set up only to use the middleware to redirect to https
-  #     - traefik.http.routers.traefik-dashboard-http.middlewares=https-redirect
-  #     # admin-auth middleware with HTTP Basic auth
-  #     # Using the environment variables USERNAME and HASHED_PASSWORD
-  #     - traefik.http.middlewares.traefik-auth.basicauth.users=$TRAEFIK_USER_PASS
-  #     # Enable HTTP Basic auth, using the middleware created above
-  #     - traefik.http.routers.traefik-dashboard-https.middlewares=admin-auth
 
   frontend:
     container_name: webepg_frontend
     image: ghcr.io/bacco007/webepg/webepg-frontend:main
     environment:
       - NODE_ENV=production
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=proxy
-      - traefik.constraint-label=proxy
-      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frontend.service=frontend"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"  # Point to internal port 3000
     restart: always
     networks:
       - proxy
@@ -110,22 +37,13 @@ services:
   backend:
     container_name: webepg_backend
     image: ghcr.io/bacco007/webepg/webepg-backend:main
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=proxy
-      - traefik.constraint-label=proxy
-      - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.service=backend"
-      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.backend.loadbalancer.server.port=8000"  # Point to internal port 8000
     restart: always
     networks:
       - proxy
     ports:
       - "8000:8000"  # Expose backend port internally to the network
     volumes:
-      - ~/xmltvdata:/xmltvdata
+      - ~/xmltvdata:/app/xmltvdata/remote
 
 networks:
   proxy:
