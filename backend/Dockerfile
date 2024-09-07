@@ -20,12 +20,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose the port the app runs on
 EXPOSE 8000
 
-# Optionally create a non-root user (recommended for production)
-RUN useradd -m myuser
-USER myuser
+# # Optionally create a non-root user (recommended for production)
+# RUN useradd -m myuser
+# USER myuser
 
 # Healthcheck (optional)
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl --fail http://localhost:8000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl --fail http://localhost:8000/api/py/health || exit 1
 
 # Define the command to run the app
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
