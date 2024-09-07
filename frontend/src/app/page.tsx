@@ -5,7 +5,7 @@ import { CalendarIcon, ClockIcon, TvIcon } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Home() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
@@ -13,9 +13,21 @@ export default function Home() {
   const cards = [
     {
       title: 'Daily EPG (All Channels)',
-      description: 'Explore a comprehensive daily guide for all channels.',
+      description: 'See the EPG for All Channels',
       icon: TvIcon,
       link: '/epg',
+    },
+    {
+      title: `Today's EPG`,
+      description: 'See the EPG for Today',
+      icon: TvIcon,
+      link: '/epg/today',
+    },
+    {
+      title: `Tomorrow's EPG`,
+      description: 'See the EPG for Tomorrow',
+      icon: TvIcon,
+      link: '/epg/today',
     },
     {
       title: 'Weekly EPG (Single Channel)',
@@ -68,14 +80,16 @@ export default function Home() {
                     </CardHeader>
                     <CardContent className="text-center">
                       <h3 className="mb-2 text-2xl font-bold">{card.title}</h3>
-                      <p className="text-muted-foreground">{card.description}</p>
+                      {/* <p className="text-muted-foreground">{card.description}</p> */}
+                    </CardContent>
+                    <CardFooter>
                       <Button
                         variant="outline"
                         className="hover:bg-primary hover:text-primary-foreground mt-4 w-full transition-all duration-300"
                       >
                         Explore
                       </Button>
-                    </CardContent>
+                    </CardFooter>
                   </Card>
                 </Link>
               </div>

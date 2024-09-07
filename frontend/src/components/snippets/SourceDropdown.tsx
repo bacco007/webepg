@@ -1,95 +1,127 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
 
+import { Button } from '@/components/ui/button';
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 interface Source {
   id: string;
+  group: string;
+  subgroup: string;
   location: string;
   url: string;
-  group?: string;
-  subgroup?: string;
 }
 
-interface GroupedSources {
-  [key: string]: Source[];
-}
+type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
-export const SourceDropdown: React.FC = () => {
-  const [selectedSource, setSelectedSource] = useState<string>('');
-  const [groupedSources, setGroupedSources] = useState<GroupedSources>({});
-  const [isLoading, setIsLoading] = useState(true);
+interface SourceDropdownProps extends PopoverTriggerProps {}
 
-  useEffect(() => {
-    const fetchSources = async () => {
-      try {
-        const response = await fetch('/api/py/sources');
-        if (!response.ok) {
-          throw new Error('Failed to fetch sources');
+export function SourceDropdown({ className }: SourceDropdownProps) {
+  const [open, setOpen] = React.useState(false);
+  const [sources, setSources] = React.useState<Source[]>([]);
+  const [selectedSource, setSelectedSource] = React.useState<Source | null>(null);
+
+  React.useEffect(() => {
+    fetch('/api/py/sources')
+      .then((response) => response.json())
+      .then((data) => {
+        setSources(data);
+        const savedSourceId = localStorage.getItem('xmltvdatasource');
+        const savedSource = data.find(
+          (source: { id: string | null }) => source.id === savedSourceId
+        );
+        if (savedSource) {
+          setSelectedSource(savedSource);
+        } else if (data.length > 0) {
+          setSelectedSource(data[0]);
         }
-        const sources: Source[] = await response.json();
-
-        const grouped = sources.reduce<GroupedSources>((groups, source) => {
-          const combinedGroupName = `${source.group || 'Other'} - ${source.subgroup || 'General'}`;
-          if (!groups[combinedGroupName]) {
-            groups[combinedGroupName] = [];
-          }
-          groups[combinedGroupName].push(source);
-          return groups;
-        }, {});
-
-        setGroupedSources(grouped);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching sources:', error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchSources();
-
-    const storedDataSource = localStorage.getItem('xmltvdatasource') || '';
-    setSelectedSource(storedDataSource);
+      })
+      .catch((error) => console.error('Error fetching sources:', error));
   }, []);
 
-  const handleSelectChange = (value: string) => {
-    localStorage.setItem('xmltvdatasource', value);
-    setSelectedSource(value);
+  const handleSourceSelect = (source: Source) => {
+    setSelectedSource(source);
+    localStorage.setItem('xmltvdatasource', source.id);
+    setOpen(false);
+    // Refresh the page
     window.location.reload();
   };
 
-  if (isLoading) {
-    return <div>Loading sources...</div>;
-  }
+  const getGroupLabel = (source: Source) => {
+    return source.subgroup ? `${source.group} - ${source.subgroup}` : source.group;
+  };
+
+  const groupedSources = React.useMemo(() => {
+    const groups = Array.from(new Set(sources.map(getGroupLabel))).sort((a, b) =>
+      a.localeCompare(b)
+    );
+    return groups.map((groupLabel) => ({
+      label: groupLabel,
+      sources: sources.filter((source) => getGroupLabel(source) === groupLabel),
+    }));
+  }, [sources]);
 
   return (
-    <Select onValueChange={handleSelectChange} value={selectedSource}>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Select a source" />
-      </SelectTrigger>
-      <SelectContent>
-        {Object.entries(groupedSources).map(([combinedGroup, sources]) => (
-          <SelectGroup key={combinedGroup}>
-            <SelectLabel>{combinedGroup}</SelectLabel>
-            {sources.map((source) => (
-              <SelectItem key={source.id} value={source.id}>
-                {source.location}
-              </SelectItem>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          aria-label="Select a source"
+          className={cn(
+            'w-[300px] justify-between border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white',
+            className
+          )}
+        >
+          {selectedSource
+            ? `${selectedSource.location} (${selectedSource.group})`
+            : 'Select source...'}
+          <CaretSortIcon className="ml-auto size-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[300px] border-gray-700 bg-gray-900 p-0">
+        <Command className="bg-gray-900">
+          <CommandInput placeholder="Search source..." className="text-gray-300" />
+          <CommandList>
+            <CommandEmpty className="text-gray-400">No source found.</CommandEmpty>
+            {groupedSources.map(({ label, sources }) => (
+              <CommandGroup
+                key={label}
+                heading={label}
+                className="text-base font-medium text-gray-100"
+              >
+                {sources.map((source) => (
+                  <CommandItem
+                    key={source.id}
+                    onSelect={() => handleSourceSelect(source)}
+                    className="text-sm text-gray-300 hover:bg-gray-800"
+                  >
+                    <span className="text-xs">{source.location}</span>
+                    <CheckIcon
+                      className={cn(
+                        'ml-auto size-4',
+                        selectedSource?.id === source.id ? 'opacity-100' : 'opacity-0'
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
             ))}
-          </SelectGroup>
-        ))}
-      </SelectContent>
-    </Select>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
-};
-
-export default SourceDropdown;
+}

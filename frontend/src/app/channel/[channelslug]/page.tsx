@@ -11,6 +11,7 @@ import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import ProgramDialog from '@/components/snippets/ProgramDialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { decodeHtml } from '@/utils/htmlUtils';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -70,12 +71,6 @@ interface ApiData {
     }>;
   };
 }
-
-const decodeHtml = (html: string): string => {
-  const txt = document.createElement('textarea');
-  txt.innerHTML = html;
-  return txt.value;
-};
 
 export default function Page() {
   const params = useParams();

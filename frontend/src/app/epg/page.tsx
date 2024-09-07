@@ -56,8 +56,8 @@ const EPGDayList: React.FC = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="bg-background border-b p-4">
+    <div className="flex max-h-screen max-w-full flex-col">
+      <header className="bg-background flex items-center justify-between border-b p-4">
         <h1 className="text-2xl font-bold">Daily EPG (by Day)</h1>
       </header>
       <main className="grow p-4">

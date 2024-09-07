@@ -15,6 +15,7 @@ import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import ProgramDialog from '@/components/snippets/ProgramDialog';
 import TimeJumpDropdown from '@/components/snippets/TimeJumpDropdown';
 import { cn } from '@/lib/utils';
+import { decodeHtml } from '@/utils/htmlUtils';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -63,12 +64,6 @@ interface Channel {
   channel_number: string;
   chlogo: string;
 }
-
-const decodeHtml = (html: string): string => {
-  const txt = document.createElement('textarea');
-  txt.innerHTML = html;
-  return txt.value;
-};
 
 const defaultColorClasses = ['bg-cyan-500'];
 
@@ -356,7 +351,7 @@ export default function Page() {
         </div>
       </header>
       <div
-        className="relative max-h-[calc(100vh-210px)] max-w-full"
+        className="relative ml-1 max-h-[calc(100vh-185px)] max-w-full"
         style={{ display: 'flex', overflow: 'scroll' }}
         ref={scrollContainerRef}
       >

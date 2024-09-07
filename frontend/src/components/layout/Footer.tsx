@@ -19,7 +19,7 @@ export const Footer: React.FC<FooterProps> = () => {
   }, []);
 
   return (
-    <footer className="rounded-lg bg-white px-4 py-1 antialiased shadow sm:flex sm:items-center sm:justify-between dark:bg-gray-800">
+    <footer className="h-12 bg-white px-4 py-1 antialiased shadow sm:flex sm:items-center sm:justify-between dark:bg-gray-800">
       <p className="mb-4 text-center text-sm text-gray-500 sm:mb-0 dark:text-gray-400">
         Data Source: <span className="font-medium">{xmltvDataSource}</span>
       </p>{' '}

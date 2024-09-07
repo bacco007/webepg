@@ -4,7 +4,6 @@ import type { Metadata, Viewport } from 'next';
 
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-import { Sidenav } from '@/components/layout/Sidenav';
 import { ThemeProvider } from '@/components/theme/theme-provider';
 import { fonts } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
@@ -41,10 +40,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
-        className={cn(
-          'bg-background from-background to-secondary min-h-screen bg-gradient-to-br font-sans antialiased',
-          fonts
-        )}
+        className={cn('bg-background from-background to-secondary font-sans antialiased', fonts)}
       >
         <ThemeProvider
           attribute="class"
@@ -52,13 +48,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
           enableSystem
           disableTransitionOnChange
         >
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <div className="flex flex-1">
-              <Sidenav />
-              <main className="flex-1 overflow-auto px-4">{children}</main>
-            </div>
-            <Footer />
+          <div className="flex h-screen flex-col overflow-hidden">
+            <Header className="h-16 shrink-0" />
+            <main className="scrollbar-custom grow overflow-auto">
+              <div className="from-background to-secondary min-h-full w-full bg-gradient-to-br">
+                {children}
+              </div>
+            </main>
+            <Footer className="h-12 shrink-0" />
           </div>
         </ThemeProvider>
       </body>

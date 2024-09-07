@@ -49,7 +49,7 @@ const TimeJumpDropdown: React.FC<TimeJumpDropdownProps> = ({ onTimeJump }) => {
       let minutesFromMidnight = selectedOption.minutesFromMidnight;
       if (selectedOption.value === 'now') {
         const now = new Date();
-        minutesFromMidnight = now.getHours() * 60 + now.getMinutes();
+        minutesFromMidnight = now.getHours() * 60 + now.getMinutes() - 50;
       }
       onTimeJump(minutesFromMidnight);
     }

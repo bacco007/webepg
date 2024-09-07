@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { decodeHtml } from '@/utils/htmlUtils';
 
 interface Program {
   title: string;
@@ -122,7 +123,7 @@ const ChannelGrid: React.FC = () => {
         <p className="text-muted-foreground text-sm">Source: {xmltvDataSource}</p>
       </header>
       <div
-        className="relative max-h-[calc(100vh-210px)] max-w-full"
+        className="relative max-h-[calc(100vh-180px)] max-w-full"
         style={{ display: 'flex', overflow: 'scroll' }}
       >
         <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
