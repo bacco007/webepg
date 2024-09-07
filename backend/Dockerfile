@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy the current directory contents into the container
 COPY . .
 
-RUN apk update && apk add gcc python3-dev musl-dev linux-headers
+# RUN apk update && apk add gcc python3-dev musl-dev linux-headers
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
