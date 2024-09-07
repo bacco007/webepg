@@ -105,6 +105,8 @@ services:
       - proxy
     ports:
       - "8000:8000"  # Expose backend port internally to the network
+    volumes:
+      - ~/xmltvdata:/xmltvdata/remote
 
 networks:
   proxy:
