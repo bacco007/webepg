@@ -5,6 +5,7 @@ import { differenceInMinutes, format, parseISO } from 'date-fns';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -15,6 +16,7 @@ import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import ProgramDialog from '@/components/snippets/ProgramDialog';
 import TimeJumpDropdown from '@/components/snippets/TimeJumpDropdown';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { decodeHtml } from '@/utils/htmlUtils';
 
@@ -68,9 +70,9 @@ interface Channel {
 
 const defaultColorClasses = ['bg-cyan-600'];
 
-// Define constants at the top level of the file
 const timeSlotWidth = 180;
-const channelColumnWidth = 250; // Increased from 200 to accommodate badge and longer names
+const channelColumnWidth = 250;
+const mobileChannelColumnWidth = 90;
 const rowHeight = 70;
 const rowGap = 5;
 const programBoxHeight = rowHeight - rowGap;
@@ -89,6 +91,8 @@ export default function Component() {
   const [userTimezone, setUserTimezone] = useState<string>('UTC');
   const [clientTimezone, setClientTimezone] = useState<string>('UTC');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   const inputDateDJS = useMemo(() => dayjs(inputDate, 'YYYYMMDD').toDate(), [inputDate]);
 
@@ -144,6 +148,15 @@ export default function Component() {
     localStorage.setItem('userTimezone', storedTimezone);
 
     fetchData(storedDataSource, storedTimezone);
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
   }, [fetchData]);
 
   const transformPrograms = useCallback(
@@ -231,18 +244,26 @@ export default function Component() {
     const now = dayjs().tz(clientTimezone);
     const startOfDay = now.startOf('day');
     const minutesFromMidnight = now.diff(startOfDay, 'minute');
-    return (minutesFromMidnight / 30) * timeSlotWidth + channelColumnWidth;
-  }, [clientTimezone]);
+    return (
+      (minutesFromMidnight / 30) * timeSlotWidth +
+      (isMobile ? mobileChannelColumnWidth : channelColumnWidth)
+    );
+  }, [clientTimezone, isMobile]);
 
-  const scrollToTime = useCallback((minutesFromMidnight: number): void => {
-    if (scrollContainerRef.current) {
-      const position = (minutesFromMidnight / 30) * timeSlotWidth + channelColumnWidth;
-      scrollContainerRef.current.scrollTo({
-        left: position,
-        behavior: 'smooth',
-      });
-    }
-  }, []);
+  const scrollToTime = useCallback(
+    (minutesFromMidnight: number): void => {
+      if (scrollContainerRef.current) {
+        const position =
+          (minutesFromMidnight / 30) * timeSlotWidth +
+          (isMobile ? mobileChannelColumnWidth : channelColumnWidth);
+        scrollContainerRef.current.scrollTo({
+          left: position,
+          behavior: 'smooth',
+        });
+      }
+    },
+    [isMobile]
+  );
 
   const timeSlots = useMemo(() => Array.from({ length: 48 }, (_, i) => i * 30), []);
 
@@ -254,11 +275,14 @@ export default function Component() {
         className="relative"
         style={{
           display: 'table',
-          width: `${channelColumnWidth + timeSlotWidth * 48}px`,
+          width: `${(isMobile ? mobileChannelColumnWidth : channelColumnWidth) + timeSlotWidth * 48}px`,
         }}
       >
         <div className="bg-background sticky left-0 top-0 z-20 flex">
-          <div className="shrink-0" style={{ width: channelColumnWidth }}></div>
+          <div
+            className="shrink-0"
+            style={{ width: isMobile ? mobileChannelColumnWidth : channelColumnWidth }}
+          ></div>
           {timeSlots.map((minutes) => (
             <div
               key={minutes}
@@ -282,6 +306,7 @@ export default function Component() {
             getProgramStyle={getProgramStyle}
             setSelectedProgram={setSelectedProgram}
             clientTimezone={clientTimezone}
+            isMobile={isMobile}
           />
         ))}
 
@@ -305,6 +330,7 @@ export default function Component() {
     clientTimezone,
     currentDate,
     timeSlots,
+    isMobile,
   ]);
 
   if (loading) {
@@ -313,13 +339,39 @@ export default function Component() {
 
   return (
     <div className="scrollbar-custom flex max-h-screen max-w-full flex-col">
-      <header className="bg-background flex items-center justify-between border-b p-4">
-        <h1 className="text-2xl font-bold">Daily EPG - {format(inputDateDJS, 'EEEE, do MMMM')}</h1>
-        <div className="flex items-center gap-4">
-          <ChannelFilter value={channelFilter} onChange={setChannelFilter} />
-          <DateDropdown />
-          <TimeJumpDropdown onTimeJump={scrollToTime} />
-        </div>
+      <header className="bg-background flex flex-col items-start justify-between border-b p-4 sm:flex-row sm:items-center">
+        <h1 className="mb-4 text-xl font-bold sm:mb-0 sm:text-2xl">
+          Daily EPG - {format(inputDateDJS, 'EEEE, do MMMM')}
+        </h1>
+        {isMobile ? (
+          <div className="w-full">
+            <Button
+              onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              className="mb-2 w-full justify-between"
+              variant="outline"
+            >
+              {isFilterExpanded ? 'Hide Filters' : 'Show Filters'}
+              {isFilterExpanded ? (
+                <ChevronUp className="ml-2 size-4" />
+              ) : (
+                <ChevronDown className="ml-2 size-4" />
+              )}
+            </Button>
+            {isFilterExpanded && (
+              <div className="flex flex-col space-y-2">
+                <ChannelFilter value={channelFilter} onChange={setChannelFilter} />
+                <DateDropdown />
+                <TimeJumpDropdown onTimeJump={scrollToTime} />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-4">
+            <ChannelFilter value={channelFilter} onChange={setChannelFilter} />
+            <DateDropdown />
+            <TimeJumpDropdown onTimeJump={scrollToTime} />
+          </div>
+        )}
       </header>
       <div
         className="scrollbar-custom relative ml-1 max-h-[calc(100vh-165px)] max-w-full"
@@ -341,6 +393,7 @@ const ChannelRow = React.memo(
     getProgramStyle,
     setSelectedProgram,
     clientTimezone,
+    isMobile,
   }: {
     channel: Channel;
     programs: Program[];
@@ -349,13 +402,14 @@ const ChannelRow = React.memo(
     getProgramStyle: (program: Program) => React.CSSProperties;
     setSelectedProgram: (program: Program | null) => void;
     clientTimezone: string;
+    isMobile: boolean;
   }) => {
     return (
       <div key={channel.channel_slug} className="flex">
         <div
           className="border-border bg-background sticky left-0 z-20 flex items-center border-t px-2 py-1 font-semibold"
           style={{
-            width: `${channelColumnWidth}px`,
+            width: isMobile ? `${mobileChannelColumnWidth}px` : `${channelColumnWidth}px`,
             height: `${rowHeight}px`,
           }}
         >
@@ -367,17 +421,19 @@ const ChannelRow = React.memo(
           <Image
             src={channel.chlogo && channel.chlogo !== 'N/A' ? channel.chlogo : '/placeholder.svg'}
             alt={`${channel.channel_name} logo`}
-            width={50}
-            height={50}
+            width={isMobile ? 30 : 50}
+            height={isMobile ? 30 : 50}
             className="mr-2 rounded-md"
           />
-          <Link
-            href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
-            className="grow hover:underline"
-            style={{ fontSize: '0.9rem' }}
-          >
-            {channel.channel_name}
-          </Link>
+          {!isMobile && (
+            <Link
+              href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
+              className="grow hover:underline"
+              style={{ fontSize: '0.9rem' }}
+            >
+              {channel.channel_name}
+            </Link>
+          )}
         </div>
         <div
           className="border-border relative border-t"
@@ -423,7 +479,7 @@ const ChannelRow = React.memo(
                     min)
                   </div>
                   <div className="truncate font-semibold">{program.title}</div>
-                  <div className="truncate">{program.description}</div>
+                  {!isMobile && <div className="truncate">{program.description}</div>}
                 </div>
               }
             />

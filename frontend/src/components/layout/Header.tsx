@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, Settings } from 'lucide-react';
+import { Home, Menu, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -27,9 +27,15 @@ interface HeaderProps {
 interface RouteProps {
   href: string;
   label: string;
+  icon?: React.ReactNode;
 }
 
 const routeList: RouteProps[] = [
+  {
+    href: '/',
+    label: 'Home',
+    icon: <Home className="mr-2 size-4" />,
+  },
   {
     href: '/epg',
     label: 'EPG By Day',
@@ -50,21 +56,32 @@ const routeList: RouteProps[] = [
     href: '/nownext',
     label: 'Now and Next',
   },
+  {
+    href: '/sports',
+    label: 'Sports',
+  },
 ];
 
 export const Header: React.FC<HeaderProps> = ({ className }) => {
   const pathname = usePathname();
   return (
-    <header className="flex items-center justify-between border-b border-gray-800 bg-gray-900 px-6">
-      <div className="flex items-center space-x-6">
-        <Link href="/" className="relative flex items-center space-x-2 lg:mr-6">
-          <span className="hidden font-bold text-white md:inline-block">{siteConfig.name}</span>
-          <Badge variant="secondary">Beta</Badge>
+    <header
+      className={cn(
+        'flex items-center justify-between border-b border-gray-800 bg-gray-900 px-4 py-2 lg:px-6',
+        className
+      )}
+    >
+      <div className="flex items-center space-x-4 lg:space-x-6">
+        <Link href="/" className="relative flex items-center space-x-2">
+          <span className="hidden font-bold text-white sm:inline-block">{siteConfig.name}</span>
+          <Badge variant="secondary" className="hidden sm:inline-flex">
+            Beta
+          </Badge>
         </Link>
         <SourceDropdown />
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="space-x-6">
-            {routeList.map((route) => (
+        <NavigationMenu className="hidden lg:flex">
+          <NavigationMenuList className="space-x-2 lg:space-x-6">
+            {routeList.slice(1).map((route) => (
               <NavigationMenuItem key={route.href}>
                 <NavigationMenuLink asChild>
                   <Link
@@ -84,18 +101,19 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
           </NavigationMenuList>
         </NavigationMenu>
       </div>
-      <div className="flex items-center space-x-4">
-        <Link href="/settings">
-          <div className="w-9">
-            <Settings className="size-4 text-white" />
-            <span className="sr-only">Settings</span>
-          </div>
+      <div className="flex items-center space-x-2 lg:space-x-4">
+        <Link href="/settings" className="hidden w-9 sm:block">
+          <Settings className="size-4 text-white" />
+          <span className="sr-only">Settings</span>
         </Link>
-        <Link href={siteConfig.links.github} target="_blank" rel="noreferrer">
-          <div className="w-9 px-0">
-            <Icons.gitHub className="size-4 text-white" />
-            <span className="sr-only">GitHub</span>
-          </div>
+        <Link
+          href={siteConfig.links.github}
+          target="_blank"
+          rel="noreferrer"
+          className="hidden w-9 sm:block"
+        >
+          <Icons.gitHub className="size-4 text-white" />
+          <span className="sr-only">GitHub</span>
         </Link>
         <ModeToggle />
         <Sheet>
@@ -103,9 +121,9 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
             <Button
               variant="outline"
               size="icon"
-              className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white md:hidden"
+              className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white lg:hidden"
             >
-              <Menu className="size-6" />
+              <Menu className="size-5" />
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
@@ -119,15 +137,29 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                   key={route.href}
                   href={route.href}
                   className={cn(
-                    'text-sm font-medium transition-colors',
+                    'flex items-center text-sm font-medium transition-colors',
                     pathname === route.href
                       ? 'font-semibold text-white'
                       : 'text-gray-300 hover:text-white'
                   )}
                 >
+                  {route.icon}
                   {route.label}
                 </Link>
               ))}
+              <Link href="/settings" className="text-sm font-medium text-gray-300 hover:text-white">
+                <Settings className="mr-2 inline-block size-4" />
+                Settings
+              </Link>
+              <Link
+                href={siteConfig.links.github}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm font-medium text-gray-300 hover:text-white"
+              >
+                <Icons.gitHub className="mr-2 inline-block size-4" />
+                GitHub
+              </Link>
             </nav>
           </SheetContent>
         </Sheet>

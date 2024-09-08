@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     XMLTV_DATA_DIR: str = "xmltvdata/remote"
     # XMLTV_DATA_REMOTE_DIR: str = "xmltvdata/remote"
     XMLTV_SOURCES: str = "xmltvdata/settings/xmltvsources.json"
+    XMLTV_SOURCES_LOCAL: str = "xmltvdata/settings/local.json"
 
     class Config:
         env_file: str = ".env"

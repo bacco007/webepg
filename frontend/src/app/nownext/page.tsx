@@ -150,7 +150,7 @@ const ChannelGrid: React.FC = () => {
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <h1 className="text-2xl font-bold">Now and Next</h1>
           <div className="flex items-center space-x-2">
-            <div className="relative flex-grow sm:flex-grow-0">
+            <div className="relative grow sm:grow-0">
               <Search className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
               <Input
                 type="text"
@@ -173,7 +173,7 @@ const ChannelGrid: React.FC = () => {
               <LoadingSpinner />
             </div>
           ) : (
-            <div className="grid auto-rows-fr grid-cols-[repeat(auto-fill,minmax(500px,1fr))] gap-4 p-4">
+            <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(500px,1fr))]">
               {filteredChannels.map((channelData) => (
                 <Card key={channelData.channel.id} className="bg-card flex flex-col">
                   <CardHeader className="flex flex-row items-center justify-between p-4">

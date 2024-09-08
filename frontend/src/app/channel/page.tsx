@@ -95,11 +95,13 @@ const ChannelList: React.FC = () => {
     fetchChannels();
   };
 
-  if (error)
+  if (error) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
-          <p className="mb-4 text-xl text-red-500">{error}</p>
+          <p className="mb-4 text-xl text-red-500" role="alert">
+            {error}
+          </p>
           <Button onClick={handleRefresh}>
             <RefreshCw className="mr-2 size-4" />
             Try Again
@@ -107,43 +109,62 @@ const ChannelList: React.FC = () => {
         </div>
       </div>
     );
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="bg-background sticky top-0 z-10 w-full border-b p-4">
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-        <h1 className="text-2xl font-bold">Weekly EPG (by Channel)</h1>
-        <div className="flex items-center space-x-2">
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Search channels..."
-              value={searchTerm}
-              onChange={handleSearch}
-              className="w-64 px-8"
-            />
-          </div>
-          <Button onClick={handleRefresh} variant="outline">
-            <RefreshCw className="size-4" />
-          </Button>
+          <h1 className="text-xl font-bold sm:text-2xl">Weekly EPG (by Channel)</h1>
+          <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-2 sm:space-y-0">
+            <div className="relative">
+              <Search
+                className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-gray-400"
+                aria-hidden="true"
+              />
+              <Input
+                type="text"
+                placeholder="Search channels..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="w-full pl-8 pr-4 sm:w-64"
+                aria-label="Search channels"
+              />
+            </div>
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              className="w-full sm:w-auto"
+              aria-label="Refresh channel list"
+            >
+              <RefreshCw className="mr-2 size-4" />
+              <span className="sm:hidden">Refresh</span>
+            </Button>
           </div>
         </div>
       </header>
       <ScrollArea className="grow">
         {loading ? (
-          <div className="flex h-full items-center justify-center">
+          <div
+            className="flex h-full items-center justify-center"
+            aria-live="polite"
+            aria-busy="true"
+          >
             <LoadingSpinner />
           </div>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 p-4">
+          <div
+            className="xs:grid-cols-2 xs:gap-3 xs:p-3 grid grid-cols-1 gap-2 p-2 sm:grid-cols-3 sm:gap-4 sm:p-4 md:grid-cols-4 lg:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]"
+            role="list"
+          >
             {filteredChannels.map((channel) => (
               <Link
                 key={channel.channel_slug}
                 href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
                 passHref
+                className="focus:ring-primary focus:outline-none focus:ring-2"
               >
-                <Card className="w-[300px] overflow-hidden transition-shadow duration-300 hover:shadow-lg">
+                <Card className="h-full overflow-hidden transition-shadow duration-300 hover:shadow-lg">
                   <CardContent className="flex h-full flex-col items-center justify-center p-4">
                     {channel.chlogo !== 'N/A' && (
                       <div className="mb-2 flex h-20 items-center justify-center">
@@ -152,7 +173,8 @@ const ChannelList: React.FC = () => {
                           height={96}
                           width={96}
                           className="max-h-full w-auto object-contain"
-                          alt={channel.channel_name}
+                          alt=""
+                          aria-hidden="true"
                         />
                       </div>
                     )}

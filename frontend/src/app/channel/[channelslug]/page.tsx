@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 import ChannelDropdown from '@/components/snippets/ChannelDropdown';
@@ -85,12 +85,17 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [clientTimezone, setClientTimezone] = useState<string>('UTC');
+  const [visibleDays, setVisibleDays] = useState<number>(7);
+  const [startDayIndex, setStartDayIndex] = useState(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const timeSlotHeight = 60;
   const timeColumnWidth = 60;
   const gridGap = 0.25 * 16;
-  const headerHeight = 64; // Height of the header
-  const stickyHeaderHeight = 40; // Height of the sticky day headers
+  const headerHeight = 64;
+  const stickyHeaderHeight = 40;
+  const minDayWidth = 200; // Minimum width for a day column
 
   useEffect(() => {
     const detectedTimezone = dayjs.tz.guess();
@@ -130,7 +135,6 @@ export default function Page() {
   useEffect(() => {
     fetchData();
 
-    // Update current time every minute
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
@@ -202,15 +206,11 @@ export default function Page() {
       const eventStartDate = dayjs.tz(event.start, clientTimezone);
       const eventEndDate = dayjs.tz(event.end, clientTimezone);
 
-      const days = Array.from({ length: daysLength }, (_, i) =>
-        dayjs(startDate).add(i, 'day').toDate()
-      );
+      const dayIndex = dayjs(eventStartDate).diff(dayjs(startDate).startOf('day'), 'day');
 
-      const dayIndex = days.findIndex(
-        (day) => dayjs(day).format('YYYY-MM-DD') === eventStartDate.format('YYYY-MM-DD')
-      );
-
-      if (dayIndex === -1) return {};
+      if (dayIndex < startDayIndex || dayIndex >= startDayIndex + visibleDays) {
+        return { display: 'none' };
+      }
 
       const startMinutes = eventStartDate.hour() * 60 + eventStartDate.minute();
       const endMinutes = eventEndDate.hour() * 60 + eventEndDate.minute();
@@ -222,8 +222,8 @@ export default function Page() {
       const gG = [0, 30].includes(endTime) ? 0 : -4;
 
       return {
-        gridColumnStart: dayIndex + 2,
-        gridColumnEnd: dayIndex + 3,
+        gridColumnStart: dayIndex - startDayIndex + 2,
+        gridColumnEnd: dayIndex - startDayIndex + 3,
         gridRowStart: startRow,
         gridRowEnd: endRow,
         marginTop: `${(startMinutes % 30) * (timeSlotHeight / 30)}px`,
@@ -231,7 +231,7 @@ export default function Page() {
         width: '100%',
       };
     },
-    [startDate, daysLength, timeSlotHeight, gridGap, clientTimezone]
+    [startDate, timeSlotHeight, gridGap, clientTimezone, startDayIndex, visibleDays]
   );
 
   const days = useMemo(() => {
@@ -264,6 +264,30 @@ export default function Page() {
     stickyHeaderHeight,
   ]);
 
+  const handlePrevDay = () => {
+    setStartDayIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextDay = () => {
+    setStartDayIndex((prev) => Math.min(daysLength - visibleDays, prev + 1));
+  };
+
+  useEffect(() => {
+    const updateVisibleDays = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const availableWidth = containerWidth - timeColumnWidth;
+        const possibleDays = Math.floor(availableWidth / minDayWidth);
+        setVisibleDays(Math.min(possibleDays, daysLength));
+      }
+    };
+
+    updateVisibleDays();
+    window.addEventListener('resize', updateVisibleDays);
+
+    return () => window.removeEventListener('resize', updateVisibleDays);
+  }, [daysLength]);
+
   if (error) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -289,29 +313,40 @@ export default function Page() {
 
   return (
     <div className="scrollbar-custom flex h-screen max-h-[calc(100vh-100px)] flex-col">
-      <header
-        className="bg-background flex items-center justify-between border-b p-4"
-        style={{ height: `${headerHeight}px` }}
-      >
-        <h1 className="text-2xl font-bold">Weekly EPG (by Channel) - {channelName}</h1>
-        <div className="flex items-center gap-4">
-          <ChannelDropdown channelslug={channelslug} />
+      <header className="bg-background sticky top-0 z-10 w-full border-b p-2 sm:p-4">
+        <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <h1 className="text-lg font-bold sm:text-2xl">Weekly EPG - {channelName}</h1>
+          <div className="flex items-center space-x-2">
+            <ChannelDropdown channelslug={channelslug} />
+          </div>
         </div>
       </header>
-      <div className="grow overflow-hidden">
+      <div className="grow overflow-hidden" ref={containerRef}>
         <ScrollArea className="h-full">
-          <div className="min-w-fit p-4">
+          <div className="min-w-fit p-2 sm:p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <Button onClick={handlePrevDay} disabled={startDayIndex === 0}>
+                <ChevronLeft className="size-4" />
+              </Button>
+              <div className="font-semibold">
+                {dayjs(days[startDayIndex]).format('MMM D')} -{' '}
+                {dayjs(days[startDayIndex + visibleDays - 1]).format('MMM D')}
+              </div>
+              <Button onClick={handleNextDay} disabled={startDayIndex + visibleDays >= daysLength}>
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
             <div
               className="relative grid gap-1"
               style={{
-                gridTemplateColumns: `${timeColumnWidth}px repeat(${daysLength}, minmax(200px, 1fr))`,
+                gridTemplateColumns: `${timeColumnWidth}px repeat(${visibleDays}, minmax(${minDayWidth}px, 1fr))`,
               }}
             >
               <div
                 className="bg-background sticky top-0 z-20 col-span-1"
                 style={{ height: `${stickyHeaderHeight}px` }}
               ></div>
-              {days.map((day) => (
+              {days.slice(startDayIndex, startDayIndex + visibleDays).map((day) => (
                 <div
                   key={day.toISOString()}
                   className="bg-background sticky top-0 z-20 py-2 text-center font-semibold"
@@ -324,7 +359,7 @@ export default function Page() {
               {timeSlots.map((minutes) => (
                 <React.Fragment key={minutes}>
                   <div
-                    className="text-muted-foreground py-1 pr-2 text-right text-sm font-semibold"
+                    className="text-muted-foreground py-1 pr-2 text-right text-xs font-semibold sm:text-sm"
                     style={{
                       height: `${timeSlotHeight}px`,
                     }}
@@ -335,9 +370,9 @@ export default function Page() {
                       .add(minutes, 'minute')
                       .format('HH:mm')}
                   </div>
-                  {days.map((day) => (
+                  {Array.from({ length: visibleDays }).map((_, index) => (
                     <div
-                      key={`${day.toISOString()}-${minutes}`}
+                      key={`${days[startDayIndex + index].toISOString()}-${minutes}`}
                       className="py-4"
                       style={{
                         height: `${timeSlotHeight}px`,
