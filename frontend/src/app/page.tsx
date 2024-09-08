@@ -12,90 +12,81 @@ export default function Home() {
 
   const cards = [
     {
-      title: 'Daily EPG (All Channels)',
-      description: 'See the EPG for All Channels',
+      title: 'Daily EPG',
+      description: 'View all channels',
       icon: TvIcon,
       link: '/epg',
     },
     {
       title: `Today's EPG`,
-      description: 'See the EPG for Today',
+      description: 'Current schedule',
       icon: TvIcon,
       link: '/epg/today',
     },
     {
       title: `Tomorrow's EPG`,
-      description: 'See the EPG for Tomorrow',
+      description: 'Plan ahead',
       icon: TvIcon,
-      link: '/epg/today',
+      link: '/epg/tomorrow',
     },
     {
-      title: 'Weekly EPG (Single Channel)',
-      description: 'Dive deep into a week-long schedule for your favorite channel.',
+      title: 'Weekly EPG',
+      description: 'Single channel view',
       icon: CalendarIcon,
       link: '/channel',
     },
     {
       title: 'Now and Next',
-      description: "Stay up-to-date with what's on now and coming up next.",
+      description: "What's on now",
       icon: ClockIcon,
       link: '/nownext',
     },
   ];
 
   return (
-    <div className="h-[calc(100vh-155px)] overflow-auto">
-      <main className="flex-1">
-        <section className="container mx-auto px-4 py-16 md:px-0">
-          <div className="animate-fade-in mb-12 space-y-6 text-center">
-            <h1 className="text-primary text-4xl font-extrabold md:text-5xl">
-              Your Ultimate EPG Experience
-            </h1>
-            <p className="text-muted-foreground mx-auto max-w-[700px] text-xl">
-              Discover a new way to explore TV schedules with our innovative Electronic Program
-              Guide.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {cards.map((card, index) => (
-              <div
-                key={index}
-                className={'animate-fade-in-up'}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <Link href={card.link}>
-                  <Card
-                    className="h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                    onMouseEnter={() => setHoveredCard(index)}
-                    onMouseLeave={() => setHoveredCard(null)}
-                  >
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-center">
-                        <card.icon
-                          className={`size-12 ${
-                            hoveredCard === index ? 'text-primary' : 'text-muted-foreground'
-                          } transition-colors duration-300`}
-                        />
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <h3 className="mb-2 text-2xl font-bold">{card.title}</h3>
-                      {/* <p className="text-muted-foreground">{card.description}</p> */}
-                    </CardContent>
-                    <CardFooter>
-                      <Button
-                        variant="outline"
-                        className="hover:bg-primary hover:text-primary-foreground mt-4 w-full transition-all duration-300"
-                      >
-                        Explore
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </Link>
-              </div>
-            ))}
-          </div>
+    <div className="from-background to-secondary/20 min-h-[calc(100vh-155px)] bg-gradient-to-b">
+      <main className="container mx-auto px-4 py-16 md:px-6">
+        <section className="mb-16 text-center">
+          <h1 className="text-primary mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            Your Ultimate EPG Experience
+          </h1>
+          <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
+            Discover a new way to explore TV schedules with our innovative Electronic Program Guide.
+          </p>
         </section>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((card, index) => (
+            <Link key={index} href={card.link} className="group">
+              <Card
+                className="h-full transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg"
+                onMouseEnter={() => setHoveredCard(index)}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
+                <CardHeader>
+                  <div className="mb-2 flex justify-center">
+                    <card.icon
+                      className={`size-12 ${
+                        hoveredCard === index ? 'text-primary' : 'text-muted-foreground'
+                      } transition-colors duration-300`}
+                    />
+                  </div>
+                  <CardTitle className="text-center text-2xl">{card.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-center text-sm">{card.description}</p>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    variant="outline"
+                    className="group-hover:bg-primary group-hover:text-primary-foreground w-full transition-all duration-300"
+                  >
+                    Explore
+                  </Button>
+                </CardFooter>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </main>
     </div>
   );

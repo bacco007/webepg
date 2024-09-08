@@ -55,7 +55,7 @@ const routeList: RouteProps[] = [
 export const Header: React.FC<HeaderProps> = ({ className }) => {
   const pathname = usePathname();
   return (
-    <header className="flex h-16 items-center justify-between border-b border-gray-800 bg-gray-900 px-6">
+    <header className="flex items-center justify-between border-b border-gray-800 bg-gray-900 px-6">
       <div className="flex items-center space-x-6">
         <Link href="/" className="relative flex items-center space-x-2 lg:mr-6">
           <span className="hidden font-bold text-white md:inline-block">{siteConfig.name}</span>

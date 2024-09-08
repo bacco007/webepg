@@ -184,8 +184,8 @@
   {
     "id": "xmltvnet-nt-regional",
     "group": "Australia",
-    "subgroup": "Regional - NT",
-    "location": "NT Regional",
+    "subgroup": "Remote & Central",
+    "location": "NT",
     "url": "http://xmltv.net/xml_files/NT_Regional.xml"
   },
   {
@@ -240,8 +240,8 @@
   {
     "id": "xmltvnet-sa-regional",
     "group": "Australia",
-    "subgroup": "Regional - SA",
-    "location": "S.A. Regional",
+    "subgroup": "Remote & Central",
+    "location": "SA",
     "url": "http://xmltv.net/xml_files/SA_Regional.xml"
   },
   {
@@ -262,7 +262,7 @@
     "id": "xmltvnet-south-east-sa",
     "group": "Australia",
     "subgroup": "Regional - SA",
-    "location": "South East S.A.",
+    "location": "South East SA",
     "url": "http://xmltv.net/xml_files/South_East_SA.xml"
   },
   {
@@ -324,8 +324,8 @@
   {
     "id": "xmltvnet-wa-regional",
     "group": "Australia",
-    "subgroup": "Regional - WA",
-    "location": "WA Regional",
+    "subgroup": "Remote & Central",
+    "location": "WA",
     "url": "http://xmltv.net/xml_files/WA_Regional.xml"
   },
   {

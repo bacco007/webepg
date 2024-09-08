@@ -26,8 +26,8 @@ def adjust_programming(
                 adjusted.append(
                     {
                         **program,
-                        "start_time": local_start.isoformat(),
-                        "end_time": midnight.isoformat(),
+                        "start_time": local_start.strftime("%Y-%m-%d %H:%M:%S"),
+                        "end_time": midnight.strftime("%Y-%m-%d %H:%M:%S"),
                     }
                 )
             next_day = local_end.replace(hour=0, minute=0, second=0)
@@ -35,8 +35,8 @@ def adjust_programming(
                 adjusted.append(
                     {
                         **program,
-                        "start_time": next_day.isoformat(),
-                        "end_time": local_end.isoformat(),
+                        "start_time": next_day.strftime("%Y-%m-%d %H:%M:%S"),
+                        "end_time": local_end.strftime("%Y-%m-%d %H:%M:%S"),
                         "title": f"{program['title']} (cont)",
                     }
                 )
@@ -44,22 +44,12 @@ def adjust_programming(
             adjusted.append(
                 {
                     **program,
-                    "start_time": local_start.isoformat(),
-                    "end_time": local_end.isoformat(),
+                    "start_time": local_start.strftime("%Y-%m-%d %H:%M:%S"),
+                    "end_time": local_end.strftime("%Y-%m-%d %H:%M:%S"),
                 }
             )
 
     return adjusted
-
-def process_timezone(timezone: Union[str, pytz.BaseTzInfo]) -> PytzTimezone:
-    if isinstance(timezone, str):
-        return cast(PytzTimezone, pytz.timezone(timezone))
-    elif isinstance(timezone, pytz.BaseTzInfo):
-        return cast(PytzTimezone, timezone)
-    else:
-        raise ValueError(
-            "Invalid timezone format. Expected string or pytz.BaseTzInfo object."
-        )
 
 def group_and_fill_programs(
     programs: List[Dict[str, Any]], timezone: Union[str, pytz.BaseTzInfo]
@@ -68,14 +58,18 @@ def group_and_fill_programs(
 
     grouped: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     for program in programs:
-        date = program["start_time"].split("T")[0]
+        date = program["start_time"].split(" ")[0]
         grouped[date].append(program)
 
     for date, day_programs in grouped.items():
         day_programs.sort(key=lambda x: x["start_time"])
         filled_programs: List[Dict[str, Any]] = []
-        current_time = tz.localize(datetime.fromisoformat(f"{date}T00:00:00"))
-        day_end = tz.localize(datetime.fromisoformat(f"{date}T23:59:59"))
+        current_time = tz.localize(
+            datetime.strptime(f"{date} 00:00:00", "%Y-%m-%d %H:%M:%S")
+        )
+        day_end = tz.localize(
+            datetime.strptime(f"{date} 23:59:59", "%Y-%m-%d %H:%M:%S")
+        )
 
         for program in day_programs:
             program_start = parse_datetime(program["start_time"], tz)
@@ -100,7 +94,9 @@ def group_and_fill_programs(
     return grouped
 
 def group_and_fill_programschannels(
-    programs: List[Dict[str, Any]], timezone: Union[str, pytz.BaseTzInfo]
+    programs: List[Dict[str, Any]],
+    timezone: Union[str, pytz.BaseTzInfo],
+    all_channels: List[str],
 ) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
     tz = process_timezone(timezone)
 
@@ -108,7 +104,7 @@ def group_and_fill_programschannels(
         lambda: defaultdict(list)
     )
     for program in programs:
-        date = program["start_time"].split("T")[0]
+        date = program["start_time"].split(" ")[0]
         channel = program["channel"]
         grouped[date][channel].append(program)
 
@@ -117,48 +113,70 @@ def group_and_fill_programschannels(
     )
 
     for date, channels in grouped.items():
-        day_start = tz.localize(datetime.fromisoformat(f"{date}T00:00:00"))
-        day_end = tz.localize(datetime.fromisoformat(f"{date}T23:59:59"))
+        day_start = tz.localize(
+            datetime.strptime(f"{date} 00:00:00", "%Y-%m-%d %H:%M:%S")
+        )
+        day_end = tz.localize(
+            datetime.strptime(f"{date} 23:59:59", "%Y-%m-%d %H:%M:%S")
+        )
 
-        for channel, channel_programs in channels.items():
-            channel_programs.sort(key=lambda x: x["start_time"])
-            filled_programs: List[Dict[str, Any]] = []
-            current_time = day_start
+        for channel in all_channels:
+            if channel not in channels:
+                # If the channel has no programs for the entire day
+                filled_grouped[date][channel] = [
+                    create_no_data_program(day_start, day_end, channel, tz)
+                ]
+            else:
+                channel_programs = channels[channel]
+                channel_programs.sort(key=lambda x: x["start_time"])
+                filled_programs: List[Dict[str, Any]] = []
+                current_time = day_start
 
-            for program in channel_programs:
-                program_start = parse_datetime(program["start_time"], tz)
-                program_end = parse_datetime(program["end_time"], tz)
+                for program in channel_programs:
+                    program_start = parse_datetime(program["start_time"], tz)
+                    program_end = parse_datetime(program["end_time"], tz)
 
-                if current_time < program_start:
+                    if current_time < program_start:
+                        filled_programs.append(
+                            create_no_data_program(
+                                current_time, program_start, channel, tz
+                            )
+                        )
+                    filled_programs.append(program)
+                    current_time = program_end
+
+                if current_time < day_end:
                     filled_programs.append(
-                        create_no_data_program(current_time, program_start, channel, tz)
+                        create_no_data_program(current_time, day_end, channel, tz)
                     )
-                filled_programs.append(program)
-                current_time = program_end
 
-            if current_time < day_end:
-                filled_programs.append(
-                    create_no_data_program(current_time, day_end, channel, tz)
-                )
-
-            filled_grouped[date][channel] = filled_programs
+                filled_grouped[date][channel] = filled_programs
 
     return filled_grouped
 
-def parse_datetime(dt_string: str, tz: PytzTimezone) -> datetime:
-    dt = datetime.fromisoformat(dt_string)
-    if dt.tzinfo is None:
-        return tz.localize(dt)
+def process_timezone(timezone: Union[str, pytz.BaseTzInfo]) -> PytzTimezone:
+    if isinstance(timezone, str):
+        return cast(PytzTimezone, pytz.timezone(timezone))
+    elif isinstance(timezone, pytz.BaseTzInfo):
+        return cast(PytzTimezone, timezone)
     else:
-        return dt.astimezone(tz)
+        raise ValueError(
+            "Invalid timezone format. Expected string or pytz.BaseTzInfo object."
+        )
+
+
+def parse_datetime(dt_string: str, tz: PytzTimezone) -> datetime:
+    dt = datetime.strptime(dt_string, "%Y-%m-%d %H:%M:%S")
+    return tz.localize(dt)
+
 
 def create_no_data_program(
     start: datetime, end: datetime, channel: str, tz: PytzTimezone
 ) -> Dict[str, Any]:
     return {
-        "start_time": start.isoformat(),
+        "start_time": start.strftime("%Y-%m-%d %H:%M:%S"),
         "start": "N/A",
-        "end_time": end.isoformat(),
+        "end_time": end.strftime("%Y-%m-%d %H:%M:%S"),
         "end": "N/A",
         "length": str(end - start),
         "channel": channel,

@@ -70,11 +70,11 @@ export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramD
         <Card>
           <CardHeader>
             <CardTitle>
-              {decodeHtml(event.title)} {event.channel && decodeHtml(event.channel)}
+              {decodeHtml(event.title)} {/* {event.channel && decodeHtml(event.channel)} */}
             </CardTitle>
             <CardDescription>
-              {decodeHtml(event.subtitle || '')}
-              <br /> {formatDay(startDate)} {formatTime(startDate)} - {formatTime(endDate)} (
+              {event.subtitle && event.subtitle !== 'N/A' && decodeHtml(event.subtitle || '')}
+              <br /> {formatDay(startDate)}, {formatTime(startDate)} - {formatTime(endDate)} (
               {getTimeDescription(startDate, endDate)})
             </CardDescription>
           </CardHeader>
@@ -94,11 +94,21 @@ export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramD
               <ScrollArea className="h-[300px] md:h-auto">
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
-                    {event.rating && <Badge variant="outline">{event.rating}</Badge>}
-                    {event.episodeNum && <Badge variant="secondary">{event.episodeNum}</Badge>}
-                    {event.date && <Badge variant="secondary">{event.date}</Badge>}
-                    {event.country && <Badge variant="secondary">{event.country}</Badge>}
-                    {event.language && <Badge variant="secondary">{event.language}</Badge>}
+                    {event.rating && event.rating !== 'N/A' && (
+                      <Badge variant="outline">Rating: {event.rating}</Badge>
+                    )}
+                    {event.episodeNum && event.episodeNum !== 'N/A' && (
+                      <Badge variant="secondary">Ep: {event.episodeNum}</Badge>
+                    )}
+                    {event.date && event.date !== 'N/A' && (
+                      <Badge variant="secondary">Date: {event.date}</Badge>
+                    )}
+                    {event.country && event.country !== 'N/A' && (
+                      <Badge variant="secondary">Country: {event.country}</Badge>
+                    )}
+                    {event.language && event.language !== 'N/A' && (
+                      <Badge variant="secondary">Language: {event.language}</Badge>
+                    )}
                     {event.new && <Badge variant="secondary">New</Badge>}
                     {event.premiere && <Badge variant="secondary">Premiere</Badge>}
                     {event.previouslyShown && <Badge variant="secondary">Repeat</Badge>}
@@ -112,7 +122,7 @@ export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramD
                       ))}
                     </div>
                   )}
-                  {event.description && (
+                  {event.description && event.description !== 'N/A' && (
                     <p className="text-muted-foreground">{decodeHtml(event.description)}</p>
                   )}
                 </div>

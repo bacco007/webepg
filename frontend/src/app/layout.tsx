@@ -49,7 +49,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
         >
           <div className="flex h-screen flex-col overflow-hidden">
-            <Header className="h-16 shrink-0" />
+            <Header className="shrink-0" />
             <main className="scrollbar-custom grow overflow-auto">
               <div className="from-background to-secondary min-h-full w-full bg-gradient-to-br">
                 {children}

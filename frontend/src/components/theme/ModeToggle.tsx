@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -25,9 +25,36 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+        <DropdownMenuItem>
+          <Button
+            variant={theme === 'dark' ? 'default' : 'outline'}
+            className="w-full"
+            onClick={() => setTheme('light')}
+          >
+            <Sun className="size-5" />
+            <span className="pl-2">Light Mode</span>
+          </Button>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Button
+            variant={theme === 'dark' ? 'default' : 'outline'}
+            className="w-full"
+            onClick={() => setTheme('dark')}
+          >
+            <Moon className="size-5" />
+            <span className="pl-2">Dark Mode</span>
+          </Button>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Button
+            variant={theme === 'dark' ? 'default' : 'outline'}
+            className="w-full"
+            onClick={() => setTheme('system')}
+          >
+            <Monitor className="size-5" />
+            <span className="pl-2">Use System</span>
+          </Button>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
