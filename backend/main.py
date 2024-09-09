@@ -8,6 +8,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -35,6 +36,9 @@ app.include_router(channels.router, prefix="/api", tags=["channels"])
 app.include_router(epg.router, prefix="/api", tags=["epg"])
 app.include_router(dates.router, prefix="/api", tags=["dates"])
 app.include_router(nownext.router, prefix="/api/py/epg/nownext", tags=["nownext"])
+
+app.mount("/xmltvdata", StaticFiles(directory="xmltvdata"), name="xmltvdata")
+
 
 # Function to process sources
 async def process_sources_task() -> None:

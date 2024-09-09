@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from app.utils.channel_name import clean_channel_name, get_channel_group
 from app.utils.file_operations import write_json
 
 
@@ -72,19 +73,36 @@ async def process_xml_file(file_id: str, save_path: str) -> None:
                     src = icon.get("src")
                     if src is not None:
                         chlogo = str(src)
+
+                if display_name is not None and display_name.text is not None:
+                    channel_name = display_name.text
+                else:
+                    channel_name = "N/A"
+
+                if channel_name != "N/A" and file_id.startswith("xmltvnet"):
+                    cleaned_name = clean_channel_name(channel_name)
+                    cleaned_name_slug = re.sub(r"\W+", "-", cleaned_name).lower()
+                    channel_group = get_channel_group(cleaned_name)
+                    chlogo = "/logos/" + cleaned_name_slug + ".png"
+                    channel_name = cleaned_name
+                else:
+                    channel_group = "Unknown"
+                    cleaned_name_slug = "placeholder"
+                    chlogo = chlogo
+
                 channels.append(
                     {
                         "channel_id": channel_id,
                         "channel_slug": re.sub(r"\W+", "-", channel_id),
-                        "channel_name": display_name.text
-                        if display_name is not None and display_name.text is not None
-                        else "N/A",
+                        "channel_name": channel_name,
                         "channel_number": lcn.text
                         if lcn is not None and lcn.text is not None
                         else "N/A",
                         "chlogo": chlogo,
+                        "channel_group": channel_group,
                     }
                 )
+
             elif child.tag == "programme":
                 programs.append(process_program(child))
 

@@ -70,9 +70,9 @@ interface SportsData {
   channels: ChannelPrograms[];
 }
 
-const getValidImageSrc = (src: string) => {
-  return src && src.startsWith('http') ? src : '/placeholder.svg';
-};
+// const getValidImageSrc = (src: string) => {
+//   return src && src.startsWith('http') ? src : '/placeholder.svg';
+// };
 
 const sortChannels = (channels: ChannelPrograms[]) => {
   return channels.sort((a, b) => {
@@ -182,7 +182,7 @@ function SportsPageContent() {
                 <Card key={channelData.channel.slug} className="w-full">
                   <CardHeader className="flex flex-row items-center justify-between">
                     <Image
-                      src={getValidImageSrc(channelData.channel.icon)}
+                      src={channelData.channel.icon}
                       alt={`${channelData.channel.name} Logo`}
                       width={80}
                       height={40}
@@ -215,9 +215,6 @@ function SportsPageContent() {
                                     <TableHead className="hidden md:table-cell">
                                       Description
                                     </TableHead>
-                                    <TableHead className="hidden sm:table-cell">
-                                      Categories
-                                    </TableHead>
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -230,18 +227,6 @@ function SportsPageContent() {
                                       <TableCell>{program.title}</TableCell>
                                       <TableCell className="hidden md:table-cell">
                                         {program.description}
-                                      </TableCell>
-                                      <TableCell className="hidden sm:table-cell">
-                                        <div className="flex flex-wrap gap-1">
-                                          {program.categories.map((category, idx) => (
-                                            <span
-                                              key={idx}
-                                              className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800"
-                                            >
-                                              {category}
-                                            </span>
-                                          ))}
-                                        </div>
                                       </TableCell>
                                     </TableRow>
                                   ))}

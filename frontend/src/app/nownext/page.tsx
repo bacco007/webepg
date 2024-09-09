@@ -113,12 +113,12 @@ const ChannelGrid: React.FC = () => {
     router.push(`/channel/${channelSlug}`);
   };
 
-  const getValidImageSrc = (src: string) => {
-    if (src && src !== 'N/A' && (src.startsWith('http://') || src.startsWith('https://'))) {
-      return src;
-    }
-    return '/placeholder.svg?height=40&width=80';
-  };
+  // const getValidImageSrc = (src: string) => {
+  //   if (src && src !== 'N/A' && (src.startsWith('http://') || src.startsWith('https://'))) {
+  //     return src;
+  //   }
+  //   return '/placeholder.svg?height=40&width=80';
+  // };
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -178,7 +178,7 @@ const ChannelGrid: React.FC = () => {
                 <Card key={channelData.channel.id} className="bg-card flex flex-col">
                   <CardHeader className="flex flex-row items-center justify-between p-4">
                     <Image
-                      src={getValidImageSrc(channelData.channel.icon)}
+                      src={channelData.channel.icon}
                       alt={`${channelData.channel.name} Logo`}
                       width={80}
                       height={40}

@@ -4,5 +4,11 @@
     "group": "Local",
     "location": "Webgrabplus",
     "url": "local"
+  },
+  {
+    "id": "bevy-auspremium2",
+    "group": "Testing",
+    "location": "Australia Premium 2",
+    "url": "https://www.bevy.be/bevyfiles/australiapremium2.xml.gz"
   }
 ]
