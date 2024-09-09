@@ -41,7 +41,7 @@ packaging==24.1
 platformdirs==4.2.2
 pre-commit==3.8.0
 psutil==6.0.0
-pydantic==2.8.2
+pydantic==2.9.1
 pydantic-settings==2.4.0
 pydantic_core==2.20.1
 Pygments==2.18.0
