@@ -10,13 +10,6 @@ const nextConfig = {
           process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000/api/py/:path*' : '/api/',
       },
       {
-        source: '/logos/:path*',
-        destination:
-          process.env.NODE_ENV === 'development'
-            ? 'http://127.0.0.1:8000/xmltvdata/logos/:path*'
-            : '/logos',
-      },
-      {
         source: '/docs',
         destination:
           process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000/py/docs' : '/api/py/docs',
