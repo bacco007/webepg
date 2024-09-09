@@ -64,7 +64,7 @@ typing_extensions==4.12.2
 tzlocal==5.2
 uvicorn==0.30.6
 uvloop==0.20.0
-virtualenv==20.26.3
+virtualenv==20.26.4
 watchfiles==0.24.0
 websockets==13.0.1
 wrapt==1.16.0
