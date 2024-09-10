@@ -23,11 +23,11 @@ interface Source {
   url: string;
 }
 
-type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>;
+type PopoverTriggerProperties = React.ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
-interface SourceDropdownProps extends PopoverTriggerProps {}
+interface SourceDropdownProperties extends PopoverTriggerProperties {}
 
-export default function SourceDropdown({ className }: SourceDropdownProps) {
+export default function SourceDropdown({ className }: SourceDropdownProperties) {
   const [open, setOpen] = React.useState(false);
   const [sources, setSources] = React.useState<Source[]>([]);
   const [selectedSource, setSelectedSource] = React.useState<Source | null>(null);
@@ -63,9 +63,8 @@ export default function SourceDropdown({ className }: SourceDropdownProps) {
   };
 
   const groupedSources = React.useMemo(() => {
-    const groups = Array.from(new Set(sources.map(getGroupLabel))).sort((a, b) =>
-      a.localeCompare(b)
-    );
+    const groupSet = new Set(sources.map((tz) => tz.group));
+    const groups = Array.from(groupSet).sort();
     return groups.map((groupLabel) => ({
       label: groupLabel,
       sources: sources
@@ -83,7 +82,7 @@ export default function SourceDropdown({ className }: SourceDropdownProps) {
           aria-expanded={open}
           aria-label="Select a source"
           className={cn(
-            'w-[300px] justify-between border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white',
+            'w-full justify-between border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white sm:w-[300px]',
             className
           )}
         >
@@ -93,7 +92,7 @@ export default function SourceDropdown({ className }: SourceDropdownProps) {
           <CaretSortIcon className="ml-auto size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] border-gray-700 bg-gray-900 p-0">
+      <PopoverContent className="w-screen max-w-[300px] border-gray-700 bg-gray-900 p-0 sm:w-[300px] md:w-[350px] lg:w-[400px] xl:w-[450px]">
         <Command className="bg-gray-900">
           <CommandInput placeholder="Search source..." className="text-gray-300" />
           <CommandList>

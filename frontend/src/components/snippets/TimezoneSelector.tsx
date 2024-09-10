@@ -1,85 +1,160 @@
-import React from 'react';
+'use client';
+
+import * as React from 'react';
+import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
 import { Globe } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
-interface TimezoneSelectorProps {
+interface Timezone {
+  value: string;
+  label: string;
+  group: string;
+}
+
+const timezones: Timezone[] = [
+  { value: 'America/New_York', label: 'Eastern Standard Time (EST)', group: 'North America' },
+  { value: 'America/Chicago', label: 'Central Standard Time (CST)', group: 'North America' },
+  { value: 'America/Denver', label: 'Mountain Standard Time (MST)', group: 'North America' },
+  { value: 'America/Los_Angeles', label: 'Pacific Standard Time (PST)', group: 'North America' },
+  { value: 'America/Anchorage', label: 'Alaska Standard Time (AKST)', group: 'North America' },
+  { value: 'Pacific/Honolulu', label: 'Hawaii Standard Time (HST)', group: 'North America' },
+  { value: 'Europe/London', label: 'Greenwich Mean Time (GMT)', group: 'Europe & Africa' },
+  { value: 'Europe/Paris', label: 'Central European Time (CET)', group: 'Europe & Africa' },
+  { value: 'Europe/Kiev', label: 'Eastern European Time (EET)', group: 'Europe & Africa' },
+  {
+    value: 'Europe/Lisbon',
+    label: 'Western European Summer Time (WEST)',
+    group: 'Europe & Africa',
+  },
+  { value: 'Africa/Johannesburg', label: 'Central Africa Time (CAT)', group: 'Europe & Africa' },
+  { value: 'Africa/Nairobi', label: 'East Africa Time (EAT)', group: 'Europe & Africa' },
+  { value: 'Asia/Dubai', label: 'Gulf Standard Time (GST)', group: 'Asia' },
+  { value: 'Europe/Moscow', label: 'Moscow Time (MSK)', group: 'Asia' },
+  { value: 'Asia/Kolkata', label: 'India Standard Time (IST)', group: 'Asia' },
+  { value: 'Asia/Shanghai', label: 'China Standard Time (CST)', group: 'Asia' },
+  { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST)', group: 'Asia' },
+  { value: 'Asia/Seoul', label: 'Korea Standard Time (KST)', group: 'Asia' },
+  { value: 'Asia/Jakarta', label: 'Indonesia Western Standard Time (WIB)', group: 'Asia' },
+  { value: 'Asia/Makassar', label: 'Indonesia Central Standard Time (WITA)', group: 'Asia' },
+  { value: 'Asia/Jayapura', label: 'Indonesia Eastern Standard Time (WIT)', group: 'Asia' },
+  {
+    value: 'Australia/Perth',
+    label: 'Aus Western Standard Time (AWST)',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Australia/Adelaide',
+    label: 'Aus Central Standard Time (ACST)',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Australia/Sydney',
+    label: 'Aus Eastern Standard Time (AEST)',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Australia/Brisbane',
+    label: 'Aus Eastern Standard Time - Brisbane (AEST)',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Pacific/Auckland',
+    label: 'New Zealand Standard Time (NZST)',
+    group: 'Australia & Pacific',
+  },
+  { value: 'Pacific/Fiji', label: 'Fiji Time (FJT)', group: 'Australia & Pacific' },
+  { value: 'Pacific/Tongatapu', label: 'Tonga Time (TOT)', group: 'Australia & Pacific' },
+  {
+    value: 'America/Argentina/Buenos_Aires',
+    label: 'Argentina Time (ART)',
+    group: 'South America',
+  },
+  { value: 'America/La_Paz', label: 'Bolivia Time (BOT)', group: 'South America' },
+  { value: 'America/Sao_Paulo', label: 'Brasilia Time (BRT)', group: 'South America' },
+  { value: 'America/Santiago', label: 'Chile Standard Time (CLT)', group: 'South America' },
+];
+
+interface TimezoneSelectorProperties {
   value: string;
   onChange: (timezone: string) => void;
 }
 
-export default function Component({ value, onChange }: TimezoneSelectorProps) {
+export default function TimezoneSelector({ value, onChange }: TimezoneSelectorProperties) {
+  const [open, setOpen] = React.useState(false);
+
+  const selectedTimezone = timezones.find((tz) => tz.value === value);
+
+  const groupedTimezones = React.useMemo(() => {
+    const groupSet = new Set(timezones.map((tz) => tz.group));
+    const groups = Array.from(groupSet).sort();
+    return groups.map((group) => ({
+      group,
+      timezones: timezones.filter((tz) => tz.group === group),
+    }));
+  }, []);
+
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[280px]">
-        <Globe className="mr-2 size-4" />
-        <SelectValue placeholder="Select a timezone" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>North America</SelectLabel>
-          <SelectItem value="America/New_York">Eastern Standard Time (EST)</SelectItem>
-          <SelectItem value="America/Chicago">Central Standard Time (CST)</SelectItem>
-          <SelectItem value="America/Denver">Mountain Standard Time (MST)</SelectItem>
-          <SelectItem value="America/Los_Angeles">Pacific Standard Time (PST)</SelectItem>
-          <SelectItem value="America/Anchorage">Alaska Standard Time (AKST)</SelectItem>
-          <SelectItem value="Pacific/Honolulu">Hawaii Standard Time (HST)</SelectItem>
-        </SelectGroup>
-
-        <SelectGroup>
-          <SelectLabel>Europe & Africa</SelectLabel>
-          <SelectItem value="Europe/London">Greenwich Mean Time (GMT)</SelectItem>
-          <SelectItem value="Europe/Paris">Central European Time (CET)</SelectItem>
-          <SelectItem value="Europe/Kiev">Eastern European Time (EET)</SelectItem>
-          <SelectItem value="Europe/Lisbon">Western European Summer Time (WEST)</SelectItem>
-          <SelectItem value="Africa/Johannesburg">Central Africa Time (CAT)</SelectItem>
-          <SelectItem value="Africa/Nairobi">East Africa Time (EAT)</SelectItem>
-        </SelectGroup>
-
-        <SelectGroup>
-          <SelectLabel>Asia</SelectLabel>
-          <SelectItem value="Asia/Dubai">Gulf Standard Time (GST)</SelectItem>
-          <SelectItem value="Europe/Moscow">Moscow Time (MSK)</SelectItem>
-          <SelectItem value="Asia/Kolkata">India Standard Time (IST)</SelectItem>
-          <SelectItem value="Asia/Shanghai">China Standard Time (CST)</SelectItem>
-          <SelectItem value="Asia/Tokyo">Japan Standard Time (JST)</SelectItem>
-          <SelectItem value="Asia/Seoul">Korea Standard Time (KST)</SelectItem>
-          <SelectItem value="Asia/Jakarta">Indonesia Western Standard Time (WIB)</SelectItem>
-          <SelectItem value="Asia/Makassar">Indonesia Central Standard Time (WITA)</SelectItem>
-          <SelectItem value="Asia/Jayapura">Indonesia Eastern Standard Time (WIT)</SelectItem>
-        </SelectGroup>
-
-        <SelectGroup>
-          <SelectLabel>Australia & Pacific</SelectLabel>
-          <SelectItem value="Australia/Perth">Australian Western Standard Time (AWST)</SelectItem>
-          <SelectItem value="Australia/Adelaide">
-            Australian Central Standard Time (ACST)
-          </SelectItem>
-          <SelectItem value="Australia/Sydney">Australian Eastern Standard Time (AEST)</SelectItem>
-          <SelectItem value="Australia/Brisbane">
-            Australian Eastern Standard Time - Brisbane (AEST)
-          </SelectItem>
-          <SelectItem value="Pacific/Auckland">New Zealand Standard Time (NZST)</SelectItem>
-          <SelectItem value="Pacific/Fiji">Fiji Time (FJT)</SelectItem>
-          <SelectItem value="Pacific/Tongatapu">Tonga Time (TOT)</SelectItem>
-        </SelectGroup>
-
-        <SelectGroup>
-          <SelectLabel>South America</SelectLabel>
-          <SelectItem value="America/Argentina/Buenos_Aires">Argentina Time (ART)</SelectItem>
-          <SelectItem value="America/La_Paz">Bolivia Time (BOT)</SelectItem>
-          <SelectItem value="America/Sao_Paulo">Brasilia Time (BRT)</SelectItem>
-          <SelectItem value="America/Santiago">Chile Standard Time (CLT)</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          aria-label="Select a timezone"
+          className={cn(
+            'w-full sm:w-[300px] justify-between border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+          )}
+        >
+          <Globe className="mr-2 size-4" />
+          {selectedTimezone ? selectedTimezone.label : 'Select timezone...'}
+          <CaretSortIcon className="ml-auto size-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-screen max-w-[300px] sm:w-[300px] md:w-[350px] lg:w-[500px] xl:w-[600px] border-gray-700 bg-gray-900 p-0">
+        <Command className="bg-gray-900">
+          <CommandInput placeholder="Search timezone..." className="text-gray-300" />
+          <CommandList>
+            <CommandEmpty className="text-gray-400">No timezone found.</CommandEmpty>
+            {groupedTimezones.map(({ group, timezones }) => (
+              <CommandGroup
+                key={group}
+                heading={group}
+                className="text-base font-medium text-gray-100"
+              >
+                {timezones.map((timezone) => (
+                  <CommandItem
+                    key={timezone.value}
+                    onSelect={() => {
+                      onChange(timezone.value);
+                      setOpen(false);
+                    }}
+                    className="text-sm text-gray-300 hover:bg-gray-800"
+                  >
+                    <span>{timezone.label}</span>
+                    <CheckIcon
+                      className={cn(
+                        'ml-auto size-4',
+                        value === timezone.value ? 'opacity-100' : 'opacity-0'
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            ))}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

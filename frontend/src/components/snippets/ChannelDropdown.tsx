@@ -19,11 +19,11 @@ type Channel = {
   chlogo: string;
 };
 
-interface ChannelDropdownProps {
+interface ChannelDropdownProperties {
   channelslug: string;
 }
 
-const ChannelDropdown: React.FC<ChannelDropdownProps> = ({ channelslug }) => {
+const ChannelDropdown: React.FC<ChannelDropdownProperties> = ({ channelslug }) => {
   const router = useRouter();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,8 +40,8 @@ const ChannelDropdown: React.FC<ChannelDropdownProps> = ({ channelslug }) => {
         }
         const data: { data: { channels: Channel[] } } = await response.json();
         setChannels(data.data.channels || []);
-      } catch (err) {
-        console.error('Error fetching channels:', err);
+      } catch (error_) {
+        console.error('Error fetching channels:', error_);
         setError('Failed to fetch channels');
       } finally {
         setLoading(false);

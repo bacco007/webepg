@@ -3,13 +3,13 @@ import { Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
-interface LoadingSpinnerProps {
+interface LoadingSpinnerProperties {
   size?: number;
   className?: string;
   text?: string;
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+const LoadingSpinner: React.FC<LoadingSpinnerProperties> = ({
   size = 48,
   className = '',
   text = 'Loading...',

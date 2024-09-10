@@ -79,8 +79,8 @@ const programBoxHeight = rowHeight - rowGap;
 const horizontalProgramGap = 2;
 
 export default function Component() {
-  const params = useParams();
-  const inputDate = params.date as string;
+  const parameters = useParams();
+  const inputDate = parameters.date as string;
   const [channels, setChannels] = useState<Channel[]>([]);
   const [allPrograms, setAllPrograms] = useState<Program[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -90,7 +90,7 @@ export default function Component() {
   const [loading, setLoading] = useState(true);
   const [userTimezone, setUserTimezone] = useState<string>('UTC');
   const [clientTimezone, setClientTimezone] = useState<string>('UTC');
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerReference = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
@@ -104,13 +104,13 @@ export default function Component() {
         const channelResponse = await fetch(`/api/py/channels/${storedDataSource}`);
         const channelData = await channelResponse.json();
         const sortedChannels = (channelData.data.channels || []).sort((a: Channel, b: Channel) => {
-          const aNum = parseInt(a.channel_number);
-          const bNum = parseInt(b.channel_number);
-          if (isNaN(aNum) && isNaN(bNum)) return a.channel_name.localeCompare(b.channel_name);
-          if (isNaN(aNum)) return 1;
-          if (isNaN(bNum)) return -1;
-          if (aNum === bNum) return a.channel_name.localeCompare(b.channel_name);
-          return aNum - bNum;
+          const aNumber = Number.parseInt(a.channel_number);
+          const bNumber = Number.parseInt(b.channel_number);
+          if (isNaN(aNumber) && isNaN(bNumber)) return a.channel_name.localeCompare(b.channel_name);
+          if (isNaN(aNumber)) return 1;
+          if (isNaN(bNumber)) return -1;
+          if (aNumber === bNumber) return a.channel_name.localeCompare(b.channel_name);
+          return aNumber - bNumber;
         });
         setChannels(sortedChannels);
 
@@ -164,7 +164,7 @@ export default function Component() {
       const programs: Program[] = [];
       const now = dayjs().tz(clientTimezone);
 
-      channelsData.forEach((channelData) => {
+      for (const channelData of channelsData) {
         const channel = channelData.channel;
         channelData.programs.forEach((programData: ProgramData, index: number) => {
           const start = dayjs.tz(programData.start_time, clientTimezone);
@@ -200,7 +200,7 @@ export default function Component() {
             new: false,
           });
         });
-      });
+      }
       return programs;
     },
     [clientTimezone]
@@ -252,11 +252,11 @@ export default function Component() {
 
   const scrollToTime = useCallback(
     (minutesFromMidnight: number): void => {
-      if (scrollContainerRef.current) {
+      if (scrollContainerReference.current) {
         const position =
           (minutesFromMidnight / 30) * timeSlotWidth +
           (isMobile ? mobileChannelColumnWidth : channelColumnWidth);
-        scrollContainerRef.current.scrollTo({
+        scrollContainerReference.current.scrollTo({
           left: position,
           behavior: 'smooth',
         });
@@ -265,7 +265,7 @@ export default function Component() {
     [isMobile]
   );
 
-  const timeSlots = useMemo(() => Array.from({ length: 48 }, (_, i) => i * 30), []);
+  const timeSlots = useMemo(() => Array.from({ length: 48 }, (_, index) => index * 30), []);
 
   const renderSchedule = useCallback((): JSX.Element => {
     const currentTimePosition = calculateCurrentTimePosition();
@@ -376,7 +376,7 @@ export default function Component() {
       <div
         className="scrollbar-custom relative ml-1 max-h-[calc(100vh-165px)] max-w-full"
         style={{ display: 'flex', overflow: 'scroll' }}
-        ref={scrollContainerRef}
+        ref={scrollContainerReference}
       >
         <div className="flex flex-col">{renderSchedule()}</div>
       </div>

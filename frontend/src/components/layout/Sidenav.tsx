@@ -8,13 +8,13 @@ import { usePathname } from 'next/navigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
-interface RouteProps {
+interface RouteProperties {
   href: string;
   label: string;
   icon: React.ElementType;
 }
 
-const routeList: RouteProps[] = [
+const routeList: RouteProperties[] = [
   {
     href: '/',
     label: 'Home',
@@ -37,7 +37,7 @@ const routeList: RouteProps[] = [
   },
 ];
 
-const settingsRoute: RouteProps = {
+const settingsRoute: RouteProperties = {
   href: '/settings',
   label: 'Settings',
   icon: Settings,

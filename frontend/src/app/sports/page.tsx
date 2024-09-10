@@ -79,8 +79,8 @@ interface SportsData {
 
 const sortChannels = (channels: ChannelPrograms[]) => {
   return channels.sort((a, b) => {
-    const lcnA = parseInt(a.channel.lcn) || Infinity;
-    const lcnB = parseInt(b.channel.lcn) || Infinity;
+    const lcnA = Number.parseInt(a.channel.lcn) || Infinity;
+    const lcnB = Number.parseInt(b.channel.lcn) || Infinity;
     if (lcnA !== lcnB) {
       return lcnA - lcnB;
     }
@@ -96,8 +96,8 @@ function SportsPageContent() {
   const [dataSource, setDataSource] = useState<string>('xmltvnet-sydney');
   const [userTimezone, setUserTimezone] = useState<string>('UTC');
 
-  const searchParams = useSearchParams();
-  const days = searchParams.get('days') || '7';
+  const searchParameters = useSearchParams();
+  const days = searchParameters.get('days') || '7';
 
   const router = useRouter();
 
@@ -122,8 +122,8 @@ function SportsPageContent() {
         }
         const data: SportsData = await response.json();
         setSportsData(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } catch (error_) {
+        setError(error_ instanceof Error ? error_.message : 'An unknown error occurred');
       } finally {
         setIsLoading(false);
       }
@@ -134,7 +134,7 @@ function SportsPageContent() {
 
   const navigateToNext24Hours = () => {
     const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
+    const formattedDate = today.toISOString().split('T')[0].replaceAll('-', '');
     router.push(`/epg/${formattedDate}`);
   };
 

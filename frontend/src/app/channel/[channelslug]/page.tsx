@@ -75,8 +75,8 @@ interface ApiData {
 }
 
 export default function Page() {
-  const params = useParams();
-  const channelslug = params.channelslug as string;
+  const parameters = useParams();
+  const channelslug = parameters.channelslug as string;
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [daysLength, setDaysLength] = useState<number>(7);
@@ -88,7 +88,7 @@ export default function Page() {
   const [visibleDays, setVisibleDays] = useState<number>(7);
   const [startDayIndex, setStartDayIndex] = useState(0);
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerReference = useRef<HTMLDivElement>(null);
 
   const timeSlotHeight = 60;
   const timeColumnWidth = 60;
@@ -137,7 +137,7 @@ export default function Page() {
 
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000);
+    }, 60_000);
 
     return () => clearInterval(timer);
   }, [fetchData]);
@@ -236,10 +236,12 @@ export default function Page() {
 
   const days = useMemo(() => {
     if (!startDate) return [];
-    return Array.from({ length: daysLength }, (_, i) => dayjs(startDate).add(i, 'day').toDate());
+    return Array.from({ length: daysLength }, (_, index) =>
+      dayjs(startDate).add(index, 'day').toDate()
+    );
   }, [startDate, daysLength]);
 
-  const timeSlots = useMemo(() => Array.from({ length: 48 }, (_, i) => i * 30), []);
+  const timeSlots = useMemo(() => Array.from({ length: 48 }, (_, index) => index * 30), []);
 
   const getCurrentTimePosition = useCallback(() => {
     if (!startDate) return 0;
@@ -264,18 +266,18 @@ export default function Page() {
     stickyHeaderHeight,
   ]);
 
-  const handlePrevDay = () => {
-    setStartDayIndex((prev) => Math.max(0, prev - 1));
+  const handlePreviousDay = () => {
+    setStartDayIndex((previous) => Math.max(0, previous - 1));
   };
 
   const handleNextDay = () => {
-    setStartDayIndex((prev) => Math.min(daysLength - visibleDays, prev + 1));
+    setStartDayIndex((previous) => Math.min(daysLength - visibleDays, previous + 1));
   };
 
   useEffect(() => {
     const updateVisibleDays = () => {
-      if (containerRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
+      if (containerReference.current) {
+        const containerWidth = containerReference.current.offsetWidth;
         const availableWidth = containerWidth - timeColumnWidth;
         const possibleDays = Math.floor(availableWidth / minDayWidth);
         setVisibleDays(Math.min(possibleDays, daysLength));
@@ -321,11 +323,11 @@ export default function Page() {
           </div>
         </div>
       </header>
-      <div className="grow overflow-hidden" ref={containerRef}>
+      <div className="grow overflow-hidden" ref={containerReference}>
         <ScrollArea className="h-full">
           <div className="min-w-fit p-2 sm:p-4">
             <div className="mb-2 flex items-center justify-between">
-              <Button onClick={handlePrevDay} disabled={startDayIndex === 0}>
+              <Button onClick={handlePreviousDay} disabled={startDayIndex === 0}>
                 <ChevronLeft className="size-4" />
               </Button>
               <div className="font-semibold">

@@ -12,11 +12,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-interface FooterProps {
+interface FooterProperties {
   className?: string;
 }
 
-export const Footer: React.FC<FooterProps> = ({ className }) => {
+export const Footer: React.FC<FooterProperties> = ({ className }) => {
   const [xmltvDataSource, setXmltvDataSource] = useState<string>('unset');
   const [clientTimezone, setClientTimezone] = useState<string>('unset');
 

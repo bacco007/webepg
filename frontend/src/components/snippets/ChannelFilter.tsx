@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-interface ChannelFilterProps {
+interface ChannelFilterProperties {
   value: string;
   onChange: (value: string) => void;
   id?: string;
@@ -15,7 +15,7 @@ export default function ChannelFilter({
   value,
   onChange,
   id = 'channel-filter',
-}: ChannelFilterProps) {
+}: ChannelFilterProperties) {
   const handleClear = () => {
     onChange('');
   };

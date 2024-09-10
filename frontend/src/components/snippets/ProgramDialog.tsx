@@ -26,7 +26,7 @@ interface Event {
   end: string; // Added missing property
 }
 
-interface ProgramDialogProps {
+interface ProgramDialogProperties {
   event: Event;
   onOpenChange: (open: boolean) => void;
   trigger: React.ReactNode;
@@ -55,11 +55,11 @@ const formatTime = (date: Date) => {
 
 const getTimeDescription = (startDate: Date, endDate: Date) => {
   const durationMs = endDate.getTime() - startDate.getTime();
-  const durationMins = Math.round(durationMs / 60000);
+  const durationMins = Math.round(durationMs / 60_000);
   return `${durationMins} minutes`;
 };
 
-export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramDialogProps) {
+export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramDialogProperties) {
   const startDate = new Date(event.start);
   const endDate = new Date(event.end);
 

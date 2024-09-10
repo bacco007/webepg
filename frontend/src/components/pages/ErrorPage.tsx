@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 
-interface ErrorPageProps {
+interface ErrorPageProperties {
   statusCode?: number;
   title?: string;
   message?: string;
@@ -16,7 +16,7 @@ export default function ErrorPage({
   statusCode = 404,
   title = 'Page Not Found',
   message = "Sorry, we couldn't find the page you're looking for.",
-}: ErrorPageProps) {
+}: ErrorPageProperties) {
   return (
     <div className="bg-background text-foreground flex min-h-screen flex-col items-center justify-center p-4">
       <div className="max-w-md space-y-6 text-center">

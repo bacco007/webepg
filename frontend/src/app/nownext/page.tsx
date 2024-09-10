@@ -65,8 +65,8 @@ const ChannelGrid: React.FC = () => {
       }
       const data = await response.json();
       const sortedChannels = data.data.sort((a: ChannelData, b: ChannelData) => {
-        const aLcn = parseInt(a.channel.lcn) || Infinity;
-        const bLcn = parseInt(b.channel.lcn) || Infinity;
+        const aLcn = Number.parseInt(a.channel.lcn) || Infinity;
+        const bLcn = Number.parseInt(b.channel.lcn) || Infinity;
         if (aLcn === bLcn) {
           return a.channel.name.localeCompare(b.channel.name);
         }
@@ -75,8 +75,8 @@ const ChannelGrid: React.FC = () => {
       setChannels(sortedChannels);
       setFilteredChannels(sortedChannels);
       setIsLoading(false);
-    } catch (err) {
-      console.error('Error fetching channel data:', err);
+    } catch (error_) {
+      console.error('Error fetching channel data:', error_);
       setError('Error fetching channel data. Please try again later.');
       setIsLoading(false);
     }
@@ -105,7 +105,7 @@ const ChannelGrid: React.FC = () => {
 
   const navigateToNext24Hours = () => {
     const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
+    const formattedDate = today.toISOString().split('T')[0].replaceAll('-', '');
     router.push(`/epg/${formattedDate}`);
   };
 

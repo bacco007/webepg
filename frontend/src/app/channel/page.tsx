@@ -57,8 +57,8 @@ const ChannelList: React.FC = () => {
       }
       const data: ApiResponse = await response.json();
       const sortedChannels = data.data.channels.sort((a, b) => {
-        const aNumber = parseInt(a.channel_number) || Infinity;
-        const bNumber = parseInt(b.channel_number) || Infinity;
+        const aNumber = Number.parseInt(a.channel_number) || Infinity;
+        const bNumber = Number.parseInt(b.channel_number) || Infinity;
         if (aNumber === bNumber) {
           return a.channel_name.localeCompare(b.channel_name);
         }

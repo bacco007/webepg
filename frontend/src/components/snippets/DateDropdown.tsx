@@ -21,7 +21,7 @@ const DateDropdown: React.FC = () => {
   const [dates, setDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParameters = useSearchParams();
 
   const fetchDates = useCallback(async () => {
     try {
@@ -45,15 +45,15 @@ const DateDropdown: React.FC = () => {
   }, [fetchDates]);
 
   useEffect(() => {
-    const currentDate = searchParams.get('date');
+    const currentDate = searchParameters.get('date');
     if (currentDate) {
       setSelectedDate(currentDate);
     }
-  }, [searchParams]);
+  }, [searchParameters]);
 
   const handleDateChange = (value: string) => {
     setSelectedDate(value);
-    const currentTimezone = searchParams.get('timezone') || dayjs.tz.guess();
+    const currentTimezone = searchParameters.get('timezone') || dayjs.tz.guess();
     router.push(`/epg/${value}?timezone=${encodeURIComponent(currentTimezone)}`);
   };
 

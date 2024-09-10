@@ -21,7 +21,10 @@ export default function FontScaler() {
   const [fontScale, setFontScale] = useState('100');
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--font-scale', `${parseInt(fontScale) / 100}`);
+    document.documentElement.style.setProperty(
+      '--font-scale',
+      `${Number.parseInt(fontScale) / 100}`
+    );
   }, [fontScale]);
 
   return (

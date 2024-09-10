@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-interface TimeJumpDropdownProps {
+interface TimeJumpDropdownProperties {
   onTimeJump: (minutesFromMidnight: number) => void;
 }
 
@@ -42,7 +42,7 @@ const timeOptions: TimeOption[] = [
   },
 ];
 
-const TimeJumpDropdown: React.FC<TimeJumpDropdownProps> = ({ onTimeJump }) => {
+const TimeJumpDropdown: React.FC<TimeJumpDropdownProperties> = ({ onTimeJump }) => {
   const handleValueChange = (selectedValue: string) => {
     const selectedOption = timeOptions.find((option) => option.value === selectedValue);
     if (selectedOption) {

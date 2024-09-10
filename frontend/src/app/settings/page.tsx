@@ -73,7 +73,10 @@ export default function SettingsPage() {
     setFontScale(savedFontScale);
     setTimezone(savedTimezone);
 
-    document.documentElement.style.setProperty('--font-scale', `${parseInt(savedFontScale) / 100}`);
+    document.documentElement.style.setProperty(
+      '--font-scale',
+      `${Number.parseInt(savedFontScale) / 100}`
+    );
 
     // Fetch source status
     const fetchSourceStatus = async () => {
@@ -86,8 +89,8 @@ export default function SettingsPage() {
         }
         const data = await response.json();
         setSourceStatus(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } catch (error_) {
+        setError(error_ instanceof Error ? error_.message : 'An unknown error occurred');
       } finally {
         setIsLoading(false);
       }
@@ -103,7 +106,9 @@ export default function SettingsPage() {
 
   const handleSave = () => {
     // Save settings to localStorage
-    localStorage.setItem('theme', theme);
+    if (theme) {
+      localStorage.setItem('theme', theme);
+    }
     localStorage.setItem('fontScale', fontScale);
     localStorage.setItem('userTimezone', timezone);
 
@@ -208,7 +213,13 @@ export default function SettingsPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <TimezoneSelector value={timezone} onChange={handleTimezoneChange} />
+                    <div
+                      style={{
+                        width: '100%',
+                      }}
+                    >
+                      <TimezoneSelector value={timezone} onChange={handleTimezoneChange} />
+                    </div>
                   </CardContent>
                 </Card>
 

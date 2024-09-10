@@ -31,11 +31,11 @@ export const viewport: Viewport = {
   ],
 };
 
-interface RootLayoutProps {
+interface RootLayoutProperties {
   children: React.ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({ children }: RootLayoutProperties) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
