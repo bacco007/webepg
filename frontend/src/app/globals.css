@@ -59,6 +59,14 @@
   }
 }
 
+:root {
+  --font-scale: 1;
+}
+
+html {
+  font-size: calc(16px * var(--font-scale));
+}
+
 @layer base {
   * {
     @apply border-border;

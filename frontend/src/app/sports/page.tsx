@@ -6,9 +6,9 @@ import { format } from 'date-fns';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { CalendarIcon, FilterIcon } from 'lucide-react';
+import { CalendarIcon, Clock, FilterIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import {
@@ -18,7 +18,14 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -70,10 +77,6 @@ interface SportsData {
   channels: ChannelPrograms[];
 }
 
-// const getValidImageSrc = (src: string) => {
-//   return src && src.startsWith('http') ? src : '/placeholder.svg';
-// };
-
 const sortChannels = (channels: ChannelPrograms[]) => {
   return channels.sort((a, b) => {
     const lcnA = parseInt(a.channel.lcn) || Infinity;
@@ -95,6 +98,8 @@ function SportsPageContent() {
 
   const searchParams = useSearchParams();
   const days = searchParams.get('days') || '7';
+
+  const router = useRouter();
 
   useEffect(() => {
     const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
@@ -126,6 +131,16 @@ function SportsPageContent() {
 
     fetchSportsData();
   }, [days, dataSource, userTimezone]);
+
+  const navigateToNext24Hours = () => {
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
+    router.push(`/epg/${formattedDate}`);
+  };
+
+  const navigateToFullWeek = (channelSlug: string) => {
+    router.push(`/channel/${channelSlug}`);
+  };
 
   const filteredAndSortedChannels = useMemo(() => {
     if (!sportsData) return [];
@@ -238,6 +253,26 @@ function SportsPageContent() {
                       ))}
                     </Accordion>
                   </CardContent>
+                  <CardFooter className="p-4">
+                    <div className="flex w-full gap-2">
+                      <Button
+                        variant="secondary"
+                        className="flex-1"
+                        onClick={navigateToNext24Hours}
+                      >
+                        <Clock className="mr-2 size-4" />
+                        Next 24hrs
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => navigateToFullWeek(channelData.channel.slug)}
+                      >
+                        <Clock className="mr-2 size-4" />
+                        Full Week
+                      </Button>
+                    </div>
+                  </CardFooter>
                 </Card>
               ))}
             </div>

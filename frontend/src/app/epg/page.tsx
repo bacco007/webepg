@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
-import { AlertCircle, Calendar, RefreshCw, Search } from 'lucide-react';
+import { AlertCircle, Calendar, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 

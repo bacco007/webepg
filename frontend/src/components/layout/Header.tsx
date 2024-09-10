@@ -5,6 +5,7 @@ import { Home, Menu, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import FontScaler from '@/components/snippets/FontScaler';
 import { Icons } from '@/components/snippets/icons';
 import SourceDropdown from '@/components/snippets/SourceDropdown';
 import { ModeToggle } from '@/components/theme/ModeToggle';
@@ -115,6 +116,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
           <Icons.gitHub className="size-4 text-white" />
           <span className="sr-only">GitHub</span>
         </Link>
+        <FontScaler />
         <ModeToggle />
         <Sheet>
           <SheetTrigger asChild>

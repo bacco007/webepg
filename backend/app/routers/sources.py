@@ -40,8 +40,8 @@ class SourceStatus(BaseModel):
 @router.get("/py/sources")
 async def get_sources() -> List[Dict[str, Any]]:
     # Load sources from both files
-    main_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)
-    local_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES_LOCAL)
+    main_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)  # type: ignore
+    local_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES_LOCAL)  # type: ignore
 
     # Create a dictionary to store merged sources
     merged_sources: Dict[str, Dict[str, Any]] = {}
@@ -63,8 +63,8 @@ async def get_sources() -> List[Dict[str, Any]]:
 @router.get("/py/sources/status")
 async def get_sources_status() -> Dict[str, SourceStatus]:
     try:
-        main_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)
-        local_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES_LOCAL)
+        main_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)  # type: ignore
+        local_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES_LOCAL)  # type: ignore
     except FileNotFoundError as err:
         raise HTTPException(
             status_code=404, detail="XMLTV sources file not found"
@@ -210,8 +210,8 @@ async def process_single_source(
             {"message": "Another process is already running", "status": process_status}
         )
 
-    main_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)
-    local_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES_LOCAL)
+    main_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)  # type: ignore
+    local_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES_LOCAL)  # type: ignore
 
     merged_sources: Dict[str, Dict[str, Any]] = {}
     for source in main_sources + local_sources:
