@@ -6,9 +6,46 @@
     "url": "local"
   },
   {
+    "id": "foxtel",
+    "group": "Testing",
+    "location": "Foxtel",
+    "url": "local"
+  },
+  {
     "id": "bevy-auspremium2",
     "group": "Testing",
     "location": "Australia Premium 2",
     "url": "https://www.bevy.be/bevyfiles/australiapremium2.xml.gz"
+  },
+  {
+    "id": "epgshare01-au1",
+    "group": "Testing",
+    "location": "Australia epgshare01",
+    "url": "https://epgshare01.online/epgshare01/epg_ripper_AU1.xml.gz"
+  },
+  {
+    "id": "epgshare01-ussport",
+    "group": "Testing",
+    "location": "US Sports epgshare01",
+    "url": "https://epgshare01.online/epgshare01/epg_ripper_US_SPORTS1.xml.gz"
+  },
+  {
+    "id": "epgshare01-uk",
+    "group": "Testing",
+    "location": "UK epgshare01",
+    "url": "https://epgshare01.online/epgshare01/epg_ripper_UK1.xml.gz"
+  },
+  {
+    "id": "epgshare01-us",
+    "group": "Testing",
+    "location": "US epgshare01",
+    "url": "https://epgshare01.online/epgshare01/epg_ripper_US1.xml.gz"
+  },
+  {
+    "id": "epgshare01-optus",
+    "group": "Testing",
+    "location": "Optus Sport epgshare01",
+    "url": "https://epgshare01.online/epgshare01/epg_ripper_OPTUSSPORTS1.xml.gz"
   }
 ]
+

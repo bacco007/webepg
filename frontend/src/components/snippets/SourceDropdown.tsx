@@ -23,38 +23,50 @@ interface Source {
   url: string;
 }
 
-type PopoverTriggerProperties = React.ComponentPropsWithoutRef<typeof PopoverTrigger>;
+interface GroupedSources {
+  label: string;
+  sources: Source[];
+}
 
-interface SourceDropdownProperties extends PopoverTriggerProperties {}
+type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
-export default function SourceDropdown({ className }: SourceDropdownProperties) {
+interface SourceDropdownProps extends PopoverTriggerProps {}
+
+export default function SourceDropdown({ className }: SourceDropdownProps) {
   const [open, setOpen] = React.useState(false);
   const [sources, setSources] = React.useState<Source[]>([]);
   const [selectedSource, setSelectedSource] = React.useState<Source | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    fetch('/api/py/sources')
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchSources = async () => {
+      try {
+        const response = await fetch('/api/py/sources');
+        if (!response.ok) {
+          throw new Error('Failed to fetch sources');
+        }
+        const data: Source[] = await response.json();
         setSources(data);
         const savedSourceId = localStorage.getItem('xmltvdatasource');
-        const savedSource = data.find(
-          (source: { id: string | null }) => source.id === savedSourceId
-        );
+        const savedSource = data.find((source) => source.id === savedSourceId);
         if (savedSource) {
           setSelectedSource(savedSource);
         } else if (data.length > 0) {
           setSelectedSource(data[0]);
         }
-      })
-      .catch((error) => console.error('Error fetching sources:', error));
+      } catch (error) {
+        console.error('Error fetching sources:', error);
+        setError('Failed to load sources. Please try again later.');
+      }
+    };
+
+    fetchSources();
   }, []);
 
   const handleSourceSelect = (source: Source) => {
     setSelectedSource(source);
     localStorage.setItem('xmltvdatasource', source.id);
     setOpen(false);
-    // Refresh the page
     window.location.reload();
   };
 
@@ -62,16 +74,26 @@ export default function SourceDropdown({ className }: SourceDropdownProperties) 
     return source.subgroup ? `${source.group} - ${source.subgroup}` : source.group;
   };
 
-  const groupedSources = React.useMemo(() => {
-    const groupSet = new Set(sources.map((tz) => tz.group));
-    const groups = Array.from(groupSet).sort();
-    return groups.map((groupLabel) => ({
-      label: groupLabel,
-      sources: sources
-        .filter((source) => getGroupLabel(source) === groupLabel)
-        .sort((a, b) => a.location.localeCompare(b.location)),
-    }));
+  const groupedSources = React.useMemo<GroupedSources[]>(() => {
+    const groupMap = new Map<string, Source[]>();
+    sources.forEach((source) => {
+      const label = getGroupLabel(source);
+      if (!groupMap.has(label)) {
+        groupMap.set(label, []);
+      }
+      groupMap.get(label)!.push(source);
+    });
+    return Array.from(groupMap.entries())
+      .map(([label, sources]) => ({
+        label,
+        sources: sources.sort((a, b) => a.location.localeCompare(b.location)),
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
   }, [sources]);
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

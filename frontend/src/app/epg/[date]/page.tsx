@@ -11,10 +11,10 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 import ChannelFilter from '@/components/snippets/ChannelFilter';
-import DateDropdown from '@/components/snippets/DateDropdown';
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import ProgramDialog from '@/components/snippets/ProgramDialog';
 import TimeJumpDropdown from '@/components/snippets/TimeJumpDropdown';
+import DateTabs from '@/components/snippets/DateTabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -69,6 +69,17 @@ interface Channel {
 }
 
 const defaultColorClasses = ['bg-cyan-600'];
+const titleColorMappings = {
+  'No Data Available':
+    'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+  'To Be Advised':
+    'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+  'To Be Advised (cont)':
+    'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+  // 'Breaking News': 'bg-yellow-500 text-black',
+  // 'Live Sports': 'bg-green-500',
+  // // Add more mappings as needed
+};
 
 const timeSlotWidth = 180;
 const channelColumnWidth = 250;
@@ -172,18 +183,23 @@ export default function Component() {
 
           const isCurrentProgram = now.isAfter(start) && now.isBefore(end);
 
+          const getColorClass = () => {
+            if (programData.title in titleColorMappings) {
+              return titleColorMappings[programData.title as keyof typeof titleColorMappings];
+            }
+            if (isCurrentProgram) {
+              return 'bg-red-500';
+            }
+            return defaultColorClasses[index % defaultColorClasses.length];
+          };
+
           programs.push({
             id: `${channel.id}-${index}`,
             title: decodeHtml(programData.title),
             description: decodeHtml(programData.description),
             start: start.format(),
             end: end.format(),
-            color:
-              programData.title === 'No Data Available'
-                ? 'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]'
-                : isCurrentProgram
-                  ? 'bg-red-500'
-                  : defaultColorClasses[index % defaultColorClasses.length],
+            color: getColorClass(),
             channel: channel.id,
             subtitle: programData.subtitle,
             episodeNum: programData.episode,
@@ -213,13 +229,14 @@ export default function Component() {
         console.error(`Channel not found for program: ${program.title}`);
         return {};
       }
-
-      const start = dayjs(program.start).tz(clientTimezone);
-      const end = dayjs(program.end).tz(clientTimezone);
+      const stripSeconds = (date: dayjs.Dayjs) => date.second(0).millisecond(0);
+      const start = stripSeconds(dayjs(program.start).tz(clientTimezone));
+      const end = stripSeconds(dayjs(program.end).tz(clientTimezone));
       const dayStart = start.startOf('day');
 
       const startMinutes = start.diff(dayStart, 'minute');
-      const duration = end.diff(start, 'minute');
+      const durationExact = end.diff(start, 'minute', true);
+      const duration = Math.round(durationExact);
 
       return {
         position: 'absolute',
@@ -289,7 +306,7 @@ export default function Component() {
               className="border-border text-muted-foreground shrink-0 border-l py-2 text-left text-sm"
               style={{ width: `${timeSlotWidth}px` }}
             >
-              <span className="ml-2 text-base">
+              <span className="ml-2 text-sm font-bold">
                 {dayjs().startOf('day').add(minutes, 'minute').format('HH:mm')}
               </span>
             </div>
@@ -360,7 +377,6 @@ export default function Component() {
             {isFilterExpanded && (
               <div className="flex flex-col space-y-2">
                 <ChannelFilter value={channelFilter} onChange={setChannelFilter} />
-                <DateDropdown />
                 <TimeJumpDropdown onTimeJump={scrollToTime} />
               </div>
             )}
@@ -368,13 +384,15 @@ export default function Component() {
         ) : (
           <div className="flex flex-wrap items-center gap-4">
             <ChannelFilter value={channelFilter} onChange={setChannelFilter} />
-            <DateDropdown />
             <TimeJumpDropdown onTimeJump={scrollToTime} />
           </div>
         )}
       </header>
+      <div className="p-1">
+        <DateTabs />
+      </div>
       <div
-        className="scrollbar-custom relative ml-1 max-h-[calc(100vh-165px)] max-w-full"
+        className="scrollbar-custom relative ml-1 max-h-[calc(100vh-230px)] max-w-full"
         style={{ display: 'flex', overflow: 'scroll' }}
         ref={scrollContainerReference}
       >
@@ -413,11 +431,6 @@ const ChannelRow = React.memo(
             height: `${rowHeight}px`,
           }}
         >
-          {channel.channel_number && channel.channel_number !== 'N/A' && (
-            <Badge variant="secondary" className="mr-2">
-              {channel.channel_number}
-            </Badge>
-          )}
           <Image
             src={channel.chlogo && channel.chlogo !== 'N/A' ? channel.chlogo : '/placeholder.svg'}
             alt={`${channel.channel_name} logo`}
@@ -433,6 +446,11 @@ const ChannelRow = React.memo(
             >
               {channel.channel_name}
             </Link>
+          )}
+          {channel.channel_number && channel.channel_number !== 'N/A' && (
+            <Badge variant="secondary" className="mr-2">
+              {channel.channel_number}
+            </Badge>
           )}
         </div>
         <div
@@ -479,7 +497,11 @@ const ChannelRow = React.memo(
                     min)
                   </div>
                   <div className="truncate font-semibold">{program.title}</div>
-                  {!isMobile && <div className="truncate">{program.description}</div>}
+                  {!isMobile && (
+                    <div className="truncate">
+                      {program.subtitle && program.subtitle !== 'N/A' && program.subtitle}
+                    </div>
+                  )}
                 </div>
               }
             />

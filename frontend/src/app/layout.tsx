@@ -3,7 +3,7 @@ import './globals.css';
 import type { Metadata, Viewport } from 'next';
 
 import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import Header from '@/components/layout/Header';
 import { ThemeProvider } from '@/components/theme/theme-provider';
 import { fonts } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
@@ -49,7 +49,7 @@ export default function RootLayout({ children }: RootLayoutProperties) {
           disableTransitionOnChange
         >
           <div className="flex h-screen flex-col overflow-hidden">
-            <Header className="shrink-0" />
+            <Header />
             <main className="scrollbar-custom grow overflow-auto">
               <div className="from-background to-secondary min-h-full w-full bg-gradient-to-br">
                 {children}

@@ -67,6 +67,15 @@ html {
   font-size: calc(16px * var(--font-scale));
 }
 
+.navigation-menu {
+  position: relative;
+  z-index: 50;
+}
+
+.navigation-menu-content {
+  z-index: 100;
+}
+
 @layer base {
   * {
     @apply border-border;

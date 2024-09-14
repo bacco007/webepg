@@ -16,6 +16,7 @@ module.exports = {
       {
         endOfLine: 'auto',
       },
+      { usePrettierrc: true },
     ],
     'unicorn/better-regex': 'error',
     'unicorn/filename-case': 'off',

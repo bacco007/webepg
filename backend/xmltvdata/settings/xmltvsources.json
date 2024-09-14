@@ -16,8 +16,8 @@
   {
     "id": "xmltvnet-albury-wodonga",
     "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "SNSW - Albury",
+    "subgroup": "Regional - VIC",
+    "location": "Albury / Wodonga",
     "url": "http://xmltv.net/xml_files/Albury_Wodonga.xml"
   },
   {
@@ -65,15 +65,15 @@
   {
     "id": "xmltvnet-canberra",
     "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "SNSW - Canberra / ACT",
+    "subgroup": "Regional - ACT",
+    "location": "Canberra",
     "url": "http://xmltv.net/xml_files/Canberra.xml"
   },
   {
     "id": "xmltvnet-central-coast-nsw",
     "group": "Australia",
     "subgroup": "Regional - NSW",
-    "location": "NNSW - Central Coast NSW",
+    "location": "NNSW - Central Coast",
     "url": "http://xmltv.net/xml_files/Central_Coast.xml"
   },
   {
@@ -121,7 +121,7 @@
   {
     "id": "xmltvnet-jurien-bay",
     "group": "Australia",
-    "subgroup": "Regional - TAS",
+    "subgroup": "Regional - WA",
     "location": "Jurien Bay",
     "url": "http://xmltv.net/xml_files/Jurien_Bay.xml"
   },
@@ -192,7 +192,7 @@
     "id": "xmltvnet-orange",
     "group": "Australia",
     "subgroup": "Regional - NSW",
-    "location": "SNSW - Orange",
+    "location": "SNSW - Orange/Dubbo",
     "url": "http://xmltv.net/xml_files/Orange_Dubbo.xml"
   },
   {
@@ -226,8 +226,8 @@
   {
     "id": "xmltvnet-qld-regional",
     "group": "Australia",
-    "subgroup": "Regional - QLD",
-    "location": "QLD Regional",
+    "subgroup": "Remote & Central",
+    "location": "QLD",
     "url": "http://xmltv.net/xml_files/QLD_Regional.xml"
   },
   {
@@ -262,7 +262,7 @@
     "id": "xmltvnet-south-east-sa",
     "group": "Australia",
     "subgroup": "Regional - SA",
-    "location": "South East SA",
+    "location": "South East",
     "url": "http://xmltv.net/xml_files/South_East_SA.xml"
   },
   {
@@ -297,7 +297,7 @@
     "id": "xmltvnet-taree-port-macquarie",
     "group": "Australia",
     "subgroup": "Regional - NSW",
-    "location": "NNSW - Mid North Coast",
+    "location": "NNSW - Taree/Port Macquarie",
     "url": "http://xmltv.net/xml_files/Taree_Port_Macquarie.xml"
   },
   {
@@ -348,34 +348,6 @@
     "subgroup": "Regional - NSW",
     "location": "SNSW - Wollongong",
     "url": "http://xmltv.net/xml_files/Wollongong.xml"
-  },
-  {
-    "id": "mjh-binge",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Hubbl - Binge",
-    "url": "https://i.mjh.nz/Binge/epg.xml.gz"
-  },
-  {
-    "id": "mjh-kayo",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Hubbl - Kayo Sports",
-    "url": "https://i.mjh.nz/Kayo/epg.xml.gz"
-  },
-  {
-    "id": "mjh-flash",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Hubbl - Flash",
-    "url": "https://i.mjh.nz/Flash/epg.xml.gz"
-  },
-  {
-    "id": "mjh-foxtel",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Foxtel",
-    "url": "https://i.mjh.nz/Foxtel/epg.xml.gz"
   },
   {
     "id": "mjh-optus",

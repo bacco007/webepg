@@ -31,7 +31,7 @@ export default function FontScaler() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="ghost">
-          <Type className="size-[1.2rem] rotate-0 scale-100 transition-all" />
+          <Type className="size-[1.2rem] rotate-0 scale-100 transition-all text-white dark:text-white" />
           <span className="sr-only">Adjust font size</span>
         </Button>
       </DropdownMenuTrigger>
