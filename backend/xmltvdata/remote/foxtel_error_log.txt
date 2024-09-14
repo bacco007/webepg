@@ -58,3 +58,118 @@ aiohttp.client_exceptions.ClientResponseError: 500, message='Internal Server Err
 2024-09-14 15:44:16,121: INFO: Successfully processed channel foxtel-ls2
 2024-09-14 15:44:18,675: INFO: Successfully processed channel foxtel-fo2
 2024-09-14 15:44:21,126: INFO: Successfully processed channel foxtel-ar2
+2024-09-14 15:44:23,506: INFO: Successfully processed channel foxtel-sw2
+2024-09-14 15:44:25,838: INFO: Successfully processed channel foxtel-io2
+2024-09-14 15:44:28,079: ERROR: Error fetching data for channel foxtel-hi2: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/HI2/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+Traceback (most recent call last):
+  File "/Users/bacco007/Documents/webdev/webepg/backend/app/routers/foxtel.py", line 176, in process_channel
+    response.raise_for_status()
+  File "/Users/bacco007/Documents/webdev/webepg/backend/.venv/lib/python3.12/site-packages/aiohttp/client_reqrep.py", line 1093, in raise_for_status
+    raise ClientResponseError(
+aiohttp.client_exceptions.ClientResponseError: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/HI2/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+
+2024-09-14 15:44:30,600: INFO: Successfully processed channel foxtel-cl2
+2024-09-14 15:44:32,976: INFO: Successfully processed channel foxtel-fs2
+2024-09-14 15:44:35,452: INFO: Successfully processed channel foxtel-rl2
+2024-09-14 15:44:37,759: INFO: Successfully processed channel foxtel-dt2
+2024-09-14 15:44:40,205: INFO: Successfully processed channel foxtel-lf2
+2024-09-14 15:44:42,523: INFO: Successfully processed channel foxtel-ds2
+2024-09-14 15:44:44,854: INFO: Successfully processed channel foxtel-di2
+2024-09-14 15:44:47,102: INFO: Successfully processed channel foxtel-k02
+2024-09-14 15:44:49,346: INFO: Successfully processed channel foxtel-sho
+2024-09-14 15:44:51,599: INFO: Successfully processed channel foxtel-mvs
+2024-09-14 15:44:53,885: INFO: Successfully processed channel foxtel-shf
+2024-09-14 15:44:56,117: INFO: Successfully processed channel foxtel-sha
+2024-09-14 15:44:58,386: INFO: Successfully processed channel foxtel-shy
+2024-09-14 15:45:00,626: INFO: Successfully processed channel foxtel-shd
+2024-09-14 15:45:02,863: INFO: Successfully processed channel foxtel-mo6
+2024-09-14 15:45:05,171: INFO: Successfully processed channel foxtel-grr
+2024-09-14 15:45:07,428: INFO: Successfully processed channel foxtel-lms
+2024-09-14 15:45:09,666: INFO: Successfully processed channel foxtel-sh2
+2024-09-14 15:45:11,959: INFO: Successfully processed channel foxtel-mta
+2024-09-14 15:45:14,218: INFO: Successfully processed channel foxtel-mtf
+2024-09-14 15:45:16,937: INFO: Successfully processed channel foxtel-s4b
+2024-09-14 15:45:19,545: INFO: Successfully processed channel foxtel-fsn
+2024-09-14 15:45:21,803: INFO: Successfully processed channel foxtel-fs1
+2024-09-14 15:45:24,166: INFO: Successfully processed channel foxtel-sp2
+2024-09-14 15:45:26,404: INFO: Successfully processed channel foxtel-fs3
+2024-09-14 15:45:28,684: INFO: Successfully processed channel foxtel-faf
+2024-09-14 15:45:30,988: INFO: Successfully processed channel foxtel-fsp
+2024-09-14 15:45:33,273: INFO: Successfully processed channel foxtel-sps
+2024-09-14 15:45:35,556: INFO: Successfully processed channel foxtel-fss
+2024-09-14 15:45:37,866: INFO: Successfully processed channel foxtel-esp
+2024-09-14 15:45:40,118: INFO: Successfully processed channel foxtel-es2
+2024-09-14 15:45:42,326: INFO: Successfully processed channel foxtel-sra
+2024-09-14 15:45:44,511: INFO: Successfully processed channel foxtel-sr2
+2024-09-14 15:45:46,814: INFO: Successfully processed channel foxtel-srw
+2024-09-14 15:45:49,116: INFO: Successfully processed channel foxtel-rtv
+2024-09-14 15:45:51,443: INFO: Successfully processed channel foxtel-rtd
+2024-09-14 15:45:53,796: INFO: Successfully processed channel foxtel-sky
+2024-09-14 15:45:56,099: ERROR: Error fetching data for channel foxtel-fxw: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/FXW/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+Traceback (most recent call last):
+  File "/Users/bacco007/Documents/webdev/webepg/backend/app/routers/foxtel.py", line 176, in process_channel
+    response.raise_for_status()
+  File "/Users/bacco007/Documents/webdev/webepg/backend/.venv/lib/python3.12/site-packages/aiohttp/client_reqrep.py", line 1093, in raise_for_status
+    raise ClientResponseError(
+aiohttp.client_exceptions.ClientResponseError: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/FXW/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+
+2024-09-14 15:45:58,416: INFO: Successfully processed channel foxtel-asp
+2024-09-14 15:46:00,934: INFO: Successfully processed channel foxtel-suk
+2024-09-14 15:46:03,653: INFO: Successfully processed channel foxtel-fnc
+2024-09-14 15:46:06,041: INFO: Successfully processed channel foxtel-cnn
+2024-09-14 15:46:08,315: INFO: Successfully processed channel foxtel-msn
+2024-09-14 15:46:10,678: INFO: Successfully processed channel foxtel-cnb
+2024-09-14 15:46:13,040: INFO: Successfully processed channel foxtel-blm
+2024-09-14 15:46:15,372: INFO: Successfully processed channel foxtel-sww
+2024-09-14 15:46:17,773: INFO: Successfully processed channel foxtel-aje
+2024-09-14 15:46:20,273: INFO: Successfully processed channel foxtel-ccc
+2024-09-14 15:46:22,630: INFO: Successfully processed channel foxtel-ccd
+2024-09-14 15:46:24,992: ERROR: Error fetching data for channel foxtel-nhk: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/NHK/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+Traceback (most recent call last):
+  File "/Users/bacco007/Documents/webdev/webepg/backend/app/routers/foxtel.py", line 176, in process_channel
+    response.raise_for_status()
+  File "/Users/bacco007/Documents/webdev/webepg/backend/.venv/lib/python3.12/site-packages/aiohttp/client_reqrep.py", line 1093, in raise_for_status
+    raise ClientResponseError(
+aiohttp.client_exceptions.ClientResponseError: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/NHK/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+
+2024-09-14 15:46:27,327: ERROR: Error fetching data for channel foxtel-npo: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/NPO/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+Traceback (most recent call last):
+  File "/Users/bacco007/Documents/webdev/webepg/backend/app/routers/foxtel.py", line 176, in process_channel
+    response.raise_for_status()
+  File "/Users/bacco007/Documents/webdev/webepg/backend/.venv/lib/python3.12/site-packages/aiohttp/client_reqrep.py", line 1093, in raise_for_status
+    raise ClientResponseError(
+aiohttp.client_exceptions.ClientResponseError: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/NPO/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+
+2024-09-14 15:46:29,839: ERROR: Error fetching data for channel foxtel-cne: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/CNE/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+Traceback (most recent call last):
+  File "/Users/bacco007/Documents/webdev/webepg/backend/app/routers/foxtel.py", line 176, in process_channel
+    response.raise_for_status()
+  File "/Users/bacco007/Documents/webdev/webepg/backend/.venv/lib/python3.12/site-packages/aiohttp/client_reqrep.py", line 1093, in raise_for_status
+    raise ClientResponseError(
+aiohttp.client_exceptions.ClientResponseError: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/CNE/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+
+2024-09-14 15:46:32,603: ERROR: Error fetching data for channel foxtel-boo: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/BOO/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+Traceback (most recent call last):
+  File "/Users/bacco007/Documents/webdev/webepg/backend/app/routers/foxtel.py", line 176, in process_channel
+    response.raise_for_status()
+  File "/Users/bacco007/Documents/webdev/webepg/backend/.venv/lib/python3.12/site-packages/aiohttp/client_reqrep.py", line 1093, in raise_for_status
+    raise ClientResponseError(
+aiohttp.client_exceptions.ClientResponseError: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/BOO/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+
+2024-09-14 15:46:34,906: ERROR: Error fetching data for channel foxtel-drm: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/DRM/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+Traceback (most recent call last):
+  File "/Users/bacco007/Documents/webdev/webepg/backend/app/routers/foxtel.py", line 176, in process_channel
+    response.raise_for_status()
+  File "/Users/bacco007/Documents/webdev/webepg/backend/.venv/lib/python3.12/site-packages/aiohttp/client_reqrep.py", line 1093, in raise_for_status
+    raise ClientResponseError(
+aiohttp.client_exceptions.ClientResponseError: 500, message='Internal Server Error', url='https://www.foxtel.com.au/webepg/ws/foxtel/channel/DRM/events?movieHeight=110&tvShowHeight=90&startDate=1726272000000&endDate=1728000000000&regionID=8336'
+
+2024-09-14 15:46:37,242: INFO: Successfully processed channel foxtel-tmf
+2024-09-14 15:46:39,379: INFO: Successfully processed channel foxtel-nmu
+2024-09-14 15:46:41,543: INFO: Successfully processed channel foxtel-vh1
+2024-09-14 15:46:43,693: INFO: Successfully processed channel foxtel-mtc
+2024-09-14 15:46:45,955: INFO: Successfully processed channel foxtel-cmt
+2024-09-14 15:46:48,227: INFO: Successfully processed channel foxtel-ant
+2024-09-14 15:46:50,470: INFO: Successfully processed channel foxtel-rai
+2024-09-14 15:46:52,479: INFO: Successfully saved channel data.
+2024-09-14 15:46:52,860: INFO: Successfully saved program data.

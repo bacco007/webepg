@@ -177,13 +177,15 @@ const ChannelGrid: React.FC = () => {
               {filteredChannels.map((channelData) => (
                 <Card key={channelData.channel.id} className="bg-card flex flex-col">
                   <CardHeader className="flex flex-row items-center justify-between p-4">
-                    <Image
-                      src={channelData.channel.icon}
-                      alt={`${channelData.channel.name} Logo`}
-                      width={80}
-                      height={40}
-                      className="object-contain"
-                    />
+                    {channelData.channel.icon !== 'N/A' && (
+                      <Image
+                        src={channelData.channel.icon}
+                        alt={`${channelData.channel.name} Logo`}
+                        width={80}
+                        height={40}
+                        className="object-contain"
+                      />
+                    )}
                     <div className="text-right">
                       <CardTitle className="text-lg">{channelData.channel.name}</CardTitle>
                       {channelData.channel.lcn !== 'N/A' && (

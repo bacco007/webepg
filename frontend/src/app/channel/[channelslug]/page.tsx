@@ -331,8 +331,9 @@ export default function Page() {
                 <ChevronLeft className="size-4" />
               </Button>
               <div className="font-semibold">
-                {dayjs(days[startDayIndex]).format('MMM D')} -{' '}
-                {dayjs(days[startDayIndex + visibleDays - 1]).format('MMM D')}
+                {days[startDayIndex] && dayjs(days[startDayIndex]).format('MMM D')} -{' '}
+                {days[startDayIndex + visibleDays - 1] &&
+                  dayjs(days[startDayIndex + visibleDays - 1]).format('MMM D')}
               </div>
               <Button onClick={handleNextDay} disabled={startDayIndex + visibleDays >= daysLength}>
                 <ChevronRight className="size-4" />
@@ -350,11 +351,11 @@ export default function Page() {
               ></div>
               {days.slice(startDayIndex, startDayIndex + visibleDays).map((day) => (
                 <div
-                  key={day.toISOString()}
+                  key={day ? day.toISOString() : ''}
                   className="bg-background sticky top-0 z-20 py-2 text-center font-semibold"
                   style={{ height: `${stickyHeaderHeight}px` }}
                 >
-                  {dayjs(day).format('ddd, MMM D')}
+                  {day ? dayjs(day).format('ddd, MMM D') : ''}
                 </div>
               ))}
 
@@ -374,7 +375,7 @@ export default function Page() {
                   </div>
                   {Array.from({ length: visibleDays }).map((_, index) => (
                     <div
-                      key={`${days[startDayIndex + index].toISOString()}-${minutes}`}
+                      key={`${days[startDayIndex + index] ? days[startDayIndex + index].toISOString() : ''}-${minutes}`}
                       className="py-4"
                       style={{
                         height: `${timeSlotHeight}px`,
