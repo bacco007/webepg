@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>http://webepg.xyz/settings</loc><lastmod>2024-09-10T09:30:39.255Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://webepg.xyz</loc><lastmod>2024-09-10T09:30:39.256Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://webepg.xyz/channel</loc><lastmod>2024-09-10T09:30:39.256Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://webepg.xyz/epg</loc><lastmod>2024-09-10T09:30:39.256Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://webepg.xyz/nownext</loc><lastmod>2024-09-10T09:30:39.256Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://webepg.xyz/epg/today</loc><lastmod>2024-09-10T09:30:39.256Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://webepg.xyz/sports</loc><lastmod>2024-09-10T09:30:39.256Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://webepg.xyz/epg/tomorrow</loc><lastmod>2024-09-10T09:30:39.256Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://webepg.xyz/api/healthcheck</loc><lastmod>2024-09-10T09:30:39.256Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://webepg.xyz/epg/tomorrow</loc><lastmod>2024-09-14T05:43:51.544Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://webepg.xyz/settings</loc><lastmod>2024-09-14T05:43:51.545Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://webepg.xyz/channel</loc><lastmod>2024-09-14T05:43:51.545Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://webepg.xyz/sports</loc><lastmod>2024-09-14T05:43:51.545Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://webepg.xyz/epg</loc><lastmod>2024-09-14T05:43:51.545Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://webepg.xyz/api/healthcheck</loc><lastmod>2024-09-14T05:43:51.545Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://webepg.xyz/epg/today</loc><lastmod>2024-09-14T05:43:51.545Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://webepg.xyz/nownext</loc><lastmod>2024-09-14T05:43:51.545Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://webepg.xyz</loc><lastmod>2024-09-14T05:43:51.545Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
 </urlset>

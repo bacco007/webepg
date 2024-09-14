@@ -11,10 +11,10 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 import ChannelFilter from '@/components/snippets/ChannelFilter';
+import DateTabs from '@/components/snippets/DateTabs';
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import ProgramDialog from '@/components/snippets/ProgramDialog';
 import TimeJumpDropdown from '@/components/snippets/TimeJumpDropdown';
-import DateTabs from '@/components/snippets/DateTabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

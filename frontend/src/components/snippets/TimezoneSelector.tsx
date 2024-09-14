@@ -113,7 +113,7 @@ export default function TimezoneSelector({ value, onChange }: TimezoneSelectorPr
           aria-expanded={open}
           aria-label="Select a timezone"
           className={cn(
-            'w-full sm:w-[300px] justify-between border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+            'w-full justify-between border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white sm:w-[300px]'
           )}
         >
           <Globe className="mr-2 size-4" />
@@ -121,7 +121,7 @@ export default function TimezoneSelector({ value, onChange }: TimezoneSelectorPr
           <CaretSortIcon className="ml-auto size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-screen max-w-[300px] sm:w-[300px] md:w-[350px] lg:w-[500px] xl:w-[600px] border-gray-700 bg-gray-900 p-0">
+      <PopoverContent className="w-screen max-w-[300px] border-gray-700 bg-gray-900 p-0 sm:w-[300px] md:w-[350px] lg:w-[500px] xl:w-[600px]">
         <Command className="bg-gray-900">
           <CommandInput placeholder="Search timezone..." className="text-gray-300" />
           <CommandList>
