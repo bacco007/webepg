@@ -189,8 +189,8 @@ function SportsPageContent() {
           <AlertCircle className="size-4" />
           <AlertTitle>No Sports Programming</AlertTitle>
           <AlertDescription>
-            No sports programming found for the next {days} days. Try adjusting your search
-            parameters or check back later.
+            No sports programming found for the next {days} days. <br />
+            Try adjusting your search parameters or check back later.
           </AlertDescription>
         </Alert>
         <Button onClick={() => window.location.reload()}>
@@ -208,10 +208,13 @@ function SportsPageContent() {
           <AlertCircle className="size-4" />
           <AlertTitle>No Results</AlertTitle>
           <AlertDescription>
-            No channels match your current filter. Try adjusting your search or clear the filter.
+            No channels match your current filter. <br />
+            Try adjusting your search or clear the filter.
           </AlertDescription>
         </Alert>
-        <Button onClick={() => setFilterText('')}>Clear Filter</Button>
+        <Button onClick={() => setFilterText('')} aria-label="Clear Filter">
+          Clear Filter
+        </Button>
       </div>
     );
   }
@@ -243,11 +246,11 @@ function SportsPageContent() {
         </div>
       </header>
       <main className="w-full grow overflow-auto">
-        <div className="max-w-full px-4 py-8">
-          <div className="grid grid-cols-1 gap-8 xl:grid-cols-2 2xl:grid-cols-3">
+        <div className="max-w-full p-4">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[repeat(auto-fill,minmax(600px,1fr))]">
             {filteredAndSortedChannels.map((channelData) => (
               <Card key={channelData.channel.slug} className="w-full">
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader className="flex flex-row items-center justify-between px-4 py-2">
                   {channelData.channel.icon !== 'N/A' && (
                     <Image
                       src={channelData.channel.icon}
@@ -264,18 +267,18 @@ function SportsPageContent() {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="h-[250px] w-full overflow-auto">
                   <Accordion type="single" collapsible className="w-full">
                     {Object.entries(channelData.programs).map(([date, programs]) => (
                       <AccordionItem key={date} value={date}>
-                        <AccordionTrigger className="text-lg">
+                        <AccordionTrigger className="text-md p-2">
                           <div className="flex items-center">
-                            <CalendarIcon className="mr-2 size-5" />
+                            <CalendarIcon className="mr-2 size-4" />
                             {format(new Date(date), 'EEEE, MMMM d, yyyy')}
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
-                          <ScrollArea className="h-[400px] w-full">
+                          <ScrollArea className=" w-full">
                             <Table>
                               <TableHeader>
                                 <TableRow>
@@ -286,15 +289,15 @@ function SportsPageContent() {
                                   </TableHead>
                                 </TableRow>
                               </TableHeader>
-                              <TableBody>
+                              <TableBody className="font-sm">
                                 {programs.map((program, index) => (
                                   <TableRow key={index}>
-                                    <TableCell className="font-medium">
+                                    <TableCell className="font-sm">
                                       {format(new Date(program.start), 'h:mm a')} -{' '}
                                       {format(new Date(program.end), 'h:mm a')}
                                     </TableCell>
-                                    <TableCell>{program.title}</TableCell>
-                                    <TableCell className="hidden md:table-cell">
+                                    <TableCell className="font-sm">{program.title}</TableCell>
+                                    <TableCell className="font-sm hidden md:table-cell">
                                       {program.description}
                                     </TableCell>
                                   </TableRow>
@@ -307,7 +310,7 @@ function SportsPageContent() {
                     ))}
                   </Accordion>
                 </CardContent>
-                <CardFooter className="p-4">
+                <CardFooter className="p-2">
                   <div className="flex w-full gap-2">
                     <Button variant="secondary" className="flex-1" onClick={navigateToNext24Hours}>
                       <Clock className="mr-2 size-4" />

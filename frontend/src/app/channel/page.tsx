@@ -113,7 +113,7 @@ const ChannelList: React.FC = () => {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <header className="bg-background sticky top-0 z-10 w-full border-b p-4">
+      <header className="bg-background sticky top-0 z-0 w-full border-b p-4">
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <h1 className="text-xl font-bold sm:text-2xl">Weekly EPG (by Channel)</h1>
           <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-2 sm:space-y-0">
@@ -165,14 +165,14 @@ const ChannelList: React.FC = () => {
                 className="focus:ring-primary focus:outline-none focus:ring-2"
               >
                 <Card className="h-full overflow-hidden transition-shadow duration-300 hover:shadow-lg">
-                  <CardContent className="flex h-full flex-col items-center justify-center p-4">
+                  <CardContent className="flex h-full flex-col items-center justify-center p-2">
                     {channel.chlogo !== 'N/A' && (
                       <div className="mb-2 flex h-20 items-center justify-center">
                         <Image
                           src={channel.chlogo}
                           height={96}
                           width={96}
-                          className="max-h-full w-auto object-contain"
+                          className="size-auto max-h-full object-contain"
                           alt=""
                           aria-hidden="true"
                         />

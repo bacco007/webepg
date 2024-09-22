@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   FileIcon,
   FolderIcon,
@@ -21,6 +21,13 @@ import TimezoneSelector from '@/components/snippets/TimezoneSelector';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -53,6 +60,8 @@ interface SourceStatus {
   location: string | null;
 }
 
+const statusOptions = ['All', 'Downloaded', 'Not Downloaded'];
+
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [timezone, setTimezone] = useState('');
@@ -60,26 +69,28 @@ export default function SettingsPage() {
   const [sourceStatus, setSourceStatus] = useState<Record<string, SourceStatus> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [groupFilter, setGroupFilter] = useState('All');
+  const [subgroupFilter, setSubgroupFilter] = useState('All');
+  const [locationFilter, setLocationFilter] = useState('All');
   const router = useRouter();
 
   useEffect(() => {
-    // Load saved settings from localStorage
-    const savedTheme = localStorage.getItem('theme') || 'system';
-    const savedFontScale = localStorage.getItem('fontScale') || '100';
-    const savedTimezone =
-      localStorage.getItem('userTimezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const loadSettings = async () => {
+      const savedTheme = localStorage.getItem('theme') || 'system';
+      const savedFontScale = localStorage.getItem('fontScale') || '100';
+      const savedTimezone =
+        localStorage.getItem('userTimezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    setTheme(savedTheme);
-    setFontScale(savedFontScale);
-    setTimezone(savedTimezone);
+      setTheme(savedTheme);
+      setFontScale(savedFontScale);
+      setTimezone(savedTimezone);
 
-    document.documentElement.style.setProperty(
-      '--font-scale',
-      `${Number.parseInt(savedFontScale) / 100}`
-    );
+      document.documentElement.style.setProperty(
+        '--font-scale',
+        `${Number.parseInt(savedFontScale) / 100}`
+      );
 
-    // Fetch source status
-    const fetchSourceStatus = async () => {
       try {
         const response = await fetch(
           `/api/py/sources/status?timezone=${encodeURIComponent(savedTimezone)}`
@@ -96,7 +107,7 @@ export default function SettingsPage() {
       }
     };
 
-    fetchSourceStatus();
+    loadSettings();
   }, [setTheme]);
 
   const handleTimezoneChange = (newTimezone: string) => {
@@ -105,15 +116,18 @@ export default function SettingsPage() {
   };
 
   const handleSave = () => {
-    // Save settings to localStorage
     if (theme) {
       localStorage.setItem('theme', theme);
     }
     localStorage.setItem('fontScale', fontScale);
     localStorage.setItem('userTimezone', timezone);
 
-    // You might want to save to a backend here if needed
-    router.refresh(); // Refresh the current route
+    document.documentElement.style.setProperty(
+      '--font-scale',
+      `${Number.parseInt(fontScale) / 100}`
+    );
+
+    router.refresh();
 
     toast({
       title: 'Settings saved',
@@ -133,6 +147,71 @@ export default function SettingsPage() {
       )}
     </div>
   );
+
+  const filteredSourceStatus = useMemo(() => {
+    if (!sourceStatus) return null;
+
+    return Object.entries(sourceStatus).reduce(
+      (acc, [sourceId, status]) => {
+        const allDownloaded = Object.values(status).every((file) => file.status === 'downloaded');
+
+        if (
+          (statusFilter === 'All' ||
+            (statusFilter === 'Downloaded' && allDownloaded) ||
+            (statusFilter === 'Not Downloaded' && !allDownloaded)) &&
+          (groupFilter === 'All' || status.group === groupFilter) &&
+          (subgroupFilter === 'All' || status.subgroup === subgroupFilter) &&
+          (locationFilter === 'All' || status.location === locationFilter)
+        ) {
+          acc[sourceId] = status;
+        }
+        return acc;
+      },
+      {} as Record<string, SourceStatus>
+    );
+  }, [sourceStatus, statusFilter, groupFilter, subgroupFilter, locationFilter]);
+
+  const uniqueGroups = useMemo(() => {
+    if (!sourceStatus) return ['All'];
+    return [
+      'All',
+      ...Array.from(
+        new Set(
+          Object.values(sourceStatus)
+            .map((status) => status.group)
+            .filter((group): group is string => group !== null)
+        )
+      ),
+    ];
+  }, [sourceStatus]);
+
+  const uniqueSubgroups = useMemo(() => {
+    if (!sourceStatus) return ['All'];
+    return [
+      'All',
+      ...Array.from(
+        new Set(
+          Object.values(sourceStatus)
+            .map((status) => status.subgroup)
+            .filter((group): group is string => group !== null)
+        )
+      ),
+    ];
+  }, [sourceStatus]);
+
+  const uniqueLocations = useMemo(() => {
+    if (!sourceStatus) return ['All'];
+    return [
+      'All',
+      ...Array.from(
+        new Set(
+          Object.values(sourceStatus)
+            .map((status) => status.location)
+            .filter((group): group is string => group !== null)
+        )
+      ),
+    ];
+  }, [sourceStatus]);
 
   return (
     <div className="flex max-h-screen max-w-full flex-col">
@@ -155,30 +234,19 @@ export default function SettingsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
-                      <Button
-                        variant={theme === 'dark' ? 'default' : 'outline'}
-                        className="w-full justify-start"
-                        onClick={() => setTheme('dark')}
-                      >
-                        <Moon className="mr-2 size-5" />
-                        Dark
-                      </Button>
-                      <Button
-                        variant={theme === 'light' ? 'default' : 'outline'}
-                        className="w-full justify-start"
-                        onClick={() => setTheme('light')}
-                      >
-                        <Sun className="mr-2 size-5" />
-                        Light
-                      </Button>
-                      <Button
-                        variant={theme === 'system' ? 'default' : 'outline'}
-                        className="w-full justify-start"
-                        onClick={() => setTheme('system')}
-                      >
-                        <Monitor className="mr-2 size-5" />
-                        System
-                      </Button>
+                      {['dark', 'light', 'system'].map((mode) => (
+                        <Button
+                          key={mode}
+                          variant={theme === mode ? 'default' : 'outline'}
+                          className="w-full justify-start"
+                          onClick={() => setTheme(mode)}
+                        >
+                          {mode === 'dark' && <Moon className="mr-2 size-5" />}
+                          {mode === 'light' && <Sun className="mr-2 size-5" />}
+                          {mode === 'system' && <Monitor className="mr-2 size-5" />}
+                          {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                        </Button>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -213,11 +281,7 @@ export default function SettingsPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div
-                      style={{
-                        width: '100%',
-                      }}
-                    >
+                    <div className="w-full">
                       <TimezoneSelector value={timezone} onChange={handleTimezoneChange} />
                     </div>
                   </CardContent>
@@ -242,11 +306,72 @@ export default function SettingsPage() {
             </TabsContent>
             <TabsContent value="source-status">
               <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium">XML Datasource Status</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Check the status of the XMLTV Datasources used by webEPG
-                  </p>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-medium">XML Datasource Status</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Check the status of the XMLTV Datasources used by webEPG
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={groupFilter} onValueChange={setGroupFilter}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by group" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {uniqueGroups.map(
+                          (option) =>
+                            option !== null && (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            )
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <Select value={subgroupFilter} onValueChange={setSubgroupFilter}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by subgroup" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {uniqueSubgroups.map(
+                          (option) =>
+                            option !== null && (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            )
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <Select value={locationFilter} onValueChange={setLocationFilter}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {uniqueLocations.map(
+                          (option) =>
+                            option !== null && (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            )
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {isLoading ? (
@@ -264,8 +389,8 @@ export default function SettingsPage() {
                       </CardContent>
                     </Card>
                   ) : (
-                    sourceStatus &&
-                    Object.entries(sourceStatus).map(([sourceId, status]) => (
+                    filteredSourceStatus &&
+                    Object.entries(filteredSourceStatus).map(([sourceId, status]) => (
                       <Card key={sourceId}>
                         <CardHeader>
                           <CardTitle>{sourceId}</CardTitle>
@@ -301,33 +426,22 @@ export default function SettingsPage() {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              <TableRow>
-                                <TableCell className="font-medium">
-                                  <div className="flex items-center">
-                                    <FileIcon className="mr-2 size-4" />
-                                    Source File
-                                  </div>
-                                </TableCell>
-                                <TableCell>{renderFileStatus(status.source_file)}</TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell className="font-medium">
-                                  <div className="flex items-center">
-                                    <FileIcon className="mr-2 size-4" />
-                                    Channels
-                                  </div>
-                                </TableCell>
-                                <TableCell>{renderFileStatus(status.channels)}</TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell className="font-medium">
-                                  <div className="flex items-center">
-                                    <FileIcon className="mr-2 size-4" />
-                                    Programs
-                                  </div>
-                                </TableCell>
-                                <TableCell>{renderFileStatus(status.programs)}</TableCell>
-                              </TableRow>
+                              {['source_file', 'channels', 'programs'].map((fileType) => (
+                                <TableRow key={fileType}>
+                                  <TableCell className="font-medium">
+                                    <div className="flex items-center">
+                                      <FileIcon className="mr-2 size-4" />
+                                      {fileType.replace('_', ' ').charAt(0).toUpperCase() +
+                                        fileType.replace('_', ' ').slice(1)}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    {renderFileStatus(
+                                      status[fileType as keyof SourceStatus] as FileStatus
+                                    )}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
                             </TableBody>
                           </Table>
                         </CardContent>

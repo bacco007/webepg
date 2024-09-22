@@ -14,10 +14,12 @@
     "format": "prettier --check './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.js",
     "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.js",
     "formatandlint": "npm run format:fix && npm run lint:fix",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap",
+    "genroutelist": "cd src && npx generate-next-routes-list"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.0",
+    "@radix-ui/react-collapsible": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
     "@radix-ui/react-icons": "^1.3.0",
@@ -67,6 +69,7 @@
     "eslint-plugin-unicorn": "^55.0.0",
     "globals": "^15.9.0",
     "lucide-react": "^0.439.0",
+    "next-routes-list": "^1.1.5",
     "postcss": "^8",
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",

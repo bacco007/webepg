@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
 import ChannelDropdown from '@/components/snippets/ChannelDropdown';
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
@@ -74,8 +74,10 @@ interface ApiData {
   };
 }
 
-export default function Page() {
+export default function WeeklyEPG() {
   const parameters = useParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const channelslug = parameters.channelslug as string;
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [allEvents, setAllEvents] = useState<Event[]>([]);
@@ -83,17 +85,18 @@ export default function Page() {
   const [channelName, setChannelName] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [clientTimezone, setClientTimezone] = useState<string>('UTC');
   const [visibleDays, setVisibleDays] = useState<number>(7);
   const [startDayIndex, setStartDayIndex] = useState(0);
+  const [storedDataSource, setStoredDataSource] = useState<string>('');
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const containerReference = useRef<HTMLDivElement>(null);
 
   const timeSlotHeight = 60;
   const timeColumnWidth = 60;
   const gridGap = 0.25 * 16;
-  const headerHeight = 64;
+  // const headerHeight = 64; // Removed unused variable
   const stickyHeaderHeight = 40;
   const minDayWidth = 200; // Minimum width for a day column
 
@@ -102,16 +105,34 @@ export default function Page() {
     setClientTimezone(detectedTimezone);
   }, []);
 
+  useEffect(() => {
+    const urlSource = searchParams.get('source');
+    const initialDataSource =
+      urlSource || localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
+    setStoredDataSource(initialDataSource);
+  }, [searchParams]);
+
+  useEffect(() => {
+    const checkDataSource = () => {
+      const currentDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
+      if (storedDataSource && currentDataSource !== storedDataSource) {
+        router.push(`/channel?source=${currentDataSource}`);
+      }
+    };
+
+    const intervalId = setInterval(checkDataSource, 200); // Check every 200ms
+
+    return () => clearInterval(intervalId);
+  }, [router, storedDataSource]);
+
   const fetchData = useCallback(async () => {
-    if (!channelslug) {
-      setError('No channel selected');
+    if (!channelslug || !storedDataSource) {
+      setError('No channel or data source selected');
       setIsLoading(false);
       return;
     }
 
     try {
-      const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
-
       const url = `/api/py/epg/channels/${storedDataSource}/${channelslug}?timezone=${encodeURIComponent(
         clientTimezone
       )}`;
@@ -130,7 +151,7 @@ export default function Page() {
     } finally {
       setIsLoading(false);
     }
-  }, [channelslug, clientTimezone]);
+  }, [channelslug, clientTimezone, storedDataSource]);
 
   useEffect(() => {
     fetchData();
@@ -243,29 +264,6 @@ export default function Page() {
 
   const timeSlots = useMemo(() => Array.from({ length: 48 }, (_, index) => index * 30), []);
 
-  const getCurrentTimePosition = useCallback(() => {
-    if (!startDate) return 0;
-    const now = dayjs(currentTime).tz(clientTimezone);
-    const startOfDay = dayjs(startDate).tz(clientTimezone).startOf('day');
-    const minutesSinceMidnight = now.diff(startOfDay, 'minute');
-    const slots = Math.floor(minutesSinceMidnight / 30);
-    const extraMinutes = minutesSinceMidnight % 30;
-    return (
-      slots * (timeSlotHeight + gridGap) +
-      (extraMinutes / 30) * timeSlotHeight +
-      headerHeight +
-      stickyHeaderHeight
-    );
-  }, [
-    currentTime,
-    startDate,
-    clientTimezone,
-    timeSlotHeight,
-    gridGap,
-    headerHeight,
-    stickyHeaderHeight,
-  ]);
-
   const handlePreviousDay = () => {
     setStartDayIndex((previous) => Math.max(0, previous - 1));
   };
@@ -280,7 +278,7 @@ export default function Page() {
         const containerWidth = containerReference.current.offsetWidth;
         const availableWidth = containerWidth - timeColumnWidth;
         const possibleDays = Math.floor(availableWidth / minDayWidth);
-        setVisibleDays(Math.min(possibleDays, daysLength));
+        setVisibleDays(Math.min(possibleDays, 7, daysLength)); // Limit to 7 days maximum
       }
     };
 
@@ -292,12 +290,12 @@ export default function Page() {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center" role="alert">
         <div className="text-center">
-          <AlertCircle className="mx-auto mb-4 size-12 text-red-500" />
+          <AlertCircle className="mx-auto mb-4 size-12 text-red-500" aria-hidden="true" />
           <p className="mb-4 text-xl text-red-500">{error}</p>
           <Button onClick={fetchData}>
-            <RefreshCw className="mr-2 size-4" />
+            <RefreshCw className="mr-2 size-4" aria-hidden="true" />
             Try Again
           </Button>
         </div>
@@ -307,7 +305,11 @@ export default function Page() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div
+        className="flex h-screen items-center justify-center"
+        aria-live="polite"
+        aria-busy="true"
+      >
         <LoadingSpinner />
       </div>
     );
@@ -315,7 +317,7 @@ export default function Page() {
 
   return (
     <div className="scrollbar-custom flex h-screen max-h-[calc(100vh-100px)] flex-col">
-      <header className="bg-background sticky top-0 z-10 w-full border-b p-2 sm:p-4">
+      <header className="bg-background sticky top-0 z-0 w-full border-b p-2 sm:p-4">
         <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <h1 className="text-lg font-bold sm:text-2xl">Weekly EPG - {channelName}</h1>
           <div className="flex items-center space-x-2">
@@ -327,16 +329,24 @@ export default function Page() {
         <ScrollArea className="h-full">
           <div className="min-w-fit p-2 sm:p-4">
             <div className="mb-2 flex items-center justify-between">
-              <Button onClick={handlePreviousDay} disabled={startDayIndex === 0}>
-                <ChevronLeft className="size-4" />
+              <Button
+                onClick={handlePreviousDay}
+                disabled={startDayIndex === 0}
+                aria-label="Previous day"
+              >
+                <ChevronLeft className="size-4" aria-hidden="true" />
               </Button>
-              <div className="font-semibold">
+              <div className="font-semibold" aria-live="polite">
                 {days[startDayIndex] && dayjs(days[startDayIndex]).format('MMM D')} -{' '}
                 {days[startDayIndex + visibleDays - 1] &&
                   dayjs(days[startDayIndex + visibleDays - 1]).format('MMM D')}
               </div>
-              <Button onClick={handleNextDay} disabled={startDayIndex + visibleDays >= daysLength}>
-                <ChevronRight className="size-4" />
+              <Button
+                onClick={handleNextDay}
+                disabled={startDayIndex + visibleDays >= daysLength}
+                aria-label="Next day"
+              >
+                <ChevronRight className="size-4" aria-hidden="true" />
               </Button>
             </div>
             <div
@@ -344,16 +354,20 @@ export default function Page() {
               style={{
                 gridTemplateColumns: `${timeColumnWidth}px repeat(${visibleDays}, minmax(${minDayWidth}px, 1fr))`,
               }}
+              role="grid"
+              aria-label="Weekly EPG Grid"
             >
               <div
                 className="bg-background sticky top-0 z-20 col-span-1"
                 style={{ height: `${stickyHeaderHeight}px` }}
+                role="columnheader"
               ></div>
               {days.slice(startDayIndex, startDayIndex + visibleDays).map((day) => (
                 <div
                   key={day ? day.toISOString() : ''}
                   className="bg-background sticky top-0 z-20 py-2 text-center font-semibold"
                   style={{ height: `${stickyHeaderHeight}px` }}
+                  role="columnheader"
                 >
                   {day ? dayjs(day).format('ddd, MMM D') : ''}
                 </div>
@@ -366,6 +380,7 @@ export default function Page() {
                     style={{
                       height: `${timeSlotHeight}px`,
                     }}
+                    role="rowheader"
                   >
                     {dayjs()
                       .tz(clientTimezone)
@@ -380,6 +395,7 @@ export default function Page() {
                       style={{
                         height: `${timeSlotHeight}px`,
                       }}
+                      role="gridcell"
                     ></div>
                   ))}
                 </React.Fragment>
@@ -396,14 +412,22 @@ export default function Page() {
                       className={cn(
                         'absolute overflow-hidden rounded-md p-1 text-xs text-white',
                         event.color,
-                        'cursor-pointer transition-opacity hover:opacity-90'
+                        'cursor-pointer transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2'
                       )}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`${event.title} from ${dayjs.tz(event.start, clientTimezone).format('HH:mm')} to ${dayjs.tz(event.end, clientTimezone).format('HH:mm')}`}
                     >
-                      <div className="truncate font-semibold">{decodeHtml(event.title)}</div>
-                      <div className="text-[10px] opacity-90">
-                        {dayjs.tz(event.start, clientTimezone).format('HH:mm')} -{' '}
-                        {dayjs.tz(event.end, clientTimezone).format('HH:mm')}
+                      <div className="flex items-center justify-between">
+                        <div className="truncate font-semibold">{decodeHtml(event.title)}</div>
+                        <div className="text-[10px] opacity-90">
+                          {dayjs.tz(event.start, clientTimezone).format('HH:mm')} -{' '}
+                          {dayjs.tz(event.end, clientTimezone).format('HH:mm')}
+                        </div>
                       </div>
+                      {event.subtitle !== 'N/A' && (
+                        <div className="truncate">{decodeHtml(event.subtitle)}</div>
+                      )}
                     </div>
                   }
                 />

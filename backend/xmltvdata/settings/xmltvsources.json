@@ -403,12 +403,6 @@
     "url": "https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml"
   },
   {
-    "id": "test_watvvideos",
-    "group": "Testing",
-    "location": "Perth (Test)",
-    "url": "https://www.xmlepg.net/clients/02/ftaper.xml"
-  },
-  {
     "id": "acidjesus_uk",
     "group": "International",
     "subgroup": "United Kingdom",

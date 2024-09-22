@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 import ErrorPage from '@/components/pages/ErrorPage';
 
 export default function Custom500() {
@@ -8,6 +10,7 @@ export default function Custom500() {
       statusCode={500}
       title="Server Error"
       message="Sorry, something went wrong on our end. We're working on fixing it."
+      showRefresh={true}
     />
   );
 }

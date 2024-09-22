@@ -195,5 +195,9 @@
       "italic": false
     }
   ],
-  "python.analysis.typeCheckingMode": "off"
+  "python.analysis.typeCheckingMode": "off",
+  "cSpell.words": [
+    "xmltvdatasource",
+    "xmltvnet"
+  ]
 }

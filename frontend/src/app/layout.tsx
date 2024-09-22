@@ -5,6 +5,7 @@ import type { Metadata, Viewport } from 'next';
 import { Footer } from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import { ThemeProvider } from '@/components/theme/theme-provider';
+//import { Toaster } from '@/components/ui/toaster';
 import { fonts } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
     shortcut: '/favicon/favicon-16x16.png',
     apple: '/favicon/apple-touch-icon.png',
   },
+  manifest: '/manifest.json',
 };
 
 export const viewport: Viewport = {
@@ -29,6 +31,8 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' },
   ],
+  minimumScale: 1,
+  maximumScale: 5,
 };
 
 interface RootLayoutProperties {
@@ -40,7 +44,10 @@ export default function RootLayout({ children }: RootLayoutProperties) {
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
-        className={cn('bg-background from-background to-secondary font-sans antialiased', fonts)}
+        className={cn(
+          'bg-background from-background to-secondary flex min-h-screen flex-col font-sans antialiased',
+          fonts
+        )}
       >
         <ThemeProvider
           attribute="class"
@@ -48,7 +55,7 @@ export default function RootLayout({ children }: RootLayoutProperties) {
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex h-screen flex-col overflow-hidden">
+          <div className="flex h-screen flex-col">
             <Header />
             <main className="scrollbar-custom grow overflow-auto">
               <div className="from-background to-secondary min-h-full w-full bg-gradient-to-br">

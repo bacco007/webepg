@@ -167,16 +167,16 @@ const ChannelGrid: React.FC = () => {
         </div>
       </header>
       <main className="w-full grow overflow-auto">
-        <div className="max-w-full px-4 py-8">
+        <div className="max-w-full p-4">
           {isLoading ? (
             <div className="flex h-full items-center justify-center">
               <LoadingSpinner />
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(500px,1fr))]">
+            <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))]">
               {filteredChannels.map((channelData) => (
                 <Card key={channelData.channel.id} className="bg-card flex flex-col">
-                  <CardHeader className="flex flex-row items-center justify-between p-4">
+                  <CardHeader className="flex flex-row items-center justify-between px-4 py-2">
                     {channelData.channel.icon !== 'N/A' && (
                       <Image
                         src={channelData.channel.icon}

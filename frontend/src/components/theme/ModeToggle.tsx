@@ -15,6 +15,10 @@ import {
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
 
+  const toggleTheme = (newTheme: React.SetStateAction<string>) => {
+    setTheme(newTheme);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,7 +33,7 @@ export function ModeToggle() {
           <Button
             variant={theme === 'dark' ? 'default' : 'outline'}
             className="w-full"
-            onClick={() => setTheme('light')}
+            onClick={() => toggleTheme('light')}
           >
             <Sun className="size-5" />
             <span className="pl-2">Light Mode</span>
@@ -39,7 +43,7 @@ export function ModeToggle() {
           <Button
             variant={theme === 'dark' ? 'default' : 'outline'}
             className="w-full"
-            onClick={() => setTheme('dark')}
+            onClick={() => toggleTheme('dark')}
           >
             <Moon className="size-5" />
             <span className="pl-2">Dark Mode</span>
@@ -47,9 +51,9 @@ export function ModeToggle() {
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Button
-            variant={theme === 'dark' ? 'default' : 'outline'}
+            variant={theme === 'system' ? 'default' : 'outline'}
             className="w-full"
-            onClick={() => setTheme('system')}
+            onClick={() => toggleTheme('system')}
           >
             <Monitor className="size-5" />
             <span className="pl-2">Use System</span>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { differenceInMinutes, format, parseISO } from 'date-fns';
+import { differenceInMinutes, format } from 'date-fns';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -50,7 +50,9 @@ interface ProgramData {
   start_time: string;
   end_time: string;
   length: string;
-  channel: string;
+  channel: {
+    id: string;
+  };
   title: string;
   subtitle: string;
   description: string;
@@ -68,6 +70,13 @@ interface Channel {
   chlogo: string;
 }
 
+interface ChannelData {
+  channel: {
+    id: string;
+  };
+  programs: ProgramData[];
+}
+
 const defaultColorClasses = ['bg-cyan-600'];
 const titleColorMappings = {
   'No Data Available':
@@ -76,9 +85,6 @@ const titleColorMappings = {
     'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
   'To Be Advised (cont)':
     'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
-  // 'Breaking News': 'bg-yellow-500 text-black',
-  // 'Live Sports': 'bg-green-500',
-  // // Add more mappings as needed
 };
 
 const timeSlotWidth = 180;
@@ -89,17 +95,14 @@ const rowGap = 5;
 const programBoxHeight = rowHeight - rowGap;
 const horizontalProgramGap = 2;
 
-export default function Component() {
+export default function EPGComponent() {
   const parameters = useParams();
   const inputDate = parameters.date as string;
   const [channels, setChannels] = useState<Channel[]>([]);
   const [allPrograms, setAllPrograms] = useState<Program[]>([]);
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [channelFilter, setChannelFilter] = useState('');
   const [xmltvDataSource, setXmltvDataSource] = useState<string | null>(null);
-  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userTimezone, setUserTimezone] = useState<string>('UTC');
   const [clientTimezone, setClientTimezone] = useState<string>('UTC');
   const scrollContainerReference = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -107,71 +110,8 @@ export default function Component() {
 
   const inputDateDJS = useMemo(() => dayjs(inputDate, 'YYYYMMDD').toDate(), [inputDate]);
 
-  const fetchData = useCallback(
-    async (storedDataSource: string, storedTimezone: string) => {
-      try {
-        setLoading(true);
-
-        const channelResponse = await fetch(`/api/py/channels/${storedDataSource}`);
-        const channelData = await channelResponse.json();
-        const sortedChannels = (channelData.data.channels || []).sort((a: Channel, b: Channel) => {
-          const aNumber = Number.parseInt(a.channel_number);
-          const bNumber = Number.parseInt(b.channel_number);
-          if (isNaN(aNumber) && isNaN(bNumber)) return a.channel_name.localeCompare(b.channel_name);
-          if (isNaN(aNumber)) return 1;
-          if (isNaN(bNumber)) return -1;
-          if (aNumber === bNumber) return a.channel_name.localeCompare(b.channel_name);
-          return aNumber - bNumber;
-        });
-        setChannels(sortedChannels);
-
-        const programResponse = await fetch(
-          `/api/py/epg/date/${inputDate}/${storedDataSource}?timezone=${encodeURIComponent(
-            clientTimezone
-          )}`
-        );
-        const programData = await programResponse.json();
-
-        if (!programData.channels || !Array.isArray(programData.channels)) {
-          console.error('Unexpected API response structure:', programData);
-          setAllPrograms([]);
-        } else {
-          const programs = transformPrograms(programData.channels);
-          setAllPrograms(programs);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-      }
-    },
-    [inputDate, clientTimezone]
-  );
-
-  useEffect(() => {
-    const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
-    const storedTimezone = localStorage.getItem('userTimezone') || dayjs.tz.guess();
-
-    setXmltvDataSource(storedDataSource);
-    setUserTimezone(storedTimezone);
-    setClientTimezone(storedTimezone);
-    localStorage.setItem('userTimezone', storedTimezone);
-
-    fetchData(storedDataSource, storedTimezone);
-
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [fetchData]);
-
   const transformPrograms = useCallback(
-    (channelsData: any[]): Program[] => {
+    (channelsData: ChannelData[]): Program[] => {
       const programs: Program[] = [];
       const now = dayjs().tz(clientTimezone);
 
@@ -221,6 +161,68 @@ export default function Component() {
     },
     [clientTimezone]
   );
+
+  const fetchData = useCallback(
+    async (storedDataSource: string) => {
+      try {
+        setLoading(true);
+
+        const channelResponse = await fetch(`/api/py/channels/${storedDataSource}`);
+        const channelData = await channelResponse.json();
+        const sortedChannels = (channelData.data.channels || []).sort((a: Channel, b: Channel) => {
+          const aNumber = Number.parseInt(a.channel_number);
+          const bNumber = Number.parseInt(b.channel_number);
+          if (isNaN(aNumber) && isNaN(bNumber)) return a.channel_name.localeCompare(b.channel_name);
+          if (isNaN(aNumber)) return 1;
+          if (isNaN(bNumber)) return -1;
+          if (aNumber === bNumber) return a.channel_name.localeCompare(b.channel_name);
+          return aNumber - bNumber;
+        });
+        setChannels(sortedChannels);
+
+        const programResponse = await fetch(
+          `/api/py/epg/date/${inputDate}/${storedDataSource}?timezone=${encodeURIComponent(
+            clientTimezone
+          )}`
+        );
+        const programData = await programResponse.json();
+
+        if (!programData.channels || !Array.isArray(programData.channels)) {
+          console.error('Unexpected API response structure:', programData);
+          setAllPrograms([]);
+        } else {
+          const programs = transformPrograms(programData.channels);
+          setAllPrograms(programs);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    },
+    [inputDate, clientTimezone, transformPrograms]
+  );
+
+  useEffect(() => {
+    const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
+    const storedTimezone = localStorage.getItem('userTimezone') || dayjs.tz.guess();
+
+    setXmltvDataSource(storedDataSource);
+    setClientTimezone(storedTimezone);
+    localStorage.setItem('userTimezone', storedTimezone);
+
+    fetchData(storedDataSource);
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [fetchData]);
 
   const getProgramStyle = useCallback(
     (program: Program): React.CSSProperties => {
@@ -295,16 +297,18 @@ export default function Component() {
           width: `${(isMobile ? mobileChannelColumnWidth : channelColumnWidth) + timeSlotWidth * 48}px`,
         }}
       >
-        <div className="bg-background sticky left-0 top-0 z-20 flex">
+        <div className="bg-background sticky left-0 top-0 z-20 flex" role="row">
           <div
             className="shrink-0"
             style={{ width: isMobile ? mobileChannelColumnWidth : channelColumnWidth }}
+            role="columnheader"
           ></div>
           {timeSlots.map((minutes) => (
             <div
               key={minutes}
               className="border-border text-muted-foreground shrink-0 border-l py-2 text-left text-sm"
               style={{ width: `${timeSlotWidth}px` }}
+              role="columnheader"
             >
               <span className="ml-2 text-sm font-bold">
                 {dayjs().startOf('day').add(minutes, 'minute').format('HH:mm')}
@@ -321,7 +325,6 @@ export default function Component() {
             xmltvDataSource={xmltvDataSource}
             timeSlots={timeSlots}
             getProgramStyle={getProgramStyle}
-            setSelectedProgram={setSelectedProgram}
             clientTimezone={clientTimezone}
             isMobile={isMobile}
           />
@@ -335,6 +338,8 @@ export default function Component() {
             transform: 'translateX(-50%)',
             height: 'calc(100%)',
           }}
+          role="presentation"
+          aria-label="Current time"
         />
       </div>
     );
@@ -345,7 +350,6 @@ export default function Component() {
     calculateCurrentTimePosition,
     getProgramStyle,
     clientTimezone,
-    currentDate,
     timeSlots,
     isMobile,
   ]);
@@ -366,16 +370,18 @@ export default function Component() {
               onClick={() => setIsFilterExpanded(!isFilterExpanded)}
               className="mb-2 w-full justify-between"
               variant="outline"
+              aria-expanded={isFilterExpanded}
+              aria-controls="mobile-filters"
             >
               {isFilterExpanded ? 'Hide Filters' : 'Show Filters'}
               {isFilterExpanded ? (
-                <ChevronUp className="ml-2 size-4" />
+                <ChevronUp className="ml-2 size-4" aria-hidden="true" />
               ) : (
-                <ChevronDown className="ml-2 size-4" />
+                <ChevronDown className="ml-2 size-4" aria-hidden="true" />
               )}
             </Button>
             {isFilterExpanded && (
-              <div className="flex flex-col space-y-2">
+              <div id="mobile-filters" className="flex flex-col space-y-2">
                 <ChannelFilter value={channelFilter} onChange={setChannelFilter} />
                 <TimeJumpDropdown onTimeJump={scrollToTime} />
               </div>
@@ -395,6 +401,8 @@ export default function Component() {
         className="scrollbar-custom relative ml-1 max-h-[calc(100vh-230px)] max-w-full"
         style={{ display: 'flex', overflow: 'scroll' }}
         ref={scrollContainerReference}
+        role="grid"
+        aria-label="EPG Schedule"
       >
         <div className="flex flex-col">{renderSchedule()}</div>
       </div>
@@ -409,7 +417,6 @@ const ChannelRow = React.memo(
     xmltvDataSource,
     timeSlots,
     getProgramStyle,
-    setSelectedProgram,
     clientTimezone,
     isMobile,
   }: {
@@ -418,18 +425,18 @@ const ChannelRow = React.memo(
     xmltvDataSource: string | null;
     timeSlots: number[];
     getProgramStyle: (program: Program) => React.CSSProperties;
-    setSelectedProgram: (program: Program | null) => void;
     clientTimezone: string;
     isMobile: boolean;
   }) => {
     return (
-      <div key={channel.channel_slug} className="flex">
+      <div key={channel.channel_slug} className="flex" role="row">
         <div
           className="border-border bg-background sticky left-0 z-20 flex items-center border-t px-2 py-1 font-semibold"
           style={{
             width: isMobile ? `${mobileChannelColumnWidth}px` : `${channelColumnWidth}px`,
             height: `${rowHeight}px`,
           }}
+          role="rowheader"
         >
           <Image
             src={channel.chlogo && channel.chlogo !== 'N/A' ? channel.chlogo : '/placeholder.svg'}
@@ -459,6 +466,7 @@ const ChannelRow = React.memo(
             height: `${rowHeight}px`,
             width: `${timeSlotWidth * 48}px`,
           }}
+          role="gridcell"
         >
           <div className="absolute inset-0 flex">
             {timeSlots.map((minutes) => (
@@ -476,16 +484,18 @@ const ChannelRow = React.memo(
             <ProgramDialog
               key={program.id}
               event={program}
-              onOpenChange={(open) => !open && setSelectedProgram(null)}
+              onOpenChange={() => {}}
               trigger={
                 <div
                   style={getProgramStyle(program)}
                   className={cn(
                     'absolute overflow-hidden rounded-md p-1 text-xs text-white',
                     program.color,
-                    'cursor-pointer transition-opacity hover:opacity-90'
+                    'cursor-pointer transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2'
                   )}
-                  onClick={() => setSelectedProgram(program)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${program.title} from ${dayjs(program.start).tz(clientTimezone).format('HH:mm')} to ${dayjs(program.end).tz(clientTimezone).format('HH:mm')}`}
                 >
                   <div className="truncate">
                     {dayjs(program.start).tz(clientTimezone).format('HH:mm')} -{' '}

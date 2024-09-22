@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { CalendarIcon, ClockIcon, TrophyIcon, TvIcon, XIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,7 @@ import { siteConfig } from '@/config/site';
 export default function Home() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [showTimezoneBanner, setShowTimezoneBanner] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const userTimezone = localStorage.getItem('userTimezone');
@@ -60,6 +62,13 @@ export default function Home() {
     },
   ];
 
+  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, index: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      router.push(cards[index].link);
+    }
+  };
+
   return (
     <div className="from-background to-secondary/20 min-h-[calc(100vh-155px)] bg-gradient-to-b">
       {showTimezoneBanner && (
@@ -71,9 +80,9 @@ export default function Home() {
               size="sm"
               onClick={() => setShowTimezoneBanner(false)}
               className="h-auto p-0 text-yellow-800 hover:bg-yellow-200"
+              aria-label="Close timezone banner"
             >
               <XIcon className="size-4" />
-              <span className="sr-only">Close</span>
             </Button>
           </AlertTitle>
           <AlertDescription>
@@ -111,9 +120,15 @@ export default function Home() {
         </section>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((card, index) => (
-            <Link key={index} href={card.link} className="group">
+            <Link
+              key={index}
+              href={card.link}
+              className="group focus:outline-none"
+              onKeyDown={(e) => handleCardKeyDown(e, index)}
+              tabIndex={0}
+            >
               <Card
-                className="h-full transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg"
+                className="group-focus:ring-primary h-full transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg group-focus:ring-2"
                 onMouseEnter={() => setHoveredCard(index)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
@@ -123,6 +138,7 @@ export default function Home() {
                       className={`size-12 ${
                         hoveredCard === index ? 'text-primary' : 'text-muted-foreground'
                       } transition-colors duration-300`}
+                      aria-hidden="true"
                     />
                   </div>
                   <CardTitle className="text-center text-2xl">{card.title}</CardTitle>
