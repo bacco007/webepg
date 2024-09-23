@@ -15,7 +15,7 @@ dill==0.3.8
 distlib==0.3.8
 dnspython==2.6.1
 email_validator==2.2.0
-fastapi==0.114.0
+fastapi==0.115.0
 fastapi-cli==0.0.5
 filelock==3.15.4
 frozenlist==1.4.1
