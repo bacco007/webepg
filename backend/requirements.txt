@@ -68,4 +68,4 @@ virtualenv==20.26.4
 watchfiles==0.24.0
 websockets==13.0.1
 wrapt==1.16.0
-yarl==1.11.0
+yarl==1.15.2
