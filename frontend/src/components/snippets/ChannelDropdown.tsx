@@ -14,7 +14,7 @@ import {
 type Channel = {
   channel_id: string;
   channel_slug: string;
-  channel_name: string;
+  channel_names: string[];
   channel_number: string;
   chlogo: string;
 };
@@ -33,7 +33,7 @@ const ChannelDropdown: React.FC<ChannelDropdownProperties> = ({ channelslug }) =
   useEffect(() => {
     const fetchChannels = async () => {
       try {
-        const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
+        const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
         const response = await fetch(`/api/py/channels/${storedDataSource}`);
         if (!response.ok) {
           throw new Error('Failed to fetch channels');
@@ -76,7 +76,7 @@ const ChannelDropdown: React.FC<ChannelDropdownProperties> = ({ channelslug }) =
       <SelectContent>
         {channels.map((channel) => (
           <SelectItem key={channel.channel_slug} value={channel.channel_slug}>
-            {channel.channel_name}
+            {channel.channel_names.real}
           </SelectItem>
         ))}
       </SelectContent>

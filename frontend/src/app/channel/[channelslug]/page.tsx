@@ -5,20 +5,20 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 
 import ChannelDropdown from '@/components/snippets/ChannelDropdown';
 import LoadingSpinner from '@/components/snippets/LoadingSpinner';
 import ProgramDialog from '@/components/snippets/ProgramDialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { decodeHtml } from '@/utils/htmlUtils';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
-const colorClasses = ['bg-cyan-600'];
 
 interface Event {
   id: number;
@@ -52,8 +52,17 @@ interface ApiData {
     channel_id: string;
     channel_slug: string;
     channel_name: string;
+    channel_names: {
+      real: string;
+      clean: string;
+      location: string;
+    };
     channel_number: string;
     chlogo: string;
+    channel_logo: {
+      light: string;
+      dark: string;
+    };
   };
   programs: {
     [date: string]: Array<{
@@ -74,31 +83,43 @@ interface ApiData {
   };
 }
 
+const defaultCategoryColors: { [key: string]: string } = {
+  Sports: 'bg-green-600',
+  News: 'bg-blue-600',
+  Movie: 'bg-purple-600',
+  Series: 'bg-yellow-600',
+};
+
+const defaultColorClasses = ['bg-cyan-600'];
+const defaultLiveColor = 'bg-red-600';
+
+const timeSlotHeight = 60;
+const timeColumnWidth = 60;
+const gridGap = 0.25 * 16;
+const stickyHeaderHeight = 40;
+const minDayWidth = 200;
+
 export default function WeeklyEPG() {
   const parameters = useParams();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const channelslug = parameters.channelslug as string;
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [daysLength, setDaysLength] = useState<number>(7);
   const [channelName, setChannelName] = useState<string>('');
+  const [channelNumber, setChannelNumber] = useState<string>('');
+  const [channelLogoLight, setChannelLogoLight] = useState<string>('');
+  const [channelLogoDark, setChannelLogoDark] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [clientTimezone, setClientTimezone] = useState<string>('UTC');
   const [visibleDays, setVisibleDays] = useState<number>(7);
   const [startDayIndex, setStartDayIndex] = useState(0);
   const [storedDataSource, setStoredDataSource] = useState<string>('');
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [useCategories, setUseCategories] = useState(false);
+  const [now, setNow] = useState(() => dayjs());
 
   const containerReference = useRef<HTMLDivElement>(null);
-
-  const timeSlotHeight = 60;
-  const timeColumnWidth = 60;
-  const gridGap = 0.25 * 16;
-  // const headerHeight = 64; // Removed unused variable
-  const stickyHeaderHeight = 40;
-  const minDayWidth = 200; // Minimum width for a day column
 
   useEffect(() => {
     const detectedTimezone = dayjs.tz.guess();
@@ -108,22 +129,77 @@ export default function WeeklyEPG() {
   useEffect(() => {
     const urlSource = searchParams.get('source');
     const initialDataSource =
-      urlSource || localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
+      urlSource || localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
     setStoredDataSource(initialDataSource);
   }, [searchParams]);
 
   useEffect(() => {
     const checkDataSource = () => {
-      const currentDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
+      const currentDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
       if (storedDataSource && currentDataSource !== storedDataSource) {
-        router.push(`/channel?source=${currentDataSource}`);
+        window.location.href = `/channel?source=${currentDataSource}`;
       }
     };
 
-    const intervalId = setInterval(checkDataSource, 200); // Check every 200ms
+    const intervalId = setInterval(checkDataSource, 200);
 
     return () => clearInterval(intervalId);
-  }, [router, storedDataSource]);
+  }, [storedDataSource]);
+
+  const processApiData = useCallback(
+    (data: ApiData) => {
+      const dates = Object.keys(data.programs);
+      if (dates.length === 0) {
+        setError('No program data available');
+        return;
+      }
+
+      const startDay = dayjs.tz(dates[0], clientTimezone).toDate();
+
+      setStartDate(startDay);
+      setDaysLength(dates.length);
+      setChannelName(data.channel.channel_names.real);
+      setChannelNumber(data.channel.channel_number);
+      setChannelLogoLight(data.channel.channel_logo.light);
+      setChannelLogoDark(data.channel.channel_logo.dark);
+
+      const events = dates.flatMap((date, dayIndex) => {
+        return data.programs[date].map((program, eventIndex) => {
+          const start = dayjs.tz(program.start_time, clientTimezone);
+          const end = dayjs.tz(program.end_time, clientTimezone);
+          const category = program.categories[0] || 'No Data Available';
+
+          return {
+            id: dayIndex * 1000 + eventIndex,
+            title: program.title,
+            start: program.start_time,
+            end: program.end_time,
+            color: defaultCategoryColors[category] || 'bg-gray-500',
+            description: program.description,
+            categories: program.categories,
+            subtitle: program.subtitle,
+            episodeNum: program.episode,
+            rating: program.rating,
+            lengthstring: program.length,
+            previouslyShown: false,
+            date: program.original_air_date,
+            icon: '',
+            image: '',
+            premiere: false,
+            country: '',
+            language: '',
+            new: false,
+            channel: data.channel.channel_name,
+            category: program.categories,
+          };
+        });
+      });
+
+      setAllEvents(events);
+      setError(null);
+    },
+    [clientTimezone]
+  );
 
   const fetchData = useCallback(async () => {
     if (!channelslug || !storedDataSource) {
@@ -151,74 +227,17 @@ export default function WeeklyEPG() {
     } finally {
       setIsLoading(false);
     }
-  }, [channelslug, clientTimezone, storedDataSource]);
+  }, [channelslug, clientTimezone, storedDataSource, processApiData]);
 
   useEffect(() => {
     fetchData();
 
     const timer = setInterval(() => {
-      setCurrentTime(new Date());
+      setNow(dayjs());
     }, 60_000);
 
     return () => clearInterval(timer);
   }, [fetchData]);
-
-  const processApiData = (data: ApiData) => {
-    const dates = Object.keys(data.programs);
-    if (dates.length === 0) {
-      setError('No program data available');
-      return;
-    }
-
-    const startDay = dayjs.tz(dates[0], clientTimezone).toDate();
-
-    setStartDate(startDay);
-    setDaysLength(dates.length);
-    setChannelName(data.channel.channel_name);
-
-    const now = dayjs().tz(clientTimezone);
-
-    const events = dates.flatMap((date, dayIndex) => {
-      return data.programs[date].map((program, eventIndex) => {
-        const start = dayjs.tz(program.start_time, clientTimezone);
-        const end = dayjs.tz(program.end_time, clientTimezone);
-
-        const isCurrentEvent = now.isAfter(start) && now.isBefore(end);
-
-        return {
-          id: dayIndex * 1000 + eventIndex,
-          title: program.title,
-          start: program.start_time,
-          end: program.end_time,
-          color:
-            program.title === 'No Data Available'
-              ? 'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]'
-              : isCurrentEvent
-                ? 'bg-red-500'
-                : colorClasses[eventIndex % colorClasses.length],
-          description: program.description,
-          categories: program.categories,
-          subtitle: program.subtitle,
-          episodeNum: program.episode,
-          rating: program.rating,
-          lengthstring: program.length,
-          previouslyShown: false,
-          date: program.original_air_date,
-          icon: '',
-          image: '',
-          premiere: false,
-          country: '',
-          language: '',
-          new: false,
-          channel: data.channel.channel_name,
-          category: program.categories,
-        };
-      });
-    });
-
-    setAllEvents(events);
-    setError(null);
-  };
 
   const getEventStyle = useCallback(
     (event: Event): React.CSSProperties => {
@@ -264,13 +283,13 @@ export default function WeeklyEPG() {
 
   const timeSlots = useMemo(() => Array.from({ length: 48 }, (_, index) => index * 30), []);
 
-  const handlePreviousDay = () => {
+  const handlePreviousDay = useCallback(() => {
     setStartDayIndex((previous) => Math.max(0, previous - 1));
-  };
+  }, []);
 
-  const handleNextDay = () => {
+  const handleNextDay = useCallback(() => {
     setStartDayIndex((previous) => Math.min(daysLength - visibleDays, previous + 1));
-  };
+  }, [daysLength, visibleDays]);
 
   useEffect(() => {
     const updateVisibleDays = () => {
@@ -278,7 +297,7 @@ export default function WeeklyEPG() {
         const containerWidth = containerReference.current.offsetWidth;
         const availableWidth = containerWidth - timeColumnWidth;
         const possibleDays = Math.floor(availableWidth / minDayWidth);
-        setVisibleDays(Math.min(possibleDays, 7, daysLength)); // Limit to 7 days maximum
+        setVisibleDays(Math.min(possibleDays, 7, daysLength));
       }
     };
 
@@ -319,7 +338,28 @@ export default function WeeklyEPG() {
     <div className="scrollbar-custom flex h-screen max-h-[calc(100vh-100px)] flex-col">
       <header className="bg-background sticky top-0 z-0 w-full border-b p-2 sm:p-4">
         <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-          <h1 className="text-lg font-bold sm:text-2xl">Weekly EPG - {channelName}</h1>
+          <div className="flex items-center space-x-4">
+            {channelLogoLight && (
+              <div>
+                <img
+                  className="block size-auto h-10 object-contain dark:hidden"
+                  src={channelLogoLight}
+                  alt={decodeHtml(channelName)}
+                />
+                <img
+                  className="hidden size-auto h-10 object-contain dark:block"
+                  src={channelLogoDark}
+                  alt={decodeHtml(channelName)}
+                />
+              </div>
+            )}
+            <div className="flex items-center">
+              <h1 className="text-lg font-bold sm:text-2xl">Weekly EPG - {channelName}</h1>
+              <Badge variant="secondary" className="ml-2 self-center">
+                LCN {channelNumber}
+              </Badge>
+            </div>
+          </div>
           <div className="flex items-center space-x-2">
             <ChannelDropdown channelslug={channelslug} />
           </div>
@@ -328,26 +368,38 @@ export default function WeeklyEPG() {
       <div className="grow overflow-hidden" ref={containerReference}>
         <ScrollArea className="h-full">
           <div className="min-w-fit p-2 sm:p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <Button
-                onClick={handlePreviousDay}
-                disabled={startDayIndex === 0}
-                aria-label="Previous day"
-              >
-                <ChevronLeft className="size-4" aria-hidden="true" />
-              </Button>
-              <div className="font-semibold" aria-live="polite">
-                {days[startDayIndex] && dayjs(days[startDayIndex]).format('MMM D')} -{' '}
-                {days[startDayIndex + visibleDays - 1] &&
-                  dayjs(days[startDayIndex + visibleDays - 1]).format('MMM D')}
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="use-categories"
+                  checked={useCategories}
+                  onCheckedChange={setUseCategories}
+                />
+                <label htmlFor="use-categories" className="text-sm font-medium">
+                  Color by category
+                </label>
               </div>
-              <Button
-                onClick={handleNextDay}
-                disabled={startDayIndex + visibleDays >= daysLength}
-                aria-label="Next day"
-              >
-                <ChevronRight className="size-4" aria-hidden="true" />
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button
+                  onClick={handlePreviousDay}
+                  disabled={startDayIndex === 0}
+                  aria-label="Previous day"
+                >
+                  <ChevronLeft className="size-4" aria-hidden="true" />
+                </Button>
+                <div className="font-semibold" aria-live="polite">
+                  {days[startDayIndex] && dayjs(days[startDayIndex]).format('MMM D')} -{' '}
+                  {days[startDayIndex + visibleDays - 1] &&
+                    dayjs(days[startDayIndex + visibleDays - 1]).format('MMM D')}
+                </div>
+                <Button
+                  onClick={handleNextDay}
+                  disabled={startDayIndex + visibleDays >= daysLength}
+                  aria-label="Next day"
+                >
+                  <ChevronRight className="size-4" aria-hidden="true" />
+                </Button>
+              </div>
             </div>
             <div
               className="relative grid gap-1"
@@ -411,7 +463,12 @@ export default function WeeklyEPG() {
                       style={getEventStyle(event)}
                       className={cn(
                         'absolute overflow-hidden rounded-md p-1 text-xs text-white',
-                        event.color,
+                        useCategories ? event.color : defaultColorClasses[0],
+                        now.isAfter(dayjs(event.start)) &&
+                          now.isBefore(dayjs(event.end)) &&
+                          defaultLiveColor,
+                        event.title === 'No Data Available' &&
+                          'bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')] bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px]',
                         'cursor-pointer transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2'
                       )}
                       role="button"
@@ -426,7 +483,7 @@ export default function WeeklyEPG() {
                         </div>
                       </div>
                       {event.subtitle !== 'N/A' && (
-                        <div className="truncate">{decodeHtml(event.subtitle)}</div>
+                        <div className="truncate italic">{decodeHtml(event.subtitle)}</div>
                       )}
                     </div>
                   }

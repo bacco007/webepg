@@ -1,355 +1,5 @@
 [
   {
-    "id": "xmltvnet-adelaide",
-    "group": "Australia",
-    "subgroup": "Metro",
-    "location": "Adelaide",
-    "url": "http://xmltv.net/xml_files/Adelaide.xml"
-  },
-  {
-    "id": "xmltvnet-albany",
-    "group": "Australia",
-    "subgroup": "Regional - WA",
-    "location": "Albany",
-    "url": "http://xmltv.net/xml_files/Albany.xml"
-  },
-  {
-    "id": "xmltvnet-albury-wodonga",
-    "group": "Australia",
-    "subgroup": "Regional - VIC",
-    "location": "Albury / Wodonga",
-    "url": "http://xmltv.net/xml_files/Albury_Wodonga.xml"
-  },
-  {
-    "id": "xmltvnet-ballarat",
-    "group": "Australia",
-    "subgroup": "Regional - VIC",
-    "location": "Ballarat",
-    "url": "http://xmltv.net/xml_files/Ballarat.xml"
-  },
-  {
-    "id": "xmltvnet-bendigo",
-    "group": "Australia",
-    "subgroup": "Regional - VIC",
-    "location": "Bendigo",
-    "url": "http://xmltv.net/xml_files/Bendigo.xml"
-  },
-  {
-    "id": "xmltvnet-brisbane",
-    "group": "Australia",
-    "subgroup": "Metro",
-    "location": "Brisbane",
-    "url": "http://xmltv.net/xml_files/Brisbane.xml"
-  },
-  {
-    "id": "xmltvnet-broken-hill",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "Broken Hill",
-    "url": "http://xmltv.net/xml_files/Broken_Hill.xml"
-  },
-  {
-    "id": "xmltvnet-bunbury",
-    "group": "Australia",
-    "subgroup": "Regional - WA",
-    "location": "Bunbury",
-    "url": "http://xmltv.net/xml_files/Bunbury.xml"
-  },
-  {
-    "id": "xmltvnet-cairns",
-    "group": "Australia",
-    "subgroup": "Regional - QLD",
-    "location": "Cairns",
-    "url": "http://xmltv.net/xml_files/Cairns.xml"
-  },
-  {
-    "id": "xmltvnet-canberra",
-    "group": "Australia",
-    "subgroup": "Regional - ACT",
-    "location": "Canberra",
-    "url": "http://xmltv.net/xml_files/Canberra.xml"
-  },
-  {
-    "id": "xmltvnet-central-coast-nsw",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "NNSW - Central Coast",
-    "url": "http://xmltv.net/xml_files/Central_Coast.xml"
-  },
-  {
-    "id": "xmltvnet-coffs-harbour",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "NNSW - Coffs Harbour",
-    "url": "http://xmltv.net/xml_files/Coffs_Harbour.xml"
-  },
-  {
-    "id": "xmltvnet-darwin",
-    "group": "Australia",
-    "subgroup": "Regional - NT",
-    "location": "Darwin",
-    "url": "http://xmltv.net/xml_files/Darwin.xml"
-  },
-  {
-    "id": "xmltvnet-gippsland",
-    "group": "Australia",
-    "subgroup": "Regional - VIC",
-    "location": "Gippsland",
-    "url": "http://xmltv.net/xml_files/Gippsland.xml"
-  },
-  {
-    "id": "xmltvnet-gold-coast",
-    "group": "Australia",
-    "subgroup": "Regional - QLD",
-    "location": "Gold Coast",
-    "url": "http://xmltv.net/xml_files/Goldcoast.xml"
-  },
-  {
-    "id": "xmltvnet-griffith",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "Griffith",
-    "url": "http://xmltv.net/xml_files/Griffith.xml"
-  },
-  {
-    "id": "xmltvnet-hobart",
-    "group": "Australia",
-    "subgroup": "Regional - TAS",
-    "location": "Hobart",
-    "url": "http://xmltv.net/xml_files/Hobart.xml"
-  },
-  {
-    "id": "xmltvnet-jurien-bay",
-    "group": "Australia",
-    "subgroup": "Regional - WA",
-    "location": "Jurien Bay",
-    "url": "http://xmltv.net/xml_files/Jurien_Bay.xml"
-  },
-  {
-    "id": "xmltvnet-launceston",
-    "group": "Australia",
-    "subgroup": "Regional - TAS",
-    "location": "Launceston",
-    "url": "http://xmltv.net/xml_files/Launceston.xml"
-  },
-  {
-    "id": "xmltvnet-lismore",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "NNSW - Lismore",
-    "url": "http://xmltv.net/xml_files/Lismore.xml"
-  },
-  {
-    "id": "xmltvnet-mackay",
-    "group": "Australia",
-    "subgroup": "Regional - QLD",
-    "location": "Mackay",
-    "url": "http://xmltv.net/xml_files/Mackay.xml"
-  },
-  {
-    "id": "xmltvnet-mandurah",
-    "group": "Australia",
-    "subgroup": "Regional - WA",
-    "location": "Mandurah",
-    "url": "http://xmltv.net/xml_files/Mandurah.xml"
-  },
-  {
-    "id": "xmltvnet-melbourne",
-    "group": "Australia",
-    "subgroup": "Metro",
-    "location": "Melbourne",
-    "url": "http://xmltv.net/xml_files/Melbourne.xml"
-  },
-  {
-    "id": "xmltvnet-mildura-sunraysia",
-    "group": "Australia",
-    "subgroup": "Regional - VIC",
-    "location": "Mildura/Sunraysia",
-    "url": "http://xmltv.net/xml_files/Mildura_Sunraysia.xml"
-  },
-  {
-    "id": "xmltvnet-newcastle",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "NNSW - Newcastle",
-    "url": "http://xmltv.net/xml_files/Newcastle.xml"
-  },
-  {
-    "id": "xmltvnet-nsw-regional",
-    "group": "Australia",
-    "subgroup": "Remote & Central",
-    "location": "NSW",
-    "url": "http://xmltv.net/xml_files/Remote_Central.xml"
-  },
-  {
-    "id": "xmltvnet-nt-regional",
-    "group": "Australia",
-    "subgroup": "Remote & Central",
-    "location": "NT",
-    "url": "http://xmltv.net/xml_files/NT_Regional.xml"
-  },
-  {
-    "id": "xmltvnet-orange",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "SNSW - Orange/Dubbo",
-    "url": "http://xmltv.net/xml_files/Orange_Dubbo.xml"
-  },
-  {
-    "id": "xmltvnet-perth",
-    "group": "Australia",
-    "subgroup": "Metro",
-    "location": "Perth",
-    "url": "http://xmltv.net/xml_files/Perth.xml"
-  },
-  {
-    "id": "xmltvnet-port-augusta",
-    "group": "Australia",
-    "subgroup": "Regional - SA",
-    "location": "Port Augusta",
-    "url": "http://xmltv.net/xml_files/Port_Augusta.xml"
-  },
-  {
-    "id": "xmltvnet-renmark",
-    "group": "Australia",
-    "subgroup": "Regional - SA",
-    "location": "Renmark",
-    "url": "http://xmltv.net/xml_files/Renmark.xml"
-  },
-  {
-    "id": "xmltvnet-riverland",
-    "group": "Australia",
-    "subgroup": "Regional - SA",
-    "location": "Riverland",
-    "url": "http://xmltv.net/xml_files/Riverland.xml"
-  },
-  {
-    "id": "xmltvnet-qld-regional",
-    "group": "Australia",
-    "subgroup": "Remote & Central",
-    "location": "QLD",
-    "url": "http://xmltv.net/xml_files/QLD_Regional.xml"
-  },
-  {
-    "id": "xmltvnet-rockhampton",
-    "group": "Australia",
-    "subgroup": "Regional - QLD",
-    "location": "Rockhampton",
-    "url": "http://xmltv.net/xml_files/Rockhampton.xml"
-  },
-  {
-    "id": "xmltvnet-sa-regional",
-    "group": "Australia",
-    "subgroup": "Remote & Central",
-    "location": "SA",
-    "url": "http://xmltv.net/xml_files/SA_Regional.xml"
-  },
-  {
-    "id": "xmltvnet-shepparton",
-    "location": "Shepparton",
-    "group": "Australia",
-    "subgroup": "Regional - VIC",
-    "url": "http://xmltv.net/xml_files/Shepparton.xml"
-  },
-  {
-    "id": "xmltvnet-south-coast-nsw",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "SNSW - South Coast",
-    "url": "http://xmltv.net/xml_files/South_Coast.xml"
-  },
-  {
-    "id": "xmltvnet-south-east-sa",
-    "group": "Australia",
-    "subgroup": "Regional - SA",
-    "location": "South East",
-    "url": "http://xmltv.net/xml_files/South_East_SA.xml"
-  },
-  {
-    "id": "xmltvnet-spencer-gulf",
-    "group": "Australia",
-    "subgroup": "Regional - SA",
-    "location": "Spencer Gulf",
-    "url": "http://xmltv.net/xml_files/Spencer_Gulf.xml"
-  },
-  {
-    "id": "xmltvnet-sunshine-coast",
-    "group": "Australia",
-    "subgroup": "Regional - QLD",
-    "location": "Sunshine Coast",
-    "url": "http://xmltv.net/xml_files/Sunshine_Coast.xml"
-  },
-  {
-    "id": "xmltvnet-sydney",
-    "group": "Australia",
-    "subgroup": "Metro",
-    "location": "Sydney",
-    "url": "http://xmltv.net/xml_files/Sydney.xml"
-  },
-  {
-    "id": "xmltvnet-tamworth",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "NNSW - Tamworth",
-    "url": "http://xmltv.net/xml_files/Tamworth.xml"
-  },
-  {
-    "id": "xmltvnet-taree-port-macquarie",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "NNSW - Taree/Port Macquarie",
-    "url": "http://xmltv.net/xml_files/Taree_Port_Macquarie.xml"
-  },
-  {
-    "id": "xmltvnet-tasmania-regional",
-    "group": "Australia",
-    "subgroup": "Regional - TAS",
-    "location": "Tasmania Regional",
-    "url": "http://xmltv.net/xml_files/TAS_Regional.xml"
-  },
-  {
-    "id": "xmltvnet-toowoomba",
-    "group": "Australia",
-    "subgroup": "Regional - QLD",
-    "location": "Toowoomba",
-    "url": "http://xmltv.net/xml_files/Toowoomba.xml"
-  },
-  {
-    "id": "xmltvnet-townsville",
-    "group": "Australia",
-    "subgroup": "Regional - QLD",
-    "location": "Townsville",
-    "url": "http://xmltv.net/xml_files/Townsville.xml"
-  },
-  {
-    "id": "xmltvnet-wa-regional",
-    "group": "Australia",
-    "subgroup": "Remote & Central",
-    "location": "WA",
-    "url": "http://xmltv.net/xml_files/WA_Regional.xml"
-  },
-  {
-    "id": "xmltvnet-wagga-wagga",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "SNSW - Wagga Wagga",
-    "url": "http://xmltv.net/xml_files/Wagga_Wagga.xml"
-  },
-  {
-    "id": "xmltvnet-wide-bay",
-    "group": "Australia",
-    "subgroup": "Regional - QLD",
-    "location": "Wide Bay",
-    "url": "http://xmltv.net/xml_files/Wide_Bay.xml"
-  },
-  {
-    "id": "xmltvnet-wollongong",
-    "group": "Australia",
-    "subgroup": "Regional - NSW",
-    "location": "SNSW - Wollongong",
-    "url": "http://xmltv.net/xml_files/Wollongong.xml"
-  },
-  {
     "id": "mjh-optus",
     "group": "Australia",
     "subgroup": "Subscription",
@@ -357,31 +7,52 @@
     "url": "https://i.mjh.nz/Optus/epg.xml.gz"
   },
   {
-    "id": "mjh-nz",
-    "group": "International",
-    "subgroup": "New Zealand",
-    "location": "New Zealand (MJH)",
-    "url": "https://i.mjh.nz/nz/epg.xml.gz"
+    "id": "nzxmltv_freeview",
+    "group": "New Zealand",
+    "location": "Freeview",
+    "url": "https://nzxmltv.github.io/xmltv/guide.xml"
+  },
+  {
+    "id": "nzxmltv_sky",
+    "group": "New Zealand",
+    "subgroup": "Subscription",
+    "location": "Sky",
+    "url": "https://nzxmltv.github.io/sky/guide.xml"
+  },
+  {
+    "id": "nzxmltv_threenow",
+    "group": "New Zealand",
+    "subgroup": "Streaming",
+    "location": "ThreeNow",
+    "url": "https://nzxmltv.github.io/iptv/threenow.xml"
+  },
+  {
+    "id": "nzxmltv_plutotv",
+    "group": "New Zealand",
+    "subgroup": "Streaming",
+    "location": "Pluto TV",
+    "url": "https://nzxmltv.github.io/iptv/plutotv.xml"
   },
   {
     "id": "mjh-skysportnownz",
     "group": "New Zealand",
-    "subgroup": "Subscription",
+    "subgroup": "Streaming",
     "location": "Sky Sport Now (NZ)",
     "url": "https://i.mjh.nz/SkySportNow/epg.xml.gz"
   },
   {
-    "id": "mjh-auall",
+    "id": "mjh-plex-au",
     "group": "Australia",
     "subgroup": "Streaming",
-    "location": "Australia - All",
-    "url": "https://i.mjh.nz/au/all/epg.xml.gz"
+    "location": "Plex",
+    "url": "https://i.mjh.nz/Plex/au.xml.gz"
   },
   {
-    "id": "mjh-plex-au",
-    "group": "Streaming",
-    "location": "Plex - Australia",
-    "url": "https://i.mjh.nz/Plex/au.xml.gz"
+    "id": "mjh-plex-nz",
+    "group": "New Zealand",
+    "subgroup": "Streaming",
+    "location": "Plex",
+    "url": "https://i.mjh.nz/Plex/nz.xml.gz"
   },
   {
     "id": "mjh-samsungtvplus",
@@ -392,8 +63,14 @@
   {
     "id": "mjh-samsungtvplus",
     "group": "Streaming",
-    "location": "Pluto TV",
+    "location": "Pluto TV - All Regions",
     "url": "https://i.mjh.nz/PlutoTV/all.xml.gz"
+  },
+  {
+    "id": "mjh-roku",
+    "group": "Streaming",
+    "location": "Roku - All Regions",
+    "url": "https://i.mjh.nz/Roku/all.xml.gz"
   },
   {
     "id": "dp247-freeviewuk",
@@ -422,20 +99,6 @@
     "subgroup": "United States",
     "location": "Local Channels",
     "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_local_guide.xml.gz"
-  },
-  {
-    "id": "nzxmltv_freeview",
-    "group": "International",
-    "subgroup": "New Zealand",
-    "location": "Freeview",
-    "url": "https://nzxmltv.github.io/xmltv/guide.xml"
-  },
-  {
-    "id": "nzxmltv_sky",
-    "group": "International",
-    "subgroup": "New Zealand",
-    "location": "Sky",
-    "url": "https://nzxmltv.github.io/sky/guide.xml"
   },
   {
     "id": "mjh-dstv",

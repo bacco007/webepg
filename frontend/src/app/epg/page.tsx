@@ -27,7 +27,7 @@ const EPGDayList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [dates, setDates] = useState<string[]>([]);
   const [filteredDates, setFilteredDates] = useState<string[]>([]);
-  const [xmltvDataSource, setXmltvDataSource] = useState<string>('xmltvnet-sydney');
+  const [xmltvDataSource, setXmltvDataSource] = useState<string>('xmlepg_FTASYD');
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
 
@@ -35,7 +35,7 @@ const EPGDayList: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
+      const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
       setXmltvDataSource(storedDataSource);
 
       const response = await fetch(`/api/py/dates/${storedDataSource}`);

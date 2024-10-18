@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, Home, Menu, Settings } from 'lucide-react';
+import { ChevronDown, Home, LayoutList, Menu, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -128,19 +128,30 @@ const Header = () => {
           </NavigationMenuList>
         </NavigationMenu>
       </div>
-      <div className="flex items-center space-x-2 lg:space-x-4">
-        <Link href="/settings" className="hidden w-9 sm:block">
-          <Settings className="size-4 text-white" />
-          <span className="sr-only">Settings</span>
+      <div className="flex items-center space-x-2 lg:space-x-2">
+        <Link href="/sources" className="hidden w-9 sm:block">
+          <Button variant="ghost" size="icon" className="ghost">
+            <LayoutList className="size-[1.2rem] rotate-0 scale-100 text-white transition-all dark:text-white" />
+            <span className="sr-only">Sources</span>
+          </Button>
         </Link>
+        <Link href="/settings" className="hidden w-9 sm:block">
+          <Button variant="ghost" size="icon" className="ghost">
+            <Settings className="size-[1.2rem] rotate-0 scale-100 text-white transition-all dark:text-white" />
+            <span className="sr-only">Settings</span>
+          </Button>
+        </Link>
+
         <Link
           href={siteConfig.links.github}
           target="_blank"
           rel="noreferrer"
           className="hidden w-9 sm:block"
         >
-          <Icons.gitHub className="size-4 text-white" />
-          <span className="sr-only">GitHub</span>
+          <Button variant="ghost" size="icon" className="ghost">
+            <Icons.gitHub className="size-[1.2rem] rotate-0 scale-100 text-white transition-all dark:text-white" />
+            <span className="sr-only">Github</span>
+          </Button>
         </Link>
         <FontScaler />
         <ModeToggle />
@@ -198,6 +209,14 @@ const Header = () => {
                   )}
                 </React.Fragment>
               ))}
+              <Link
+                href="/sources"
+                className="text-sm font-medium text-gray-300 hover:text-white"
+                onClick={() => setIsOpen(false)}
+              >
+                <LayoutList className="mr-2 inline-block size-4" />
+                Sources
+              </Link>
               <Link
                 href="/settings"
                 className="text-sm font-medium text-gray-300 hover:text-white"

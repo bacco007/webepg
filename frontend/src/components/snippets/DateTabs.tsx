@@ -23,7 +23,7 @@ export default function DateTabs() {
 
   const fetchDates = useCallback(async () => {
     try {
-      const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
+      const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
       const userTimezone = dayjs.tz.guess();
       const response = await fetch(
         `/api/py/dates/${storedDataSource}?timezone=${encodeURIComponent(userTimezone)}`

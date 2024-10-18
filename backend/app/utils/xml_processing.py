@@ -1,5 +1,6 @@
 import re
 import xml.etree.ElementTree as ET
+from collections import Counter
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -55,12 +56,12 @@ def process_program(program: ET.Element) -> Dict[str, Any]:
         "rating": rating,
     }
 
-async def process_xml_file(file_id: str, save_path: str) -> None:
+async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
     try:
         with open(save_path, encoding="utf-8") as file_desc:
             xml: ET.Element = ET.fromstring(file_desc.read())
 
-        channels: List[Dict[str, str]] = []
+        channels: List[Dict[str, Any]] = []
         programs: List[Dict[str, Any]] = []
         for child in xml:
             if child.tag == "channel":
@@ -68,6 +69,7 @@ async def process_xml_file(file_id: str, save_path: str) -> None:
                 display_name: Optional[ET.Element] = child.find("display-name")
                 lcn: Optional[ET.Element] = child.find("lcn")
                 icon: Optional[ET.Element] = child.find("icon")
+                url: Optional[ET.Element] = child.find("url")
                 chlogo: str = "N/A"
                 if icon is not None:
                     src = icon.get("src")
@@ -79,6 +81,11 @@ async def process_xml_file(file_id: str, save_path: str) -> None:
                 else:
                     channel_name = "N/A"
 
+                if url is not None and url.text is not None:
+                    channel_url = url.text
+                else:
+                    channel_url = "N/A"
+
                 if channel_name != "N/A" and file_id.startswith("xmltvnet"):
                     cleaned_name = clean_channel_name(channel_name)
                     cleaned_name_slug = re.sub(r"\W+", "-", cleaned_name).lower()
@@ -86,6 +93,7 @@ async def process_xml_file(file_id: str, save_path: str) -> None:
                     chlogo = "/logos/" + cleaned_name_slug + ".png"
                     channel_name = cleaned_name
                 else:
+                    cleaned_name = channel_name
                     channel_group = "Unknown"
                     cleaned_name_slug = "placeholder"
                     chlogo = chlogo
@@ -95,16 +103,33 @@ async def process_xml_file(file_id: str, save_path: str) -> None:
                         "channel_id": channel_id,
                         "channel_slug": re.sub(r"\W+", "-", channel_id),
                         "channel_name": channel_name,
+                        "channel_names": {
+                            "clean": cleaned_name,
+                            "location": channel_name,
+                            "real": channel_name,
+                        },
                         "channel_number": lcn.text
                         if lcn is not None and lcn.text is not None
                         else "N/A",
                         "chlogo": chlogo,
                         "channel_group": channel_group,
+                        "channel_url": channel_url,
+                        "channel_logo": {"light": chlogo, "dark": chlogo},
+                        "other_data": {"channel_type": "N/A", "channel_specs": "N/A"},
                     }
                 )
 
             elif child.tag == "programme":
                 programs.append(process_program(child))
+
+        # Count the number of programs for each channel
+        channel_program_counts = Counter(program["channel"] for program in programs)
+
+        # Add program_count to channels
+        for channel in channels:
+            channel["program_count"] = channel_program_counts.get(
+                channel["channel_slug"], 0
+            )
 
         write_json(f'{file_id}_channels.json', channels)
         write_json(f'{file_id}_programs.json', programs)

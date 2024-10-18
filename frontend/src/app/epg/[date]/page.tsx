@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -65,9 +64,22 @@ interface ProgramData {
 interface Channel {
   channel_id: string;
   channel_slug: string;
-  channel_name: string;
+  channel_names: {
+    real: string;
+    clean: string;
+    location: string;
+  };
   channel_number: string;
-  chlogo: string;
+  channel_logo: {
+    light: string;
+    dark: string;
+  };
+  channel_name: string;
+  channel_group: string;
+  other_data: {
+    channel_type: string;
+    channel_specs: string;
+  };
 }
 
 interface ChannelData {
@@ -78,6 +90,7 @@ interface ChannelData {
 }
 
 const defaultColorClasses = ['bg-cyan-600'];
+const HOVER_COLOR = 'bg-green-600';
 const titleColorMappings = {
   'No Data Available':
     'bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
@@ -117,9 +130,18 @@ export default function EPGComponent() {
 
       for (const channelData of channelsData) {
         const channel = channelData.channel;
-        channelData.programs.forEach((programData: ProgramData, index: number) => {
-          const start = dayjs.tz(programData.start_time, clientTimezone);
-          const end = dayjs.tz(programData.end_time, clientTimezone);
+        const uniquePrograms = new Map<string, ProgramData>();
+
+        channelData.programs.forEach((programData: ProgramData) => {
+          const key = `${programData.start_time}-${programData.end_time}-${programData.title}`;
+          if (!uniquePrograms.has(key)) {
+            uniquePrograms.set(key, programData);
+          }
+        });
+
+        Array.from(uniquePrograms.values()).forEach((programData: ProgramData, index: number) => {
+          const start = dayjs(programData.start_time);
+          const end = dayjs(programData.end_time);
 
           const isCurrentProgram = now.isAfter(start) && now.isBefore(end);
 
@@ -128,17 +150,17 @@ export default function EPGComponent() {
               return titleColorMappings[programData.title as keyof typeof titleColorMappings];
             }
             if (isCurrentProgram) {
-              return 'bg-red-500';
+              return 'bg-red-500/80';
             }
             return defaultColorClasses[index % defaultColorClasses.length];
           };
 
           programs.push({
-            id: `${channel.id}-${index}`,
+            id: `${channel.id}-${start.valueOf()}-${end.valueOf()}`,
             title: decodeHtml(programData.title),
             description: decodeHtml(programData.description),
-            start: start.format(),
-            end: end.format(),
+            start: start.toISOString(),
+            end: end.toISOString(),
             color: getColorClass(),
             channel: channel.id,
             subtitle: programData.subtitle,
@@ -172,10 +194,11 @@ export default function EPGComponent() {
         const sortedChannels = (channelData.data.channels || []).sort((a: Channel, b: Channel) => {
           const aNumber = Number.parseInt(a.channel_number);
           const bNumber = Number.parseInt(b.channel_number);
-          if (isNaN(aNumber) && isNaN(bNumber)) return a.channel_name.localeCompare(b.channel_name);
+          if (isNaN(aNumber) && isNaN(bNumber))
+            return a.channel_names.real.localeCompare(b.channel_names.real);
           if (isNaN(aNumber)) return 1;
           if (isNaN(bNumber)) return -1;
-          if (aNumber === bNumber) return a.channel_name.localeCompare(b.channel_name);
+          if (aNumber === bNumber) return a.channel_names.real.localeCompare(b.channel_names.real);
           return aNumber - bNumber;
         });
         setChannels(sortedChannels);
@@ -205,7 +228,7 @@ export default function EPGComponent() {
   );
 
   useEffect(() => {
-    const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmltvnet-sydney';
+    const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
     const storedTimezone = localStorage.getItem('userTimezone') || dayjs.tz.guess();
 
     setXmltvDataSource(storedDataSource);
@@ -224,40 +247,23 @@ export default function EPGComponent() {
     return () => window.removeEventListener('resize', handleResize);
   }, [fetchData]);
 
-  const getProgramStyle = useCallback(
-    (program: Program): React.CSSProperties => {
-      const channelIndex = channels.findIndex((ch) => ch.channel_id === program.channel);
-      if (channelIndex === -1) {
-        console.error(`Channel not found for program: ${program.title}`);
-        return {};
-      }
-      const stripSeconds = (date: dayjs.Dayjs) => date.second(0).millisecond(0);
-      const start = stripSeconds(dayjs(program.start).tz(clientTimezone));
-      const end = stripSeconds(dayjs(program.end).tz(clientTimezone));
-      const dayStart = start.startOf('day');
+  const getProgramStyle = useCallback((program: Program): React.CSSProperties => {
+    const start = dayjs(program.start);
+    const end = dayjs(program.end);
+    const dayStart = start.startOf('day');
 
-      const startMinutes = start.diff(dayStart, 'minute');
-      const durationExact = end.diff(start, 'minute', true);
-      const duration = Math.round(durationExact);
+    const startMinutes = start.diff(dayStart, 'minute');
+    const durationExact = end.diff(start, 'minute', true);
+    const duration = Math.round(durationExact);
 
-      return {
-        position: 'absolute',
-        left: `${startMinutes * (timeSlotWidth / 30) + horizontalProgramGap}px`,
-        width: `${duration * (timeSlotWidth / 30) - 2 * horizontalProgramGap}px`,
-        height: `${programBoxHeight}px`,
-        top: '0',
-      };
-    },
-    [channels, clientTimezone]
-  );
-
-  const filteredChannels = useMemo(
-    () =>
-      channels.filter((channel) =>
-        channel.channel_name.toLowerCase().includes(channelFilter.toLowerCase())
-      ),
-    [channels, channelFilter]
-  );
+    return {
+      position: 'absolute',
+      left: `${startMinutes * (timeSlotWidth / 30) + horizontalProgramGap}px`,
+      width: `${duration * (timeSlotWidth / 30) - 2 * horizontalProgramGap}px`,
+      height: `${programBoxHeight}px`,
+      top: '0',
+    };
+  }, []);
 
   const calculateCurrentTimePosition = useCallback((): number => {
     const now = dayjs().tz(clientTimezone);
@@ -285,6 +291,12 @@ export default function EPGComponent() {
   );
 
   const timeSlots = useMemo(() => Array.from({ length: 48 }, (_, index) => index * 30), []);
+
+  const filteredChannels = useMemo(() => {
+    return channels.filter((channel) =>
+      channel.channel_names.real.toLowerCase().includes(channelFilter.toLowerCase())
+    );
+  }, [channels, channelFilter]);
 
   const renderSchedule = useCallback((): JSX.Element => {
     const currentTimePosition = calculateCurrentTimePosition();
@@ -319,7 +331,7 @@ export default function EPGComponent() {
 
         {filteredChannels.map((channel) => (
           <ChannelRow
-            key={channel.channel_slug}
+            key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names.real}`}
             channel={channel}
             programs={allPrograms.filter((program) => program.channel === channel.channel_id)}
             xmltvDataSource={xmltvDataSource}
@@ -331,7 +343,7 @@ export default function EPGComponent() {
         ))}
 
         <div
-          className="absolute bottom-0 top-[40px] z-20 w-px bg-green-500"
+          className="absolute bottom-0 top-[40px] z-20 w-0.5 bg-green-500"
           style={{
             display: 'inline-block',
             left: `${currentTimePosition}px`,
@@ -428,30 +440,42 @@ const ChannelRow = React.memo(
     clientTimezone: string;
     isMobile: boolean;
   }) => {
+    const [hoveredProgram, setHoveredProgram] = useState<Program | null>(null);
+
     return (
-      <div key={channel.channel_slug} className="flex" role="row">
+      <div className="flex" role="row">
         <div
-          className="border-border bg-background sticky left-0 z-20 flex items-center border-t px-2 py-1 font-semibold"
+          className={cn(
+            'border-border bg-background sticky left-0 z-50 flex items-center border-t px-2 py-1 font-semibold transition-colors duration-200',
+            hoveredProgram && HOVER_COLOR
+          )}
           style={{
             width: isMobile ? `${mobileChannelColumnWidth}px` : `${channelColumnWidth}px`,
             height: `${rowHeight}px`,
           }}
           role="rowheader"
         >
-          <Image
-            src={channel.chlogo && channel.chlogo !== 'N/A' ? channel.chlogo : '/placeholder.svg'}
-            alt={`${channel.channel_name} logo`}
-            width={isMobile ? 30 : 50}
-            height={isMobile ? 30 : 50}
-            className="mr-2 rounded-md"
-          />
+          <div>
+            <img
+              className="mr-2 block size-auto h-10 rounded-md object-contain dark:hidden"
+              src={channel.channel_logo.light}
+              alt={decodeHtml(channel.channel_name)}
+              width={isMobile ? 25 : 45}
+            />
+            <img
+              className="mr-2 hidden size-auto h-10 rounded-md object-contain dark:block"
+              src={channel.channel_logo.dark}
+              alt={decodeHtml(channel.channel_name)}
+              width={isMobile ? 25 : 45}
+            />
+          </div>
           {!isMobile && (
             <Link
               href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
-              className="grow hover:underline"
+              className={cn('grow hover:underline', hoveredProgram && 'text-white')}
               style={{ fontSize: '0.9rem' }}
             >
-              {channel.channel_name}
+              {channel.channel_names.real}
             </Link>
           )}
           {channel.channel_number && channel.channel_number !== 'N/A' && (
@@ -490,25 +514,27 @@ const ChannelRow = React.memo(
                   style={getProgramStyle(program)}
                   className={cn(
                     'absolute overflow-hidden rounded-md p-1 text-xs text-white',
-                    program.color,
-                    'cursor-pointer transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2'
+                    'cursor-pointer transition-colors duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2',
+                    hoveredProgram === program ? HOVER_COLOR : program.color || 'bg-blue-600'
                   )}
                   role="button"
                   tabIndex={0}
                   aria-label={`${program.title} from ${dayjs(program.start).tz(clientTimezone).format('HH:mm')} to ${dayjs(program.end).tz(clientTimezone).format('HH:mm')}`}
+                  onMouseEnter={() => setHoveredProgram(program)}
+                  onMouseLeave={() => setHoveredProgram(null)}
                 >
                   <div className="truncate">
                     {dayjs(program.start).tz(clientTimezone).format('HH:mm')} -{' '}
                     {dayjs(program.end).tz(clientTimezone).format('HH:mm')} (
                     {differenceInMinutes(
-                      dayjs(program.end).tz(clientTimezone).toDate(),
-                      dayjs(program.start).tz(clientTimezone).toDate()
+                      dayjs(program.end).toDate(),
+                      dayjs(program.start).toDate()
                     )}
                     min)
                   </div>
                   <div className="truncate font-semibold">{program.title}</div>
                   {!isMobile && (
-                    <div className="truncate">
+                    <div className="truncate whitespace-nowrap italic">
                       {program.subtitle && program.subtitle !== 'N/A' && program.subtitle}
                     </div>
                   )}

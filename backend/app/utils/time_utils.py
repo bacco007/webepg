@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Union, cast
 
 import pytz
@@ -8,7 +8,6 @@ import pytz
 PytzTimezone = Union[
     pytz.tzinfo.BaseTzInfo, pytz.tzinfo.StaticTzInfo, pytz.tzinfo.DstTzInfo
 ]
-
 
 def adjust_programming(
     programming: List[Dict[str, Any]], target_timezone: PytzTimezone
@@ -21,7 +20,9 @@ def adjust_programming(
         local_end = utc_end.astimezone(target_timezone)
 
         if local_start.date() != local_end.date():
-            midnight = local_start.replace(hour=23, minute=59, second=59)
+            midnight = local_start.replace(
+                hour=23, minute=59, second=59, microsecond=999999
+            )
             if local_start < midnight:
                 adjusted.append(
                     {
@@ -30,7 +31,7 @@ def adjust_programming(
                         "end_time": midnight.strftime("%Y-%m-%d %H:%M:%S"),
                     }
                 )
-            next_day = local_end.replace(hour=0, minute=0, second=0)
+            next_day = local_end.replace(hour=0, minute=0, second=0, microsecond=0)
             if next_day < local_end:
                 adjusted.append(
                     {
@@ -75,18 +76,30 @@ def group_and_fill_programs(
             program_start = parse_datetime(program["start_time"], tz)
             program_end = parse_datetime(program["end_time"], tz)
 
-            if current_time < program_start:
-                filled_programs.append(
-                    create_no_data_program(
-                        current_time, program_start, program["channel"], tz
+            if program_start > current_time:
+                gap = (program_start - current_time).total_seconds()
+                if gap > 60:  # Only create a gap program if it's longer than 1 minute
+                    filled_programs.append(
+                        create_no_data_program(
+                            current_time,
+                            program_start - timedelta(seconds=1),
+                            program["channel"],
+                            tz,
+                        )
                     )
-                )
-            filled_programs.append(program)
+
+            if (program_end - program_start).total_seconds() > 0:
+                filled_programs.append(program)
+
             current_time = program_end
 
-        if current_time < day_end:
+        if (
+            day_end - current_time
+        ).total_seconds() > 60:  # Only create end-of-day gap if longer than 1 minute
             filled_programs.append(
-                create_no_data_program(current_time, day_end, program["channel"], tz)
+                create_no_data_program(
+                    current_time + timedelta(seconds=1), day_end, program["channel"], tz
+                )
             )
 
         grouped[date] = filled_programs
@@ -136,18 +149,32 @@ def group_and_fill_programschannels(
                     program_start = parse_datetime(program["start_time"], tz)
                     program_end = parse_datetime(program["end_time"], tz)
 
-                    if current_time < program_start:
-                        filled_programs.append(
-                            create_no_data_program(
-                                current_time, program_start, channel, tz
+                    if program_start > current_time:
+                        gap = (program_start - current_time).total_seconds()
+                        if (
+                            gap > 60
+                        ):  # Only create a gap program if it's longer than 1 minute
+                            filled_programs.append(
+                                create_no_data_program(
+                                    current_time,
+                                    program_start - timedelta(seconds=1),
+                                    channel,
+                                    tz,
+                                )
                             )
-                        )
-                    filled_programs.append(program)
+
+                    if (program_end - program_start).total_seconds() > 60:
+                        filled_programs.append(program)
+
                     current_time = program_end
 
-                if current_time < day_end:
+                if (
+                    (day_end - current_time).total_seconds() > 60
+                ):  # Only create end-of-day gap if longer than 1 minute
                     filled_programs.append(
-                        create_no_data_program(current_time, day_end, channel, tz)
+                        create_no_data_program(
+                            current_time + timedelta(seconds=1), day_end, channel, tz
+                        )
                     )
 
                 filled_grouped[date][channel] = filled_programs
@@ -164,11 +191,9 @@ def process_timezone(timezone: Union[str, pytz.BaseTzInfo]) -> PytzTimezone:
             "Invalid timezone format. Expected string or pytz.BaseTzInfo object."
         )
 
-
 def parse_datetime(dt_string: str, tz: PytzTimezone) -> datetime:
     dt = datetime.strptime(dt_string, "%Y-%m-%d %H:%M:%S")
     return tz.localize(dt)
-
 
 def create_no_data_program(
     start: datetime, end: datetime, channel: str, tz: PytzTimezone

@@ -1,5 +1,6 @@
-2024-09-22 14:23:41,125: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-09-22 14:23:41,125: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-09-22 14:23:41,128: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
-2024-09-22 14:23:41,128: INFO: Added job "Process Foxtel sources every 6 hours" to job store "default"
-2024-09-22 14:23:41,128: INFO: Scheduler started
+2024-10-12 19:32:31,243: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-10-12 19:32:31,244: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-10-12 19:32:31,245: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-10-12 19:32:31,245: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-10-12 19:32:31,245: INFO: Scheduler started
+2024-10-12 19:32:51,657: INFO: Scheduler has been shut down

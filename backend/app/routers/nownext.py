@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pytz
 from fastapi import APIRouter, HTTPException, Query
@@ -12,10 +12,11 @@ router = APIRouter()
 
 class ChannelInfo(BaseModel):
     id: str
-    name: str
-    icon: str
+    name: Dict[str, str] = {}
+    icon: Dict[str, str] = {}  # Changed from List[str] to Dict[str, str]
     slug: str
-    lcn: str
+    lcn: Union[str, int]  # Changed from str to Union[str, int]
+    group: str
 
 
 class ProgramInfo(BaseModel):
@@ -99,10 +100,11 @@ async def get_nownext(
         channel_data = ChannelPrograms(
             channel=ChannelInfo(
                 id=channel_info["channel_id"],
-                name=channel_info["channel_name"],
-                icon=channel_info["chlogo"],
+                name=channel_info["channel_names"],
+                icon=channel_info["channel_logo"],
                 slug=channel_info["channel_slug"],
                 lcn=channel_info["channel_number"],
+                group=channel_info["channel_group"],
             ),
             currentProgram=format_program(current_program, target_timezone)
             if current_program

@@ -26,8 +26,7 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'warn',
     '@typescript-eslint/no-unused-vars': 'warn',
     '@typescript-eslint/no-empty-object-type': 'warn',
-    'simple-import-sort/imports': 'warn',
-    'prettier/prettier': 'warn',
+    '@next/next/no-img-element': 'off',
     'simple-import-sort/imports': [
       2,
       {

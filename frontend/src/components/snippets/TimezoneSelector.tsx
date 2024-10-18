@@ -49,6 +49,11 @@ const timezones: Timezone[] = [
   { value: 'Asia/Makassar', label: 'Indonesia Central Standard Time (WITA)', group: 'Asia' },
   { value: 'Asia/Jayapura', label: 'Indonesia Eastern Standard Time (WIT)', group: 'Asia' },
   {
+    value: 'Asia/Dili',
+    label: 'East Timor Time',
+    group: 'Asia',
+  },
+  {
     value: 'Australia/Perth',
     label: 'Aus Western Standard Time (AWST)',
     group: 'Australia & Pacific',
@@ -59,13 +64,48 @@ const timezones: Timezone[] = [
     group: 'Australia & Pacific',
   },
   {
+    value: 'Australia/Darwin',
+    label: 'Aus Central Standard Time - NT (ACST)',
+    group: 'Australia & Pacific',
+  },
+  {
     value: 'Australia/Sydney',
     label: 'Aus Eastern Standard Time (AEST)',
     group: 'Australia & Pacific',
   },
   {
     value: 'Australia/Brisbane',
-    label: 'Aus Eastern Standard Time - Brisbane (AEST)',
+    label: 'Aus Eastern Standard Time - Qld (AEST)',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Australia/Norfolk',
+    label: 'Norfolk Island Time',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Australia/Lord_Howe',
+    label: 'Lord Howe Island Time',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Australia/Eucla',
+    label: 'Aus Central Western Time',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Indian/Cocos',
+    label: 'Cocos/Keeling Island Time',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Indian/Christmas',
+    label: 'Christmas Island Time',
+    group: 'Australia & Pacific',
+  },
+  {
+    value: 'Pacific/Guadalcanal',
+    label: 'Solomon Island Time',
     group: 'Australia & Pacific',
   },
   {

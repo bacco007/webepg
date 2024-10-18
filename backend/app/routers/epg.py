@@ -21,6 +21,8 @@ class ChannelInfo(BaseModel):
     icon: str
     slug: str
     lcn: str
+    group: str
+
 
 def program_overlaps_date(
     program: Dict[str, Any], date_str: str, target_timezone: pytz.tzinfo.BaseTzInfo
@@ -52,7 +54,7 @@ def parse_datetime(datetime_str: str, timezone: pytz.tzinfo.BaseTzInfo) -> datet
 
 def is_sports_program(program: Dict[str, Any]) -> bool:
     if "categories" in program:
-        categories = [cat.lower() for cat in program["categories"]]
+        categories = " ".join(cat.lower() for cat in program["categories"])
         sports_keywords = [
             "sports",
             "sport",
@@ -159,16 +161,18 @@ async def get_programming_by_date(
     for channel_slug, programs in grouped_programs[selected_date_str].items():
         channel_info = next((c for c in channels_data if c['channel_slug'] == channel_slug), None)
         if channel_info:
-            channels_list.append({
-                "channel": {
-                    "id": channel_info['channel_id'],
-                    "name": channel_info['channel_name'],
-                    "icon": channel_info['chlogo'],
-                    "slug": channel_info['channel_slug'],
-                    "lcn": channel_info['channel_number'],
-                },
-                "programs": programs
-            })
+            channels_list.append(
+                {
+                    "channel": {
+                        "id": channel_info["channel_id"],
+                        "name": channel_info["channel_names"],
+                        "icon": channel_info["channel_logo"],
+                        "slug": channel_info["channel_slug"],
+                        "lcn": channel_info["channel_number"],
+                    },
+                    "programs": programs,
+                }
+            )
 
     if not channels_list:
         raise HTTPException(status_code=404, detail=f"No programming found for date: {selected_date_str}")
@@ -277,9 +281,10 @@ async def get_sports_programming(
                 "channel": {
                     "id": channel_info["channel_id"],
                     "name": channel_info["channel_name"],
-                    "icon": channel_info["chlogo"],
+                    "icon": channel_info["channel_logo"],
                     "slug": channel_info["channel_slug"],
                     "lcn": channel_info["channel_number"],
+                    "group": channel_info["channel_group"],
                 },
                 "programs": dict(
                     programs_by_day

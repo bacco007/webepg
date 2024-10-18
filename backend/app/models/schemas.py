@@ -8,6 +8,7 @@ class ChannelInfo(BaseModel):
     channel_slug: str
     channel_name: str
     channel_number: str
+    channel_url: str
     chlogo: str
 
 class ProgramInfo(BaseModel):
