@@ -34,23 +34,18 @@ async def download_file(
         return False
 
 def write_json(filename: str, data: Any) -> None:
-    file_path: str = os.path.normpath(os.path.join(settings.XMLTV_DATA_DIR, filename))
-    if not file_path.startswith(settings.XMLTV_DATA_DIR):
-        raise Exception("Access to the specified file is not allowed.")
+    file_path: str = os.path.join(settings.XMLTV_DATA_DIR, filename)
     with open(file_path, 'w', encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
     logger.info(f"Data saved to {filename}")
 
 def load_json(filename: str) -> Any:
-    file_path: str = os.path.normpath(os.path.join(settings.XMLTV_DATA_DIR, filename))
-    if not file_path.startswith(settings.XMLTV_DATA_DIR):
-        raise Exception("Access to the specified file is not allowed.")
+    file_path: str = os.path.join(settings.XMLTV_DATA_DIR, filename)
     with open(file_path, 'r', encoding="utf-8") as f:
         return json.load(f)
 
 def load_sources(filename: str) -> Dict[str, Any]:
-    file_path: str = os.path.normpath(os.path.join(settings.XMLTV_DATA_DIR, filename))
-    if not file_path.startswith(settings.XMLTV_DATA_DIR):
-        raise Exception("Access to the specified file is not allowed.")
+    file_path: str = os.path.join(filename)
     with open(file_path, 'r', encoding="utf-8") as f:
         return json.load(f)
+
