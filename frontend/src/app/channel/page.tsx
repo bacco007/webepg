@@ -583,7 +583,9 @@ const ChannelList: React.FC = () => {
               </TableCell>
               <TableCell>
                 <Badge variant="secondary" className="mr-2">
-                  {channel.program_count !== 'N/A' ? channel.program_count : '-'}
+                  {typeof channel.program_count === 'number'
+                    ? channel.program_count.toString()
+                    : '-'}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
