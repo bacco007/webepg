@@ -14,9 +14,17 @@ import {
 type Channel = {
   channel_id: string;
   channel_slug: string;
-  channel_names: string[];
+  channel_names: {
+    clean: string;
+    location: string;
+    real: string;
+  };
   channel_number: string;
   chlogo: string;
+  channel_logo: {
+    light: string;
+    dark: string;
+  };
 };
 
 interface ChannelDropdownProperties {

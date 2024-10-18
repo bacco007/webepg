@@ -54,7 +54,10 @@ dayjs.extend(timezone);
 interface Channel {
   id: string;
   name: string;
-  icon: string;
+  icon: {
+    light: string;
+    dark: string;
+  };
   slug: string;
   lcn: string;
   group: string;
@@ -378,17 +381,17 @@ function SportsPageContent() {
               {filteredAndSortedChannels.map((channelData) => (
                 <Card key={channelData.channel.slug} className="w-full">
                   <CardHeader className="flex flex-row items-center justify-between px-4 py-2">
-                    {channelData.channel.icon !== 'N/A' && (
+                    {channelData.channel.icon && channelData.channel.icon.light !== 'N/A' && (
                       <div>
                         <img
                           className="block size-auto h-16 object-contain dark:hidden"
                           src={channelData.channel.icon.light}
-                          alt={decodeHtml(channelData.channel.name.real)}
+                          alt={decodeHtml(channelData.channel.name)}
                         />
                         <img
                           className="hidden size-auto h-16 object-contain dark:block"
                           src={channelData.channel.icon.dark}
-                          alt={decodeHtml(channelData.channel.name.real)}
+                          alt={decodeHtml(channelData.channel.name)}
                         />
                       </div>
                     )}
