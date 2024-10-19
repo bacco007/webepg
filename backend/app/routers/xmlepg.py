@@ -33,6 +33,9 @@ mysql_config = {
     "database": settings.MYSQL_DATABASE,
     "use_pure": "True",
     "auth_plugin": "mysql_native_password",
+    "unix_socket": "None",
+    "port": "3306",  # Default MySQL port
+    "protocol": "tcp",
 }
 
 # Global variable to store process status
