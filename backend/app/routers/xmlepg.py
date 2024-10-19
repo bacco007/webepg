@@ -31,7 +31,7 @@ mysql_config = {
     "user": settings.MYSQL_USER,
     "password": settings.MYSQL_PASSWORD,
     "database": settings.MYSQL_DATABASE,
-    "user_pure": "True",
+    "use_pure": "True",
     "auth_plugin": "mysql_native_password",
 }
 
