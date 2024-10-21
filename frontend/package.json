@@ -69,7 +69,7 @@
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-tailwindcss": "^3.17.4",
-    "eslint-plugin-unicorn": "^55.0.0",
+    "eslint-plugin-unicorn": "^56.0.0",
     "globals": "^15.9.0",
     "lucide-react": "^0.453.0",
     "next-routes-list": "^1.1.5",
