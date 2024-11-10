@@ -1,164 +1,147 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { CalendarIcon, ClockIcon, TrophyIcon, TvIcon, XIcon } from 'lucide-react';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { CalendarIcon, ClockIcon, TrophyIcon, TvIcon, XIcon } from 'lucide-react';
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { siteConfig } from '@/config/site';
 
-export default function Home() {
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
-  const [showTimezoneBanner, setShowTimezoneBanner] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    const userTimezone = localStorage.getItem('userTimezone');
-    if (!userTimezone) {
-      setShowTimezoneBanner(true);
-    }
-  }, []);
+export default async function Home() {
+  const cookieStore = await cookies();
+  const timezone = cookieStore.get('timezone')?.value;
+  const xmltvdatasource = cookieStore.get('xmltvdatasource')?.value;
 
   const cards = [
     {
       title: 'Daily EPG',
-      description: 'View all channels',
+      description:
+        'Explore a comprehensive day-by-day guide for all channels. Perfect for planning your viewing schedule.',
       icon: TvIcon,
       link: '/epg',
     },
     {
       title: `Today's EPG`,
-      description: 'Current schedule',
+      description:
+        "Get instant access to today's programming across all channels. Never miss out on current shows.",
       icon: TvIcon,
       link: '/epg/today',
     },
     {
       title: `Tomorrow's EPG`,
-      description: 'Plan ahead',
+      description:
+        "Plan ahead with tomorrow's full lineup. Set reminders for upcoming must-watch content.",
       icon: TvIcon,
       link: '/epg/tomorrow',
     },
     {
       title: 'Weekly EPG',
-      description: 'Single channel view',
+      description:
+        'View a week-long schedule for any channel. Ideal for tracking series and planning your entire week.',
       icon: CalendarIcon,
       link: '/channel',
     },
     {
       title: 'Now and Next',
-      description: "What's on now",
+      description:
+        "See what's currently airing and what's coming up next across all channels. Perfect for spontaneous viewing.",
       icon: ClockIcon,
       link: '/nownext',
     },
     {
-      title: 'Sports EPG',
-      description: 'Sports schedules',
+      title: 'Upcoming Sports EPG',
+      description:
+        'Never miss a game! Get a dedicated view of all upcoming sports events across channels.',
       icon: TrophyIcon,
       link: '/sports',
     },
   ];
 
-  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, index: number) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      router.push(cards[index].link);
-    }
-  };
-
   return (
-    <div className="from-background to-secondary/20 min-h-[calc(100vh-155px)] bg-gradient-to-b">
-      {showTimezoneBanner && (
-        <Alert className="mb-4 border-yellow-400 bg-yellow-100 text-yellow-800">
-          <AlertTitle className="flex items-center justify-between">
-            <span className="font-semibold">Set Your Timezone</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowTimezoneBanner(false)}
-              className="h-auto p-0 text-yellow-800 hover:bg-yellow-200"
-              aria-label="Close timezone banner"
-            >
-              <XIcon className="size-4" />
-            </Button>
-          </AlertTitle>
-          <AlertDescription>
-            Please set your timezone for accurate program schedules.{' '}
-            <Link
-              href="/settings"
-              className="font-medium text-yellow-900 underline underline-offset-4 hover:text-yellow-700"
-            >
-              Go to Settings
-            </Link>
-          </AlertDescription>
-        </Alert>
-      )}
-      <main className="container mx-auto px-4 py-16 md:px-6">
-        <section className="mb-16 text-center">
-          <div className="mb-6 flex items-center justify-center">
-            <Link href="/" className="relative inline-flex items-center">
-              <span className="text-primary text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-                {siteConfig.name}
-              </span>
-              <Badge
-                variant="secondary"
-                className="ml-2 px-2 py-0.5 align-top text-lg font-semibold"
-              >
-                Beta
-              </Badge>
-            </Link>
-          </div>
-          <h1 className="text-primary mb-4 text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-            Your Ultimate EPG Experience
-          </h1>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
-            Discover a new way to explore TV schedules with our innovative Electronic Program Guide.
-          </p>
-        </section>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((card, index) => (
-            <Link
-              key={index}
-              href={card.link}
-              className="group focus:outline-none"
-              onKeyDown={(e) => handleCardKeyDown(e, index)}
-              tabIndex={0}
-            >
-              <Card
-                className="group-focus:ring-primary h-full transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg group-focus:ring-2"
-                onMouseEnter={() => setHoveredCard(index)}
-                onMouseLeave={() => setHoveredCard(null)}
-              >
-                <CardHeader>
-                  <div className="mb-2 flex justify-center">
-                    <card.icon
-                      className={`size-12 ${
-                        hoveredCard === index ? 'text-primary' : 'text-muted-foreground'
-                      } transition-colors duration-300`}
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <CardTitle className="text-center text-2xl">{card.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-center text-sm">{card.description}</p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    variant="outline"
-                    className="group-hover:bg-primary group-hover:text-primary-foreground w-full transition-all duration-300"
-                  >
-                    Explore
-                  </Button>
-                </CardFooter>
-              </Card>
-            </Link>
-          ))}
+    <main className="container mx-auto px-4 py-16 md:px-6">
+      <section className="fade-in-up mb-16 text-center">
+        <div className="mb-6 flex items-center justify-center">
+          <Link href="/" className="relative inline-flex items-center">
+            <span className="text-primary scale-in text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+              {siteConfig.name}
+            </span>
+            <Badge variant="secondary" className="ml-2 px-2 py-0.5 align-top text-lg font-semibold">
+              Beta
+            </Badge>
+          </Link>
         </div>
-      </main>
-    </div>
+        <h1 className="text-primary mb-4 text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
+          Your Ultimate EPG Experience
+        </h1>
+        <p className="text-muted-foreground mx-auto mb-8 max-w-2xl text-xl">
+          Discover a new way to explore TV schedules with our innovative Electronic Program Guide.
+        </p>
+      </section>
+      <div className="staggered-fade-in mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {cards.map((card, index) => (
+          <Link key={index} href={card.link} className="group focus:outline-none" tabIndex={0}>
+            <Card className="group-focus:ring-primary h-full bg-white/80 backdrop-blur-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg group-focus:ring-2 dark:bg-gray-800/80">
+              <CardHeader>
+                <div className="mb-2 flex justify-center">
+                  <card.icon
+                    className={`size-12 transition-colors duration-300`}
+                    aria-hidden="true"
+                  />
+                </div>
+                <CardTitle className="text-center text-2xl">{card.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-center text-sm">{card.description}</p>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  variant="outline"
+                  className="group-hover:bg-primary group-hover:text-primary-foreground w-full transition-all duration-300"
+                >
+                  Explore
+                </Button>
+              </CardFooter>
+            </Card>
+          </Link>
+        ))}
+      </div>
+      {/* <section className="fade-in-up">
+        <h2 className="mb-8 text-center text-xl font-bold">
+          Selected EPG at a Glance - {xmltvdatasource}
+        </h2>
+        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-xl font-bold">
+                <CountUpAnimation end={epgStats.days} />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-center">Days Covered</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-xl font-bold">
+                <CountUpAnimation end={epgStats.channels} />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-center">Channels</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-xl font-bold">
+                <CountUpAnimation end={epgStats.programs} />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-center">Programs</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section> */}
+    </main>
   );
 }

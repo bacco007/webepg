@@ -1,21 +1,24 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { differenceInMinutes, format } from 'date-fns';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { differenceInMinutes, format } from 'date-fns';
+import { AlertCircle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
-import ChannelFilter from '@/components/snippets/ChannelFilter';
-import DateTabs from '@/components/snippets/DateTabs';
-import LoadingSpinner from '@/components/snippets/LoadingSpinner';
-import ProgramDialog from '@/components/snippets/ProgramDialog';
-import TimeJumpDropdown from '@/components/snippets/TimeJumpDropdown';
+import ChannelFilter from '@/components/ChannelFilter';
+import DateTabs from '@/components/DateTabs';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import ProgramDialog from '@/components/ProgramDialog';
+import TimeJumpDropdown from '@/components/TimeJumpDropdown';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { getCookie, setCookie } from '@/lib/cookies';
 import { cn } from '@/lib/utils';
 import { decodeHtml } from '@/utils/htmlUtils';
 
@@ -30,6 +33,7 @@ interface Program {
   end: string;
   color: string;
   channel: string;
+  channel_name: string;
   subtitle: string;
   episodeNum: string;
   rating: string;
@@ -85,6 +89,11 @@ interface Channel {
 interface ChannelData {
   channel: {
     id: string;
+    name: {
+      real: string;
+      clean: string;
+      location: string;
+    };
   };
   programs: ProgramData[];
 }
@@ -108,7 +117,7 @@ const rowGap = 5;
 const programBoxHeight = rowHeight - rowGap;
 const horizontalProgramGap = 2;
 
-export default function EPGComponent() {
+function EPGContent() {
   const parameters = useParams();
   const inputDate = parameters.date as string;
   const [channels, setChannels] = useState<Channel[]>([]);
@@ -116,6 +125,7 @@ export default function EPGComponent() {
   const [channelFilter, setChannelFilter] = useState('');
   const [xmltvDataSource, setXmltvDataSource] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [clientTimezone, setClientTimezone] = useState<string>('UTC');
   const scrollContainerReference = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -163,6 +173,7 @@ export default function EPGComponent() {
             end: end.toISOString(),
             color: getColorClass(),
             channel: channel.id,
+            channel_name: channel.name.real,
             subtitle: programData.subtitle,
             episodeNum: programData.episode,
             rating: programData.rating,
@@ -188,8 +199,12 @@ export default function EPGComponent() {
     async (storedDataSource: string) => {
       try {
         setLoading(true);
+        setError(null);
 
         const channelResponse = await fetch(`/api/py/channels/${storedDataSource}`);
+        if (!channelResponse.ok) {
+          throw new Error('Failed to fetch channel data');
+        }
         const channelData = await channelResponse.json();
         const sortedChannels = (channelData.data.channels || []).sort((a: Channel, b: Channel) => {
           const aNumber = Number.parseInt(a.channel_number);
@@ -208,6 +223,9 @@ export default function EPGComponent() {
             clientTimezone
           )}`
         );
+        if (!programResponse.ok) {
+          throw new Error('Failed to fetch program data');
+        }
         const programData = await programResponse.json();
 
         if (!programData.channels || !Array.isArray(programData.channels)) {
@@ -221,6 +239,7 @@ export default function EPGComponent() {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
+        setError(error instanceof Error ? error.message : 'An unknown error occurred');
         setLoading(false);
       }
     },
@@ -228,14 +247,18 @@ export default function EPGComponent() {
   );
 
   useEffect(() => {
-    const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
-    const storedTimezone = localStorage.getItem('userTimezone') || dayjs.tz.guess();
+    const initializeData = async () => {
+      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      const storedTimezone = (await getCookie('userTimezone')) || dayjs.tz.guess();
 
-    setXmltvDataSource(storedDataSource);
-    setClientTimezone(storedTimezone);
-    localStorage.setItem('userTimezone', storedTimezone);
+      setXmltvDataSource(storedDataSource);
+      setClientTimezone(storedTimezone);
+      await setCookie('userTimezone', storedTimezone);
 
-    fetchData(storedDataSource);
+      fetchData(storedDataSource);
+    };
+
+    initializeData();
 
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -312,7 +335,9 @@ export default function EPGComponent() {
         <div className="bg-background sticky left-0 top-0 z-20 flex" role="row">
           <div
             className="shrink-0"
-            style={{ width: isMobile ? mobileChannelColumnWidth : channelColumnWidth }}
+            style={{
+              width: isMobile ? mobileChannelColumnWidth : channelColumnWidth,
+            }}
             role="columnheader"
           ></div>
           {timeSlots.map((minutes) => (
@@ -367,13 +392,33 @@ export default function EPGComponent() {
   ]);
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex h-full items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="size-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button onClick={() => fetchData(xmltvDataSource || 'xmlepg_FTASYD')} className="mt-4">
+            <RefreshCw className="mr-2 size-4" />
+            Try Again
+          </Button>
+        </Alert>
+      </div>
+    );
   }
 
   return (
-    <div className="scrollbar-custom flex max-h-screen max-w-full flex-col">
-      <header className="bg-background flex flex-col items-start justify-between border-b p-4 sm:flex-row sm:items-center">
-        <h1 className="mb-4 text-xl font-bold sm:mb-0 sm:text-2xl">
+    <div className="flex size-full flex-col">
+      <div className="flex items-center justify-between border-b p-2">
+        <h1 className="text-xl font-bold sm:text-2xl">
           Daily EPG - {format(inputDateDJS, 'EEEE, do MMMM')}
         </h1>
         {isMobile ? (
@@ -405,19 +450,21 @@ export default function EPGComponent() {
             <TimeJumpDropdown onTimeJump={scrollToTime} />
           </div>
         )}
-      </header>
+      </div>
       <div className="p-1">
         <DateTabs />
       </div>
-      <div
-        className="scrollbar-custom relative ml-1 max-h-[calc(100vh-230px)] max-w-full"
-        style={{ display: 'flex', overflow: 'scroll' }}
-        ref={scrollContainerReference}
-        role="grid"
-        aria-label="EPG Schedule"
-      >
-        <div className="flex flex-col">{renderSchedule()}</div>
-      </div>
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        <div
+          className="relative ml-1"
+          style={{ display: 'flex', overflow: 'scroll' }}
+          ref={scrollContainerReference}
+          role="grid"
+          aria-label="EPG Schedule"
+        >
+          <div className="flex flex-col">{renderSchedule()}</div>
+        </div>
+      </ScrollArea>
     </div>
   );
 }
@@ -549,3 +596,13 @@ const ChannelRow = React.memo(
 );
 
 ChannelRow.displayName = 'ChannelRow';
+
+export default function EPGComponent() {
+  return (
+    <main>
+      <Suspense fallback={<LoadingSpinner />}>
+        <EPGContent />
+      </Suspense>
+    </main>
+  );
+}

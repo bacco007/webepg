@@ -9,6 +9,7 @@
   {
     "id": "nzxmltv_freeview",
     "group": "New Zealand",
+    "subgroup": "FTA",
     "location": "Freeview",
     "url": "https://nzxmltv.github.io/xmltv/guide.xml"
   },
@@ -56,19 +57,22 @@
   },
   {
     "id": "mjh-samsungtvplus",
-    "group": "Streaming",
+    "group": "International",
+    "subgroup": "Streaming",
     "location": "Samsung TV Plus - All Regions",
     "url": "https://i.mjh.nz/SamsungTVPlus/all.xml.gz"
   },
   {
-    "id": "mjh-samsungtvplus",
-    "group": "Streaming",
+    "id": "mjh-plutotv",
+    "group": "International",
+    "subgroup": "Streaming",
     "location": "Pluto TV - All Regions",
     "url": "https://i.mjh.nz/PlutoTV/all.xml.gz"
   },
   {
     "id": "mjh-roku",
-    "group": "Streaming",
+    "group": "International",
+    "subgroup": "Streaming",
     "location": "Roku - All Regions",
     "url": "https://i.mjh.nz/Roku/all.xml.gz"
   },

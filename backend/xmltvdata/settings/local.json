@@ -2,43 +2,57 @@
   {
     "id": "xmlepg_FETALL",
     "group": "Australia",
-    "subgroup": "Subscription - Fetch",
+    "subgroup": "Subscription",
     "location": "Fetch",
+    "url": "local"
+  },
+  {
+    "id": "xmlepg_HUBALL",
+    "group": "Australia",
+    "subgroup": "Subscription",
+    "location": "Hubbl - All Channels",
     "url": "local"
   },
   {
     "id": "xmlepg_HUBBIN",
     "group": "Australia",
-    "subgroup": "Subscription - Foxtel/Hubbl",
-    "location": "Binge",
+    "subgroup": "Subscription",
+    "location": "Hubbl - Binge",
     "url": "local"
   },
   {
     "id": "xmlepg_HUBFLA",
     "group": "Australia",
-    "subgroup": "Subscription - Foxtel/Hubbl",
-    "location": "Flash",
+    "subgroup": "Subscription",
+    "location": "Hubbl - Flash",
     "url": "local"
   },
   {
     "id": "xmlepg_FOXHD",
     "group": "Australia",
-    "subgroup": "Subscription - Foxtel/Hubbl",
+    "subgroup": "Subscription",
     "location": "Foxtel",
+    "url": "local"
+  },
+  {
+    "id": "xmlepg_FOXNOW",
+    "group": "Australia",
+    "subgroup": "Subscription",
+    "location": "Foxtel Now",
     "url": "local"
   },
   {
     "id": "xmlepg_HUBKAY",
     "group": "Australia",
-    "subgroup": "Subscription - Foxtel/Hubbl",
-    "location": "Kayo Sports",
+    "subgroup": "Subscription",
+    "location": "Hubbl - Kayo Sports",
     "url": "local"
   },
   {
     "id": "xmlepg_HUBLIF",
     "group": "Australia",
-    "subgroup": "Subscription - Foxtel/Hubbl",
-    "location": "LifeStyle",
+    "subgroup": "Subscription",
+    "location": "Hubbl - LifeStyle",
     "url": "local"
   },
   {
@@ -399,6 +413,13 @@
     "url": "local"
   },
   {
+    "id": "xmlepg_VASTIABC2",
+    "group": "Australia",
+    "subgroup": "FTA - VAST",
+    "location": "ABC/SBS - All States",
+    "url": "local"
+  },
+  {
     "id": "xmlepg_VASTNSW",
     "group": "Australia",
     "subgroup": "FTA - VAST",
@@ -494,6 +515,13 @@
     "group": "Australia",
     "subgroup": "Streaming",
     "location": "SBS On Demand",
+    "url": "local"
+  },
+  {
+    "id": "xmlepg_IPTVSYD",
+    "group": "Testing",
+    "subgroup": "Other",
+    "location": "FTA Streaming Sydney",
     "url": "local"
   }
 ]

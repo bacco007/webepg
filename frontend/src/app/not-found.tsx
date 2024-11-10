@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import ErrorPage from '@/components/pages/ErrorPage';
+import ErrorPage from '@/components/ErrorPage';
 
 export default function Custom404() {
   return (

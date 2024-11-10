@@ -106,11 +106,11 @@ async def get_providers() -> List[Dict[str, Any]]:
     union all
     -- Get Provider List (Foxtel)
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Foxtel / Hubbl' as subgroup, 'Foxtel' as location, 'local' as url from providers
-    where provgroupname in ('Foxtel') and provshow = 1 and provid in ('FOXHD')
+    where provgroupname in ('Foxtel') and provshow = 1 and provid in ('FOXHD', 'FOXNOW')
 
     union all
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Foxtel / Hubbl' as subgroup, provname as location, 'local' as url from providers
-    where provgroupname in ('Hubbl') and provshow = 1 and provid in ('HUBBIN', 'HUBFLA', 'HUBKAY', 'HUBLIF')
+    where provgroupname in ('Hubbl') and provshow = 1 and provid in ('HUBBIN', 'HUBFLA', 'HUBKAY', 'HUBLIF', 'HUBALL')
 
     union all
     -- Get Provider List (Fetch)
@@ -120,12 +120,12 @@ async def get_providers() -> List[Dict[str, Any]]:
     union all
     -- Get Provider List (VAST)
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Free To Air (VAST)' as subgroup, concat(provnamelong) as location, 'local' as url from providers
-    where provgroupname in ('VAST') and provshow = 1 and provid not in ('VASTIABC2')
+    where provgroupname in ('VAST') and provshow = 1
 
     union all
     -- Get Provider List (Other)
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Other' as subgroup, concat(provgroupname, ' ', provname) as location, 'local' as url from providers
-    where provid in ('SKYRAC', 'INSTV') and provshow = 1
+    where provid in ('SKYRAC', 'INSTV', 'OPTALL', 'IPTVSYD')
 
     union all
     -- Get Provider List (Streaming)
@@ -151,6 +151,7 @@ async def get_channels() -> List[Dict[str, Any]]:
     left join chanlogos cl on ch.chanlogo = cl.logoid
     left join chantypes ct on ch.chantype = ct.chantypeid
     left join networks nt on ch.channetwork = nt.networkid
+    where ch.chanshowonlistview <> '0'
     order by guidelink
     """
     return execute_sql_query(channel_query)
@@ -229,11 +230,54 @@ async def get_guide_data(sql_in_clause: str) -> List[Dict[str, Any]]:
             return json.load(f)
 
     logging.info("Fetching fresh guide data from database")
-    query = f"""SELECT guideid, progstart as start_time, null as start, progstop as end_time, null as end,
+    query1 = f"""SELECT guideid, progstart as start_time, null as start, progstop as end_time, null as end,
                 null as length, channel, title, subtitle, descr as description, category as categories,
                 null as original_air_date, rating
-                FROM guide2 WHERE channel IN {sql_in_clause}"""
-    results = execute_sql_query(query)
+                FROM guide2 WHERE title != "(guide not available)" and channel IN {sql_in_clause}"""
+
+    query2 = """SELECT showingid AS guideid, starttime AS start_time, null as start,
+                finishtime AS end_time, null as end, channel, showtitle AS title,
+                subtitle, descrip AS description, category as categories, null as original_air_date,
+                rating1 AS rating
+                FROM guide
+                WHERE channel not in (select distinct channel from guide2)
+                AND showtitle != "(guide not available)"
+                AND starttime >= DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+                AND starttime <= DATE_ADD(CURDATE(), INTERVAL 10 DAY)"""
+
+    results1 = execute_sql_query(query1)
+    results2 = execute_sql_query(query2)
+
+    sydney_tz = pytz.timezone("Australia/Sydney")
+
+    for entry in results2:
+        for time_field in ["start_time", "end_time"]:
+            if entry[time_field]:
+                # Check if the value is already a datetime object
+                if isinstance(entry[time_field], datetime):
+                    dt = sydney_tz.localize(entry[time_field])
+                else:
+                    # If it's a string, parse it
+                    dt = sydney_tz.localize(
+                        datetime.strptime(entry[time_field], "%Y-%m-%d %H:%M:%S")
+                    )
+                # Format the datetime with the correct offset
+                entry[time_field] = dt.strftime("%Y%m%d%H%M%S %z")
+
+        # Handle categories as a single value
+        entry["categories"] = (
+            entry["categories"]
+            if entry["categories"] and entry["categories"] != ""
+            else "NA"
+        )
+
+        # Handle rating as a single value
+        entry["rating"] = (
+            entry["rating"] if entry["rating"] and entry["rating"] != "" else "NA"
+        )
+
+    results = results1 + results2
+
     if not results:
         logging.warning("No guide data found for the given channels.")
     else:

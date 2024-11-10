@@ -1,24 +1,14 @@
 'use client';
 
-import React, { Suspense, useEffect, useMemo, useState } from 'react';
-import { format } from 'date-fns';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import {
-  AlertCircle,
-  CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  FilterIcon,
-  RefreshCw,
-  Search,
-} from 'lucide-react';
-import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { format } from 'date-fns';
+import { AlertCircle, CalendarIcon, Clock, FilterIcon, RefreshCw, X } from 'lucide-react';
 
-import LoadingSpinner from '@/components/snippets/LoadingSpinner';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import {
   Accordion,
   AccordionContent,
@@ -26,6 +16,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -36,8 +27,18 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
@@ -47,6 +48,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { getCookie, setCookie } from '@/lib/cookies';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -117,9 +119,9 @@ function SportsPageContent() {
   const [filterText, setFilterText] = useState('');
   const [dataSource, setDataSource] = useState<string>('xmlepg_FTASYD');
   const [userTimezone, setUserTimezone] = useState<string>('UTC');
-  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
 
   const searchParameters = useSearchParams();
   const days = searchParameters.get('days') || '7';
@@ -127,11 +129,15 @@ function SportsPageContent() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
-    const storedTimezone = localStorage.getItem('userTimezone') || dayjs.tz.guess();
+    const fetchInitialData = async () => {
+      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      const storedTimezone = (await getCookie('userTimezone')) || dayjs.tz.guess();
 
-    setDataSource(storedDataSource);
-    setUserTimezone(storedTimezone);
+      setDataSource(storedDataSource);
+      setUserTimezone(storedTimezone);
+    };
+
+    fetchInitialData();
   }, []);
 
   useEffect(() => {
@@ -218,76 +224,78 @@ function SportsPageContent() {
     );
   };
 
-  const FilterPanel = () => (
-    <div
-      className={`bg-background border-border h-full border-l p-4 transition-all duration-300 ease-in-out ${
-        isFilterPanelOpen ? 'w-64' : 'w-0 overflow-hidden opacity-0'
-      }`}
-    >
-      <h2 className="mb-4 text-lg font-semibold">Filters</h2>
-      <div className="mb-4">
-        <Label htmlFor="search-channels" className="mb-2 block text-sm font-medium">
-          Search Channels
-        </Label>
-        <div className="relative">
-          <Search
-            className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-gray-400"
-            aria-hidden="true"
-          />
-          <Input
-            id="search-channels"
-            type="text"
-            placeholder="Search channels..."
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-            className="w-full pl-8 pr-4"
-          />
-        </div>
-      </div>
-      <div className="mb-4">
-        <h3 className="mb-2 text-sm font-medium">Filter by Group</h3>
-        <ScrollArea className="h-40">
-          <div className="space-y-2">
-            {uniqueGroups.map((group) => (
-              <div key={group} className="flex items-center">
-                <Checkbox
-                  id={`group-${group}`}
-                  checked={selectedGroups.includes(group)}
-                  onCheckedChange={() => handleGroupFilter(group)}
-                />
-                <Label htmlFor={`group-${group}`} className="ml-2 text-sm">
-                  {group}
-                </Label>
-              </div>
-            ))}
+  const clearFilters = useCallback(() => {
+    setFilterText('');
+    setSelectedGroups([]);
+    setSelectedCategories([]);
+  }, []);
+
+  const FilterMenu = () => (
+    <Popover open={isFilterMenuOpen} onOpenChange={setIsFilterMenuOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="ml-auto">
+          <FilterIcon className="mr-2 size-4" />
+          Filters
+          {(selectedGroups.length > 0 || selectedCategories.length > 0) && (
+            <Badge variant="secondary" className="ml-2">
+              {selectedGroups.length + selectedCategories.length}
+            </Badge>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[300px] p-0" align="end">
+        <Command>
+          <CommandInput placeholder="Search filters..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Groups">
+              <ScrollArea className="h-[200px]">
+                {uniqueGroups.map((group) => (
+                  <CommandItem key={group} onSelect={() => handleGroupFilter(group)}>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`group-${group}`}
+                        checked={selectedGroups.includes(group)}
+                        onCheckedChange={() => handleGroupFilter(group)}
+                      />
+                      <Label htmlFor={`group-${group}`}>{group}</Label>
+                    </div>
+                  </CommandItem>
+                ))}
+              </ScrollArea>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Categories">
+              <ScrollArea className="h-[200px]">
+                {uniqueCategories.map((category) => (
+                  <CommandItem key={category} onSelect={() => handleCategoryFilter(category)}>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`category-${category}`}
+                        checked={selectedCategories.includes(category)}
+                        onCheckedChange={() => handleCategoryFilter(category)}
+                      />
+                      <Label htmlFor={`category-${category}`}>{category}</Label>
+                    </div>
+                  </CommandItem>
+                ))}
+              </ScrollArea>
+            </CommandGroup>
+          </CommandList>
+          <div className="border-t p-2">
+            <Button variant="outline" className="w-full" onClick={clearFilters}>
+              <X className="mr-2 size-4" />
+              Clear Filters
+            </Button>
           </div>
-        </ScrollArea>
-      </div>
-      <div className="mb-4">
-        <h3 className="mb-2 text-sm font-medium">Filter by Category</h3>
-        <ScrollArea className="h-40">
-          <div className="space-y-2">
-            {uniqueCategories.map((category) => (
-              <div key={category} className="flex items-center">
-                <Checkbox
-                  id={`category-${category}`}
-                  checked={selectedCategories.includes(category)}
-                  onCheckedChange={() => handleCategoryFilter(category)}
-                />
-                <Label htmlFor={`category-${category}`} className="ml-2 text-sm">
-                  {category}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
-    </div>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <LoadingSpinner />
       </div>
     );
@@ -295,7 +303,7 @@ function SportsPageContent() {
 
   if (error) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
+      <div className="flex h-full flex-col items-center justify-center">
         <Alert variant="destructive" className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>
@@ -311,7 +319,7 @@ function SportsPageContent() {
 
   if (noSportsData) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
+      <div className="flex h-full flex-col items-center justify-center">
         <Alert className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>No Sports Programming</AlertTitle>
@@ -330,7 +338,7 @@ function SportsPageContent() {
 
   if (!sportsData || filteredAndSortedChannels.length === 0) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
+      <div className="flex h-full flex-col items-center justify-center">
         <Alert className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>No Results</AlertTitle>
@@ -339,14 +347,7 @@ function SportsPageContent() {
             Try adjusting your search or clear the filter.
           </AlertDescription>
         </Alert>
-        <Button
-          onClick={() => {
-            setFilterText('');
-            setSelectedGroups([]);
-            setSelectedCategories([]);
-          }}
-          aria-label="Clear All Filters"
-        >
+        <Button onClick={clearFilters} aria-label="Clear All Filters">
           Clear All Filters
         </Button>
       </div>
@@ -354,132 +355,121 @@ function SportsPageContent() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="bg-background sticky top-0 z-10 w-full border-b">
-        <div className="flex max-w-full flex-col items-center justify-between p-4 sm:flex-row">
-          <h1 className="mb-4 text-2xl font-bold sm:mb-0">Sports Programs</h1>
-          <div className="flex w-full items-center space-x-2 sm:w-auto">
-            <Button
-              onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-              variant="outline"
-              aria-label={isFilterPanelOpen ? 'Close filter panel' : 'Open filter panel'}
-            >
-              {isFilterPanelOpen ? (
-                <ChevronRight className="size-4" />
-              ) : (
-                <ChevronLeft className="size-4" />
-              )}
-              <span className="ml-2 hidden sm:inline">Filters</span>
-            </Button>
+    <div className="flex size-full flex-col">
+      <div className="flex items-center justify-between border-b p-2">
+        <h1 className="text-xl font-bold">Upcoming Sports Programming</h1>
+        <div className="flex items-center space-x-2">
+          <Input
+            type="text"
+            placeholder="Search channels..."
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+            className="w-[200px]"
+          />
+          <FilterMenu />
+        </div>
+      </div>
+      <ScrollArea className="grow">
+        <div className="w-full p-4">
+          <div className="grid w-full grid-cols-1 gap-3 lg:grid-cols-[repeat(auto-fill,minmax(600px,1fr))]">
+            {filteredAndSortedChannels.map((channelData) => (
+              <Card key={channelData.channel.slug} className="w-full">
+                <CardHeader className="flex flex-row items-center justify-between px-4 py-2">
+                  {channelData.channel.icon && channelData.channel.icon.light !== 'N/A' && (
+                    <div>
+                      <img
+                        className="block size-auto h-16 object-contain dark:hidden"
+                        src={channelData.channel.icon.light}
+                        alt={decodeHtml(channelData.channel.name)}
+                      />
+                      <img
+                        className="hidden size-auto h-16 object-contain dark:block"
+                        src={channelData.channel.icon.dark}
+                        alt={decodeHtml(channelData.channel.name)}
+                      />
+                    </div>
+                  )}
+                  <div className="text-right">
+                    <CardTitle className="text-lg">{channelData.channel.name}</CardTitle>
+                    {channelData.channel.lcn !== 'N/A' && (
+                      <CardDescription>Channel {channelData.channel.lcn}</CardDescription>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="h-[250px] w-full overflow-auto">
+                  <Accordion type="single" collapsible className="w-full">
+                    {Object.entries(channelData.programs).map(([date, programs]) => (
+                      <AccordionItem key={date} value={date}>
+                        <AccordionTrigger className="text-md p-2">
+                          <div className="flex items-center">
+                            <CalendarIcon className="mr-2 size-4" />
+                            {format(new Date(date), 'EEEE, MMMM d, yyyy')}
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <ScrollArea className="h-[200px] w-full">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="w-[150px]">Time</TableHead>
+                                  <TableHead>Title</TableHead>
+                                  <TableHead className="hidden md:table-cell">
+                                    Description
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody className="font-sm">
+                                {programs.map((program, index) => (
+                                  <TableRow key={index}>
+                                    <TableCell className="font-sm">
+                                      {format(new Date(program.start), 'h:mm a')} -{' '}
+                                      {format(new Date(program.end), 'h:mm a')}
+                                    </TableCell>
+                                    <TableCell className="font-sm">{program.title}</TableCell>
+                                    <TableCell className="font-sm hidden md:table-cell">
+                                      {program.description}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </ScrollArea>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </CardContent>
+                <CardFooter className="p-2">
+                  <div className="flex w-full gap-2">
+                    <Button variant="secondary" className="flex-1" onClick={navigateToNext24Hours}>
+                      <Clock className="mr-2 size-4" />
+                      Next 24hrs
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => navigateToFullWeek(channelData.channel.slug)}
+                    >
+                      <Clock className="mr-2 size-4" />
+                      Full Week
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         </div>
-      </header>
-      <div className="flex grow">
-        <main className="w-full grow overflow-auto">
-          <div className="max-w-full p-4">
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[repeat(auto-fill,minmax(600px,1fr))]">
-              {filteredAndSortedChannels.map((channelData) => (
-                <Card key={channelData.channel.slug} className="w-full">
-                  <CardHeader className="flex flex-row items-center justify-between px-4 py-2">
-                    {channelData.channel.icon && channelData.channel.icon.light !== 'N/A' && (
-                      <div>
-                        <img
-                          className="block size-auto h-16 object-contain dark:hidden"
-                          src={channelData.channel.icon.light}
-                          alt={decodeHtml(channelData.channel.name)}
-                        />
-                        <img
-                          className="hidden size-auto h-16 object-contain dark:block"
-                          src={channelData.channel.icon.dark}
-                          alt={decodeHtml(channelData.channel.name)}
-                        />
-                      </div>
-                    )}
-                    <div className="text-right">
-                      <CardTitle className="text-lg">{channelData.channel.name}</CardTitle>
-                      {channelData.channel.lcn !== 'N/A' && (
-                        <CardDescription>Channel {channelData.channel.lcn}</CardDescription>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="h-[250px] w-full overflow-auto">
-                    <Accordion type="single" collapsible className="w-full">
-                      {Object.entries(channelData.programs).map(([date, programs]) => (
-                        <AccordionItem key={date} value={date}>
-                          <AccordionTrigger className="text-md p-2">
-                            <div className="flex items-center">
-                              <CalendarIcon className="mr-2 size-4" />
-                              {format(new Date(date), 'EEEE, MMMM d, yyyy')}
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <ScrollArea className=" w-full">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead className="w-[150px]">Time</TableHead>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead className="hidden md:table-cell">
-                                      Description
-                                    </TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody className="font-sm">
-                                  {programs.map((program, index) => (
-                                    <TableRow key={index}>
-                                      <TableCell className="font-sm">
-                                        {format(new Date(program.start), 'h:mm a')} -{' '}
-                                        {format(new Date(program.end), 'h:mm a')}
-                                      </TableCell>
-                                      <TableCell className="font-sm">{program.title}</TableCell>
-                                      <TableCell className="font-sm hidden md:table-cell">
-                                        {program.description}
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </ScrollArea>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  </CardContent>
-                  <CardFooter className="p-2">
-                    <div className="flex w-full gap-2">
-                      <Button
-                        variant="secondary"
-                        className="flex-1"
-                        onClick={navigateToNext24Hours}
-                      >
-                        <Clock className="mr-2 size-4" />
-                        Next 24hrs
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => navigateToFullWeek(channelData.channel.slug)}
-                      >
-                        <Clock className="mr-2 size-4" />
-                        Full Week
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </main>
-        <FilterPanel />
-      </div>
+      </ScrollArea>
     </div>
   );
 }
 
 export default function SportsPage() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <SportsPageContent />
-    </Suspense>
+    <main>
+      <Suspense fallback={<LoadingSpinner />}>
+        <SportsPageContent />
+      </Suspense>
+    </main>
   );
 }

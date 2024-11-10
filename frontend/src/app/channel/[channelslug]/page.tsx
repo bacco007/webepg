@@ -1,19 +1,21 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { useParams, useSearchParams } from 'next/navigation';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 
-import ChannelDropdown from '@/components/snippets/ChannelDropdown';
-import LoadingSpinner from '@/components/snippets/LoadingSpinner';
-import ProgramDialog from '@/components/snippets/ProgramDialog';
+import ChannelDropdown from '@/components/ChannelDropdown';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import ProgramDialog from '@/components/ProgramDialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
+import { getCookie, setCookie } from '@/lib/cookies';
 import { cn } from '@/lib/utils';
 import { decodeHtml } from '@/utils/htmlUtils';
 
@@ -41,6 +43,7 @@ interface Event {
   language: string;
   new: boolean;
   channel: string;
+  channel_name: string;
   category: string[];
 }
 
@@ -99,7 +102,7 @@ const gridGap = 0.25 * 16;
 const stickyHeaderHeight = 40;
 const minDayWidth = 200;
 
-export default function WeeklyEPG() {
+function WeeklyEPGContent() {
   const parameters = useParams();
   const searchParams = useSearchParams();
   const channelslug = parameters.channelslug as string;
@@ -127,16 +130,22 @@ export default function WeeklyEPG() {
   }, []);
 
   useEffect(() => {
-    const urlSource = searchParams.get('source');
-    const initialDataSource =
-      urlSource || localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
-    setStoredDataSource(initialDataSource);
+    const fetchDataSource = async () => {
+      const urlSource = searchParams.get('source');
+      const initialDataSource =
+        urlSource || (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      setStoredDataSource(initialDataSource);
+    };
+
+    fetchDataSource();
   }, [searchParams]);
 
   useEffect(() => {
-    const checkDataSource = () => {
-      const currentDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
-      if (storedDataSource && currentDataSource !== storedDataSource) {
+    if (!storedDataSource) return;
+
+    const checkDataSource = async () => {
+      const currentDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      if (currentDataSource !== storedDataSource) {
         window.location.href = `/channel?source=${currentDataSource}`;
       }
     };
@@ -190,6 +199,7 @@ export default function WeeklyEPG() {
             language: '',
             new: false,
             channel: data.channel.channel_name,
+            channel_name: data.channel.channel_names.real,
             category: program.categories,
           };
         });
@@ -230,14 +240,16 @@ export default function WeeklyEPG() {
   }, [channelslug, clientTimezone, storedDataSource, processApiData]);
 
   useEffect(() => {
-    fetchData();
+    if (storedDataSource && channelslug) {
+      fetchData();
+    }
 
     const timer = setInterval(() => {
       setNow(dayjs());
     }, 60_000);
 
     return () => clearInterval(timer);
-  }, [fetchData]);
+  }, [fetchData, storedDataSource, channelslug]);
 
   const getEventStyle = useCallback(
     (event: Event): React.CSSProperties => {
@@ -307,66 +319,61 @@ export default function WeeklyEPG() {
     return () => window.removeEventListener('resize', updateVisibleDays);
   }, [daysLength]);
 
-  if (error) {
-    return (
-      <div className="flex h-screen items-center justify-center" role="alert">
-        <div className="text-center">
-          <AlertCircle className="mx-auto mb-4 size-12 text-red-500" aria-hidden="true" />
-          <p className="mb-4 text-xl text-red-500">{error}</p>
-          <Button onClick={fetchData}>
-            <RefreshCw className="mr-2 size-4" aria-hidden="true" />
-            Try Again
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   if (isLoading) {
     return (
-      <div
-        className="flex h-screen items-center justify-center"
-        aria-live="polite"
-        aria-busy="true"
-      >
+      <div className="flex h-full items-center justify-center">
         <LoadingSpinner />
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="size-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button onClick={fetchData} className="mt-4">
+            <RefreshCw className="mr-2 size-4" />
+            Try Again
+          </Button>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
-    <div className="scrollbar-custom flex h-screen max-h-[calc(100vh-100px)] flex-col">
-      <header className="bg-background sticky top-0 z-0 w-full border-b p-2 sm:p-4">
-        <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-          <div className="flex items-center space-x-4">
-            {channelLogoLight && (
-              <div>
-                <img
-                  className="block size-auto h-10 object-contain dark:hidden"
-                  src={channelLogoLight}
-                  alt={decodeHtml(channelName)}
-                />
-                <img
-                  className="hidden size-auto h-10 object-contain dark:block"
-                  src={channelLogoDark}
-                  alt={decodeHtml(channelName)}
-                />
-              </div>
-            )}
-            <div className="flex items-center">
-              <h1 className="text-lg font-bold sm:text-2xl">Weekly EPG - {channelName}</h1>
-              <Badge variant="secondary" className="ml-2 self-center">
-                LCN {channelNumber}
-              </Badge>
+    <div className="flex size-full flex-col">
+      <div className="sticky flex items-center justify-between border-b p-2">
+        <div className="flex items-center space-x-4">
+          {channelLogoLight && (
+            <div>
+              <img
+                className="block size-auto h-10 object-contain dark:hidden"
+                src={channelLogoLight}
+                alt={decodeHtml(channelName)}
+              />
+              <img
+                className="hidden size-auto h-10 object-contain dark:block"
+                src={channelLogoDark}
+                alt={decodeHtml(channelName)}
+              />
             </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <ChannelDropdown channelslug={channelslug} />
+          )}
+          <div className="flex items-center">
+            <h1 className="text-lg font-bold sm:text-2xl">Weekly EPG - {channelName}</h1>
+            <Badge variant="secondary" className="ml-2 self-center">
+              LCN {channelNumber}
+            </Badge>
           </div>
         </div>
-      </header>
-      <div className="grow overflow-hidden" ref={containerReference}>
-        <ScrollArea className="h-full">
+        <div className="flex items-center space-x-2">
+          <ChannelDropdown channelslug={channelslug} />
+        </div>
+      </div>
+      <ScrollArea className="h-full">
+        <div className="grow overflow-hidden" ref={containerReference}>
           <div className="min-w-fit p-2 sm:p-4">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -491,8 +498,18 @@ export default function WeeklyEPG() {
               ))}
             </div>
           </div>
-        </ScrollArea>
-      </div>
+        </div>
+      </ScrollArea>
     </div>
+  );
+}
+
+export default function WeeklyEPG() {
+  return (
+    <main>
+      <Suspense fallback={<LoadingSpinner />}>
+        <WeeklyEPGContent />
+      </Suspense>
+    </main>
   );
 }

@@ -1,26 +1,35 @@
-/* eslint-disable @next/next/no-img-element */
 /* eslint-disable no-case-declarations */
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  AlertCircle,
   ArrowRight,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   ChevronUp,
+  FilterIcon,
   LayoutGrid,
   List,
   RefreshCw,
-  Search,
+  X,
 } from 'lucide-react';
-import Link from 'next/link';
 
-import LoadingSpinner from '@/components/snippets/LoadingSpinner';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '@/components/ui/command';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +38,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
@@ -39,6 +49,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { getCookie } from '@/lib/cookies';
 
 type Channel = {
   channel_id: string;
@@ -84,7 +95,7 @@ const decodeHtml = (html: string): string => {
   return txt.value;
 };
 
-const ChannelList: React.FC = () => {
+function ChannelListContent() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [filteredChannels, setFilteredChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +106,7 @@ const ChannelList: React.FC = () => {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedSpecs, setSelectedSpecs] = useState<string[]>([]);
   const [hideNoPrograms, setHideNoPrograms] = useState(false);
-  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('card');
   const [sortField, setSortField] = useState<SortField>('number');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -105,7 +116,7 @@ const ChannelList: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
+      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
       setXmltvDataSource(storedDataSource);
 
       const response = await fetch(`/api/py/channels/${storedDataSource}`);
@@ -153,8 +164,8 @@ const ChannelList: React.FC = () => {
     sortDirection,
   ]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
   };
 
   const handleRefresh = () => {
@@ -217,106 +228,124 @@ const ChannelList: React.FC = () => {
     });
   };
 
-  const uniqueGroups = Array.from(new Set(channels.map((channel) => channel.channel_group))).sort();
-  const uniqueTypes = Array.from(
-    new Set(channels.map((channel) => channel.other_data.channel_type))
-  ).sort();
-  const uniqueSpecs = Array.from(
-    new Set(channels.map((channel) => channel.other_data.channel_specs))
-  ).sort();
+  const uniqueGroups = useMemo(
+    () => Array.from(new Set(channels.map((channel) => channel.channel_group))).sort(),
+    [channels]
+  );
+  const uniqueTypes = useMemo(
+    () => Array.from(new Set(channels.map((channel) => channel.other_data.channel_type))).sort(),
+    [channels]
+  );
+  const uniqueSpecs = useMemo(
+    () => Array.from(new Set(channels.map((channel) => channel.other_data.channel_specs))).sort(),
+    [channels]
+  );
 
-  const FilterPanel = () => (
-    <div
-      className={`bg-background border-border h-full border-l p-4 transition-all duration-300 ease-in-out ${
-        isFilterPanelOpen ? 'w-64' : 'w-0 overflow-hidden opacity-0'
-      }`}
-    >
-      <h2 className="mb-4 text-lg font-semibold">Filters</h2>
-      <div className="mb-4">
-        <Label htmlFor="search-channels" className="mb-2 block text-sm font-medium">
-          Search Channels
-        </Label>
-        <div className="relative">
-          <Search
-            className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-gray-400"
-            aria-hidden="true"
-          />
-          <Input
-            id="search-channels"
-            type="text"
-            placeholder="Search channels..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full pl-8 pr-4"
-          />
-        </div>
-      </div>
-      <ScrollArea className="h-[calc(100vh-300px)]">
-        <div className="space-y-4">
-          <div>
-            <h3 className="mb-2 text-sm font-medium">Filter by Group</h3>
-            <div className="space-y-2">
-              {uniqueGroups.map((group) => (
-                <div key={group} className="flex items-center">
+  const clearFilters = useCallback(() => {
+    setSearchTerm('');
+    setSelectedGroups([]);
+    setSelectedTypes([]);
+    setSelectedSpecs([]);
+    setHideNoPrograms(false);
+  }, []);
+
+  const FilterMenu = () => (
+    <Popover open={isFilterMenuOpen} onOpenChange={setIsFilterMenuOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="ml-auto">
+          <FilterIcon className="mr-2 size-4" />
+          Filters
+          {(selectedGroups.length > 0 ||
+            selectedTypes.length > 0 ||
+            selectedSpecs.length > 0 ||
+            hideNoPrograms) && (
+            <Badge variant="secondary" className="ml-2">
+              {selectedGroups.length +
+                selectedTypes.length +
+                selectedSpecs.length +
+                (hideNoPrograms ? 1 : 0)}
+            </Badge>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[300px] p-0" align="end">
+        <Command>
+          <CommandInput placeholder="Search filters..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Options">
+              <CommandItem>
+                <div className="flex items-center space-x-2">
                   <Checkbox
-                    id={`group-${group}`}
-                    checked={selectedGroups.includes(group)}
-                    onCheckedChange={() => handleGroupFilter(group)}
+                    id="hide-no-programs"
+                    checked={hideNoPrograms}
+                    onCheckedChange={(checked) => setHideNoPrograms(checked as boolean)}
                   />
-                  <Label htmlFor={`group-${group}`} className="ml-2 text-sm">
-                    {group}
-                  </Label>
+                  <Label htmlFor="hide-no-programs">Hide channels with no programs</Label>
                 </div>
-              ))}
-            </div>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Channel Groups">
+              <ScrollArea className="h-[200px]">
+                {uniqueGroups.map((group) => (
+                  <CommandItem key={group} onSelect={() => handleGroupFilter(group)}>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`group-${group}`}
+                        checked={selectedGroups.includes(group)}
+                        onCheckedChange={() => handleGroupFilter(group)}
+                      />
+                      <Label htmlFor={`group-${group}`}>{group}</Label>
+                    </div>
+                  </CommandItem>
+                ))}
+              </ScrollArea>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Channel Types">
+              <ScrollArea className="h-[200px]">
+                {uniqueTypes.map((type) => (
+                  <CommandItem key={type} onSelect={() => handleTypeFilter(type)}>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`type-${type}`}
+                        checked={selectedTypes.includes(type)}
+                        onCheckedChange={() => handleTypeFilter(type)}
+                      />
+                      <Label htmlFor={`type-${type}`}>{type}</Label>
+                    </div>
+                  </CommandItem>
+                ))}
+              </ScrollArea>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Channel Specs">
+              <ScrollArea className="h-[200px]">
+                {uniqueSpecs.map((specs) => (
+                  <CommandItem key={specs} onSelect={() => handleSpecsFilter(specs)}>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`specs-${specs}`}
+                        checked={selectedSpecs.includes(specs)}
+                        onCheckedChange={() => handleSpecsFilter(specs)}
+                      />
+                      <Label htmlFor={`specs-${specs}`}>{specs}</Label>
+                    </div>
+                  </CommandItem>
+                ))}
+              </ScrollArea>
+            </CommandGroup>
+          </CommandList>
+          <div className="border-t p-2">
+            <Button variant="outline" className="w-full" onClick={clearFilters}>
+              <X className="mr-2 size-4" />
+              Clear Filters
+            </Button>
           </div>
-          <div>
-            <h3 className="mb-2 text-sm font-medium">Filter by Type</h3>
-            <div className="space-y-2">
-              {uniqueTypes.map((type) => (
-                <div key={type} className="flex items-center">
-                  <Checkbox
-                    id={`type-${type}`}
-                    checked={selectedTypes.includes(type)}
-                    onCheckedChange={() => handleTypeFilter(type)}
-                  />
-                  <Label htmlFor={`type-${type}`} className="ml-2 text-sm">
-                    {type}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h3 className="mb-2 text-sm font-medium">Filter by Specs</h3>
-            <div className="space-y-2">
-              {uniqueSpecs.map((specs) => (
-                <div key={specs} className="flex items-center">
-                  <Checkbox
-                    id={`specs-${specs}`}
-                    checked={selectedSpecs.includes(specs)}
-                    onCheckedChange={() => handleSpecsFilter(specs)}
-                  />
-                  <Label htmlFor={`specs-${specs}`} className="ml-2 text-sm">
-                    {specs}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center">
-            <Checkbox
-              id="hide-no-programs"
-              checked={hideNoPrograms}
-              onCheckedChange={(checked) => setHideNoPrograms(checked as boolean)}
-            />
-            <Label htmlFor="hide-no-programs" className="ml-2 text-sm">
-              Hide channels with no programs
-            </Label>
-          </div>
-        </div>
-      </ScrollArea>
-    </div>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 
   const ChannelCard = ({ channel }: { channel: Channel }) => (
@@ -608,111 +637,94 @@ const ChannelList: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <p className="mb-4 text-xl text-red-500" role="alert">
-            {error}
-          </p>
-          <Button onClick={handleRefresh}>
+      <div className="flex h-full items-center justify-center">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="size-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button onClick={handleRefresh} className="mt-4">
             <RefreshCw className="mr-2 size-4" />
             Try Again
           </Button>
-        </div>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="bg-background sticky top-0 w-full border-b p-4">
-        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-          <h1 className="text-xl font-bold sm:text-2xl">Weekly EPG (by Channel)</h1>
-          <div className="flex flex-wrap items-center gap-2">
-            <ToggleGroup
-              type="single"
-              value={viewMode}
-              onValueChange={(value) => value && setViewMode(value as ViewMode)}
-            >
-              <ToggleGroupItem value="card" aria-label="Card view">
-                <LayoutGrid className="size-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="table" aria-label="Table view">
-                <List className="size-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
-            {viewMode === 'card' && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="sm:w-auto">
-                    {groupBy === 'none'
-                      ? 'Group By'
-                      : `By ${groupBy === 'channel_group' ? 'Group' : 'Type'}`}
-                    <ChevronDown className="ml-2 size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onSelect={() => setGroupBy('none')}>
-                    No Grouping
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => setGroupBy('channel_group')}>
-                    Group
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => setGroupBy('channel_type')}>
-                    Type
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-            <Button
-              onClick={handleRefresh}
-              variant="outline"
-              className="sm:w-auto"
-              aria-label="Refresh channel list"
-            >
-              <RefreshCw className="mr-2 size-4" />
-              <span className="hidden sm:inline">Refresh</span>
-            </Button>
-            <Button
-              onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-              variant="outline"
-              aria-label={isFilterPanelOpen ? 'Close filter panel' : 'Open filter panel'}
-            >
-              {isFilterPanelOpen ? (
-                <ChevronRight className="size-4" />
-              ) : (
-                <ChevronLeft className="size-4" />
-              )}
-              <span className="ml-2 hidden sm:inline">Filters</span>
-            </Button>
-          </div>
+    <div className="flex size-full flex-col">
+      <div className="flex items-center justify-between border-b p-2">
+        <h1 className="text-xl font-bold">Channel List</h1>
+        <div className="flex items-center space-x-2">
+          <Input
+            type="text"
+            placeholder="Search channels..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-[200px]"
+          />
+          <ToggleGroup
+            type="single"
+            value={viewMode}
+            onValueChange={(value) => value && setViewMode(value as ViewMode)}
+          >
+            <ToggleGroupItem value="card" aria-label="Card view">
+              <LayoutGrid className="size-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="table" aria-label="Table view">
+              <List className="size-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+          {viewMode === 'card' && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="sm:w-auto">
+                  {groupBy === 'none'
+                    ? 'Group By'
+                    : `By ${groupBy === 'channel_group' ? 'Group' : 'Type'}`}
+                  <ChevronDown className="ml-2 size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onSelect={() => setGroupBy('none')}>No Grouping</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setGroupBy('channel_group')}>
+                  Group
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setGroupBy('channel_type')}>
+                  Type
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          <Button onClick={handleRefresh} variant="outline">
+            <RefreshCw className="size-4" />
+          </Button>
+          <FilterMenu />
         </div>
-      </header>
-      <div className="relative flex grow">
-        <ScrollArea className="h-[calc(100vh-80px)] w-full">
-          <div className="flex">
-            <div className="grow p-4">
-              {loading ? (
-                <div
-                  className="flex h-full items-center justify-center"
-                  aria-live="polite"
-                  aria-busy="true"
-                >
-                  <LoadingSpinner />
-                </div>
-              ) : viewMode === 'card' ? (
-                <CardView />
-              ) : (
-                <div className="container mx-auto px-2 py-4">
-                  <TableView />
-                </div>
-              )}
-            </div>
-            <FilterPanel />
-          </div>
-        </ScrollArea>
       </div>
+      <ScrollArea className="grow">
+        <div className="w-full p-4">
+          {loading ? (
+            <div className="flex h-full items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          ) : viewMode === 'card' ? (
+            <CardView />
+          ) : (
+            <TableView />
+          )}
+        </div>
+      </ScrollArea>
     </div>
   );
-};
+}
 
-export default ChannelList;
+export default function ChannelListPage() {
+  return (
+    <main>
+      <Suspense fallback={<LoadingSpinner />}>
+        <ChannelListContent />
+      </Suspense>
+    </main>
+  );
+}

@@ -1,17 +1,18 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
-import { AlertCircle, Calendar, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import { AlertCircle, Calendar, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 
-import LoadingSpinner from '@/components/snippets/LoadingSpinner';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { getCookie, setCookie } from '@/lib/cookies';
 
 dayjs.extend(advancedFormat);
 
@@ -22,20 +23,21 @@ type ApiResponse = {
   data: string[];
 };
 
-const EPGDayList: React.FC = () => {
+function EPGDayListContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dates, setDates] = useState<string[]>([]);
-  const [filteredDates, setFilteredDates] = useState<string[]>([]);
   const [xmltvDataSource, setXmltvDataSource] = useState<string>('xmlepg_FTASYD');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
   const router = useRouter();
+
+  const itemsPerPage = 999;
 
   const fetchDates = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const storedDataSource = localStorage.getItem('xmltvdatasource') || 'xmlepg_FTASYD';
+      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
       setXmltvDataSource(storedDataSource);
 
       const response = await fetch(`/api/py/dates/${storedDataSource}`);
@@ -44,7 +46,6 @@ const EPGDayList: React.FC = () => {
       }
       const data: ApiResponse = await response.json();
       setDates(data.data || []);
-      setFilteredDates(data.data || []);
     } catch (error) {
       setError('Failed to fetch data');
       console.error('Error fetching dates:', error);
@@ -57,85 +58,97 @@ const EPGDayList: React.FC = () => {
     fetchDates();
   }, [fetchDates]);
 
-  useEffect(() => {
-    const filtered = dates.filter((date) =>
-      formatDate(date).toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredDates(filtered);
-  }, [searchTerm, dates]);
-
   const formatDate = (dateString: string): string => {
     const today = dayjs().format('YYYYMMDD');
     const formattedDate = dayjs(dateString, 'YYYYMMDD').format('dddd, Do MMM');
     return dateString === today ? `${formattedDate} (Today)` : formattedDate;
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
   const handleRefresh = () => {
     fetchDates();
   };
 
+  const totalPages = Math.ceil(dates.length / itemsPerPage);
+
+  const paginatedDates = dates.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+
+  const isToday = (dateString: string): boolean => {
+    return dateString === dayjs().format('YYYYMMDD');
+  };
+
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="mx-auto mb-4 size-12 text-red-500" />
-          <p className="mb-4 text-xl text-red-500">{error}</p>
-          <Button onClick={handleRefresh}>
+      <div className="flex h-full items-center justify-center">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="size-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button onClick={handleRefresh} className="mt-4">
             <RefreshCw className="mr-2 size-4" />
             Try Again
           </Button>
-        </div>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="bg-background flex items-center justify-between border-b p-4">
+    <div className="flex size-full flex-col">
+      <div className="flex items-center justify-between border-b p-4">
         <h1 className="text-2xl font-bold">Daily EPG (by Day)</h1>
-        <div className="flex items-center space-x-2">
-          <Input
-            type="text"
-            placeholder="Search dates..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-64"
-          />
-          <Button onClick={handleRefresh} variant="outline">
-            <RefreshCw className="size-4" />
-          </Button>
-        </div>
-      </header>
+        <Button onClick={handleRefresh} variant="outline">
+          <RefreshCw className="mr-2 size-4" />
+          Refresh
+        </Button>
+      </div>
       <ScrollArea className="grow">
-        {loading ? (
-          <div className="flex h-full items-center justify-center">
-            <LoadingSpinner />
-          </div>
-        ) : (
-          <main className="p-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {filteredDates.map((date) => (
-                <Link key={date} href={`/epg/${date}?source=${xmltvDataSource}`} passHref>
-                  <Card className="transition-shadow duration-300 hover:shadow-lg">
-                    <CardContent className="flex h-full items-center justify-center p-4">
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="size-5" />
-                        <p className="text-center text-xl font-bold">{formatDate(date)}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+        <div className="w-full p-6">
+          {loading ? (
+            <div className="flex h-full items-center justify-center">
+              <LoadingSpinner />
             </div>
-          </main>
-        )}
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {paginatedDates.map((date) => (
+                  <Link key={date} href={`/epg/${date}?source=${xmltvDataSource}`} passHref>
+                    <Card
+                      className={`group transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                        isToday(date) ? 'border-primary bg-primary/5' : ''
+                      }`}
+                    >
+                      <CardContent className="flex h-full flex-col items-center justify-center p-6">
+                        <Calendar
+                          className={`group-hover:text-secondary mb-2 size-8 transition-colors ${
+                            isToday(date) ? 'text-primary' : 'text-muted-foreground'
+                          }`}
+                        />
+                        <p
+                          className={`text-center text-lg font-semibold ${
+                            isToday(date) ? 'text-primary' : ''
+                          }`}
+                        >
+                          {formatDate(date)}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </ScrollArea>
     </div>
   );
-};
+}
 
-export default EPGDayList;
+export default function EPGDayList() {
+  return (
+    <main>
+      <Suspense fallback={<LoadingSpinner />}>
+        <EPGDayListContent />
+      </Suspense>
+    </main>
+  );
+}

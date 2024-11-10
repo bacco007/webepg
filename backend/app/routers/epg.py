@@ -59,7 +59,6 @@ def is_sports_program(program: Dict[str, Any]) -> bool:
             "sports",
             "sport",
             "athletic",
-            "game",
             "match",
             "race",
             "tournament",

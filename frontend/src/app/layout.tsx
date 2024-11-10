@@ -1,13 +1,27 @@
 import './globals.css';
 
+import localFont from 'next/font/local';
 import type { Metadata, Viewport } from 'next';
 
-import { Footer } from '@/components/layout/Footer';
-import Header from '@/components/layout/Header';
-import { ThemeProvider } from '@/components/theme/theme-provider';
-//import { Toaster } from '@/components/ui/toaster';
-import { fonts } from '@/lib/fonts';
-import { cn } from '@/lib/utils';
+import { FontSizeControl } from '@/components/FontSizeControl';
+import Header from '@/components/Header';
+import Sidebar from '@/components/Sidebar';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { getCookie } from '@/lib/cookies';
+
+const geistSans = localFont({
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
+  weight: '100 900',
+});
+
+const geistMono = localFont({
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
+  weight: '100 900',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -15,39 +29,52 @@ export const metadata: Metadata = {
     template: '%s | webEPG',
   },
   description: 'Your comprehensive Electronic Program Guide',
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: false,
+      noimageindex: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: '/favicon/favicon.ico',
     shortcut: '/favicon/favicon-16x16.png',
     apple: '/favicon/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' },
   ],
-  minimumScale: 1,
-  maximumScale: 5,
 };
 
-interface RootLayoutProperties {
-  children: React.ReactNode;
-}
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const defaultOpen = (await getCookie('sidebar:state')) === 'true';
+  const fontSize = (await getCookie('fontSize')) || '100';
 
-export default function RootLayout({ children }: RootLayoutProperties) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
       <body
-        className={cn(
-          'bg-background from-background to-secondary flex min-h-screen flex-col font-sans antialiased',
-          fonts
-        )}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+        style={{ fontSize: `${fontSize}%` }}
       >
         <ThemeProvider
           attribute="class"
@@ -55,15 +82,28 @@ export default function RootLayout({ children }: RootLayoutProperties) {
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex h-screen flex-col">
-            <Header />
-            <main className="scrollbar-custom grow overflow-auto">
-              <div className="from-background to-secondary min-h-full w-full bg-gradient-to-br">
-                {children}
-              </div>
-            </main>
-            <Footer className="h-12 shrink-0" />
-          </div>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <div
+              className="flex h-screen w-full overflow-hidden"
+              style={
+                {
+                  '--sidebar-width': '18rem',
+                  '--sidebar-width-mobile': '20rem',
+                } as React.CSSProperties
+              }
+            >
+              <Sidebar />
+              <SidebarInset className="flex size-full flex-col overflow-hidden">
+                <Header>
+                  <div className="flex items-center space-x-4">
+                    <FontSizeControl />
+                    <ThemeSwitcher />
+                  </div>
+                </Header>
+                <main className="flex size-full flex-col overflow-auto">{children}</main>
+              </SidebarInset>
+            </div>
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>
