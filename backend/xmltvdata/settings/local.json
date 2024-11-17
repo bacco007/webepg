@@ -4,524 +4,879 @@
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Fetch",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/fetch.png",
+      "dark": "logos/fetch.png"
+    }
   },
   {
     "id": "xmlepg_HUBALL",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Hubbl - All Channels",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/hubbl.png",
+      "dark": "logos/hubbl.png"
+    }
   },
   {
     "id": "xmlepg_HUBBIN",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Hubbl - Binge",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/binge.png",
+      "dark": "logos/binge.png"
+    }
   },
   {
     "id": "xmlepg_HUBFLA",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Hubbl - Flash",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/flash.png",
+      "dark": "logos/flash.png"
+    }
   },
   {
     "id": "xmlepg_FOXHD",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Foxtel",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/foxtel.png",
+      "dark": "logos/foxtel.png"
+    }
   },
   {
     "id": "xmlepg_FOXNOW",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Foxtel Now",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/foxtel.png",
+      "dark": "logos/foxtel.png"
+    }
   },
   {
     "id": "xmlepg_HUBKAY",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Hubbl - Kayo Sports",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/kayo.png",
+      "dark": "logos/kayo.png"
+    }
   },
   {
     "id": "xmlepg_HUBLIF",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Hubbl - LifeStyle",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "https://i.imgur.com/nhMOZY2.png",
+      "dark": "https://i.imgur.com/nhMOZY2.png"
+    }
   },
   {
     "id": "xmlepg_FTACAN",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
-    "location": "SNSW - Canberra",
-    "url": "local"
+    "subgroup": "FTA - Regional NSW",
+    "location": "SNSW - Canberra/ACT",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAALB",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
-    "location": "SNSW - Albury",
-    "url": "local"
+    "subgroup": "FTA - Regional VIC",
+    "location": "Albury / Wodonga",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTABRO",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
+    "subgroup": "FTA - Regional NSW",
     "location": "Broken Hill",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTACEN",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
+    "subgroup": "FTA - Regional NSW",
     "location": "NNSW - Central Coast",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTACOB",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
+    "subgroup": "FTA - Regional NSW",
     "location": "SNSW - Cobar",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTACOF",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
-    "location": "NNSW - Coffs Harbour",
-    "url": "local"
+    "subgroup": "FTA - Regional NSW",
+    "location": "NNSW - Coffs Harbour (Northern Rivers)",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAGRI",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
+    "subgroup": "FTA - Regional NSW",
     "location": "Griffith",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTALIS",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
+    "subgroup": "FTA - Regional NSW",
     "location": "NNSW - Lismore (Northern Rivers)",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTANEW",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
-    "location": "NNSW - Newcastle",
-    "url": "local"
+    "subgroup": "FTA - Regional NSW",
+    "location": "NNSW - Newcastle (Hunter)",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAORG",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
-    "location": "SNSW - Orange/Dubbo",
-    "url": "local"
+    "subgroup": "FTA - Regional NSW",
+    "location": "SNSW - Orange / Dubbo (Central West)",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTASYD",
     "group": "Australia",
     "subgroup": "FTA - Metro",
     "location": "Sydney",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTATAM",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
-    "location": "NNSW - Tamworth",
-    "url": "local"
+    "subgroup": "FTA - Regional NSW",
+    "location": "NNSW - Tamworth (New England, North West)",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTATAR",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
-    "location": "NNSW - Taree/Port Macquarie (Mid North Coast)",
-    "url": "local"
+    "subgroup": "FTA - Regional NSW",
+    "location": "NNSW - Taree / Port Macquarie (Mid North Coast)",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAWAG",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
-    "location": "SNSW - Wagga Wagga",
-    "url": "local"
+    "subgroup": "FTA - Regional NSW",
+    "location": "SNSW - Wagga Wagga (Riverina)",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAWOL",
     "group": "Australia",
-    "subgroup": "FTA - NSW",
-    "location": "SNSW - Wollongong",
-    "url": "local"
+    "subgroup": "FTA - Regional NSW",
+    "location": "SNSW - Wollongong (Illawarra)",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAALI",
     "group": "Australia",
-    "subgroup": "FTA - NT",
+    "subgroup": "FTA - Regional NT",
     "location": "Alice Springs",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTADAR",
     "group": "Australia",
-    "subgroup": "FTA - NT",
+    "subgroup": "FTA - Regional NT",
     "location": "Darwin",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTANT",
     "group": "Australia",
-    "subgroup": "FTA - NT",
+    "subgroup": "FTA - Regional NT",
     "location": "Regional NT",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTABRI",
     "group": "Australia",
     "subgroup": "FTA - Metro",
     "location": "Brisbane",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTACAI",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
+    "subgroup": "FTA - Regional QLD",
     "location": "Cairns",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAGOL",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
+    "subgroup": "FTA - Regional QLD",
     "location": "Gold Coast",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTALON",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
+    "subgroup": "FTA - Regional QLD",
     "location": "Longreach",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAMAC",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
+    "subgroup": "FTA - Regional QLD",
     "location": "Mackay",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAMTI",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
+    "subgroup": "FTA - Regional QLD",
     "location": "Mt. Isa",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAROC",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
+    "subgroup": "FTA - Regional QLD",
     "location": "Rockhampton",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTASUN",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
-    "location": "Sunshine Coast",
-    "url": "local"
+    "subgroup": "FTA - Regional QLD",
+    "location": "Sunshine Coast / Maryborough",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTATOO",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
-    "location": "Toowoomba",
-    "url": "local"
+    "subgroup": "FTA - Regional QLD",
+    "location": "Toowoomba (Darling Downs)",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTATOW",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
+    "subgroup": "FTA - Regional QLD",
     "location": "Townsville",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAWID",
     "group": "Australia",
-    "subgroup": "FTA - QLD",
+    "subgroup": "FTA - Regional QLD",
     "location": "Wide Bay",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAADE",
     "group": "Australia",
     "subgroup": "FTA - Metro",
     "location": "Adelaide",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTALOX",
     "group": "Australia",
-    "subgroup": "FTA - SA",
+    "subgroup": "FTA - Regional SA",
     "location": "Loxton",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAMTG",
     "group": "Australia",
-    "subgroup": "FTA - SA",
+    "subgroup": "FTA - Regional SA",
     "location": "Mt Gambier",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAPTL",
     "group": "Australia",
-    "subgroup": "FTA - SA",
+    "subgroup": "FTA - Regional SA",
     "location": "Port Pirie",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTASPE",
     "group": "Australia",
-    "subgroup": "FTA - SA",
+    "subgroup": "FTA - Regional SA",
     "location": "Spencer Gulf",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTATAS",
     "group": "Australia",
-    "subgroup": "FTA - TAS",
+    "subgroup": "FTA - Regional TAS",
     "location": "Hobart",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTALAU",
     "group": "Australia",
-    "subgroup": "FTA - TAS",
+    "subgroup": "FTA - Regional TAS",
     "location": "Launceston",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTABAL",
     "group": "Australia",
-    "subgroup": "FTA - VIC",
+    "subgroup": "FTA - Regional VIC",
     "location": "Ballarat",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTABEN",
     "group": "Australia",
-    "subgroup": "FTA - VIC",
+    "subgroup": "FTA - Regional VIC",
     "location": "Bendigo",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAGIP",
     "group": "Australia",
-    "subgroup": "FTA - VIC",
+    "subgroup": "FTA - Regional VIC",
     "location": "Gippsland",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAMEL",
     "group": "Australia",
     "subgroup": "FTA - Metro",
     "location": "Melbourne",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAMIL",
     "group": "Australia",
-    "subgroup": "FTA - VIC",
+    "subgroup": "FTA - Regional VIC",
     "location": "Mildura",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAVIC",
     "group": "Australia",
-    "subgroup": "FTA - VIC",
+    "subgroup": "FTA - Regional VIC",
     "location": "Regional Vic.",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTASHE",
     "group": "Australia",
-    "subgroup": "FTA - VIC",
+    "subgroup": "FTA - Regional VIC",
     "location": "Shepparton",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTABRM",
     "group": "Australia",
-    "subgroup": "FTA - WA",
+    "subgroup": "FTA - Regional WA",
     "location": "Broome",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTABUN",
     "group": "Australia",
-    "subgroup": "FTA - WA",
+    "subgroup": "FTA - Regional WA",
     "location": "Bunbury",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTALEO",
     "group": "Australia",
-    "subgroup": "FTA - WA",
+    "subgroup": "FTA - Regional WA",
     "location": "Leonora",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAMAN",
     "group": "Australia",
-    "subgroup": "FTA - WA",
+    "subgroup": "FTA - Regional WA",
     "location": "Mandurah",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAPER",
     "group": "Australia",
     "subgroup": "FTA - Metro",
     "location": "Perth",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAWA",
     "group": "Australia",
-    "subgroup": "FTA - WA",
+    "subgroup": "FTA - Regional WA",
     "location": "Regional WA",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_FTAROE",
     "group": "Australia",
-    "subgroup": "FTA - WA",
+    "subgroup": "FTA - Regional WA",
     "location": "Roebourne",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
   },
   {
     "id": "xmlepg_VASTRN2",
     "group": "Australia",
-    "subgroup": "FTA - VAST",
+    "subgroup": "FTA - Remote (VAST)",
     "location": "Regional News",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/vast.png",
+      "dark": "logos/vast.png"
+    }
   },
   {
     "id": "xmlepg_VASTIABC2",
     "group": "Australia",
-    "subgroup": "FTA - VAST",
+    "subgroup": "FTA - Remote (VAST)",
     "location": "ABC/SBS - All States",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/vast.png",
+      "dark": "logos/vast.png"
+    }
   },
   {
     "id": "xmlepg_VASTNSW",
     "group": "Australia",
-    "subgroup": "FTA - VAST",
+    "subgroup": "FTA - Remote (VAST)",
     "location": "Remote New South Wales/ACT",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/vast.png",
+      "dark": "logos/vast.png"
+    }
   },
   {
     "id": "xmlepg_VASTNT",
     "group": "Australia",
-    "subgroup": "FTA - VAST",
+    "subgroup": "FTA - Remote (VAST)",
     "location": "Remote Northern Territory",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/vast.png",
+      "dark": "logos/vast.png"
+    }
   },
   {
     "id": "xmlepg_VASTQLD",
     "group": "Australia",
-    "subgroup": "FTA - VAST",
+    "subgroup": "FTA - Remote (VAST)",
     "location": "Remote Queensland",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/vast.png",
+      "dark": "logos/vast.png"
+    }
   },
   {
     "id": "xmlepg_VASTSA",
     "group": "Australia",
-    "subgroup": "FTA - VAST",
+    "subgroup": "FTA - Remote (VAST)",
     "location": "Remote South Australia",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/vast.png",
+      "dark": "logos/vast.png"
+    }
   },
   {
     "id": "xmlepg_VASTTAS",
     "group": "Australia",
-    "subgroup": "FTA - VAST",
+    "subgroup": "FTA - Remote (VAST)",
     "location": "Remote Tasmania",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/vast.png",
+      "dark": "logos/vast.png"
+    }
   },
   {
     "id": "xmlepg_VASTVIC",
     "group": "Australia",
-    "subgroup": "FTA - VAST",
+    "subgroup": "FTA - Remote (VAST)",
     "location": "Remote Victoria",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/vast.png",
+      "dark": "logos/vast.png"
+    }
   },
   {
     "id": "xmlepg_VASTWA",
     "group": "Australia",
-    "subgroup": "FTA - VAST",
+    "subgroup": "FTA - Remote (VAST)",
     "location": "Remote Western Australia",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/vast.png",
+      "dark": "logos/vast.png"
+    }
   },
   {
     "id": "xmlepg_INSTV",
     "group": "Australia",
     "subgroup": "Optus Aurora",
     "location": "Instal-Life",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/instalife.png",
+      "dark": "logos/instalife.png"
+    }
   },
   {
     "id": "xmlepg_SKYRAC",
     "group": "Australia",
     "subgroup": "Optus Aurora",
     "location": "Sky Racing",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/skyracing.png",
+      "dark": "logos/skyracing.png"
+    }
   },
   {
     "id": "xmlepg_10PLAY",
     "group": "Australia",
-    "subgroup": "Streaming",
+    "subgroup": "FTA - Streaming",
     "location": "10 Play",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/10play.png",
+      "dark": "logos/10play.png"
+    }
   },
   {
     "id": "xmlepg_7PLUS",
     "group": "Australia",
-    "subgroup": "Streaming",
+    "subgroup": "FTA - Streaming",
     "location": "7+",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/7plus.png",
+      "dark": "logos/7plus.png"
+    }
   },
   {
     "id": "xmlepg_9NOW",
     "group": "Australia",
-    "subgroup": "Streaming",
+    "subgroup": "FTA - Streaming",
     "location": "9Now",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/9now.png",
+      "dark": "logos/9now.png"
+    }
   },
   {
     "id": "xmlepg_ABCIVIEW",
     "group": "Australia",
-    "subgroup": "Streaming",
+    "subgroup": "FTA - Streaming",
     "location": "ABC iview",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/abciview.png",
+      "dark": "logos/abciview.png"
+    }
   },
   {
     "id": "xmlepg_SBSOD",
     "group": "Australia",
-    "subgroup": "Streaming",
+    "subgroup": "FTA - Streaming",
     "location": "SBS On Demand",
-    "url": "local"
+    "url": "local",
+    "logo": {
+      "light": "logos/sbsondemand.png",
+      "dark": "logos/sbsondemand.png"
+    }
   },
   {
-    "id": "xmlepg_IPTVSYD",
-    "group": "Testing",
-    "subgroup": "Other",
-    "location": "FTA Streaming Sydney",
-    "url": "local"
+    "id": "OPTSPT",
+    "group": "Australia",
+    "subgroup": "Subscription",
+    "location": "Optus Sport",
+    "url": "local",
+    "logo": {
+      "light": "https://i.imgur.com/fKAgFp0.png",
+      "dark": "https://i.imgur.com/fKAgFp0.png"
+    }
+  },
+  {
+    "id": "xmlepg_group_abc",
+    "group": "Australia",
+    "subgroup": "FTA by Network",
+    "location": "ABC",
+    "url": "local",
+    "logo": {
+      "light": "https://i.imgur.com/vgWPOeG.png",
+      "dark": "https://i.imgur.com/vgWPOeG.png"
+    }
+  },
+  {
+    "id": "xmlepg_group_nine",
+    "group": "Australia",
+    "subgroup": "FTA by Network",
+    "location": "Nine Network (and Affiliates)",
+    "url": "local",
+    "logo": {
+      "light": "https://i.imgur.com/oe1IYeU.png",
+      "dark": "https://i.imgur.com/oe1IYeU.png"
+    }
+  },
+  {
+    "id": "xmlepg_group_seven",
+    "group": "Australia",
+    "subgroup": "FTA by Network",
+    "location": "Seven Network (and Affiliates)",
+    "url": "local",
+    "logo": {
+      "light": "https://i.imgur.com/HQ03GSr.png",
+      "dark": "https://i.imgur.com/HQ03GSr.png"
+    }
+  },
+  {
+    "id": "xmlepg_group_ten",
+    "group": "Australia",
+    "subgroup": "FTA by Network",
+    "location": "Network 10 (and Affiliates)",
+    "url": "local",
+    "logo": {
+      "light": "https://i.imgur.com/0vVok5K.png",
+      "dark": "https://i.imgur.com/0vVok5K.png"
+    }
+  },
+  {
+    "id": "xmlepg_group_sbs",
+    "group": "Australia",
+    "subgroup": "FTA by Network",
+    "location": "SBS",
+    "url": "local",
+    "logo": {
+      "light": "https://i.imgur.com/idLxwyp.png",
+      "dark": "https://i.imgur.com/idLxwyp.png"
+    }
   }
 ]

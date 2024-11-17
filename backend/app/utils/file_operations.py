@@ -1,6 +1,7 @@
 import gzip
 import json
 import logging
+import lzma
 import os
 from typing import Any, Dict
 
@@ -23,6 +24,9 @@ async def download_file(
         if file_url.endswith('.gz'):
             logger.info(f"Detected .gz file for {file_id}, decompressing")
             content = gzip.decompress(content)
+        elif file_url.endswith(".xz"):
+            logger.info(f"Detected .xz file for {file_id}, decompressing")
+            content = lzma.decompress(content)
 
         with open(save_path, 'wb') as f:
             f.write(content)
@@ -48,4 +52,3 @@ def load_sources(filename: str) -> Dict[str, Any]:
     file_path: str = os.path.join(filename)
     with open(file_path, 'r', encoding="utf-8") as f:
         return json.load(f)
-

@@ -1,15 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronRight, Loader2, MoreHorizontal } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -25,191 +19,13 @@ interface Timezone {
   value: string;
   label: string;
   group: string;
+  offset: number;
 }
 
 interface GroupedTimezones {
   group: string;
   timezones: Timezone[];
 }
-
-const timezones: Timezone[] = [
-  {
-    value: 'America/New_York',
-    label: 'Eastern Standard Time (EST)',
-    group: 'North America',
-  },
-  {
-    value: 'America/Chicago',
-    label: 'Central Standard Time (CST)',
-    group: 'North America',
-  },
-  {
-    value: 'America/Denver',
-    label: 'Mountain Standard Time (MST)',
-    group: 'North America',
-  },
-  {
-    value: 'America/Los_Angeles',
-    label: 'Pacific Standard Time (PST)',
-    group: 'North America',
-  },
-  {
-    value: 'America/Anchorage',
-    label: 'Alaska Standard Time (AKST)',
-    group: 'North America',
-  },
-  {
-    value: 'Pacific/Honolulu',
-    label: 'Hawaii Standard Time (HST)',
-    group: 'North America',
-  },
-  {
-    value: 'Europe/London',
-    label: 'Greenwich Mean Time (GMT)',
-    group: 'Europe & Africa',
-  },
-  {
-    value: 'Europe/Paris',
-    label: 'Central European Time (CET)',
-    group: 'Europe & Africa',
-  },
-  {
-    value: 'Europe/Kiev',
-    label: 'Eastern European Time (EET)',
-    group: 'Europe & Africa',
-  },
-  {
-    value: 'Europe/Lisbon',
-    label: 'Western European Summer Time (WEST)',
-    group: 'Europe & Africa',
-  },
-  {
-    value: 'Africa/Johannesburg',
-    label: 'Central Africa Time (CAT)',
-    group: 'Europe & Africa',
-  },
-  {
-    value: 'Africa/Nairobi',
-    label: 'East Africa Time (EAT)',
-    group: 'Europe & Africa',
-  },
-  { value: 'Asia/Dubai', label: 'Gulf', group: 'Asia' },
-  { value: 'Europe/Moscow', label: 'Moscow', group: 'Asia' },
-  { value: 'Asia/Kolkata', label: 'India', group: 'Asia' },
-  { value: 'Asia/Shanghai', label: 'China', group: 'Asia' },
-  { value: 'Asia/Tokyo', label: 'Japan', group: 'Asia' },
-  { value: 'Asia/Seoul', label: 'Korea', group: 'Asia' },
-  {
-    value: 'Asia/Jakarta',
-    label: 'Indonesia WIB',
-    group: 'Asia',
-  },
-  {
-    value: 'Asia/Makassar',
-    label: 'Indonesia WITA',
-    group: 'Asia',
-  },
-  {
-    value: 'Asia/Jayapura',
-    label: 'Indonesia WIT',
-    group: 'Asia',
-  },
-  {
-    value: 'Asia/Dili',
-    label: 'East Timor',
-    group: 'Asia',
-  },
-  {
-    value: 'Australia/Perth',
-    label: 'Australia WST',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Australia/Adelaide',
-    label: 'Australia CST (SA)',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Australia/Darwin',
-    label: 'Australia CST (NT)',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Australia/Sydney',
-    label: 'Australia EST (NSW/VIC/Tas)',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Australia/Brisbane',
-    label: 'Australia EST (Qld)',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Australia/Norfolk',
-    label: 'Australia Norfolk Island',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Australia/Lord_Howe',
-    label: 'Australia Lord Howe Island',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Australia/Eucla',
-    label: 'Australia CWT',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Indian/Cocos',
-    label: 'Cocos/Keeling Island',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Indian/Christmas',
-    label: 'Christmas Island',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Pacific/Guadalcanal',
-    label: 'Solomon Island',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Pacific/Auckland',
-    label: 'New Zealand',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Pacific/Fiji',
-    label: 'Fiji',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'Pacific/Tongatapu',
-    label: 'Tonga',
-    group: 'Australia & Pacific',
-  },
-  {
-    value: 'America/Argentina/Buenos_Aires',
-    label: 'Argentina)',
-    group: 'South America',
-  },
-  {
-    value: 'America/La_Paz',
-    label: 'Bolivia',
-    group: 'South America',
-  },
-  {
-    value: 'America/Sao_Paulo',
-    label: 'Brasilia',
-    group: 'South America',
-  },
-  {
-    value: 'America/Santiago',
-    label: 'Chile',
-    group: 'South America',
-  },
-];
 
 export default function CollapsibleTimezoneMenu() {
   const [groupedTimezones, setGroupedTimezones] = React.useState<GroupedTimezones[]>([]);
@@ -220,16 +36,40 @@ export default function CollapsibleTimezoneMenu() {
   React.useEffect(() => {
     const initializeTimezones = async () => {
       try {
-        const groupedTz = groupTimezones(timezones);
+        const formattedTimezones = Intl.supportedValuesOf('timeZone')
+          .map((timezone) => {
+            const formatter = new Intl.DateTimeFormat('en', {
+              timeZone: timezone,
+              timeZoneName: 'longOffset',
+            });
+            const parts = formatter.formatToParts(new Date());
+            const offsetPart = parts.find((part) => part.type === 'timeZoneName')?.value || '';
+            const offset = parseInt(offsetPart.replace('GMT', '').replace(':', '')) || 0;
+            const group = timezone.split('/')[0];
+
+            return {
+              value: timezone,
+              label: `(${offsetPart}) ${timezone.replace(/_/g, ' ')}`,
+              group,
+              offset,
+            };
+          })
+          .sort((a, b) => {
+            if (a.offset !== b.offset) {
+              return a.offset - b.offset;
+            }
+            return a.value.localeCompare(b.value);
+          });
+
+        const groupedTz = groupTimezones(formattedTimezones);
         setGroupedTimezones(groupedTz);
 
         const savedTimezone = await getCookie('userTimezone');
-        const savedTz = timezones.find((tz) => tz.value === savedTimezone);
+        const savedTz = formattedTimezones.find((tz) => tz.value === savedTimezone);
         if (savedTz) {
           setSelectedTimezone(savedTz);
         } else {
-          // Default to the first timezone if no saved timezone
-          setSelectedTimezone(timezones[0]);
+          setSelectedTimezone(formattedTimezones[0]);
         }
       } catch (error) {
         console.error('Error initializing timezones:', error);
@@ -254,7 +94,12 @@ export default function CollapsibleTimezoneMenu() {
     return Array.from(groupMap.entries())
       .map(([group, timezones]) => ({
         group,
-        timezones: timezones.sort((a, b) => a.label.localeCompare(b.label)),
+        timezones: timezones.sort((a, b) => {
+          if (a.offset !== b.offset) {
+            return a.offset - b.offset;
+          }
+          return a.value.localeCompare(b.value);
+        }),
       }))
       .sort((a, b) => a.group.localeCompare(b.group));
   };

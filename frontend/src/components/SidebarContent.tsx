@@ -11,6 +11,7 @@ import {
   CalendarDays,
   ChevronRight,
   Clock,
+  Database,
   Folder,
   Forward,
   Frame,
@@ -143,6 +144,11 @@ const data = {
       name: 'Home',
       url: '/',
       icon: Home,
+    },
+    {
+      name: 'Guide Sources',
+      url: '/sources',
+      icon: Database,
     },
     {
       name: 'Daily EPG',

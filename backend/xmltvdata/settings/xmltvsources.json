@@ -1,114 +1,211 @@
 [
   {
-    "id": "mjh-optus",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Optus Sport",
-    "url": "https://i.mjh.nz/Optus/epg.xml.gz"
-  },
-  {
     "id": "nzxmltv_freeview",
     "group": "New Zealand",
     "subgroup": "FTA",
     "location": "Freeview",
-    "url": "https://nzxmltv.github.io/xmltv/guide.xml"
+    "url": "https://nzxmltv.github.io/xmltv/guide.xml",
+    "logo": {
+      "light": "logos/freeviewnz.png",
+      "dark": "logos/freeviewnz.png"
+    }
   },
   {
     "id": "nzxmltv_sky",
     "group": "New Zealand",
     "subgroup": "Subscription",
     "location": "Sky",
-    "url": "https://nzxmltv.github.io/sky/guide.xml"
+    "url": "https://nzxmltv.github.io/sky/guide.xml",
+    "logo": {
+      "light": "logos/skynz.png",
+      "dark": "logos/skynz.png"
+    }
   },
   {
     "id": "nzxmltv_threenow",
     "group": "New Zealand",
     "subgroup": "Streaming",
     "location": "ThreeNow",
-    "url": "https://nzxmltv.github.io/iptv/threenow.xml"
+    "url": "https://nzxmltv.github.io/iptv/threenow.xml",
+    "logo": {
+      "light": "logos/threenow.png",
+      "dark": "logos/threenow.png"
+    }
   },
   {
     "id": "nzxmltv_plutotv",
     "group": "New Zealand",
     "subgroup": "Streaming",
     "location": "Pluto TV",
-    "url": "https://nzxmltv.github.io/iptv/plutotv.xml"
+    "url": "https://nzxmltv.github.io/iptv/plutotv.xml",
+    "logo": {
+      "light": "logos/plutotv.png",
+      "dark": "logos/plutotv.png"
+    }
   },
   {
     "id": "mjh-skysportnownz",
     "group": "New Zealand",
     "subgroup": "Streaming",
     "location": "Sky Sport Now (NZ)",
-    "url": "https://i.mjh.nz/SkySportNow/epg.xml.gz"
+    "url": "https://i.mjh.nz/SkySportNow/epg.xml.gz",
+    "logo": {
+      "light": "logos/skysportnow.png",
+      "dark": "logos/skysportnow.png"
+    }
   },
   {
     "id": "mjh-plex-au",
     "group": "Australia",
     "subgroup": "Streaming",
     "location": "Plex",
-    "url": "https://i.mjh.nz/Plex/au.xml.gz"
+    "url": "https://i.mjh.nz/Plex/au.xml.gz",
+    "logo": {
+      "light": "logos/plex.png",
+      "dark": "logos/plex.png"
+    }
   },
   {
     "id": "mjh-plex-nz",
     "group": "New Zealand",
     "subgroup": "Streaming",
     "location": "Plex",
-    "url": "https://i.mjh.nz/Plex/nz.xml.gz"
+    "url": "https://i.mjh.nz/Plex/nz.xml.gz",
+    "logo": {
+      "light": "logos/plex.png",
+      "dark": "logos/plex.png"
+    }
   },
   {
     "id": "mjh-samsungtvplus",
     "group": "International",
     "subgroup": "Streaming",
     "location": "Samsung TV Plus - All Regions",
-    "url": "https://i.mjh.nz/SamsungTVPlus/all.xml.gz"
+    "url": "https://i.mjh.nz/SamsungTVPlus/all.xml.gz",
+    "logo": {
+      "light": "logos/samsungtvplus.png",
+      "dark": "logos/samsungtvplus.png"
+    }
   },
   {
     "id": "mjh-plutotv",
     "group": "International",
     "subgroup": "Streaming",
     "location": "Pluto TV - All Regions",
-    "url": "https://i.mjh.nz/PlutoTV/all.xml.gz"
+    "url": "https://i.mjh.nz/PlutoTV/all.xml.gz",
+    "logo": {
+      "light": "logos/plutotv.png",
+      "dark": "logos/plutotv.png"
+    }
   },
   {
     "id": "mjh-roku",
     "group": "International",
     "subgroup": "Streaming",
     "location": "Roku - All Regions",
-    "url": "https://i.mjh.nz/Roku/all.xml.gz"
+    "url": "https://i.mjh.nz/Roku/all.xml.gz",
+    "logo": {
+      "light": "logos/roku.png",
+      "dark": "logos/roku.png"
+    }
   },
   {
     "id": "dp247-freeviewuk",
     "group": "International",
     "subgroup": "United Kingdom",
     "location": "Freeview (dp247)",
-    "url": "https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml"
+    "url": "https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
   },
   {
     "id": "acidjesus_uk",
     "group": "International",
     "subgroup": "United Kingdom",
-    "location": "United Kingdom",
-    "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/UK_guide.xml.gz"
+    "location": "United Kingdom (AcidJesus)",
+    "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/UK_guide.xml.gz",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
   },
   {
     "id": "acidjesus_us",
     "group": "International",
     "subgroup": "United States",
     "location": "National Channels",
-    "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_guide.xml.gz"
+    "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_guide.xml.gz",
+    "logo": {
+      "light": "logos/usflag.png",
+      "dark": "logos/usflag.png"
+    }
   },
   {
     "id": "acidjesus_uslocal",
     "group": "International",
     "subgroup": "United States",
     "location": "Local Channels",
-    "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_local_guide.xml.gz"
+    "url": "https://raw.githubusercontent.com/acidjesuz/EPGTalk/master/US_local_guide.xml.gz",
+    "logo": {
+      "light": "logos/usflag.png",
+      "dark": "logos/usflag.png"
+    }
   },
   {
-    "id": "mjh-dstv",
+    "id": "tinuva-dstv",
     "group": "International",
     "subgroup": "South Africa",
-    "location": "DStv",
-    "url": "https://i.mjh.nz/DStv/za.xml.gz"
+    "location": "DStv (Tinuva)",
+    "url": "https://tinuva.github.io/epg/guides/za/dstv.com.epg.xml",
+    "logo": {
+      "light": "logos/dstv.png",
+      "dark": "logos/dstv.png"
+    }
+  },
+  {
+    "id": "epgshare01_uk",
+    "group": "International",
+    "subgroup": "United Kingdom",
+    "location": "United Kingdom (epgshare01)",
+    "url": "https://epgshare01.online/epgshare01/epg_ripper_UK1.xml.gz",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
+  },
+  {
+    "id": "test-ukskylive",
+    "group": "International",
+    "subgroup": "United Kingdom",
+    "location": "UK Sky (Rytec)",
+    "url": "http://www.xmltvepg.nl/rytecUK_SkyLive.xz",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
+  },
+  {
+    "id": "test-ukfreesat",
+    "group": "International",
+    "subgroup": "United Kingdom",
+    "location": "UK Freesat (Rytec)",
+    "url": "http://www.xmltvepg.nl/rytecUK_Basic.xz",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
+  },
+  {
+    "id": "test-uksport",
+    "group": "International",
+    "subgroup": "United Kingdom",
+    "location": "UK Sport/Movies (Rytec)",
+    "url": "http://www.xmltvepg.nl/rytecUK_SportMovies.xz",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
   }
 ]

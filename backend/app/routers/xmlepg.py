@@ -248,7 +248,7 @@ async def get_guide_data(sql_in_clause: str) -> List[Dict[str, Any]]:
     results1 = execute_sql_query(query1)
     results2 = execute_sql_query(query2)
 
-    sydney_tz = pytz.timezone("Australia/Sydney")
+    sydney_tz = pytz.timezone("UTC")
 
     for entry in results2:
         for time_field in ["start_time", "end_time"]:
@@ -521,6 +521,11 @@ async def create_provider_program_files(  # noqa: C901
     logging.info(f"Created xmlepg_source.json with {len(xmlepg_sources)} sources")
 
 
+async def load_json_file(file_path: str) -> Any:
+    with open(file_path, "r") as f:
+        return json.load(f)
+
+
 async def save_json_file(data: Any, file_path: str) -> None:
     try:
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -536,6 +541,177 @@ def count_programs_per_channel(guide_data: List[Dict[str, Any]]) -> Dict[str, in
 
     channel_counts = Counter(item["channel"] for item in guide_data)
     return dict(channel_counts)
+
+async def process_group_data(group_config: Dict[str, List[str]]) -> None:  # noqa: C901
+    for group_name, channel_groups in group_config.items():
+        # Filter channels
+        with open(FILTERED_CHANNEL_DATA_FILE, "r") as f:
+            all_channels = json.load(f)
+
+        filtered_channels = [
+            channel
+            for channel in all_channels
+            if channel.get("channel_group") in channel_groups
+        ]
+
+        # Post-process channels
+        updated_channels = []
+        for channel in filtered_channels:
+            updated_channel = channel.copy()
+
+            # Channel number logic using only chanlcnfta1
+            channel_number = channel.get("chanlcnfta1")
+            if channel_number and channel_number != 0:
+                updated_channel["channel_number"] = str(channel_number)
+            else:
+                updated_channel["channel_number"] = "N/A"
+                logging.warning(
+                    f"Channel number not found or is 0 for channel {channel.get('guidelink', 'Unknown')}. Set to 'N/A'."
+                )
+
+            # Add program_count (we'll calculate this later)
+            updated_channel["program_count"] = 0
+
+            updated_channel["channel_logo"] = {
+                "light": channel.get("chlogo_light"),
+                "dark": channel.get("chlogo_dark"),
+            }
+
+            updated_channel["channel_names"] = {
+                "clean": channel.get("channel_name_location"),
+                "location": channel.get("channel_name_location"),
+                "real": channel.get("channel_name_location"),
+            }
+
+            updated_channel["other_data"] = {
+                "channel_type": channel.get("channel_type"),
+                "channel_specs": " ".join(
+                    filter(None, [channel.get("chantype"), channel.get("chancomp")])
+                ).strip(),
+                "channel_name_group": channel.get("channel_name", ""),
+            }
+
+            updated_channel["channel_name"] = channel.get("channel_name_location")
+
+            # Cleanup
+            for key in [
+                "chanlcnfta1",
+                "chanlcnfta2",
+                "chanlcnfta3",
+                "chanlcnfox",
+                "chanlcnfet",
+                "chlogo_light",
+                "chlogo_dark",
+                "channel_name_location",
+                "channel_name_real",
+                "chantype",
+                "chancomp",
+                "channel_type",
+            ]:
+                channel.pop(key, None)
+
+            updated_channels.append(updated_channel)
+
+        # Filter and post-process programs
+        with open(GUIDE_DATA_FILE, "r") as f:
+            all_programs = json.load(f)
+
+        channel_slugs = {channel["channel_slug"] for channel in updated_channels}
+        filtered_programs = []
+        first_program = None
+        last_program = None
+        program_counts = {slug: 0 for slug in channel_slugs}
+
+        for program in all_programs:
+            channel_slug = re.sub(r"\W+", "-", program.get("channel", ""))
+            if channel_slug in channel_slugs:
+                try:
+                    start_time = parse_datetime(program["start_time"])
+                    end_time = parse_datetime(program["end_time"])
+
+                    # Round to nearest minute
+                    start_time = round_to_nearest_minute(start_time)
+                    end_time = round_to_nearest_minute(end_time)
+
+                    program["start_time"] = start_time.isoformat()
+                    program["end_time"] = end_time.isoformat()
+                    program["start"] = start_time.strftime("%H:%M:%S")
+                    program["end"] = end_time.strftime("%H:%M:%S")
+
+                    length = end_time - start_time
+                    program["length"] = str(
+                        timedelta(seconds=int(length.total_seconds()))
+                    )
+
+                    program["channel"] = channel_slug
+
+                    if first_program is None or start_time < first_program:
+                        first_program = start_time
+                    if last_program is None or end_time > last_program:
+                        last_program = end_time
+
+                    # Update null or empty fields to "N/A"
+                    for key, value in program.items():
+                        if value is None or (
+                            isinstance(value, str) and value.strip() == ""
+                        ):
+                            program[key] = "N/A"
+
+                    # Handle 'categories' field
+                    if isinstance(program["categories"], str):
+                        if program["categories"] != "N/A":
+                            program["categories"] = [
+                                cat.strip()
+                                for cat in program["categories"].split(",")
+                                if cat.strip()
+                            ]
+                        else:
+                            program["categories"] = []
+                    elif isinstance(program["categories"], list):
+                        program["categories"] = [
+                            cat.strip() for cat in program["categories"] if cat.strip()
+                        ]
+                    else:
+                        program["categories"] = []
+
+                    filtered_programs.append(program)
+                    program_counts[channel_slug] += 1
+                except ValueError as e:
+                    logging.error(f"Error processing program: {e}")
+                except KeyError as e:
+                    logging.error(f"Missing key in program data: {e}")
+
+        # Update program counts in channels
+        logging.info(program_counts)
+        for channel in updated_channels:
+            channel["program_count"] = program_counts.get(channel["channel_slug"], 0)
+
+        # Save updated channels
+        channels_file = os.path.join(
+            DATA_LOCATION, f"xmlepg_group_{group_name}_channels.json"
+        )
+        await save_json_file(updated_channels, channels_file)
+        logging.info(f"Created {channels_file} with {len(updated_channels)} channels")
+
+        # Save filtered and processed programs
+        programs_file = os.path.join(
+            DATA_LOCATION, f"xmlepg_group_{group_name}_programs.json"
+        )
+        await save_json_file(filtered_programs, programs_file)
+        logging.info(f"Created {programs_file} with {len(filtered_programs)} programs")
+
+        if first_program and last_program:
+            logging.info(f"Group: {group_name}")
+            logging.info(f"  First program: {first_program.isoformat()}")
+            logging.info(f"  Last program:  {last_program.isoformat()}")
+        else:
+            logging.warning(f"Group: {group_name} - No valid program times found")
+
+        # Log program counts for each channel
+        for channel in updated_channels:
+            logging.info(
+                f"  Channel {channel['channel_slug']}: {channel['program_count']} programs"
+            )
 
 
 async def process_epg() -> Dict[str, Any]:
@@ -590,6 +766,39 @@ async def process_epg() -> Dict[str, Any]:
 
         # Create provider program files
         await create_provider_program_files(merged_data, guide_data, channel_counts)
+
+        # Process group data
+        group_config = {
+            "abc": ["Australian Broadcasting Corporation"],
+            "nine": [
+                "Nine Entertainment Co.",
+                "Nine Entertainment Co. (NBN)",
+                "Imparja Television",
+                "Mildura Digital Television (9)",
+                "Southern Cross Austereo (Nine)",
+                "West Digital Television (9)",
+                "WIN Network",
+            ],
+            "sbs": ["Special Broadcasting Service"],
+            "seven": [
+                "Seven West Media",
+                "Seven West Media (Prime)",
+                "Southern Cross Austereo (Seven)",
+                "TVSN",
+                "WIN Network (Seven)",
+            ],
+            "ten": [
+                "10 Network",
+                "Central Digital Television",
+                "Darwin Digital Television",
+                "Mildura Digital Television",
+                "Southern Cross Austereo",
+                "Tasmania Digital Television",
+                "West Digital Television",
+                "WIN Network (10)",
+            ],
+        }
+        await process_group_data(group_config)
 
         logging.info("Process completed.")
         process_status["status"] = "completed"

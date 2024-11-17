@@ -4,3 +4,4 @@ backend/xmltvdata/remote/*.xml
 backend/xmltvdata/remote/*.json
 certs
 v1
+.DS_Store

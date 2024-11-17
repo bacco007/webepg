@@ -201,16 +201,18 @@ function ChannelGrid() {
     );
   };
 
-  const isChannelGreyedOut = (channelData: ChannelData) => {
+  const isChannelGreyedOut = (channelData: ChannelData): boolean => {
+    const isProgramInvalid = (program: Program | null): boolean => {
+      return (
+        !program?.title ||
+        program.title === 'N/A' ||
+        program.title === 'No Data Available' ||
+        program.title.trim() === ''
+      );
+    };
+
     return (
-      !channelData.currentProgram?.title ||
-      channelData.currentProgram.title === 'N/A' ||
-      channelData.currentProgram.title === 'No Data Available' ||
-      channelData.currentProgram.title.trim() === '' ||
-      !channelData.nextProgram?.title ||
-      channelData.nextProgram.title === 'N/A' ||
-      channelData.nextProgram.title === 'No Data Available' ||
-      channelData.nextProgram.title.trim() === ''
+      isProgramInvalid(channelData.currentProgram) && isProgramInvalid(channelData.nextProgram)
     );
   };
 

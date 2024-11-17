@@ -1,33 +1,31 @@
 import re
-import xml.etree.ElementTree as ET
 from collections import Counter
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+
+from lxml import etree
 
 from app.utils.channel_name import clean_channel_name, get_channel_group
 from app.utils.file_operations import write_json
 
 
-def get_child_as_text(parent: ET.Element, tag: str) -> str:
-    node: Optional[ET.Element] = parent.find(tag)
+def get_child_as_text(parent: etree._Element, tag: str) -> str:
+    node: Optional[etree._Element] = parent.find(tag)
     return node.text if node is not None and node.text is not None else "N/A"
 
-
-def process_program(program: ET.Element) -> Dict[str, Any]:
-    start: datetime = datetime.strptime(
-        program.attrib.get("start", ""), "%Y%m%d%H%M%S %z"
-    )
-    end: datetime = datetime.strptime(program.attrib.get("stop", ""), "%Y%m%d%H%M%S %z")
+def process_program(program: etree._Element) -> Dict[str, Any]:
+    start: datetime = datetime.strptime(program.get("start", ""), "%Y%m%d%H%M%S %z")
+    end: datetime = datetime.strptime(program.get("stop", ""), "%Y%m%d%H%M%S %z")
     episode_number: Optional[str] = None
     original_air_date: Optional[str] = None
     for episode_num in program.findall('episode-num'):
-        system: Optional[str] = episode_num.attrib.get("system")
+        system: Optional[str] = episode_num.get("system")
         if system == 'SxxExx':
             episode_number = episode_num.text
         elif system == 'original-air-date':
             original_air_date = episode_num.text
 
-    rating_element: Optional[ET.Element] = program.find("rating/value")
+    rating_element: Optional[etree._Element] = program.find("rating/value")
     rating: str = (
         rating_element.text
         if rating_element is not None and rating_element.text is not None
@@ -40,7 +38,7 @@ def process_program(program: ET.Element) -> Dict[str, Any]:
         "end_time": end.isoformat(),
         "end": end.strftime("%H:%M"),
         "length": str(end - start),
-        "channel": re.sub(r"\W+", "-", program.attrib.get("channel", "")),
+        "channel": re.sub(r"\W+", "-", program.get("channel", "")),
         "title": get_child_as_text(program, "title"),
         "subtitle": get_child_as_text(program, "sub-title"),
         "description": get_child_as_text(program, "desc"),
@@ -58,18 +56,19 @@ def process_program(program: ET.Element) -> Dict[str, Any]:
 
 async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
     try:
-        with open(save_path, encoding="utf-8") as file_desc:
-            xml: ET.Element = ET.fromstring(file_desc.read())
+        parser = etree.XMLParser(recover=True)
+        tree = etree.parse(save_path, parser)
+        root = tree.getroot()
 
         channels: List[Dict[str, Any]] = []
         programs: List[Dict[str, Any]] = []
-        for child in xml:
+        for child in root:
             if child.tag == "channel":
-                channel_id: str = child.attrib.get("id", "")
-                display_name: Optional[ET.Element] = child.find("display-name")
-                lcn: Optional[ET.Element] = child.find("lcn")
-                icon: Optional[ET.Element] = child.find("icon")
-                url: Optional[ET.Element] = child.find("url")
+                channel_id: str = child.get("id", "")
+                display_name: Optional[etree._Element] = child.find("display-name")
+                lcn: Optional[etree._Element] = child.find("lcn")
+                icon: Optional[etree._Element] = child.find("icon")
+                url: Optional[etree._Element] = child.find("url")
                 chlogo: str = "N/A"
                 if icon is not None:
                     src = icon.get("src")
@@ -96,7 +95,6 @@ async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
                     cleaned_name = channel_name
                     channel_group = "Unknown"
                     cleaned_name_slug = "placeholder"
-                    chlogo = chlogo
 
                 channels.append(
                     {
@@ -136,3 +134,4 @@ async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
 
     except Exception as exc:
         print(f"Error processing XML file {file_id}.xml: {str(exc)}")
+
