@@ -4,7 +4,7 @@ aiosignal==1.3.1
 annotated-types==0.7.0
 anyio==4.4.0
 APScheduler==3.10.4
-astroid==3.2.4
+astroid==3.3.5
 asyncio==3.4.3
 attrs==24.2.0
 certifi==2024.8.30
@@ -14,11 +14,11 @@ click==8.1.7
 colorclass==2.2.2
 Deprecated==1.2.14
 dill==0.3.8
-distlib==0.3.8
+distlib==0.3.9
 dnspython==2.6.1
 docopt==0.6.2
 email_validator==2.2.0
-fastapi==0.115.2
+fastapi==0.115.5
 fastapi-cli==0.0.5
 filelock==3.15.4
 frozenlist==1.4.1
@@ -26,7 +26,7 @@ h11==0.14.0
 httpcore==1.0.5
 httptools==0.6.1
 httpx==0.27.2
-identify==2.6.0
+identify==2.6.2
 idna==3.8
 importlib_resources==6.4.4
 isort==5.13.2
@@ -41,7 +41,7 @@ mdurl==0.1.2
 multidict==6.1.0
 mypy==1.11.2
 mypy-extensions==1.0.0
-mysql-connector-python==9.0.0
+mysql-connector-python==9.1.0
 nodeenv==1.9.1
 packaging==24.1
 pip-check==2.9
@@ -50,14 +50,14 @@ platformdirs==4.3.6
 pre_commit==4.0.1
 propcache==0.2.0
 psutil==6.0.0
-pydantic==2.9.1
+pydantic==2.9.2
 pydantic-settings==2.4.0
-pydantic_core==2.23.3
+pydantic_core==2.23.4
 Pygments==2.18.0
-pylint==3.2.7
+pylint==3.3.1
 python-dotenv==1.0.1
 python-multipart==0.0.9
-pytz==2024.1
+pytz==2024.2
 PyYAML==6.0.2
 requests==2.32.3
 rich==13.8.0
@@ -66,7 +66,7 @@ shellingham==1.5.4
 six==1.16.0
 slowapi==0.1.9
 sniffio==1.3.1
-starlette==0.40.0
+starlette==0.41.2
 terminaltables==3.1.10
 tomlkit==0.13.2
 typer==0.12.5
@@ -77,7 +77,7 @@ tzlocal==5.2
 urllib3==2.2.2
 uvicorn==0.30.6
 uvloop==0.20.0
-virtualenv==20.26.4
+virtualenv==20.27.1
 watchfiles==0.24.0
 websockets==13.0.1
 wrapt==1.16.0

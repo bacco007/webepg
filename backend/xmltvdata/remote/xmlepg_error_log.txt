@@ -162,3 +162,96 @@
 2024-11-17 15:42:29,280: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
 2024-11-17 15:42:29,280: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
 2024-11-17 15:42:29,280: INFO: Scheduler started
+2024-11-17 16:15:46,352: INFO: Scheduler has been shut down
+2024-11-17 16:15:47,946: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 16:15:47,946: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 16:15:47,947: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 16:15:47,948: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 16:15:47,948: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 16:15:47,948: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 16:15:47,948: INFO: Scheduler started
+2024-11-17 17:38:11,958: INFO: Scheduler has been shut down
+2024-11-17 17:38:12,730: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:38:12,730: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:38:12,730: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:38:12,732: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:38:12,732: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:38:12,732: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:38:12,732: INFO: Scheduler started
+2024-11-17 17:38:13,232: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:38:13,232: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:38:13,232: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:38:13,233: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:38:13,233: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:38:13,233: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:38:13,233: INFO: Scheduler started
+2024-11-17 17:39:10,235: INFO: Scheduler has been shut down
+2024-11-17 17:39:11,896: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:11,896: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:11,896: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:11,899: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:39:11,900: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:39:11,900: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:39:11,900: INFO: Scheduler started
+2024-11-17 17:39:12,343: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:12,344: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:12,344: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:12,345: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:39:12,345: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:39:12,345: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:39:12,345: INFO: Scheduler started
+2024-11-17 17:39:13,868: INFO: Scheduler has been shut down
+2024-11-17 17:39:14,343: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:14,343: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:14,343: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:14,345: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:39:14,345: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:39:14,345: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:39:14,345: INFO: Scheduler started
+2024-11-17 17:39:47,952: INFO: Scheduler has been shut down
+2024-11-17 17:39:48,536: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:48,536: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:48,536: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:39:48,538: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:39:48,538: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:39:48,538: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:39:48,538: INFO: Scheduler started
+2024-11-17 17:41:02,549: INFO: Scheduler has been shut down
+2024-11-17 17:41:03,532: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:03,532: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:03,532: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:03,534: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:41:03,534: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:41:03,534: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:41:03,534: INFO: Scheduler started
+2024-11-17 17:41:04,004: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:04,004: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:04,004: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:04,006: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:41:04,006: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:41:04,006: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:41:04,006: INFO: Scheduler started
+2024-11-17 17:41:06,638: INFO: Scheduler has been shut down
+2024-11-17 17:41:07,080: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:07,080: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:07,080: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:07,081: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:41:07,081: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:41:07,082: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:41:07,082: INFO: Scheduler started
+2024-11-17 17:41:07,386: INFO: Scheduler has been shut down
+2024-11-17 17:41:07,831: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:07,831: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:07,831: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:07,833: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:41:07,833: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:41:07,833: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:41:07,833: INFO: Scheduler started
+2024-11-17 17:41:42,166: INFO: Scheduler has been shut down
+2024-11-17 17:41:42,955: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:42,955: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:42,955: INFO: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-11-17 17:41:42,957: INFO: Added job "Process XMLTV sources every 3 hours" to job store "default"
+2024-11-17 17:41:42,957: INFO: Added job "Process XMLEPG every 12 hours" to job store "default"
+2024-11-17 17:41:42,957: INFO: Added job "Process Optus Sport every 12 hours" to job store "default"
+2024-11-17 17:41:42,958: INFO: Scheduler started
