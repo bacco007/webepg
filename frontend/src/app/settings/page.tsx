@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   FileIcon,
@@ -13,7 +14,6 @@ import {
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 
 import { FontSizeControl } from '@/components/FontSizeControl';

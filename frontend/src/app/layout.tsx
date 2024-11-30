@@ -1,8 +1,8 @@
 import './globals.css';
 
 import localFont from 'next/font/local';
-import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import type { Metadata, Viewport } from 'next';
 
 import { FontSizeControl } from '@/components/FontSizeControl';
 import Header from '@/components/Header';

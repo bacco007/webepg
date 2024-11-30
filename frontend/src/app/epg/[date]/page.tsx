@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { differenceInMinutes, format } from 'date-fns';
 import { AlertCircle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
@@ -449,9 +449,9 @@ function EPGContent() {
       <div className="p-1">
         <DateTabs />
       </div>
-      <div className="relative flex-grow overflow-hidden">
+      <div className="relative grow overflow-hidden">
         <ScrollArea className="h-[calc(100vh-200px)]" ref={scrollAreaRef}>
-          <div className="sticky left-0 top-0 z-20 bg-background">
+          <div className="bg-background sticky left-0 top-0 z-20">
             <div className="flex" role="row">
               <div
                 className="shrink-0"
