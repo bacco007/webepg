@@ -55,6 +55,13 @@
     }
   },
   {
+    "id": "mjh-singtel",
+    "group": "International",
+    "subgroup": "Singapore",
+    "location": "Singtel",
+    "url": "https://i.mjh.nz/Singtel/epg.xml"
+  },
+  {
     "id": "mjh-plex-au",
     "group": "Australia",
     "subgroup": "Streaming",

@@ -10,6 +10,7 @@ import {
   CalendarClock,
   CalendarDays,
   ChevronRight,
+  Clapperboard,
   Clock,
   Database,
   Folder,
@@ -179,6 +180,11 @@ const data = {
       name: 'Upcoming Sport EPG',
       url: '/sports',
       icon: Trophy,
+    },
+    {
+      name: 'Upcoming Movies EPG',
+      url: '/movies',
+      icon: Clapperboard,
     },
   ],
 };

@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { CalendarIcon, ClockIcon, TrophyIcon, TvIcon, XIcon } from 'lucide-react';
+import { CalendarIcon, ClapperboardIcon, ClockIcon, TrophyIcon, TvIcon, XIcon } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -55,6 +55,13 @@ export default async function Home() {
       icon: TrophyIcon,
       link: '/sports',
     },
+    {
+      title: 'Upcoming Movies EPG',
+      description:
+        'Never miss a movie! Get a dedicated view of all upcoming movies across channels.',
+      icon: ClapperboardIcon,
+      link: '/sports',
+    },
   ];
 
   return (
@@ -77,7 +84,7 @@ export default async function Home() {
           Discover a new way to explore TV schedules with our innovative Electronic Program Guide.
         </p>
       </section>
-      <div className="staggered-fade-in mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="staggered-fade-in mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card, index) => (
           <Link key={index} href={card.link} className="group focus:outline-none" tabIndex={0}>
             <Card className="group-focus:ring-primary h-full bg-white/80 backdrop-blur-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg group-focus:ring-2 dark:bg-gray-800/80">

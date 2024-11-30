@@ -2,6 +2,7 @@ import './globals.css';
 
 import localFont from 'next/font/local';
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 
 import { FontSizeControl } from '@/components/FontSizeControl';
 import Header from '@/components/Header';
@@ -106,6 +107,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </SidebarProvider>
         </ThemeProvider>
       </body>
+      <Script src="https://scripts.simpleanalyticscdn.com/latest.js" />
     </html>
   );
 }

@@ -878,5 +878,16 @@
       "light": "https://i.imgur.com/idLxwyp.png",
       "dark": "https://i.imgur.com/idLxwyp.png"
     }
+  },
+  {
+    "id": "FOXTEL",
+    "group": "Testing",
+    "subgroup": "Australia",
+    "location": "Foxtel",
+    "url": "http://170.64.142.170:8080/FOXTEL_guide.xml",
+    "logo": {
+      "light": "logos/foxtel.png",
+      "dark": "logos/foxtel.png"
+    }
   }
 ]

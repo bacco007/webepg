@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Union, cast
 
@@ -104,7 +104,11 @@ def group_and_fill_programs(
 
         grouped[date] = filled_programs
 
-    return grouped
+    # Sort the grouped dictionary by date
+    sorted_grouped = OrderedDict(sorted(grouped.items(), key=lambda x: x[0]))
+
+    return sorted_grouped
+
 
 def group_and_fill_programschannels(
     programs: List[Dict[str, Any]],

@@ -1,12 +1,12 @@
 'use client';
 
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { format } from 'date-fns';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { format } from 'date-fns';
 import { AlertCircle, CalendarIcon, Clock, FilterIcon, RefreshCw, X } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
 import {
@@ -117,8 +117,8 @@ function SportsPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [noSportsData, setNoSportsData] = useState(false);
   const [filterText, setFilterText] = useState('');
-  const [dataSource, setDataSource] = useState<string>('xmlepg_FTASYD');
-  const [userTimezone, setUserTimezone] = useState<string>('UTC');
+  const [dataSource, setDataSource] = useState<string | null>(null);
+  const [userTimezone, setUserTimezone] = useState<string | null>(null);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
@@ -130,11 +130,11 @@ function SportsPageContent() {
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
-      const storedTimezone = (await getCookie('userTimezone')) || dayjs.tz.guess();
+      const storedDataSource = await getCookie('xmltvdatasource');
+      const storedTimezone = await getCookie('userTimezone');
 
-      setDataSource(storedDataSource);
-      setUserTimezone(storedTimezone);
+      setDataSource(storedDataSource || 'xmlepg_FTASYD');
+      setUserTimezone(storedTimezone || dayjs.tz.guess());
     };
 
     fetchInitialData();
@@ -142,12 +142,14 @@ function SportsPageContent() {
 
   useEffect(() => {
     const fetchSportsData = async () => {
+      if (!dataSource || !userTimezone) return;
+
       setIsLoading(true);
       setError(null);
       setNoSportsData(false);
       try {
         const response = await fetch(
-          `/api/py/epg/sports/${dataSource}?days=${days}&timezone=${userTimezone}`
+          `/api/py/epg/sports/${dataSource}?days=${days}&timezone=${encodeURIComponent(userTimezone)}`
         );
         if (!response.ok) {
           const errorData = await response.json();

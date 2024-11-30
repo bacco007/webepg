@@ -1,11 +1,11 @@
 'use client';
 
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { differenceInMinutes, format } from 'date-fns';
 import { AlertCircle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
@@ -17,7 +17,7 @@ import TimeJumpDropdown from '@/components/TimeJumpDropdown';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { getCookie, setCookie } from '@/lib/cookies';
 import { cn } from '@/lib/utils';
 import { decodeHtml } from '@/utils/htmlUtils';
@@ -126,17 +126,18 @@ function EPGContent() {
   const [xmltvDataSource, setXmltvDataSource] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [clientTimezone, setClientTimezone] = useState<string>('UTC');
-  const scrollContainerReference = useRef<HTMLDivElement>(null);
+  const [clientTimezone, setClientTimezone] = useState<string | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const inputDateDJS = useMemo(() => dayjs(inputDate, 'YYYYMMDD').toDate(), [inputDate]);
 
   const transformPrograms = useCallback(
     (channelsData: ChannelData[]): Program[] => {
       const programs: Program[] = [];
-      const now = dayjs().tz(clientTimezone);
+      const now = dayjs().tz(clientTimezone || 'UTC');
 
       for (const channelData of channelsData) {
         const channel = channelData.channel;
@@ -196,7 +197,9 @@ function EPGContent() {
   );
 
   const fetchData = useCallback(
-    async (storedDataSource: string) => {
+    async (storedDataSource: string, storedTimezone: string) => {
+      if (!storedDataSource || !storedTimezone) return;
+
       try {
         setLoading(true);
         setError(null);
@@ -220,7 +223,7 @@ function EPGContent() {
 
         const programResponse = await fetch(
           `/api/py/epg/date/${inputDate}/${storedDataSource}?timezone=${encodeURIComponent(
-            clientTimezone
+            storedTimezone
           )}`
         );
         if (!programResponse.ok) {
@@ -243,19 +246,22 @@ function EPGContent() {
         setLoading(false);
       }
     },
-    [inputDate, clientTimezone, transformPrograms]
+    [inputDate, transformPrograms]
   );
 
   useEffect(() => {
     const initializeData = async () => {
-      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
-      const storedTimezone = (await getCookie('userTimezone')) || dayjs.tz.guess();
+      const storedDataSource = await getCookie('xmltvdatasource');
+      const storedTimezone = await getCookie('userTimezone');
 
-      setXmltvDataSource(storedDataSource);
-      setClientTimezone(storedTimezone);
-      await setCookie('userTimezone', storedTimezone);
+      setXmltvDataSource(storedDataSource || 'xmlepg_FTASYD');
+      setClientTimezone(storedTimezone || dayjs.tz.guess());
 
-      fetchData(storedDataSource);
+      if (storedDataSource && storedTimezone) {
+        await fetchData(storedDataSource, storedTimezone);
+      }
+
+      setIsInitialized(true);
     };
 
     initializeData();
@@ -269,6 +275,12 @@ function EPGContent() {
 
     return () => window.removeEventListener('resize', handleResize);
   }, [fetchData]);
+
+  useEffect(() => {
+    if (isInitialized && xmltvDataSource && clientTimezone) {
+      fetchData(xmltvDataSource, clientTimezone);
+    }
+  }, [isInitialized, xmltvDataSource, clientTimezone, fetchData]);
 
   const getProgramStyle = useCallback((program: Program): React.CSSProperties => {
     const start = dayjs(program.start);
@@ -289,7 +301,7 @@ function EPGContent() {
   }, []);
 
   const calculateCurrentTimePosition = useCallback((): number => {
-    const now = dayjs().tz(clientTimezone);
+    const now = dayjs().tz(clientTimezone || 'UTC');
     const startOfDay = now.startOf('day');
     const minutesFromMidnight = now.diff(startOfDay, 'minute');
     return (
@@ -300,14 +312,20 @@ function EPGContent() {
 
   const scrollToTime = useCallback(
     (minutesFromMidnight: number): void => {
-      if (scrollContainerReference.current) {
-        const position =
-          (minutesFromMidnight / 30) * timeSlotWidth +
-          (isMobile ? mobileChannelColumnWidth : channelColumnWidth);
-        scrollContainerReference.current.scrollTo({
-          left: position,
-          behavior: 'smooth',
-        });
+      const position =
+        (minutesFromMidnight / 30) * timeSlotWidth +
+        (isMobile ? mobileChannelColumnWidth : channelColumnWidth);
+
+      if (scrollAreaRef.current) {
+        const scrollViewport = scrollAreaRef.current.querySelector(
+          '[data-radix-scroll-area-viewport]'
+        );
+        if (scrollViewport) {
+          scrollViewport.scrollTo({
+            left: position,
+            behavior: 'smooth',
+          });
+        }
       }
     },
     [isMobile]
@@ -325,35 +343,7 @@ function EPGContent() {
     const currentTimePosition = calculateCurrentTimePosition();
 
     return (
-      <div
-        className="relative"
-        style={{
-          display: 'table',
-          width: `${(isMobile ? mobileChannelColumnWidth : channelColumnWidth) + timeSlotWidth * 48}px`,
-        }}
-      >
-        <div className="bg-background sticky left-0 top-0 z-20 flex" role="row">
-          <div
-            className="shrink-0"
-            style={{
-              width: isMobile ? mobileChannelColumnWidth : channelColumnWidth,
-            }}
-            role="columnheader"
-          ></div>
-          {timeSlots.map((minutes) => (
-            <div
-              key={minutes}
-              className="border-border text-muted-foreground shrink-0 border-l py-2 text-left text-sm"
-              style={{ width: `${timeSlotWidth}px` }}
-              role="columnheader"
-            >
-              <span className="ml-2 text-sm font-bold">
-                {dayjs().startOf('day').add(minutes, 'minute').format('HH:mm')}
-              </span>
-            </div>
-          ))}
-        </div>
-
+      <div className="relative">
         {filteredChannels.map((channel) => (
           <ChannelRow
             key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names.real}`}
@@ -368,7 +358,7 @@ function EPGContent() {
         ))}
 
         <div
-          className="absolute bottom-0 top-[40px] z-20 w-0.5 bg-green-500"
+          className="absolute bottom-0 z-20 w-0.5 bg-green-500"
           style={{
             display: 'inline-block',
             left: `${currentTimePosition}px`,
@@ -391,7 +381,7 @@ function EPGContent() {
     isMobile,
   ]);
 
-  if (loading) {
+  if (!isInitialized || loading) {
     return (
       <div className="flex h-full items-center justify-center">
         <LoadingSpinner />
@@ -406,7 +396,12 @@ function EPGContent() {
           <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
-          <Button onClick={() => fetchData(xmltvDataSource || 'xmlepg_FTASYD')} className="mt-4">
+          <Button
+            onClick={() =>
+              xmltvDataSource && clientTimezone && fetchData(xmltvDataSource, clientTimezone)
+            }
+            className="mt-4"
+          >
             <RefreshCw className="mr-2 size-4" />
             Try Again
           </Button>
@@ -454,17 +449,44 @@ function EPGContent() {
       <div className="p-1">
         <DateTabs />
       </div>
-      <ScrollArea className="h-[calc(100vh-200px)]">
-        <div
-          className="relative ml-1"
-          style={{ display: 'flex', overflow: 'scroll' }}
-          ref={scrollContainerReference}
-          role="grid"
-          aria-label="EPG Schedule"
-        >
-          <div className="flex flex-col">{renderSchedule()}</div>
-        </div>
-      </ScrollArea>
+      <div className="relative flex-grow overflow-hidden">
+        <ScrollArea className="h-[calc(100vh-200px)]" ref={scrollAreaRef}>
+          <div className="sticky left-0 top-0 z-20 bg-background">
+            <div className="flex" role="row">
+              <div
+                className="shrink-0"
+                style={{
+                  width: isMobile ? mobileChannelColumnWidth : channelColumnWidth,
+                }}
+                role="columnheader"
+              ></div>
+              {timeSlots.map((minutes) => (
+                <div
+                  key={minutes}
+                  className="border-border text-muted-foreground shrink-0 border-l py-2 text-left text-sm"
+                  style={{ width: `${timeSlotWidth}px` }}
+                  role="columnheader"
+                >
+                  <span className="ml-2 text-sm font-bold">
+                    {dayjs().startOf('day').add(minutes, 'minute').format('HH:mm')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div
+            className="relative"
+            style={{
+              width: `${(isMobile ? mobileChannelColumnWidth : channelColumnWidth) + timeSlotWidth * 48}px`,
+            }}
+            role="grid"
+            aria-label="EPG Schedule"
+          >
+            {renderSchedule()}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      </div>
     </div>
   );
 }
@@ -484,7 +506,7 @@ const ChannelRow = React.memo(
     xmltvDataSource: string | null;
     timeSlots: number[];
     getProgramStyle: (program: Program) => React.CSSProperties;
-    clientTimezone: string;
+    clientTimezone: string | null;
     isMobile: boolean;
   }) => {
     const [hoveredProgram, setHoveredProgram] = useState<Program | null>(null);
@@ -493,7 +515,7 @@ const ChannelRow = React.memo(
       <div className="flex" role="row">
         <div
           className={cn(
-            'border-border bg-background sticky left-0 z-50 flex items-center border-t px-2 py-1 font-semibold transition-colors duration-200',
+            'border-border bg-background sticky left-0 z-10 flex items-center border-t px-2 py-1 font-semibold transition-colors duration-200',
             hoveredProgram && HOVER_COLOR
           )}
           style={{
@@ -566,13 +588,23 @@ const ChannelRow = React.memo(
                   )}
                   role="button"
                   tabIndex={0}
-                  aria-label={`${program.title} from ${dayjs(program.start).tz(clientTimezone).format('HH:mm')} to ${dayjs(program.end).tz(clientTimezone).format('HH:mm')}`}
+                  aria-label={`${program.title} from ${dayjs(program.start)
+                    .tz(clientTimezone || 'UTC')
+                    .format('HH:mm')} to ${dayjs(program.end)
+                    .tz(clientTimezone || 'UTC')
+                    .format('HH:mm')}`}
                   onMouseEnter={() => setHoveredProgram(program)}
                   onMouseLeave={() => setHoveredProgram(null)}
                 >
                   <div className="truncate">
-                    {dayjs(program.start).tz(clientTimezone).format('HH:mm')} -{' '}
-                    {dayjs(program.end).tz(clientTimezone).format('HH:mm')} (
+                    {dayjs(program.start)
+                      .tz(clientTimezone || 'UTC')
+                      .format('HH:mm')}{' '}
+                    -{' '}
+                    {dayjs(program.end)
+                      .tz(clientTimezone || 'UTC')
+                      .format('HH:mm')}{' '}
+                    (
                     {differenceInMinutes(
                       dayjs(program.end).toDate(),
                       dayjs(program.start).toDate()
@@ -600,9 +632,7 @@ ChannelRow.displayName = 'ChannelRow';
 export default function EPGComponent() {
   return (
     <main>
-      <Suspense fallback={<LoadingSpinner />}>
-        <EPGContent />
-      </Suspense>
+      <EPGContent />
     </main>
   );
 }

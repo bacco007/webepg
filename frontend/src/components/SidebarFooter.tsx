@@ -74,6 +74,14 @@ export default async function SidebarFooter() {
                   </div>
                 </div>
               </DropdownMenuLabel> */}
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <a href="/settings" className="flex items-center gap-2">
+                    <Settings className="size-4" />
+                    <span>Settings</span>
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem>
