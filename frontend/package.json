@@ -17,9 +17,7 @@
     "formatandlint": "pnpm run format:fix && pnpm run lint:fix",
     "postbuild": "next-sitemap",
     "update": "pnpm add -g npm-check-updates && ncu -u && pnpm install",
-    "type-check": "tsc -b",
-    "prepare": "husky install",
-    "knip": "knip"
+    "type-check": "tsc -b"
   },
   "dependencies": {
     "@drustack/leaflet.resetview": "^1.9.2",
