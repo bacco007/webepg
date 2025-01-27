@@ -34,6 +34,7 @@ export default bundleAnalyzer({
     ];
   },
   images: {
+    domains: ['i.imgur.com'],
     remotePatterns: [
       {
         protocol: 'https',
