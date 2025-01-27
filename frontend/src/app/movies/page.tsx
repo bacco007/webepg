@@ -4,9 +4,22 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { format } from 'date-fns';
-import { AlertCircle, CalendarIcon, Clock, FilterIcon, RefreshCw, X } from 'lucide-react';
+import {
+  AlertCircle,
+  CalendarIcon,
+  Clock,
+  FilterIcon,
+  RefreshCw,
+  X,
+} from 'lucide-react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
 import {
@@ -38,7 +51,11 @@ import {
 } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
@@ -149,7 +166,7 @@ function MoviesPageContent() {
       setNoMoviesData(false);
       try {
         const response = await fetch(
-          `/api/py/epg/movies/${dataSource}?days=${days}&timezone=${encodeURIComponent(userTimezone)}`
+          `/api/py/epg/movies/${dataSource}?days=${days}&timezone=${encodeURIComponent(userTimezone)}`,
         );
         if (!response.ok) {
           const errorData = await response.json();
@@ -162,7 +179,11 @@ function MoviesPageContent() {
           setMoviesData(data);
         }
       } catch (error_) {
-        setError(error_ instanceof Error ? error_.message : 'An unknown error occurred');
+        setError(
+          error_ instanceof Error
+            ? error_.message
+            : 'An unknown error occurred',
+        );
       } finally {
         setIsLoading(false);
       }
@@ -184,44 +205,51 @@ function MoviesPageContent() {
   const filteredAndSortedChannels = useMemo(() => {
     if (!moviesData) return [];
     const filtered = moviesData.channels.filter(
-      (ch) =>
+      ch =>
         ch.channel.name.toLowerCase().includes(filterText.toLowerCase()) &&
-        (selectedGroups.length === 0 || selectedGroups.includes(ch.channel.group)) &&
+        (selectedGroups.length === 0 ||
+          selectedGroups.includes(ch.channel.group)) &&
         (selectedCategories.length === 0 ||
-          ch.programs[Object.keys(ch.programs)[0]].some((program) =>
-            program.categories.some((category) => selectedCategories.includes(category))
-          ))
+          ch.programs[Object.keys(ch.programs)[0]].some(program =>
+            program.categories.some(category =>
+              selectedCategories.includes(category),
+            ),
+          )),
     );
     return sortChannels(filtered);
   }, [moviesData, filterText, selectedGroups, selectedCategories]);
 
   const uniqueGroups = useMemo(() => {
     if (!moviesData) return [];
-    return Array.from(new Set(moviesData.channels.map((ch) => ch.channel.group))).sort();
+    return [...new Set(moviesData.channels.map(ch => ch.channel.group))].sort();
   }, [moviesData]);
 
   const uniqueCategories = useMemo(() => {
     if (!moviesData) return [];
     const categories = new Set<string>();
-    moviesData.channels.forEach((ch) => {
-      Object.values(ch.programs).forEach((programs) => {
-        programs.forEach((program) => {
-          program.categories.forEach((category) => categories.add(category));
+    moviesData.channels.forEach(ch => {
+      Object.values(ch.programs).forEach(programs => {
+        programs.forEach(program => {
+          program.categories.forEach(category => categories.add(category));
         });
       });
     });
-    return Array.from(categories).sort();
+    return [...categories].sort();
   }, [moviesData]);
 
   const handleGroupFilter = (group: string) => {
-    setSelectedGroups((prev) =>
-      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
+    setSelectedGroups(previous =>
+      previous.includes(group)
+        ? previous.filter(g => g !== group)
+        : [...previous, group],
     );
   };
 
   const handleCategoryFilter = (category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
+    setSelectedCategories(previous =>
+      previous.includes(category)
+        ? previous.filter(c => c !== category)
+        : [...previous, category],
     );
   };
 
@@ -251,8 +279,11 @@ function MoviesPageContent() {
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Groups">
               <ScrollArea className="h-[200px]">
-                {uniqueGroups.map((group) => (
-                  <CommandItem key={group} onSelect={() => handleGroupFilter(group)}>
+                {uniqueGroups.map(group => (
+                  <CommandItem
+                    key={group}
+                    onSelect={() => handleGroupFilter(group)}
+                  >
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`group-${group}`}
@@ -268,8 +299,11 @@ function MoviesPageContent() {
             <CommandSeparator />
             <CommandGroup heading="Categories">
               <ScrollArea className="h-[200px]">
-                {uniqueCategories.map((category) => (
-                  <CommandItem key={category} onSelect={() => handleCategoryFilter(category)}>
+                {uniqueCategories.map(category => (
+                  <CommandItem
+                    key={category}
+                    onSelect={() => handleCategoryFilter(category)}
+                  >
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`category-${category}`}
@@ -364,7 +398,7 @@ function MoviesPageContent() {
             type="text"
             placeholder="Search channels..."
             value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
+            onChange={e => setFilterText(e.target.value)}
             className="w-[200px]"
           />
           <FilterMenu />
@@ -373,83 +407,107 @@ function MoviesPageContent() {
       <ScrollArea className="grow">
         <div className="w-full p-4">
           <div className="grid w-full grid-cols-1 gap-3 lg:grid-cols-[repeat(auto-fill,minmax(600px,1fr))]">
-            {filteredAndSortedChannels.map((channelData) => (
+            {filteredAndSortedChannels.map(channelData => (
               <Card key={channelData.channel.slug} className="w-full">
                 <CardHeader className="flex flex-row items-center justify-between px-4 py-2">
-                  {channelData.channel.icon && channelData.channel.icon.light !== 'N/A' && (
-                    <div>
-                      <img
-                        className="block size-auto h-16 object-contain dark:hidden"
-                        src={channelData.channel.icon.light}
-                        alt={decodeHtml(channelData.channel.name)}
-                      />
-                      <img
-                        className="hidden size-auto h-16 object-contain dark:block"
-                        src={channelData.channel.icon.dark}
-                        alt={decodeHtml(channelData.channel.name)}
-                      />
-                    </div>
-                  )}
+                  {channelData.channel.icon &&
+                    channelData.channel.icon.light !== 'N/A' && (
+                      <div>
+                        <img
+                          className="block size-auto h-16 object-contain dark:hidden"
+                          src={channelData.channel.icon.light}
+                          alt={decodeHtml(channelData.channel.name)}
+                        />
+                        <img
+                          className="hidden size-auto h-16 object-contain dark:block"
+                          src={channelData.channel.icon.dark}
+                          alt={decodeHtml(channelData.channel.name)}
+                        />
+                      </div>
+                    )}
                   <div className="text-right">
-                    <CardTitle className="text-lg">{channelData.channel.name}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {channelData.channel.name}
+                    </CardTitle>
                     {channelData.channel.lcn !== 'N/A' && (
-                      <CardDescription>Channel {channelData.channel.lcn}</CardDescription>
+                      <CardDescription>
+                        Channel {channelData.channel.lcn}
+                      </CardDescription>
                     )}
                   </div>
                 </CardHeader>
                 <CardContent className="h-[250px] w-full overflow-auto">
                   <Accordion type="single" collapsible className="w-full">
-                    {Object.entries(channelData.programs).map(([date, programs]) => (
-                      <AccordionItem key={date} value={date}>
-                        <AccordionTrigger className="text-md p-2">
-                          <div className="flex items-center">
-                            <CalendarIcon className="mr-2 size-4" />
-                            {format(new Date(date), 'EEEE, MMMM d, yyyy')}
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <ScrollArea className="h-[200px] w-full">
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead className="w-[150px]">Time</TableHead>
-                                  <TableHead>Title</TableHead>
-                                  <TableHead className="hidden md:table-cell">
-                                    Description
-                                  </TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody className="font-sm">
-                                {programs.map((program, index) => (
-                                  <TableRow key={index}>
-                                    <TableCell className="font-sm">
-                                      {format(new Date(program.start), 'h:mm a')} -{' '}
-                                      {format(new Date(program.end), 'h:mm a')}
-                                    </TableCell>
-                                    <TableCell className="font-sm">{program.title}</TableCell>
-                                    <TableCell className="font-sm hidden md:table-cell">
-                                      {program.description}
-                                    </TableCell>
+                    {Object.entries(channelData.programs).map(
+                      ([date, programs]) => (
+                        <AccordionItem key={date} value={date}>
+                          <AccordionTrigger className="text-md p-2">
+                            <div className="flex items-center">
+                              <CalendarIcon className="mr-2 size-4" />
+                              {format(new Date(date), 'EEEE, MMMM d, yyyy')}
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <ScrollArea className="h-[200px] w-full">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead className="w-[150px]">
+                                      Time
+                                    </TableHead>
+                                    <TableHead>Title</TableHead>
+                                    <TableHead className="hidden md:table-cell">
+                                      Description
+                                    </TableHead>
                                   </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </ScrollArea>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
+                                </TableHeader>
+                                <TableBody className="font-sm">
+                                  {programs.map((program, index) => (
+                                    <TableRow key={index}>
+                                      <TableCell className="font-sm">
+                                        {format(
+                                          new Date(program.start),
+                                          'h:mm a',
+                                        )}{' '}
+                                        -{' '}
+                                        {format(
+                                          new Date(program.end),
+                                          'h:mm a',
+                                        )}
+                                      </TableCell>
+                                      <TableCell className="font-sm">
+                                        {program.title}
+                                      </TableCell>
+                                      <TableCell className="font-sm hidden md:table-cell">
+                                        {program.description}
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </ScrollArea>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ),
+                    )}
                   </Accordion>
                 </CardContent>
                 <CardFooter className="p-2">
                   <div className="flex w-full gap-2">
-                    <Button variant="secondary" className="flex-1" onClick={navigateToNext24Hours}>
+                    <Button
+                      variant="secondary"
+                      className="flex-1"
+                      onClick={navigateToNext24Hours}
+                    >
                       <Clock className="mr-2 size-4" />
                       Next 24hrs
                     </Button>
                     <Button
                       variant="outline"
                       className="flex-1"
-                      onClick={() => navigateToFullWeek(channelData.channel.slug)}
+                      onClick={() =>
+                        navigateToFullWeek(channelData.channel.slug)
+                      }
                     >
                       <Clock className="mr-2 size-4" />
                       Full Week
@@ -467,7 +525,7 @@ function MoviesPageContent() {
 
 export default function MoviesPage() {
   return (
-    <main>
+    <main className="h-[calc(100vh-4rem)] overflow-hidden">
       <Suspense fallback={<LoadingSpinner />}>
         <MoviesPageContent />
       </Suspense>

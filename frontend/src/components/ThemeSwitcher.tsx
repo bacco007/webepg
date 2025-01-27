@@ -23,7 +23,7 @@ export function ThemeSwitcher() {
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
-    setCookie('theme', newTheme, { path: '/', maxAge: 31536000 });
+    setCookie('theme', newTheme, { path: '/', maxAge: 31_536_000 });
   };
 
   if (!mounted) {

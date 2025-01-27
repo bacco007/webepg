@@ -1,9 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronRight, Loader2 } from 'lucide-react';
+import { CalendarClock, ChevronRight, Loader2 } from 'lucide-react';
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -28,28 +32,36 @@ interface GroupedTimezones {
 }
 
 export default function CollapsibleTimezoneMenu() {
-  const [groupedTimezones, setGroupedTimezones] = React.useState<GroupedTimezones[]>([]);
-  const [selectedTimezone, setSelectedTimezone] = React.useState<Timezone | null>(null);
+  const [groupedTimezones, setGroupedTimezones] = React.useState<
+    GroupedTimezones[]
+  >([]);
+  const [selectedTimezone, setSelectedTimezone] =
+    React.useState<Timezone | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>({});
+  const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>(
+    {},
+  );
 
   React.useEffect(() => {
     const initializeTimezones = async () => {
       try {
         const formattedTimezones = Intl.supportedValuesOf('timeZone')
-          .map((timezone) => {
+          .map(timezone => {
             const formatter = new Intl.DateTimeFormat('en', {
               timeZone: timezone,
               timeZoneName: 'longOffset',
             });
             const parts = formatter.formatToParts(new Date());
-            const offsetPart = parts.find((part) => part.type === 'timeZoneName')?.value || '';
-            const offset = parseInt(offsetPart.replace('GMT', '').replace(':', '')) || 0;
+            const offsetPart =
+              parts.find(part => part.type === 'timeZoneName')?.value || '';
+            const offset =
+              Number.parseInt(offsetPart.replace('GMT', '').replace(':', '')) ||
+              0;
             const group = timezone.split('/')[0];
 
             return {
               value: timezone,
-              label: `(${offsetPart}) ${timezone.replace(/_/g, ' ')}`,
+              label: `(${offsetPart})\n${timezone.replaceAll('_', ' ')}`,
               group,
               offset,
             };
@@ -65,7 +77,9 @@ export default function CollapsibleTimezoneMenu() {
         setGroupedTimezones(groupedTz);
 
         const savedTimezone = await getCookie('userTimezone');
-        const savedTz = formattedTimezones.find((tz) => tz.value === savedTimezone);
+        const savedTz = formattedTimezones.find(
+          tz => tz.value === savedTimezone,
+        );
         if (savedTz) {
           setSelectedTimezone(savedTz);
         } else {
@@ -84,14 +98,14 @@ export default function CollapsibleTimezoneMenu() {
   const groupTimezones = (data: Timezone[]): GroupedTimezones[] => {
     const groupMap = new Map<string, Timezone[]>();
 
-    data.forEach((timezone) => {
+    data.forEach(timezone => {
       if (!groupMap.has(timezone.group)) {
         groupMap.set(timezone.group, []);
       }
       groupMap.get(timezone.group)!.push(timezone);
     });
 
-    return Array.from(groupMap.entries())
+    return [...groupMap.entries()]
       .map(([group, timezones]) => ({
         group,
         timezones: timezones.sort((a, b) => {
@@ -107,17 +121,19 @@ export default function CollapsibleTimezoneMenu() {
   const handleTimezoneSelect = async (timezone: Timezone) => {
     setSelectedTimezone(timezone);
     await setCookie('userTimezone', timezone.value);
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   const toggleGroup = (group: string) => {
-    setOpenGroups((prev) => ({ ...prev, [group]: !prev[group] }));
+    setOpenGroups(previous => ({ ...previous, [group]: !previous[group] }));
   };
 
   if (isLoading) {
     return (
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel className="text-xs">Select Timezone</SidebarGroupLabel>
+        <SidebarGroupLabel className="text-xs">
+          Select Timezone
+        </SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton disabled className="py-1 text-xs">
@@ -135,16 +151,19 @@ export default function CollapsibleTimezoneMenu() {
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
         <SidebarGroupLabel
           asChild
-          className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
+          className="group/label w-full text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
-          <CollapsibleTrigger>
-            Select Timezone
-            <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton>
+              <CalendarClock className="mr-2 size-4" />
+              Select Timezone
+              <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+            </SidebarMenuButton>
           </CollapsibleTrigger>
         </SidebarGroupLabel>
         <CollapsibleContent>
           <SidebarMenu>
-            {groupedTimezones.map((groupData) => (
+            {groupedTimezones.map(groupData => (
               <Collapsible
                 key={groupData.group}
                 open={openGroups[groupData.group]}
@@ -157,7 +176,7 @@ export default function CollapsibleTimezoneMenu() {
                       <ChevronRight
                         className={cn(
                           'size-4 transition-transform duration-200',
-                          openGroups[groupData.group] && 'rotate-90'
+                          openGroups[groupData.group] && 'rotate-90',
                         )}
                       />
                     </SidebarMenuButton>
@@ -165,7 +184,7 @@ export default function CollapsibleTimezoneMenu() {
                 </SidebarMenuItem>
                 <CollapsibleContent>
                   <SidebarMenuSub>
-                    {groupData.timezones.map((timezone) => (
+                    {groupData.timezones.map(timezone => (
                       <SidebarMenuItem key={timezone.value}>
                         <SidebarMenuButton
                           className="py-0.5 pl-4 text-xs"
@@ -173,7 +192,8 @@ export default function CollapsibleTimezoneMenu() {
                         >
                           <span
                             className={cn(
-                              selectedTimezone?.value === timezone.value && 'font-medium'
+                              selectedTimezone?.value === timezone.value &&
+                                'font-medium',
                             )}
                           >
                             {timezone.label}

@@ -814,17 +814,6 @@
     }
   },
   {
-    "id": "OPTSPT",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Optus Sport",
-    "url": "local",
-    "logo": {
-      "light": "https://i.imgur.com/fKAgFp0.png",
-      "dark": "https://i.imgur.com/fKAgFp0.png"
-    }
-  },
-  {
     "id": "xmlepg_group_abc",
     "group": "Australia",
     "subgroup": "FTA by Network",
@@ -880,14 +869,29 @@
     }
   },
   {
-    "id": "FOXTEL",
+    "id": "FOXTEL2",
     "group": "Testing",
     "subgroup": "Australia",
-    "location": "Foxtel",
-    "url": "http://170.64.142.170:8080/FOXTEL_guide.xml",
+    "location": "Foxtel 2",
+    "url": "local",
     "logo": {
       "light": "logos/foxtel.png",
       "dark": "logos/foxtel.png"
     }
+  },
+  {
+    "id": "daddylive",
+    "group": "Testing",
+    "subgroup": "International",
+    "location": "DaddyLive",
+    "url": "https://raw.githubusercontent.com/dtankdempse/daddylive-m3u/refs/heads/main/epg.xml"
+  },
+  {
+    "id": "epgshare_australia",
+    "group": "Testing",
+    "subgroup": "Australia",
+    "location": "EPGShare",
+    "url": "https://epgshare01.online/epgshare01/epg_ripper_AU1.xml.gz"
   }
 ]
+

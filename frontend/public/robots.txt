@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: http://webepg.xyz
+
+# Sitemaps
+Sitemap: http://webepg.xyz/sitemap.xml

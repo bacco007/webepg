@@ -1,7 +1,14 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   AlertCircle,
   ArrowRight,
@@ -18,7 +25,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Command,
@@ -37,8 +44,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import {
   Table,
   TableBody,
@@ -87,7 +98,12 @@ type ApiResponse = {
 type ViewMode = 'card' | 'table';
 type SortField = 'name' | 'number' | 'group' | 'program_count';
 type SortDirection = 'asc' | 'desc';
-type GroupBy = 'none' | 'channel_group' | 'channel_type' | 'channel_name_group' | 'channel_specs';
+type GroupBy =
+  | 'none'
+  | 'channel_group'
+  | 'channel_type'
+  | 'channel_name_group'
+  | 'channel_specs';
 
 const decodeHtml = (html: string): string => {
   const txt = document.createElement('textarea');
@@ -100,7 +116,8 @@ function ChannelListContent() {
   const [filteredChannels, setFilteredChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [xmltvDataSource, setXmltvDataSource] = useState<string>('xmlepg_FTASYD');
+  const [xmltvDataSource, setXmltvDataSource] =
+    useState<string>('xmlepg_FTASYD');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -117,7 +134,8 @@ function ChannelListContent() {
     setLoading(true);
     setError(null);
     try {
-      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      const storedDataSource =
+        (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
       setXmltvDataSource(storedDataSource);
 
       const response = await fetch(`/api/py/channels/${storedDataSource}`);
@@ -141,19 +159,24 @@ function ChannelListContent() {
 
   useEffect(() => {
     const filtered = channels.filter(
-      (channel) =>
+      channel =>
         ((channel.channel_names?.real || channel.channel_name || '')
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
           (typeof channel.channel_number === 'string' &&
             channel.channel_number.includes(searchTerm))) &&
-        (selectedGroups.length === 0 || selectedGroups.includes(channel.channel_group)) &&
-        (selectedTypes.length === 0 || selectedTypes.includes(channel.other_data.channel_type)) &&
-        (selectedSpecs.length === 0 || selectedSpecs.includes(channel.other_data.channel_specs)) &&
+        (selectedGroups.length === 0 ||
+          selectedGroups.includes(channel.channel_group)) &&
+        (selectedTypes.length === 0 ||
+          selectedTypes.includes(channel.other_data.channel_type)) &&
+        (selectedSpecs.length === 0 ||
+          selectedSpecs.includes(channel.other_data.channel_specs)) &&
         (selectedNameGroups.length === 0 ||
           (channel.other_data.channel_name_group &&
-            selectedNameGroups.includes(channel.other_data.channel_name_group))) &&
-        (!hideNoPrograms || channel.program_count > 0)
+            selectedNameGroups.includes(
+              channel.other_data.channel_name_group,
+            ))) &&
+        (!hideNoPrograms || channel.program_count > 0),
     );
     const sorted = sortChannels(filtered, sortField, sortDirection);
     setFilteredChannels(sorted);
@@ -178,26 +201,34 @@ function ChannelListContent() {
   };
 
   const handleGroupFilter = (group: string) => {
-    setSelectedGroups((prev) =>
-      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
+    setSelectedGroups(previous =>
+      previous.includes(group)
+        ? previous.filter(g => g !== group)
+        : [...previous, group],
     );
   };
 
   const handleTypeFilter = (type: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    setSelectedTypes(previous =>
+      previous.includes(type)
+        ? previous.filter(t => t !== type)
+        : [...previous, type],
     );
   };
 
   const handleSpecsFilter = (specs: string) => {
-    setSelectedSpecs((prev) =>
-      prev.includes(specs) ? prev.filter((s) => s !== specs) : [...prev, specs]
+    setSelectedSpecs(previous =>
+      previous.includes(specs)
+        ? previous.filter(s => s !== specs)
+        : [...previous, specs],
     );
   };
 
   const handleNameGroupFilter = (nameGroup: string) => {
-    setSelectedNameGroups((prev) =>
-      prev.includes(nameGroup) ? prev.filter((ng) => ng !== nameGroup) : [...prev, nameGroup]
+    setSelectedNameGroups(previous =>
+      previous.includes(nameGroup)
+        ? previous.filter(ng => ng !== nameGroup)
+        : [...previous, nameGroup],
     );
   };
 
@@ -210,7 +241,11 @@ function ChannelListContent() {
     }
   };
 
-  const sortChannels = (channels: Channel[], field: SortField, direction: SortDirection) => {
+  const sortChannels = (
+    channels: Channel[],
+    field: SortField,
+    direction: SortDirection,
+  ) => {
     return [...channels].sort((a, b) => {
       let comparison = 0;
       switch (field) {
@@ -221,8 +256,10 @@ function ChannelListContent() {
           break;
         }
         case 'number': {
-          const aNumber = parseInt(String(a.channel_number), 10) || Infinity;
-          const bNumber = parseInt(String(b.channel_number), 10) || Infinity;
+          const aNumber =
+            Number.parseInt(String(a.channel_number), 10) || Infinity;
+          const bNumber =
+            Number.parseInt(String(b.channel_number), 10) || Infinity;
           comparison = aNumber - bNumber;
           break;
         }
@@ -244,27 +281,33 @@ function ChannelListContent() {
   };
 
   const uniqueGroups = useMemo(
-    () => Array.from(new Set(channels.map((channel) => channel.channel_group))).sort(),
-    [channels]
+    () => [...new Set(channels.map(channel => channel.channel_group))].sort(),
+    [channels],
   );
   const uniqueTypes = useMemo(
-    () => Array.from(new Set(channels.map((channel) => channel.other_data.channel_type))).sort(),
-    [channels]
+    () =>
+      [
+        ...new Set(channels.map(channel => channel.other_data.channel_type)),
+      ].sort(),
+    [channels],
   );
   const uniqueSpecs = useMemo(
-    () => Array.from(new Set(channels.map((channel) => channel.other_data.channel_specs))).sort(),
-    [channels]
+    () =>
+      [
+        ...new Set(channels.map(channel => channel.other_data.channel_specs)),
+      ].sort(),
+    [channels],
   );
   const uniqueNameGroups = useMemo(
     () =>
-      Array.from(
-        new Set(
+      [
+        ...new Set(
           channels
-            .map((channel) => channel.other_data.channel_name_group)
-            .filter((group): group is string => group !== undefined)
-        )
-      ).sort(),
-    [channels]
+            .map(channel => channel.other_data.channel_name_group)
+            .filter((group): group is string => group !== undefined),
+        ),
+      ].sort(),
+    [channels],
   );
 
   const hasNameGroups = uniqueNameGroups.length > 0;
@@ -310,17 +353,24 @@ function ChannelListContent() {
                   <Checkbox
                     id="hide-no-programs"
                     checked={hideNoPrograms}
-                    onCheckedChange={(checked) => setHideNoPrograms(checked as boolean)}
+                    onCheckedChange={checked =>
+                      setHideNoPrograms(checked as boolean)
+                    }
                   />
-                  <Label htmlFor="hide-no-programs">Hide channels with no programs</Label>
+                  <Label htmlFor="hide-no-programs">
+                    Hide channels with no programs
+                  </Label>
                 </div>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Channel Groups">
               <ScrollArea className="h-[200px]">
-                {uniqueGroups.map((group) => (
-                  <CommandItem key={group} onSelect={() => handleGroupFilter(group)}>
+                {uniqueGroups.map(group => (
+                  <CommandItem
+                    key={group}
+                    onSelect={() => handleGroupFilter(group)}
+                  >
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`group-${group}`}
@@ -336,8 +386,11 @@ function ChannelListContent() {
             <CommandSeparator />
             <CommandGroup heading="Channel Types">
               <ScrollArea className="h-[200px]">
-                {uniqueTypes.map((type) => (
-                  <CommandItem key={type} onSelect={() => handleTypeFilter(type)}>
+                {uniqueTypes.map(type => (
+                  <CommandItem
+                    key={type}
+                    onSelect={() => handleTypeFilter(type)}
+                  >
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`type-${type}`}
@@ -353,8 +406,11 @@ function ChannelListContent() {
             <CommandSeparator />
             <CommandGroup heading="Channel Specs">
               <ScrollArea className="h-[200px]">
-                {uniqueSpecs.map((specs) => (
-                  <CommandItem key={specs} onSelect={() => handleSpecsFilter(specs)}>
+                {uniqueSpecs.map(specs => (
+                  <CommandItem
+                    key={specs}
+                    onSelect={() => handleSpecsFilter(specs)}
+                  >
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`specs-${specs}`}
@@ -372,7 +428,7 @@ function ChannelListContent() {
                 <CommandSeparator />
                 <CommandGroup heading="Channel Name Groups">
                   <ScrollArea className="h-[200px]">
-                    {uniqueNameGroups.map((nameGroup) => (
+                    {uniqueNameGroups.map(nameGroup => (
                       <CommandItem
                         key={nameGroup}
                         onSelect={() => handleNameGroupFilter(nameGroup)}
@@ -381,9 +437,13 @@ function ChannelListContent() {
                           <Checkbox
                             id={`name-group-${nameGroup}`}
                             checked={selectedNameGroups.includes(nameGroup)}
-                            onCheckedChange={() => handleNameGroupFilter(nameGroup)}
+                            onCheckedChange={() =>
+                              handleNameGroupFilter(nameGroup)
+                            }
                           />
-                          <Label htmlFor={`name-group-${nameGroup}`}>{nameGroup}</Label>
+                          <Label htmlFor={`name-group-${nameGroup}`}>
+                            {nameGroup}
+                          </Label>
                         </div>
                       </CommandItem>
                     ))}
@@ -403,115 +463,94 @@ function ChannelListContent() {
     </Popover>
   );
 
-  const ChannelCard = ({ channel, index }: { channel: Channel; index: number }) => (
+  const ChannelCard = ({
+    channel,
+    index,
+  }: {
+    channel: Channel;
+    index: number;
+  }) => (
     <Link
       href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
       passHref
-      className="focus:ring-primary focus:outline-none focus:ring-2"
+      className="focus:outline-none focus:ring-2 focus:ring-primary"
     >
       <Card
-        className={`h-full overflow-hidden transition-shadow duration-300 hover:shadow-lg ${
+        className={`flex h-full items-center space-x-4 rounded-lg border p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg ${
           channel.program_count === 0 ? 'bg-muted grayscale' : 'bg-card'
         }`}
       >
-        <CardContent className="flex h-full flex-col items-center justify-center p-2">
-          {channel.channel_logo.light !== 'N/A' && (
-            <div className="mb-2 flex h-20 items-center justify-center">
-              <img
-                className="block size-auto max-h-full object-contain dark:hidden"
-                src={channel.channel_logo.light}
-                alt={decodeHtml(channel.channel_names?.real || channel.channel_name || '')}
-              />
-              <img
-                className="hidden size-auto max-h-full object-contain dark:block"
-                src={channel.channel_logo.dark}
-                alt={decodeHtml(channel.channel_names?.real || channel.channel_name || '')}
-              />
-            </div>
-          )}
-          <h3
-            className={`text-center text-lg font-bold ${
-              channel.program_count === 0 ? 'text-gray-500 dark:text-gray-400' : ''
-            }`}
-          >
-            {decodeHtml(channel.channel_names?.real || channel.channel_name || '')}
-          </h3>
-          <div className="flex items-center">
-            {typeof channel.channel_number === 'string' && channel.channel_number !== 'N/A' && (
-              <Badge
-                variant="secondary"
-                className={`mr-2 ${
-                  channel.program_count === 0 ? 'text-gray-500 dark:text-gray-400' : ''
-                }`}
-              >
-                LCN {channel.channel_number}
-              </Badge>
+        <div className="relative size-16 shrink-0">
+          <Image
+            src={channel.channel_logo.light || '/placeholder.svg'}
+            alt={decodeHtml(
+              channel.channel_names?.real || channel.channel_name || '',
             )}
-            {channel.other_data.channel_specs !== 'N/A' && (
-              <Badge
-                variant="secondary"
-                className={`mr-2 ${
-                  channel.program_count === 0 ? 'text-gray-500 dark:text-gray-400' : ''
-                }`}
-              >
-                {channel.other_data.channel_specs}
-              </Badge>
+            fill
+            className="object-contain"
+          />
+        </div>
+        <div className="grow">
+          <p className="text-sm font-bold">
+            {decodeHtml(
+              channel.channel_names?.real || channel.channel_name || '',
             )}
-          </div>
-          {channel.other_data.channel_type !== 'N/A' && (
-            <div className="flex items-center pt-1">
-              <Badge
-                variant="secondary"
-                className={`mr-2 ${
-                  channel.program_count === 0 ? 'text-gray-500 dark:text-gray-400' : ''
-                }`}
-              >
-                {channel.other_data.channel_type}
-              </Badge>
-            </div>
-          )}
-          <div className="flex items-center pt-1">
-            {channel.channel_group !== 'Unknown' && (
-              <Badge
-                variant="secondary"
-                className={`mr-2 ${
-                  channel.program_count === 0 ? 'text-gray-500 dark:text-gray-400' : ''
-                }`}
-              >
-                {channel.channel_group}
-              </Badge>
+          </p>
+          {typeof channel.channel_number === 'string' &&
+            channel.channel_number !== 'N/A' && (
+              <p className="text-xs font-semibold text-primary">
+                Channel {channel.channel_number}
+              </p>
             )}
-          </div>
-          {channel.program_count === 0 && (
-            <div className="flex items-center pt-1">
-              <Badge variant="destructive">No Programs in EPG</Badge>
-            </div>
-          )}
-        </CardContent>
+          <p className="text-xs font-semibold text-primary">
+            {channel.channel_group || 'N/A'}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {channel.other_data.channel_specs},{' '}
+            {channel.other_data.channel_type}
+          </p>
+        </div>
       </Card>
     </Link>
   );
 
   const CardView = () => {
-    if (groupBy !== 'none') {
+    if (groupBy === 'none') {
+      return (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+          {filteredChannels.map((channel, index) => (
+            <ChannelCard
+              key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
+              channel={channel}
+              index={index}
+            />
+          ))}
+        </div>
+      );
+    } else {
       const groupedChannels: { [key: string]: Channel[] } = {};
-      filteredChannels.forEach((channel) => {
+      filteredChannels.forEach(channel => {
         let groupKey;
         switch (groupBy) {
-          case 'channel_group':
+          case 'channel_group': {
             groupKey = channel.channel_group;
             break;
-          case 'channel_type':
+          }
+          case 'channel_type': {
             groupKey = channel.other_data.channel_type;
             break;
-          case 'channel_name_group':
+          }
+          case 'channel_name_group': {
             groupKey = channel.other_data.channel_name_group || 'Ungrouped';
             break;
-          case 'channel_specs':
+          }
+          case 'channel_specs': {
             groupKey = channel.other_data.channel_specs;
             break;
-          default:
+          }
+          default: {
             groupKey = 'Unknown';
+          }
         }
         if (groupKey !== 'N/A') {
           if (!groupedChannels[groupKey]) {
@@ -525,10 +564,10 @@ function ChannelListContent() {
 
       return (
         <div className="space-y-8">
-          {sortedGroups.map((group) => (
+          {sortedGroups.map(group => (
             <div key={group}>
               <h2 className="mb-4 text-2xl font-bold">{group}</h2>
-              <div className="xs:grid-cols-2 xs:gap-3 xs:p-3 grid grid-cols-1 gap-2 p-2 sm:grid-cols-3 sm:gap-4 sm:p-4 md:grid-cols-4 lg:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {groupedChannels[group].map((channel, index) => (
                   <ChannelCard
                     key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
@@ -538,18 +577,6 @@ function ChannelListContent() {
                 ))}
               </div>
             </div>
-          ))}
-        </div>
-      );
-    } else {
-      return (
-        <div className="xs:grid-cols-2 xs:gap-3 xs:p-3 grid grid-cols-1 gap-2 p-2 sm:grid-cols-3 sm:gap-4 sm:p-4 md:grid-cols-4 lg:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
-          {filteredChannels.map((channel, index) => (
-            <ChannelCard
-              key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
-              channel={channel}
-              index={index}
-            />
           ))}
         </div>
       );
@@ -566,7 +593,7 @@ function ChannelListContent() {
               <Button
                 variant="ghost"
                 onClick={() => handleSort('number')}
-                className="hover:bg-accent hover:text-accent-foreground flex items-center"
+                className="flex items-center hover:bg-accent hover:text-accent-foreground"
               >
                 Number
                 {sortField === 'number' &&
@@ -581,7 +608,7 @@ function ChannelListContent() {
               <Button
                 variant="ghost"
                 onClick={() => handleSort('name')}
-                className="hover:bg-accent hover:text-accent-foreground flex items-center"
+                className="flex items-center hover:bg-accent hover:text-accent-foreground"
               >
                 Name
                 {sortField === 'name' &&
@@ -596,7 +623,7 @@ function ChannelListContent() {
               <Button
                 variant="ghost"
                 onClick={() => handleSort('group')}
-                className="hover:bg-accent hover:text-accent-foreground flex items-center"
+                className="flex items-center hover:bg-accent hover:text-accent-foreground"
               >
                 Group
                 {sortField === 'group' &&
@@ -614,7 +641,7 @@ function ChannelListContent() {
               <Button
                 variant="ghost"
                 onClick={() => handleSort('program_count')}
-                className="hover:bg-accent hover:text-accent-foreground flex items-center"
+                className="flex items-center hover:bg-accent hover:text-accent-foreground"
               >
                 Programs
                 {sortField === 'program_count' &&
@@ -635,54 +662,76 @@ function ChannelListContent() {
               className="hover:bg-muted/50"
             >
               <TableCell>
-                {channel.chlogo !== 'N/A' ? (
+                {channel.chlogo === 'N/A' ? (
+                  <div className="flex size-12 items-center justify-center rounded-md bg-muted">
+                    <span className="text-xs text-muted-foreground">
+                      No logo
+                    </span>
+                  </div>
+                ) : (
                   <div>
                     <img
                       className="block size-12 max-h-full object-contain dark:hidden"
-                      src={channel.channel_logo.light}
-                      alt={decodeHtml(channel.channel_names?.real || channel.channel_name || '')}
+                      src={channel.channel_logo.light || '/placeholder.svg'}
+                      alt={decodeHtml(
+                        channel.channel_names?.real ||
+                          channel.channel_name ||
+                          '',
+                      )}
                     />
                     <img
                       className="hidden size-12 max-h-full object-contain dark:block"
-                      src={channel.channel_logo.dark}
-                      alt={decodeHtml(channel.channel_names?.real || channel.channel_name || '')}
+                      src={channel.channel_logo.dark || '/placeholder.svg'}
+                      alt={decodeHtml(
+                        channel.channel_names?.real ||
+                          channel.channel_name ||
+                          '',
+                      )}
                     />
-                  </div>
-                ) : (
-                  <div className="bg-muted flex size-12 items-center justify-center rounded-md">
-                    <span className="text-muted-foreground text-xs">No logo</span>
                   </div>
                 )}
               </TableCell>
               <TableCell>
                 <Badge variant="secondary">
-                  {typeof channel.channel_number === 'string' && channel.channel_number !== 'N/A'
+                  {typeof channel.channel_number === 'string' &&
+                  channel.channel_number !== 'N/A'
                     ? channel.channel_number
                     : '-'}
                 </Badge>
               </TableCell>
               <TableCell>
-                {decodeHtml(channel.channel_names?.real || channel.channel_name || '')}
+                {decodeHtml(
+                  channel.channel_names?.real || channel.channel_name || '',
+                )}
               </TableCell>
               <TableCell>
                 <Badge variant="secondary" className="mr-2">
-                  {channel.channel_group !== 'N/A' ? channel.channel_group : '-'}
+                  {channel.channel_group === 'N/A'
+                    ? '-'
+                    : channel.channel_group}
                 </Badge>
               </TableCell>
               <TableCell>
                 <Badge variant="secondary" className="mr-2">
-                  {channel.other_data.channel_type !== 'N/A'
-                    ? channel.other_data.channel_type
-                    : '-'}
+                  {channel.other_data.channel_type === 'N/A'
+                    ? '-'
+                    : channel.other_data.channel_type}
                 </Badge>
               </TableCell>
               <TableCell>
                 <Badge variant="secondary" className="mr-2">
-                  {channel.other_data.channel_specs !== 'N/A'
-                    ? channel.other_data.channel_specs
-                    : '-'}
+                  {channel.other_data.channel_specs === 'N/A'
+                    ? '-'
+                    : channel.other_data.channel_specs}
                 </Badge>
               </TableCell>
+              {hasNameGroups && (
+                <TableCell>
+                  <Badge variant="secondary" className="mr-2">
+                    {channel.other_data.channel_name_group || '-'}
+                  </Badge>
+                </TableCell>
+              )}
               <TableCell>
                 <Badge variant="secondary" className="mr-2">
                   {typeof channel.program_count === 'number'
@@ -694,7 +743,7 @@ function ChannelListContent() {
                 <Button variant="ghost" size="sm" asChild>
                   <Link
                     href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
-                    className="hover:text-primary inline-flex items-center font-medium"
+                    className="inline-flex items-center font-medium hover:text-primary"
                   >
                     View
                     <ArrowRight className="ml-2 size-4" />
@@ -725,21 +774,21 @@ function ChannelListContent() {
   }
 
   return (
-    <div className="flex size-full flex-col">
-      <div className="flex items-center justify-between border-b p-2">
+    <div className="flex h-screen flex-col">
+      <div className="flex items-center justify-between border-b bg-background p-2">
         <h1 className="text-xl font-bold">Channel List</h1>
         <div className="flex items-center space-x-2">
           <Input
             type="text"
             placeholder="Search channels..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             className="w-[200px]"
           />
           <ToggleGroup
             type="single"
             value={viewMode}
-            onValueChange={(value) => value && setViewMode(value as ViewMode)}
+            onValueChange={value => value && setViewMode(value as ViewMode)}
           >
             <ToggleGroupItem value="card" aria-label="Card view">
               <LayoutGrid className="size-4" />
@@ -767,7 +816,9 @@ function ChannelListContent() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onSelect={() => setGroupBy('none')}>No Grouping</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setGroupBy('none')}>
+                  No Grouping
+                </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => setGroupBy('channel_group')}>
                   Group
                 </DropdownMenuItem>
@@ -778,7 +829,9 @@ function ChannelListContent() {
                   Specs
                 </DropdownMenuItem>
                 {hasNameGroups && (
-                  <DropdownMenuItem onSelect={() => setGroupBy('channel_name_group')}>
+                  <DropdownMenuItem
+                    onSelect={() => setGroupBy('channel_name_group')}
+                  >
                     Name Group
                   </DropdownMenuItem>
                 )}
@@ -791,8 +844,8 @@ function ChannelListContent() {
           <FilterMenu />
         </div>
       </div>
-      <ScrollArea className="grow">
-        <div className="w-full p-4">
+      <div className="grow overflow-auto">
+        <div className="p-6">
           {loading ? (
             <div className="flex h-full items-center justify-center">
               <LoadingSpinner />
@@ -803,14 +856,14 @@ function ChannelListContent() {
             <TableView />
           )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }
 
 export default function ChannelListPage() {
   return (
-    <main>
+    <main className="h-[calc(100vh-4rem)] overflow-hidden">
       <Suspense fallback={<LoadingSpinner />}>
         <ChannelListContent />
       </Suspense>

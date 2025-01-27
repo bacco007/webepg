@@ -32,7 +32,9 @@ export default function ChannelFilter({
           type="text"
           placeholder="Filter channels..."
           value={value}
-          onChange={(e: { target: { value: string } }) => onChange(e.target.value)}
+          onChange={(e: { target: { value: string } }) =>
+            onChange(e.target.value)
+          }
           className="w-full px-8"
         />
         {value && (

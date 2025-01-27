@@ -32,7 +32,9 @@ interface ChannelDropdownProperties {
   channelslug: string;
 }
 
-const ChannelDropdown: React.FC<ChannelDropdownProperties> = ({ channelslug }) => {
+const ChannelDropdown: React.FC<ChannelDropdownProperties> = ({
+  channelslug,
+}) => {
   const router = useRouter();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,14 +44,16 @@ const ChannelDropdown: React.FC<ChannelDropdownProperties> = ({ channelslug }) =
   useEffect(() => {
     const fetchChannels = async () => {
       try {
-        const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+        const storedDataSource =
+          (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
         const response = await fetch(`/api/py/channels/${storedDataSource}`);
         if (!response.ok) {
           throw new Error('Failed to fetch channels');
         }
         const data: { data: { channels: Channel[] } } = await response.json();
         const filteredChannels = data.data.channels.filter(
-          (channel) => channel.channel_id !== 'NOEPG' && channel.channel_slug !== 'NOEPG'
+          channel =>
+            channel.channel_id !== 'NOEPG' && channel.channel_slug !== 'NOEPG',
         );
         setChannels(filteredChannels || []);
       } catch (error_) {
@@ -86,7 +90,7 @@ const ChannelDropdown: React.FC<ChannelDropdownProperties> = ({ channelslug }) =
         <SelectValue placeholder="Select a Channel..." />
       </SelectTrigger>
       <SelectContent>
-        {channels.map((channel) => (
+        {channels.map(channel => (
           <SelectItem
             key={`${channel.channel_id}-${channel.channel_slug}-${channel.channel_number}`}
             value={channel.channel_slug}

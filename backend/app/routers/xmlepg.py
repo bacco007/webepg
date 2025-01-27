@@ -1,3 +1,4 @@
+import csv
 import json
 import logging
 import os
@@ -24,6 +25,7 @@ MERGED_PROVIDER_CHANNEL_DATA_FILE = os.path.join(
 )
 GUIDE_DATA_FILE = os.path.join(DATA_LOCATION, "xmlepg_guide.json")
 ERROR_LOG_FILE = os.path.join(DATA_LOCATION, "xmlepg_error_log.txt")
+ADDITIONAL_CHANNELS_CSV = os.path.join(DATA_LOCATION, "xmlepg_additional_channels.csv")
 
 # MySQL connection details
 mysql_config = {
@@ -106,16 +108,16 @@ async def get_providers() -> List[Dict[str, Any]]:
     union all
     -- Get Provider List (Foxtel)
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Foxtel / Hubbl' as subgroup, 'Foxtel' as location, 'local' as url from providers
-    where provgroupname in ('Foxtel') and provshow = 1 and provid in ('FOXHD', 'FOXNOW')
+    where provid in ('FOXHD', 'FOXNOW', 'FOXALL')
 
     union all
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Foxtel / Hubbl' as subgroup, provname as location, 'local' as url from providers
-    where provgroupname in ('Hubbl') and provshow = 1 and provid in ('HUBBIN', 'HUBFLA', 'HUBKAY', 'HUBLIF', 'HUBALL')
+    where provid in ('HUBBIN', 'HUBFLA', 'HUBKAY', 'HUBLIF', 'HUBALL', 'KAYO', 'HUBLOC')
 
     union all
     -- Get Provider List (Fetch)
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Fetch' as subgroup, 'Fetch' as location, 'local' as url from providers
-    where provgroupname in ('Fetch') and provshow = 1 and provid in ('FETALL')
+    where provid in ('FETALL', 'FETOPT')
 
     union all
     -- Get Provider List (VAST)
@@ -142,7 +144,14 @@ async def get_providers() -> List[Dict[str, Any]]:
     return providers
 
 
-async def get_channels() -> List[Dict[str, Any]]:
+async def get_channels(csv_file_path: str = None) -> List[Dict[str, Any]]:
+    """
+    Retrieves channels from the database and optionally appends additional rows from a CSV file.
+
+    :param csv_file_path: Optional path to a CSV file containing additional channel data.
+    :return: Combined list of channels from SQL and CSV.
+    """
+    # SQL query for fetching channels
     channel_query = """
     select ch.guidelink, ch.guidelink as channel_id, replace(ch.guidelink,'.','-') as channel_slug, ch.channame as channel_name, trim(concat(ch.channame, " ", ch.chanloc)) as channel_name_location, ch.channamereal as channel_name_real, ct.chantypename as chantype, cc.chancompname as chancomp, ch.channetweb as channel_url, ch.chanbouq, ch.chanlcnfta1, ch.chanlcnfta2, ch.chanlcnfta3, ch.chanlcnfox, ch.chanlcnfet, null as channel_number, cl.logoremotelight as chlogo_light, cl.logoremotedark as chlogo_dark, nt.networkname as channel_group, cg.groupname as channel_type, cl.logoremotelight as chlogo
     from channels ch
@@ -154,7 +163,76 @@ async def get_channels() -> List[Dict[str, Any]]:
     where ch.chanshowonlistview <> '0'
     order by guidelink
     """
-    return execute_sql_query(channel_query)
+
+    logging.info("Executing SQL query to fetch channels...")
+    sql_channels = execute_sql_query(channel_query)
+    logging.info(f"Fetched {len(sql_channels)} channels from the database.")
+
+    # If no CSV file is provided, return only the SQL results
+    if not csv_file_path:
+        logging.info("No CSV file provided. Returning SQL results only.")
+        return sql_channels
+
+    # Read the CSV file and append its rows to the SQL results
+    additional_channels = []
+    try:
+        logging.info(
+            f"Attempting to read additional channels from CSV: {csv_file_path}"
+        )
+        with open(csv_file_path, "r", encoding="latin-1") as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+
+            for row_number, row in enumerate(csv_reader, start=1):
+                try:
+                    # Ensure the row format matches the SQL query output
+                    channel_data = {
+                        "guidelink": row.get("guidelink"),
+                        "channel_id": row.get("guidelink"),
+                        "channel_slug": row.get(
+                            "channel_slug", row.get("guidelink").replace(".", "-")
+                        ),
+                        "channel_name": row.get("channel_name"),
+                        "channel_name_location": row.get(
+                            "channel_name_location",
+                            f"{row.get('channel_name')} {row.get('chanloc', '')}".strip(),
+                        ),
+                        "channel_name_real": row.get("channel_name_real"),
+                        "chantype": row.get("chantype"),
+                        "chancomp": row.get("chancomp"),
+                        "channel_url": row.get("channel_url"),
+                        "chanbouq": row.get("chanbouq"),
+                        "chanlcnfta1": row.get("chanlcnfta1"),
+                        "chanlcnfta2": row.get("chanlcnfta2"),
+                        "chanlcnfta3": row.get("chanlcnfta3"),
+                        "chanlcnfox": row.get("chanlcnfox"),
+                        "chanlcnfet": row.get("chanlcnfet"),
+                        "channel_number": row.get("channel_number"),
+                        "chlogo_light": row.get("chlogo_light"),
+                        "chlogo_dark": row.get("chlogo_dark"),
+                        "channel_group": row.get("channel_group"),
+                        "channel_type": row.get("channel_type"),
+                        "chlogo": row.get("chlogo_light"),
+                    }
+                    additional_channels.append(channel_data)
+                except Exception as row_err:
+                    logging.error(
+                        f"Error processing row {row_number} in CSV: {row}. Error: {row_err}"
+                    )
+
+        logging.info(
+            f"Successfully read {len(additional_channels)} additional channels from CSV."
+        )
+
+    except FileNotFoundError:
+        logging.error(f"CSV file not found at path: {csv_file_path}")
+    except Exception as e:
+        logging.error(f"Error reading CSV file: {str(e)}")
+
+    # Combine SQL results and additional CSV rows
+    combined_channels = sql_channels + additional_channels
+    logging.info(f"Total combined channels: {len(combined_channels)}")
+
+    return combined_channels
 
 
 async def process_channel_data(
@@ -233,7 +311,10 @@ async def get_guide_data(sql_in_clause: str) -> List[Dict[str, Any]]:
     query1 = f"""SELECT guideid, progstart as start_time, null as start, progstop as end_time, null as end,
                 null as length, channel, title, subtitle, descr as description, category as categories,
                 null as original_air_date, rating
-                FROM guide2 WHERE title != "(guide not available)" and channel IN {sql_in_clause}"""
+                FROM guide2 WHERE title != "(guide not available)"
+                and STR_TO_DATE(SUBSTRING(progstart, 1, 14), '%Y%m%d%H%i%s') >= DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+                and STR_TO_DATE(SUBSTRING(progstart, 1, 14), '%Y%m%d%H%i%s') <= DATE_ADD(CURDATE(), INTERVAL 10 DAY)
+                and CONVERT(channel USING utf8mb4) COLLATE utf8mb4_general_ci in {sql_in_clause}"""
 
     query2 = """SELECT showingid AS guideid, starttime AS start_time, null as start,
                 finishtime AS end_time, null as end, channel, showtitle AS title,
@@ -732,7 +813,7 @@ async def process_epg() -> Dict[str, Any]:
             raise Exception(f"Failed to get providers: {str(e)}")  # noqa: B904
 
         # Get and process channels
-        channels = await get_channels()
+        channels = await get_channels(csv_file_path=ADDITIONAL_CHANNELS_CSV)
         if not channels:
             raise Exception("No channels found in the database.")
 

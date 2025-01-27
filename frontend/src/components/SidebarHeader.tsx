@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import React from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,8 +11,6 @@ import {
 import { siteConfig } from '@/config/site';
 
 export default async function SidebarHeader() {
-  const cookieStore = await cookies();
-  const xmltvdatasource = cookieStore.get('xmltvdatasource')?.value;
   return (
     <SidebarHeaderPrimitive>
       <SidebarMenu>
@@ -22,7 +19,7 @@ export default async function SidebarHeader() {
             size="lg"
             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
-            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
               <Avatar className="size-8 rounded-lg">
                 <AvatarImage src="/favicon/apple-touch-icon.png" alt="webEPG" />
                 <AvatarFallback className="rounded-lg">wE</AvatarFallback>
@@ -30,13 +27,14 @@ export default async function SidebarHeader() {
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">
-                <span className="font-bold sm:inline-block">{siteConfig.name}</span>
+                <span className="font-bold sm:inline-block">
+                  {siteConfig.name}
+                </span>
                 &nbsp;
                 <Badge variant="secondary" className="sm:inline-flex">
                   Beta
                 </Badge>
               </span>
-              <span className="truncate text-xs">{xmltvdatasource || 'Not set'}</span>
             </div>
           </SidebarMenuButton>
         </SidebarMenuItem>

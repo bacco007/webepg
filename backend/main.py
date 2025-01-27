@@ -14,7 +14,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 from app.config import settings
-from app.routers import channels, dates, epg, nownext, optus, sources, xmlepg
+from app.routers import channels, dates, epg, nownext, sources, transmitters, xmlepg
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title=settings.APP_NAME, docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
@@ -37,7 +37,8 @@ app.include_router(epg.router, prefix="/api", tags=["epg"])
 app.include_router(dates.router, prefix="/api", tags=["dates"])
 app.include_router(nownext.router, prefix="/api/py/epg/nownext", tags=["nownext"])
 # app.include_router(foxtel.router, prefix="/api", tags=["foxtel"])
-app.include_router(optus.router, prefix="/api", tags=["optus"])
+# app.include_router(optus.router, prefix="/api", tags=["optus"])
+app.include_router(transmitters.router, prefix="/api", tags=["transmitters"])
 app.include_router(xmlepg.router, prefix="/api", tags=["xmlepg"])
 
 app.mount("/xmltvdata", StaticFiles(directory="xmltvdata"), name="xmltvdata")
@@ -55,8 +56,8 @@ async def process_sources_task() -> None:
 async def process_xmlepg_task() -> None:
     await xmlepg.process_epg()
 
-async def process_optus_task() -> None:
-    await optus.process_all_data()
+# async def process_optus_task() -> None:
+#     await optus.process_all_data()
 
 
 # Schedule the tasks
@@ -84,13 +85,13 @@ scheduler.add_job(
     replace_existing=True,
 )
 
-scheduler.add_job(
-    process_optus_task,
-    trigger=IntervalTrigger(hours=12),
-    id="process_optus",
-    name="Process Optus Sport every 12 hours",
-    replace_existing=True,
-)
+# scheduler.add_job(
+#     process_optus_task,
+#     trigger=IntervalTrigger(hours=12),
+#     id="process_optus",
+#     name="Process Optus Sport every 12 hours",
+#     replace_existing=True,
+# )
 
 
 @app.on_event("startup")
@@ -130,12 +131,12 @@ async def trigger_process_sources(
     result = await sources.process_sources(background_tasks)
     return JSONResponse(content=result)
 
-@app.get("/api/py/trigger-optus-sources")
-@limiter.limit("1/minute")
-async def trigger_optus_sources(
-    request: Request, background_tasks: BackgroundTasks
-) -> JSONResponse:
-    return await optus.process_sources(background_tasks)
+# @app.get("/api/py/trigger-optus-sources")
+# @limiter.limit("1/minute")
+# async def trigger_optus_sources(
+#     request: Request, background_tasks: BackgroundTasks
+# ) -> JSONResponse:
+#     return await optus.process_sources(background_tasks)
 
 
 # Add this endpoint to get Foxtel process status

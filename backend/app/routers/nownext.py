@@ -21,6 +21,8 @@ class ChannelInfo(BaseModel):
 
 class ProgramInfo(BaseModel):
     title: str
+    subtitle: str
+    episode: Optional[str] = None
     start: str
     stop: str
     desc: Optional[str] = None
@@ -48,19 +50,16 @@ async def get_nownext(
     timezone: str = Query(default="UTC", description="Timezone for date conversion"),
 ) -> NowNextResponse:
     # Load the programs and channels files for the source
-    programs_filename = f"{source}_programs.json"
-    channels_filename = f"{source}_channels.json"
-
     try:
-        programs_data = load_json(programs_filename)
-        channels_data = load_json(channels_filename)
+        programs_data = load_json(f"{source}_programs.json")
+        channels_data = load_json(f"{source}_channels.json")
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=f"File not found: {str(e)}") from e
 
     # Handle timezone conversion
     try:
         target_timezone = pytz.timezone(timezone)
-    except pytz.exceptions.UnknownTimeZoneError as err:
+    except pytz.UnknownTimeZoneError as err:
         raise HTTPException(
             status_code=400, detail=f"Unknown timezone: {timezone}"
         ) from err
@@ -68,56 +67,75 @@ async def get_nownext(
     # Get the current time in the target timezone
     now = datetime.now(target_timezone)
 
-    # Create a dictionary of channels for quick lookup
-    channels_dict = {channel["channel_slug"]: channel for channel in channels_data}
+    # Deduplicate channels based on unique (channel_id, channel_number) pairs
+    unique_channels = {
+        (channel["channel_id"], channel["channel_number"]): channel
+        for channel in channels_data
+    }
 
-    # Process programs for each channel
-    nownext_data = []
-    for channel_slug, channel_info in channels_dict.items():
-        channel_programs = [p for p in programs_data if p["channel"] == channel_slug]
-        channel_programs.sort(key=lambda x: datetime.fromisoformat(x["start_time"]))
-
-        current_program = None
-        next_program = None
-
-        for idx, program in enumerate(channel_programs):
-            program_start = datetime.fromisoformat(program["start_time"]).astimezone(
+    # Helper to find current and next programs
+    def find_now_next(programs):
+        current, next_program = None, None
+        for idx, program in enumerate(programs):
+            start = datetime.fromisoformat(program["start_time"]).astimezone(
                 target_timezone
             )
-            program_end = datetime.fromisoformat(program["end_time"]).astimezone(
+            end = datetime.fromisoformat(program["end_time"]).astimezone(
                 target_timezone
             )
 
-            if program_start <= now < program_end:
-                current_program = program
-                if idx + 1 < len(channel_programs):
-                    next_program = channel_programs[idx + 1]
+            if start <= now < end:
+                current = program
+                next_program = next(
+                    (
+                        p
+                        for p in programs[idx + 1 :]
+                        if datetime.fromisoformat(p["start_time"]).astimezone(
+                            target_timezone
+                        )
+                        >= end
+                    ),
+                    None,
+                )
                 break
-            elif program_start > now:
+            elif start > now and not current:
                 next_program = program
                 break
+        return current, next_program
 
-        channel_data = ChannelPrograms(
-            channel=ChannelInfo(
-                id=channel_info["channel_id"],
-                name=channel_info["channel_names"],
-                icon=channel_info["channel_logo"],
-                slug=channel_info["channel_slug"],
-                lcn=channel_info["channel_number"],
-                group=channel_info["channel_group"],
-            ),
-            currentProgram=format_program(current_program, target_timezone)
-            if current_program
-            else None,
-            nextProgram=format_program(next_program, target_timezone)
-            if next_program
-            else None,
+    # Process each channel and attach now/next programs
+    nownext_data = []
+    for channel in unique_channels.values():
+        channel_slug = channel["channel_slug"]
+        channel_programs = sorted(
+            (p for p in programs_data if p["channel"] == channel_slug),
+            key=lambda x: datetime.fromisoformat(x["start_time"]),
         )
-        nownext_data.append(channel_data)
+        current_program, next_program = find_now_next(channel_programs)
+
+        nownext_data.append(
+            ChannelPrograms(
+                channel=ChannelInfo(
+                    id=channel["channel_id"],
+                    name=channel["channel_names"],
+                    icon=channel["channel_logo"],
+                    slug=channel["channel_slug"],
+                    lcn=channel["channel_number"],
+                    group=channel["channel_group"],
+                ),
+                currentProgram=format_program(current_program, target_timezone)
+                if current_program
+                else None,
+                nextProgram=format_program(next_program, target_timezone)
+                if next_program
+                else None,
+            )
+        )
 
     return NowNextResponse(
         date=now.isoformat(), query="nownext", source=source, data=nownext_data
     )
+
 
 
 def format_program(
@@ -126,17 +144,27 @@ def format_program(
     start_time = datetime.fromisoformat(program["start_time"]).astimezone(timezone)
     end_time = datetime.fromisoformat(program["end_time"]).astimezone(timezone)
     duration = end_time - start_time
-    hours, remainder = divmod(duration.seconds, 3600)
-    minutes, _ = divmod(remainder, 60)
 
-    lengthstring = f"{hours} Hr {minutes} Min" if hours > 0 else f"{minutes} Min"
+    # Total duration in hours and minutes
+    total_minutes = duration.total_seconds() // 60
+    hours, minutes = divmod(total_minutes, 60)
+
+    if hours >= 24:
+        days, hours = divmod(hours, 24)
+        lengthstring = f"{int(days)} Day(s) {int(hours)} Hr {int(minutes)} Min"
+    elif hours > 0:
+        lengthstring = f"{int(hours)} Hr {int(minutes)} Min"
+    else:
+        lengthstring = f"{int(minutes)} Min"
 
     return ProgramInfo(
         title=program["title"],
+        subtitle=program["subtitle"],
+        episode=program.get("episode"),
         start=start_time.isoformat(),
         stop=end_time.isoformat(),
-        desc=program.get("desc"),
-        category=program.get("category", []),
+        desc=program.get("description"),
+        category=program.get("categories", []),
         rating=program.get("rating"),
         lengthstring=lengthstring,
     )

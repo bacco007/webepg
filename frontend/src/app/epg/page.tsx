@@ -5,14 +5,14 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
-import { AlertCircle, Calendar, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { AlertCircle, Calendar, RefreshCw } from 'lucide-react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { getCookie, setCookie } from '@/lib/cookies';
+import { getCookie } from '@/lib/cookies';
 
 dayjs.extend(advancedFormat);
 
@@ -27,7 +27,8 @@ function EPGDayListContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dates, setDates] = useState<string[]>([]);
-  const [xmltvDataSource, setXmltvDataSource] = useState<string>('xmlepg_FTASYD');
+  const [xmltvDataSource, setXmltvDataSource] =
+    useState<string>('xmlepg_FTASYD');
   const [currentPage, setCurrentPage] = useState(0);
   const router = useRouter();
 
@@ -37,7 +38,8 @@ function EPGDayListContent() {
     setLoading(true);
     setError(null);
     try {
-      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      const storedDataSource =
+        (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
       setXmltvDataSource(storedDataSource);
 
       const response = await fetch(`/api/py/dates/${storedDataSource}`);
@@ -70,7 +72,10 @@ function EPGDayListContent() {
 
   const totalPages = Math.ceil(dates.length / itemsPerPage);
 
-  const paginatedDates = dates.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+  const paginatedDates = dates.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage,
+  );
 
   const isToday = (dateString: string): boolean => {
     return dateString === dayjs().format('YYYYMMDD');
@@ -110,8 +115,12 @@ function EPGDayListContent() {
           ) : (
             <>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {paginatedDates.map((date) => (
-                  <Link key={date} href={`/epg/${date}?source=${xmltvDataSource}`} passHref>
+                {paginatedDates.map(date => (
+                  <Link
+                    key={date}
+                    href={`/epg/${date}?source=${xmltvDataSource}`}
+                    passHref
+                  >
                     <Card
                       className={`group transition-all duration-300 hover:scale-105 hover:shadow-lg ${
                         isToday(date) ? 'border-primary bg-primary/5' : ''
@@ -119,8 +128,10 @@ function EPGDayListContent() {
                     >
                       <CardContent className="flex h-full flex-col items-center justify-center p-6">
                         <Calendar
-                          className={`group-hover:text-secondary mb-2 size-8 transition-colors ${
-                            isToday(date) ? 'text-primary' : 'text-muted-foreground'
+                          className={`mb-2 size-8 transition-colors group-hover:text-secondary ${
+                            isToday(date)
+                              ? 'text-primary'
+                              : 'text-muted-foreground'
                           }`}
                         />
                         <p

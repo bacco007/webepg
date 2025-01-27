@@ -1,14 +1,14 @@
 import './globals.css';
 
 import localFont from 'next/font/local';
+import { cookies } from 'next/headers';
 import Script from 'next/script';
 import type { Metadata, Viewport } from 'next';
 
-import { FontSizeControl } from '@/components/FontSizeControl';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import TopLoader from '@/components/TopLoader';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { getCookie } from '@/lib/cookies';
 
@@ -67,16 +67,23 @@ export const viewport: Viewport = {
   ],
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const defaultOpen = (await getCookie('sidebar:state')) === 'true';
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get('sidebar:state')?.value === 'true';
+  //const defaultOpen = (await getCookie('sidebar:state')) === 'true';
   const fontSize = (await getCookie('fontSize')) || '100';
 
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ fontSize: `${fontSize}%` }}
       >
+        <TopLoader />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -95,13 +102,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             >
               <Sidebar />
               <SidebarInset className="flex size-full flex-col overflow-hidden">
-                <Header>
-                  <div className="flex items-center space-x-4">
-                    <FontSizeControl />
-                    <ThemeSwitcher />
-                  </div>
-                </Header>
-                <main className="flex size-full flex-col overflow-auto">{children}</main>
+                <Header />
+                <main className="flex size-full flex-col overflow-auto">
+                  {children}
+                </main>
               </SidebarInset>
             </div>
           </SidebarProvider>

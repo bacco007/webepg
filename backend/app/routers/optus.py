@@ -153,7 +153,7 @@ async def process_programs(
                     )
 
                     program = {
-                        "guideid": f"{channel_id}auepg{start_time.strftime('%Y%m%d%H%M%S')}",
+                        "guideid": f"{channel_id}_{start_time.strftime('%Y%m%d%H%M%S')}",
                         "start_time": start_time.isoformat(),
                         "start": start_time.strftime("%H:%M:%S"),
                         "end_time": end_time.isoformat(),

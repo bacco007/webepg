@@ -22,17 +22,31 @@ type TimeOption = {
 
 const timeOptions: TimeOption[] = [
   { label: 'Now', value: 'now', minutesFromMidnight: -1 },
-  { label: 'Early Morning (00:00)', value: 'earlyMorning', minutesFromMidnight: -50 },
+  {
+    label: 'Early Morning (00:00)',
+    value: 'earlyMorning',
+    minutesFromMidnight: -50,
+  },
   { label: 'Morning (06:00)', value: 'morning', minutesFromMidnight: 310 },
   { label: 'Lunch (12:00)', value: 'lunch', minutesFromMidnight: 670 },
-  { label: 'Early Afternoon (15:00)', value: 'earlyAfternoon', minutesFromMidnight: 850 },
+  {
+    label: 'Early Afternoon (15:00)',
+    value: 'earlyAfternoon',
+    minutesFromMidnight: 850,
+  },
   { label: 'Evening (18:00)', value: 'evening', minutesFromMidnight: 1030 },
-  { label: 'Late Evening (21:00)', value: 'lateEvening', minutesFromMidnight: 1210 },
+  {
+    label: 'Late Evening (21:00)',
+    value: 'lateEvening',
+    minutesFromMidnight: 1210,
+  },
 ];
 
 const TimeJumpDropdown: React.FC<TimeJumpDropdownProps> = ({ onTimeJump }) => {
   const handleValueChange = (selectedValue: string) => {
-    const selectedOption = timeOptions.find((option) => option.value === selectedValue);
+    const selectedOption = timeOptions.find(
+      option => option.value === selectedValue,
+    );
     if (selectedOption) {
       let minutesFromMidnight = selectedOption.minutesFromMidnight;
       if (selectedOption.value === 'now') {
@@ -50,7 +64,7 @@ const TimeJumpDropdown: React.FC<TimeJumpDropdownProps> = ({ onTimeJump }) => {
         <SelectValue placeholder="Jump to Time" />
       </SelectTrigger>
       <SelectContent>
-        {timeOptions.map((option) => (
+        {timeOptions.map(option => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
           </SelectItem>

@@ -4,8 +4,20 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { useParams, useSearchParams } from 'next/navigation';
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
+} from 'lucide-react';
 
 import ChannelDropdown from '@/components/ChannelDropdown';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -121,6 +133,7 @@ function WeeklyEPGContent() {
   const [storedDataSource, setStoredDataSource] = useState<string>('');
   const [useCategories, setUseCategories] = useState(false);
   const [now, setNow] = useState(() => dayjs());
+  const [totalDays, setTotalDays] = useState<number>(0);
 
   const containerReference = useRef<HTMLDivElement>(null);
 
@@ -144,9 +157,10 @@ function WeeklyEPGContent() {
     if (!storedDataSource) return;
 
     const checkDataSource = async () => {
-      const currentDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      const currentDataSource =
+        (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
       if (currentDataSource !== storedDataSource) {
-        window.location.href = `/channel?source=${currentDataSource}`;
+        globalThis.location.href = `/channel?source=${currentDataSource}`;
       }
     };
 
@@ -167,6 +181,7 @@ function WeeklyEPGContent() {
 
       setStartDate(startDay);
       setDaysLength(dates.length);
+      setTotalDays(dates.length);
       setChannelName(data.channel.channel_names.real);
       setChannelNumber(data.channel.channel_number);
       setChannelLogoLight(data.channel.channel_logo.light);
@@ -208,7 +223,7 @@ function WeeklyEPGContent() {
       setAllEvents(events);
       setError(null);
     },
-    [clientTimezone]
+    [clientTimezone],
   );
 
   const fetchData = useCallback(async () => {
@@ -220,7 +235,7 @@ function WeeklyEPGContent() {
 
     try {
       const url = `/api/py/epg/channels/${storedDataSource}/${channelslug}?timezone=${encodeURIComponent(
-        clientTimezone
+        clientTimezone,
       )}`;
       const response = await fetch(url);
       if (!response.ok) {
@@ -233,7 +248,9 @@ function WeeklyEPGContent() {
       processApiData(data);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+      setError(
+        error instanceof Error ? error.message : 'An unknown error occurred',
+      );
     } finally {
       setIsLoading(false);
     }
@@ -258,7 +275,10 @@ function WeeklyEPGContent() {
       const eventStartDate = dayjs.tz(event.start, clientTimezone);
       const eventEndDate = dayjs.tz(event.end, clientTimezone);
 
-      const dayIndex = dayjs(eventStartDate).diff(dayjs(startDate).startOf('day'), 'day');
+      const dayIndex = dayjs(eventStartDate).diff(
+        dayjs(startDate).startOf('day'),
+        'day',
+      );
 
       if (dayIndex < startDayIndex || dayIndex >= startDayIndex + visibleDays) {
         return { display: 'none' };
@@ -283,24 +303,29 @@ function WeeklyEPGContent() {
         width: '100%',
       };
     },
-    [startDate, timeSlotHeight, gridGap, clientTimezone, startDayIndex, visibleDays]
+    [startDate, clientTimezone, startDayIndex, visibleDays],
   );
 
   const days = useMemo(() => {
     if (!startDate) return [];
     return Array.from({ length: daysLength }, (_, index) =>
-      dayjs(startDate).add(index, 'day').toDate()
+      dayjs(startDate).add(index, 'day').toDate(),
     );
   }, [startDate, daysLength]);
 
-  const timeSlots = useMemo(() => Array.from({ length: 48 }, (_, index) => index * 30), []);
+  const timeSlots = useMemo(
+    () => Array.from({ length: 48 }, (_, index) => index * 30),
+    [],
+  );
 
   const handlePreviousDay = useCallback(() => {
-    setStartDayIndex((previous) => Math.max(0, previous - 1));
+    setStartDayIndex(previous => Math.max(0, previous - 1));
   }, []);
 
   const handleNextDay = useCallback(() => {
-    setStartDayIndex((previous) => Math.min(daysLength - visibleDays, previous + 1));
+    setStartDayIndex(previous =>
+      Math.min(daysLength - visibleDays, previous + 1),
+    );
   }, [daysLength, visibleDays]);
 
   useEffect(() => {
@@ -351,18 +376,20 @@ function WeeklyEPGContent() {
             <div>
               <img
                 className="block size-auto h-10 object-contain dark:hidden"
-                src={channelLogoLight}
+                src={channelLogoLight || '/placeholder.svg'}
                 alt={decodeHtml(channelName)}
               />
               <img
                 className="hidden size-auto h-10 object-contain dark:block"
-                src={channelLogoDark}
+                src={channelLogoDark || '/placeholder.svg'}
                 alt={decodeHtml(channelName)}
               />
             </div>
           )}
           <div className="flex items-center">
-            <h1 className="text-lg font-bold sm:text-2xl">Weekly EPG - {channelName}</h1>
+            <h1 className="text-lg font-bold sm:text-2xl">
+              Weekly EPG - {channelName}
+            </h1>
             <Badge variant="secondary" className="ml-2 self-center">
               LCN {channelNumber}
             </Badge>
@@ -395,9 +422,14 @@ function WeeklyEPGContent() {
                   <ChevronLeft className="size-4" aria-hidden="true" />
                 </Button>
                 <div className="font-semibold" aria-live="polite">
-                  {days[startDayIndex] && dayjs(days[startDayIndex]).format('MMM D')} -{' '}
+                  {days[startDayIndex] &&
+                    dayjs(days[startDayIndex]).format('MMM D')}{' '}
+                  -{' '}
                   {days[startDayIndex + visibleDays - 1] &&
-                    dayjs(days[startDayIndex + visibleDays - 1]).format('MMM D')}
+                    dayjs(days[startDayIndex + visibleDays - 1]).format(
+                      'MMM D',
+                    )}{' '}
+                  ({visibleDays} of {daysLength} days)
                 </div>
                 <Button
                   onClick={handleNextDay}
@@ -417,25 +449,32 @@ function WeeklyEPGContent() {
               aria-label="Weekly EPG Grid"
             >
               <div
-                className="bg-background sticky top-0 z-20 col-span-1"
+                className="sticky top-0 z-20 col-span-1 bg-background"
                 style={{ height: `${stickyHeaderHeight}px` }}
                 role="columnheader"
               ></div>
-              {days.slice(startDayIndex, startDayIndex + visibleDays).map((day) => (
-                <div
-                  key={day ? day.toISOString() : ''}
-                  className="bg-background sticky top-0 z-20 py-2 text-center font-semibold"
-                  style={{ height: `${stickyHeaderHeight}px` }}
-                  role="columnheader"
-                >
-                  {day ? dayjs(day).format('ddd, MMM D') : ''}
-                </div>
-              ))}
+              {days
+                .slice(startDayIndex, startDayIndex + visibleDays)
+                .map((day, index) => {
+                  if (!day) {
+                    return null; // Skip rendering if day is undefined
+                  }
+                  return (
+                    <div
+                      key={`day-${index}-${day.toISOString()}`}
+                      className="sticky top-0 z-20 bg-background py-2 text-center font-semibold"
+                      style={{ height: `${stickyHeaderHeight}px` }}
+                      role="columnheader"
+                    >
+                      {dayjs(day).format('ddd, MMM D')}
+                    </div>
+                  );
+                })}
 
-              {timeSlots.map((minutes) => (
+              {timeSlots.map(minutes => (
                 <React.Fragment key={minutes}>
                   <div
-                    className="text-muted-foreground py-1 pr-2 text-right text-xs font-semibold sm:text-sm"
+                    className="py-1 pr-2 text-right text-xs font-semibold text-muted-foreground sm:text-sm"
                     style={{
                       height: `${timeSlotHeight}px`,
                     }}
@@ -449,7 +488,7 @@ function WeeklyEPGContent() {
                   </div>
                   {Array.from({ length: visibleDays }).map((_, index) => (
                     <div
-                      key={`${days[startDayIndex + index] ? days[startDayIndex + index].toISOString() : ''}-${minutes}`}
+                      key={`timeslot-${index}-${minutes}`}
                       className="py-4"
                       style={{
                         height: `${timeSlotHeight}px`,
@@ -460,42 +499,60 @@ function WeeklyEPGContent() {
                 </React.Fragment>
               ))}
 
-              {allEvents.map((event) => (
-                <ProgramDialog
-                  key={event.id}
-                  event={event}
-                  onOpenChange={() => {}}
-                  trigger={
-                    <div
-                      style={getEventStyle(event)}
-                      className={cn(
-                        'absolute overflow-hidden rounded-md p-1 text-xs text-white',
-                        useCategories ? event.color : defaultColorClasses[0],
-                        now.isAfter(dayjs(event.start)) &&
-                          now.isBefore(dayjs(event.end)) &&
-                          defaultLiveColor,
-                        event.title === 'No Data Available' &&
-                          'bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')] bg-gray-500 bg-gradient-to-br from-gray-500 to-gray-700 bg-[length:4px_4px] bg-[position:1px_1px]',
-                        'cursor-pointer transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2'
-                      )}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`${event.title} from ${dayjs.tz(event.start, clientTimezone).format('HH:mm')} to ${dayjs.tz(event.end, clientTimezone).format('HH:mm')}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="truncate font-semibold">{decodeHtml(event.title)}</div>
-                        <div className="text-[10px] opacity-90">
-                          {dayjs.tz(event.start, clientTimezone).format('HH:mm')} -{' '}
-                          {dayjs.tz(event.end, clientTimezone).format('HH:mm')}
+              {allEvents.map(event => {
+                const hasEnded = dayjs().isAfter(dayjs(event.end));
+                return (
+                  <ProgramDialog
+                    key={event.id}
+                    event={event}
+                    onOpenChange={() => {}}
+                    trigger={
+                      <div
+                        style={{
+                          ...getEventStyle(event),
+                          opacity: hasEnded ? 0.7 : 1,
+                          transition: 'opacity 0.3s ease-in-out',
+                        }}
+                        className={cn(
+                          'absolute overflow-hidden rounded-md p-1 text-xs text-white',
+                          useCategories ? event.color : defaultColorClasses[0],
+                          now.isAfter(dayjs(event.start)) &&
+                            now.isBefore(dayjs(event.end)) &&
+                            defaultLiveColor,
+                          // eslint-disable-next-line
+                          // prettier-ignore
+                          event.title === 'No Data Available' &&
+                            "bg-[url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"4\" height=\"4\" viewBox=\"0 0 4 4\"><path fill=\"none\" stroke=\"%23ffffff\" stroke-width=\"1\" d=\"M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3\"/></svg>')] bg-gray-300 bg-gradient-to-br from-gray-300 to-gray-400 bg-[length:4px_4px] bg-[position:1px_1px]",
+                          'cursor-pointer hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2',
+                        )}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${event.title} from ${dayjs.tz(event.start, clientTimezone).format('HH:mm')} to ${dayjs.tz(event.end, clientTimezone).format('HH:mm')}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="truncate font-semibold">
+                            {decodeHtml(event.title)}
+                          </div>
+                          <div className="text-[10px] opacity-90">
+                            {dayjs
+                              .tz(event.start, clientTimezone)
+                              .format('HH:mm')}{' '}
+                            -{' '}
+                            {dayjs
+                              .tz(event.end, clientTimezone)
+                              .format('HH:mm')}
+                          </div>
                         </div>
+                        {event.subtitle !== 'N/A' && (
+                          <div className="truncate italic">
+                            {decodeHtml(event.subtitle)}
+                          </div>
+                        )}
                       </div>
-                      {event.subtitle !== 'N/A' && (
-                        <div className="truncate italic">{decodeHtml(event.subtitle)}</div>
-                      )}
-                    </div>
-                  }
-                />
-              ))}
+                    }
+                  />
+                );
+              })}
             </div>
           </div>
         </div>

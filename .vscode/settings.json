@@ -69,15 +69,15 @@
       // "source.organizeImports": "explicit"
     }
   },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   // ESLint settings
   "eslint.validate": [
     "javascript",
     "javascriptreact",
     "typescript",
-    {
-      "language": "typescript",
-      "autoFix": true
-    },
+    "typescript",
     "vue",
     "html",
     "markdown",
@@ -199,5 +199,11 @@
   "cSpell.words": [
     "xmltvdatasource",
     "xmltvnet"
-  ]
+  ],
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    "classNames",
+    "containerClassName"
+  ],
 }

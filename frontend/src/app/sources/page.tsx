@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, ExternalLink, FilterIcon, RefreshCw, X } from 'lucide-react';
+import { AlertCircle, FilterIcon, RefreshCw, X } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -19,8 +19,12 @@ import {
 } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getCookie, setCookie } from '@/lib/cookies';
 
@@ -58,14 +62,17 @@ export default function XmltvSourcesPage() {
         const data: Source[] = await response.json();
         const sortedSources = data.sort((a, b) => {
           if (a.group !== b.group) return a.group.localeCompare(b.group);
-          if (a.subgroup !== b.subgroup) return a.subgroup.localeCompare(b.subgroup);
+          if (a.subgroup !== b.subgroup)
+            return a.subgroup.localeCompare(b.subgroup);
           return a.location.localeCompare(b.location);
         });
         setSources(sortedSources);
         const currentSourceId = await getCookie('xmltvdatasource');
         setSelectedSourceId(currentSourceId || null);
-      } catch (err) {
-        setError('An error occurred while fetching the sources. Please try again later.');
+      } catch {
+        setError(
+          'An error occurred while fetching the sources. Please try again later.',
+        );
       } finally {
         setIsLoading(false);
       }
@@ -81,46 +88,55 @@ export default function XmltvSourcesPage() {
 
   const groupedSources = useMemo(() => {
     return sources.reduce(
-      (acc, source) => {
-        if (!acc[source.group]) {
-          acc[source.group] = {};
+      (accumulator, source) => {
+        if (!accumulator[source.group]) {
+          accumulator[source.group] = {};
         }
-        if (!acc[source.group][source.subgroup]) {
-          acc[source.group][source.subgroup] = [];
+        if (!accumulator[source.group][source.subgroup]) {
+          accumulator[source.group][source.subgroup] = [];
         }
-        acc[source.group][source.subgroup].push(source);
-        return acc;
+        accumulator[source.group][source.subgroup].push(source);
+        return accumulator;
       },
-      {} as Record<string, Record<string, Source[]>>
+      {} as Record<string, Record<string, Source[]>>,
     );
   }, [sources]);
 
   const filteredSources = useMemo(() => {
     return sources.filter(
-      (source) =>
+      source =>
         source.location.toLowerCase().includes(filterText.toLowerCase()) &&
-        (selectedGroups.length === 0 || selectedGroups.includes(source.group)) &&
-        (selectedSubgroups.length === 0 || selectedSubgroups.includes(source.subgroup))
+        (selectedGroups.length === 0 ||
+          selectedGroups.includes(source.group)) &&
+        (selectedSubgroups.length === 0 ||
+          selectedSubgroups.includes(source.subgroup)),
     );
   }, [sources, filterText, selectedGroups, selectedSubgroups]);
 
-  const groups = useMemo(() => Object.keys(groupedSources).sort(), [groupedSources]);
+  const groups = useMemo(
+    () => Object.keys(groupedSources).sort(),
+    [groupedSources],
+  );
 
   const uniqueSubgroups = useMemo(() => {
     const subgroups = new Set<string>();
-    sources.forEach((source) => subgroups.add(source.subgroup));
-    return Array.from(subgroups).sort();
+    sources.forEach(source => subgroups.add(source.subgroup));
+    return [...subgroups].sort();
   }, [sources]);
 
   const handleGroupFilter = (group: string) => {
-    setSelectedGroups((prev) =>
-      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
+    setSelectedGroups(previous =>
+      previous.includes(group)
+        ? previous.filter(g => g !== group)
+        : [...previous, group],
     );
   };
 
   const handleSubgroupFilter = (subgroup: string) => {
-    setSelectedSubgroups((prev) =>
-      prev.includes(subgroup) ? prev.filter((s) => s !== subgroup) : [...prev, subgroup]
+    setSelectedSubgroups(previous =>
+      previous.includes(subgroup)
+        ? previous.filter(s => s !== subgroup)
+        : [...previous, subgroup],
     );
   };
 
@@ -150,8 +166,11 @@ export default function XmltvSourcesPage() {
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Groups">
               <ScrollArea className="h-[200px]">
-                {groups.map((group) => (
-                  <CommandItem key={group} onSelect={() => handleGroupFilter(group)}>
+                {groups.map(group => (
+                  <CommandItem
+                    key={group}
+                    onSelect={() => handleGroupFilter(group)}
+                  >
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`group-${group}`}
@@ -167,8 +186,11 @@ export default function XmltvSourcesPage() {
             <CommandSeparator />
             <CommandGroup heading="Subgroups">
               <ScrollArea className="h-[200px]">
-                {uniqueSubgroups.map((subgroup) => (
-                  <CommandItem key={subgroup} onSelect={() => handleSubgroupFilter(subgroup)}>
+                {uniqueSubgroups.map(subgroup => (
+                  <CommandItem
+                    key={subgroup}
+                    onSelect={() => handleSubgroupFilter(subgroup)}
+                  >
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`subgroup-${subgroup}`}
@@ -209,7 +231,7 @@ export default function XmltvSourcesPage() {
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-        <Button onClick={() => window.location.reload()}>
+        <Button onClick={() => globalThis.location.reload()}>
           <RefreshCw className="mr-2 size-4" />
           Retry
         </Button>
@@ -226,7 +248,7 @@ export default function XmltvSourcesPage() {
             type="text"
             placeholder="Search sources..."
             value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
+            onChange={e => setFilterText(e.target.value)}
             className="w-[200px]"
           />
           <FilterMenu />
@@ -236,28 +258,30 @@ export default function XmltvSourcesPage() {
         <div className="p-4">
           <Tabs defaultValue={groups[0]} className="w-full space-y-6">
             <div className="border-b">
-              <TabsList className="h-12 w-full justify-start rounded-none bg-transparent p-0">
-                {groups.map((group) => (
+              <TabsList className="relative mb-3 h-auto gap-0.5 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-border">
+                {groups.map(group => (
                   <TabsTrigger
                     key={group}
                     value={group}
-                    className="text-muted-foreground hover:text-foreground data-[state=active]:border-b-primary data-[state=active]:text-foreground relative h-12 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:shadow-none"
+                    className="overflow-hidden rounded-b-none border-x border-t border-border bg-muted py-2 data-[state=active]:z-10 data-[state=active]:shadow-none"
                   >
                     {group}
                   </TabsTrigger>
                 ))}
               </TabsList>
             </div>
-            {groups.map((group) => (
+            {groups.map(group => (
               <TabsContent key={group} value={group} className="space-y-6">
                 <div className="xs:grid-cols-2 xs:gap-3 xs:p-3 grid grid-cols-1 gap-2 p-2 sm:grid-cols-3 sm:gap-4 sm:p-4 md:grid-cols-4 lg:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
                   {filteredSources
-                    .filter((source) => source.group === group)
-                    .map((source) => (
+                    .filter(source => source.group === group)
+                    .map(source => (
                       <Card
                         key={source.id}
                         className={`h-full overflow-hidden transition-shadow duration-300 hover:shadow-lg ${
-                          selectedSourceId === source.id ? 'bg-muted' : 'bg-card'
+                          selectedSourceId === source.id
+                            ? 'bg-muted'
+                            : 'bg-card'
                         }`}
                       >
                         <CardContent className="flex h-full flex-col items-center justify-center p-2">
@@ -275,7 +299,9 @@ export default function XmltvSourcesPage() {
                               />
                             </div>
                           )}
-                          <h3 className="text-center text-lg font-bold">{source.location}</h3>
+                          <h3 className="text-center text-lg font-bold">
+                            {source.location}
+                          </h3>
                           <div className="flex items-center">
                             <Badge variant="secondary" className="mr-2">
                               {source.group}
@@ -291,11 +317,17 @@ export default function XmltvSourcesPage() {
                           </div> */}
                           <div className="mt-2">
                             <Button
-                              variant={selectedSourceId === source.id ? 'default' : 'outline'}
+                              variant={
+                                selectedSourceId === source.id
+                                  ? 'default'
+                                  : 'outline'
+                              }
                               className="w-full"
                               onClick={() => handleSourceSelect(source.id)}
                             >
-                              {selectedSourceId === source.id ? 'Current Source' : 'Select Source'}
+                              {selectedSourceId === source.id
+                                ? 'Current Source'
+                                : 'Select Source'}
                             </Button>
                           </div>
                         </CardContent>

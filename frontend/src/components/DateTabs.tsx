@@ -24,11 +24,12 @@ export default function DateTabs() {
 
   const fetchDates = useCallback(async () => {
     try {
-      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      const storedDataSource =
+        (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
       const userTimezone = dayjs.tz.guess();
       await setCookie('userTimezone', userTimezone);
       const response = await fetch(
-        `/api/py/dates/${storedDataSource}?timezone=${encodeURIComponent(userTimezone)}`
+        `/api/py/dates/${storedDataSource}?timezone=${encodeURIComponent(userTimezone)}`,
       );
       if (!response.ok) {
         throw new Error('Failed to fetch dates');
@@ -59,8 +60,12 @@ export default function DateTabs() {
   const handleDateChange = async (value: string) => {
     setSelectedDate(value);
     const currentTimezone =
-      searchParameters.get('timezone') || (await getCookie('userTimezone')) || dayjs.tz.guess();
-    router.push(`/epg/${value}?timezone=${encodeURIComponent(currentTimezone)}`);
+      searchParameters.get('timezone') ||
+      (await getCookie('userTimezone')) ||
+      dayjs.tz.guess();
+    router.push(
+      `/epg/${value}?timezone=${encodeURIComponent(currentTimezone)}`,
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -85,31 +90,41 @@ export default function DateTabs() {
   const scrollTabs = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
       const scrollAmount = direction === 'left' ? -160 : 160;
-      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      scrollContainerRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth',
+      });
     }
   };
 
   return (
     <div
-      className="bg-background sticky left-0 top-0 z-0 mx-auto w-full px-4 sm:px-6 lg:px-8"
+      className="sticky left-0 top-0 z-0 mx-auto w-full bg-background px-4 sm:px-6 lg:px-8"
       ref={tabsRef}
     >
-      <Tabs value={selectedDate} onValueChange={handleDateChange} className="w-full">
+      <Tabs
+        value={selectedDate}
+        onValueChange={handleDateChange}
+        className="w-full"
+      >
         <div className="flex items-center space-x-2">
           <button
             onClick={() => scrollTabs('left')}
-            className="bg-muted hover:bg-muted-foreground/10 rounded-full p-2 lg:hidden"
+            className="rounded-full bg-muted p-2 hover:bg-muted-foreground/10 lg:hidden"
             aria-label="Scroll left"
           >
             <ChevronLeft className="size-4" />
           </button>
-          <div ref={scrollContainerRef} className="scrollbar-hide flex-1 overflow-x-auto">
-            <TabsList className="bg-muted text-muted-foreground inline-flex h-12 w-full items-center justify-start rounded-md p-1">
-              {dates.map((date) => (
+          <div
+            ref={scrollContainerRef}
+            className="scrollbar-hide flex-1 overflow-x-auto"
+          >
+            <TabsList className="inline-flex h-12 w-full items-center justify-start rounded-md bg-muted p-1 text-muted-foreground">
+              {dates.map(date => (
                 <TabsTrigger
                   key={date}
                   value={date}
-                  className="ring-offset-background focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground inline-flex h-9 min-w-[160px] flex-1 flex-col items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm"
+                  className="inline-flex h-9 min-w-[160px] flex-1 flex-col items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-xs font-medium ring-offset-background transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                 >
                   {formatDate(date)}
                 </TabsTrigger>
@@ -118,7 +133,7 @@ export default function DateTabs() {
           </div>
           <button
             onClick={() => scrollTabs('right')}
-            className="bg-muted hover:bg-muted-foreground/10 rounded-full p-2 lg:hidden"
+            className="rounded-full bg-muted p-2 hover:bg-muted-foreground/10 lg:hidden"
             aria-label="Scroll right"
           >
             <ChevronRight className="size-4" />

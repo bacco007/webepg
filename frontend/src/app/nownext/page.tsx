@@ -9,7 +9,10 @@ import {
   FilterIcon,
   LayoutGrid,
   List,
+  MoreHorizontal,
+  Plus,
   RefreshCw,
+  Smartphone,
   X,
 } from 'lucide-react';
 
@@ -36,6 +39,13 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -43,7 +53,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
@@ -57,6 +71,8 @@ import { getCookie } from '@/lib/cookies';
 
 interface Program {
   title: string;
+  subtitle: string;
+  episode: string | null;
   start: string;
   stop: string;
   desc: string | null;
@@ -66,8 +82,12 @@ interface Program {
 }
 
 interface Channel {
+  nextProgram: any;
+  afterNextProgram: any;
   id: string;
   name: {
+    clean: string;
+    location: string;
     real: string;
   };
   icon: {
@@ -87,7 +107,7 @@ interface ChannelData {
 }
 
 type GroupBy = 'none' | 'channel_group' | 'channel_type';
-type ViewMode = 'card' | 'table';
+type ViewMode = 'card' | 'table' | 'mobile';
 
 const decodeHtml = (html: string): string => {
   const txt = document.createElement('textarea');
@@ -100,7 +120,8 @@ function ChannelGrid() {
   const [filteredChannels, setFilteredChannels] = useState<ChannelData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [xmltvDataSource, setXmltvDataSource] = useState<string>('xmlepg_FTASYD');
+  const [xmltvDataSource, setXmltvDataSource] =
+    useState<string>('xmlepg_FTASYD');
   const [searchTerm, setSearchTerm] = useState('');
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
@@ -114,7 +135,8 @@ function ChannelGrid() {
     setIsLoading(true);
     setError(null);
     try {
-      const storedDataSource = (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      const storedDataSource =
+        (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
       setXmltvDataSource(storedDataSource);
 
       const response = await fetch(`/api/py/epg/nownext/${storedDataSource}`);
@@ -122,14 +144,16 @@ function ChannelGrid() {
         throw new Error('Failed to fetch channel data');
       }
       const data = await response.json();
-      const sortedChannels = data.data.sort((a: ChannelData, b: ChannelData) => {
-        const aLcn = Number.parseInt(a.channel.lcn) || Infinity;
-        const bLcn = Number.parseInt(b.channel.lcn) || Infinity;
-        if (aLcn === bLcn) {
-          return a.channel.name.real.localeCompare(b.channel.name.real);
-        }
-        return aLcn - bLcn;
-      });
+      const sortedChannels = data.data.sort(
+        (a: ChannelData, b: ChannelData) => {
+          const aLcn = Number.parseInt(a.channel.lcn) || Infinity;
+          const bLcn = Number.parseInt(b.channel.lcn) || Infinity;
+          if (aLcn === bLcn) {
+            return a.channel.name.real.localeCompare(b.channel.name.real);
+          }
+          return aLcn - bLcn;
+        },
+      );
       setChannels(sortedChannels);
       setFilteredChannels(sortedChannels);
       setIsLoading(false);
@@ -145,9 +169,13 @@ function ChannelGrid() {
   }, [fetchChannels]);
 
   useEffect(() => {
-    const viewModeParam = searchParams.get('view');
-    if (viewModeParam === 'card' || viewModeParam === 'table') {
-      setViewMode(viewModeParam);
+    const viewModeParameter = searchParams.get('view');
+    if (
+      viewModeParameter === 'card' ||
+      viewModeParameter === 'table' ||
+      viewModeParameter === 'mobile'
+    ) {
+      setViewMode(viewModeParameter as ViewMode);
     } else {
       setViewMode('card'); // Default to card view
     }
@@ -155,11 +183,14 @@ function ChannelGrid() {
 
   useEffect(() => {
     const filtered = channels.filter(
-      (channelData) =>
-        (channelData.channel.name.real.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      channelData =>
+        (channelData.channel.name.real
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
           channelData.channel.lcn.includes(searchTerm)) &&
-        (selectedGroups.length === 0 || selectedGroups.includes(channelData.channel.group)) &&
-        (!hideNoProgramData || !isChannelGreyedOut(channelData))
+        (selectedGroups.length === 0 ||
+          selectedGroups.includes(channelData.channel.group)) &&
+        (!hideNoProgramData || !isChannelGreyedOut(channelData)),
     );
     setFilteredChannels(filtered);
   }, [searchTerm, channels, selectedGroups, hideNoProgramData]);
@@ -191,13 +222,24 @@ function ChannelGrid() {
     });
   };
 
-  const uniqueGroups = Array.from(
-    new Set(channels.map((channelData) => channelData.channel.group))
-  ).sort();
+  function calculateProgress(start: string, end: string) {
+    const now = new Date();
+    const startTime = new Date(start);
+    const endTime = new Date(end);
+    const totalDuration = endTime.getTime() - startTime.getTime();
+    const elapsed = now.getTime() - startTime.getTime();
+    return Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+  }
+
+  const uniqueGroups = [
+    ...new Set(channels.map(channelData => channelData.channel.group)),
+  ].sort();
 
   const handleGroupFilter = (group: string) => {
-    setSelectedGroups((prev) =>
-      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
+    setSelectedGroups(previous =>
+      previous.includes(group)
+        ? previous.filter(g => g !== group)
+        : [...previous, group],
     );
   };
 
@@ -212,7 +254,8 @@ function ChannelGrid() {
     };
 
     return (
-      isProgramInvalid(channelData.currentProgram) && isProgramInvalid(channelData.nextProgram)
+      isProgramInvalid(channelData.currentProgram) &&
+      isProgramInvalid(channelData.nextProgram)
     );
   };
 
@@ -220,12 +263,6 @@ function ChannelGrid() {
     setSearchTerm('');
     setSelectedGroups([]);
     setHideNoProgramData(false);
-  };
-
-  const toggleViewMode = () => {
-    const newViewMode = viewMode === 'card' ? 'table' : 'card';
-    setViewMode(newViewMode);
-    router.push(`/nownext?view=${newViewMode}`);
   };
 
   const FilterMenu = () => (
@@ -252,17 +289,24 @@ function ChannelGrid() {
                   <Checkbox
                     id="hide-no-program-data"
                     checked={hideNoProgramData}
-                    onCheckedChange={(checked) => setHideNoProgramData(checked as boolean)}
+                    onCheckedChange={checked =>
+                      setHideNoProgramData(checked as boolean)
+                    }
                   />
-                  <Label htmlFor="hide-no-program-data">Hide No Program Data</Label>
+                  <Label htmlFor="hide-no-program-data">
+                    Hide No Program Data
+                  </Label>
                 </div>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Channel Groups">
               <ScrollArea className="h-[200px]">
-                {uniqueGroups.map((group) => (
-                  <CommandItem key={group} onSelect={() => handleGroupFilter(group)}>
+                {uniqueGroups.map(group => (
+                  <CommandItem
+                    key={group}
+                    onSelect={() => handleGroupFilter(group)}
+                  >
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`group-${group}`}
@@ -287,28 +331,160 @@ function ChannelGrid() {
     </Popover>
   );
 
+  function ProgramDetails({
+    program,
+    channel,
+  }: {
+    program: Program | null;
+    channel: Channel;
+  }) {
+    if (!program) return null;
+
+    const now = new Date();
+    const startTime = new Date(program.start);
+    const endTime = new Date(program.stop);
+    let timeDisplay = '';
+
+    if (now < startTime) {
+      const minutesUntilStart = Math.floor(
+        (startTime.getTime() - now.getTime()) / (1000 * 60),
+      );
+      if (minutesUntilStart < 60) {
+        timeDisplay = `Starts in ${minutesUntilStart} minute${minutesUntilStart === 1 ? '' : 's'}`;
+      } else {
+        const hours = Math.floor(minutesUntilStart / 60);
+        const minutes = minutesUntilStart % 60;
+        timeDisplay = `Starts in ${hours} hour${hours === 1 ? '' : 's'} and ${minutes} minute${minutes === 1 ? '' : 's'}`;
+      }
+    } else if (now < endTime) {
+      const remainingMinutes = Math.floor(
+        (endTime.getTime() - now.getTime()) / (1000 * 60),
+      );
+      if (remainingMinutes < 60) {
+        timeDisplay = `${remainingMinutes} minute${remainingMinutes === 1 ? '' : 's'} remaining`;
+      } else {
+        const hours = Math.floor(remainingMinutes / 60);
+        const minutes = remainingMinutes % 60;
+        timeDisplay = `${hours} hour${hours === 1 ? '' : 's'} and ${minutes} minute${minutes === 1 ? '' : 's'} remaining`;
+      }
+    }
+
+    return (
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <h3 className="text-xl font-semibold">{program.title}</h3>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>
+              {formatTime(program.start)} - {formatTime(program.stop)}
+            </span>
+            {timeDisplay && <span>• {timeDisplay}</span>}
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <Button className="flex-1" size="lg">
+            Watch Live
+          </Button>
+          <Button variant="outline" size="icon">
+            <MoreHorizontal className="size-4" />
+          </Button>
+        </div>
+
+        <Button variant="secondary" className="w-full" size="sm">
+          <Plus className="mr-2 size-4" />
+          Add to Up Next
+        </Button>
+
+        {program.desc && (
+          <div className="space-y-2 rounded-lg bg-muted p-4 text-sm">
+            <p>{program.desc}</p>
+            {program.category.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {program.category.map((cat, index) => (
+                  <span
+                    key={index}
+                    className="rounded-full bg-primary/10 px-2 py-0.5 text-xs"
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </div>
+            )}
+            <p className="text-muted-foreground">
+              Rating: <span className="font-medium">{program.rating}</span>
+            </p>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <h4 className="font-medium">Channel Schedule</h4>
+          <div className="space-y-2">
+            {[program, channel.nextProgram, channel.afterNextProgram]
+              .filter(Boolean)
+              .map((p, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between rounded-lg bg-muted p-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{p.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatTime(p.start)} - {formatTime(p.stop)}
+                    </p>
+                  </div>
+                  {index === 0 && <Badge>Now</Badge>}
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function ChannelDetails({ channel }: { channel: Channel }) {
+    return (
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">{channel.name.real}</h3>
+        <p className="text-sm">
+          <span className="font-medium">Clean Name:</span> {channel.name.clean}
+        </p>
+        <p className="text-sm">
+          <span className="font-medium">Location:</span> {channel.name.location}
+        </p>
+        <p className="text-sm">
+          <span className="font-medium">LCN:</span> {channel.lcn}
+        </p>
+        <p className="text-sm">
+          <span className="font-medium">Group:</span> {channel.group}
+        </p>
+      </div>
+    );
+  }
+
   const ChannelCard = ({ channelData }: { channelData: ChannelData }) => (
     <Card
-      key={channelData.channel.id}
-      className={`bg-card flex flex-col ${isChannelGreyedOut(channelData) ? 'bg-muted grayscale' : ''}`}
+      key={`${channelData.channel.id}-${channelData.channel.lcn}`}
+      className={`flex flex-col bg-card ${isChannelGreyedOut(channelData) ? 'bg-muted grayscale' : ''}`}
     >
       <CardHeader className="flex flex-row items-center justify-between px-4 py-2">
         {channelData.channel.icon.light !== 'N/A' && (
           <div>
             <img
               className="block size-auto h-16 object-contain dark:hidden"
-              src={channelData.channel.icon.light}
+              src={channelData.channel.icon.light || '/placeholder.svg'}
               alt={decodeHtml(channelData.channel.name.real)}
             />
             <img
               className="hidden size-auto h-16 object-contain dark:block"
-              src={channelData.channel.icon.dark}
+              src={channelData.channel.icon.dark || '/placeholder.svg'}
               alt={decodeHtml(channelData.channel.name.real)}
             />
           </div>
         )}
         <div className="text-right">
-          <CardTitle className="text-lg">{channelData.channel.name.real}</CardTitle>
+          <CardTitle className="text-lg">
+            {channelData.channel.name.real}
+          </CardTitle>
           {channelData.channel.lcn !== 'N/A' && (
             <CardDescription>Channel {channelData.channel.lcn}</CardDescription>
           )}
@@ -316,33 +492,50 @@ function ChannelGrid() {
       </CardHeader>
       <CardContent className="grow p-4">
         <div className="text-sm">
-          <p className="font-semibold">
+          <div className="font-semibold">
             Current Program: {channelData.currentProgram?.title || 'N/A'}
-          </p>
-          <p className="text-card-foreground/60">
+          </div>
+          <div className="text-card-foreground/60">
             {channelData.currentProgram
               ? `${formatTime(channelData.currentProgram.start)} - ${formatTime(
-                  channelData.currentProgram.stop
+                  channelData.currentProgram.stop,
                 )}`
               : ''}{' '}
-            ({channelData.currentProgram?.lengthstring})
-          </p>
-          <p className="mt-2 font-semibold">
+            ({channelData.currentProgram?.lengthstring || 'N/A'})
+          </div>
+          {channelData.currentProgram && (
+            <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">
+              <div
+                className="h-1 bg-primary"
+                style={{
+                  width: `${calculateProgress(
+                    channelData.currentProgram.start,
+                    channelData.currentProgram.stop,
+                  )}%`,
+                }}
+              ></div>
+            </div>
+          )}
+          <div className="mt-2 font-semibold">
             Next Program: {channelData.nextProgram?.title || 'N/A'}
-          </p>
-          <p className="text-card-foreground/60">
+          </div>
+          <div className="text-card-foreground/60">
             {channelData.nextProgram
               ? `${formatTime(channelData.nextProgram.start)} - ${formatTime(
-                  channelData.nextProgram.stop
+                  channelData.nextProgram.stop,
                 )}`
               : ''}{' '}
-            ({channelData.nextProgram?.lengthstring})
-          </p>
+            ({channelData.nextProgram?.lengthstring || 'N/A'})
+          </div>
         </div>
       </CardContent>
       <CardFooter className="p-4">
         <div className="flex w-full gap-2">
-          <Button variant="secondary" className="flex-1" onClick={navigateToNext24Hours}>
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onClick={navigateToNext24Hours}
+          >
             <Clock className="mr-2 size-4" />
             Next 24hrs
           </Button>
@@ -360,15 +553,26 @@ function ChannelGrid() {
   );
 
   const CardView = () => {
-    if (groupBy !== 'none') {
+    if (groupBy === 'none') {
+      return (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))]">
+          {filteredChannels.map(channelData => (
+            <ChannelCard
+              key={`${channelData.channel.id}-${channelData.channel.lcn}`}
+              channelData={channelData}
+            />
+          ))}
+        </div>
+      );
+    } else {
       const groupedChannels: { [key: string]: ChannelData[] } = {};
-      filteredChannels.forEach((channelData) => {
-        const groupKey = groupBy === 'channel_group' ? channelData.channel.group : 'Unknown';
+      filteredChannels.forEach(channelData => {
+        const groupKey =
+          groupBy === 'channel_group' ? channelData.channel.group : 'Unknown';
         if (groupKey !== 'N/A') {
           if (!groupedChannels[groupKey]) {
             groupedChannels[groupKey] = [];
           }
-
           groupedChannels[groupKey].push(channelData);
         }
       });
@@ -377,28 +581,160 @@ function ChannelGrid() {
 
       return (
         <div className="space-y-8">
-          {sortedGroups.map((group) => (
+          {sortedGroups.map(group => (
             <div key={group}>
               <h2 className="mb-4 text-2xl font-bold">{group}</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))]">
-                {groupedChannels[group].map((channelData) => (
-                  <ChannelCard key={channelData.channel.id} channelData={channelData} />
+                {groupedChannels[group].map(channelData => (
+                  <ChannelCard
+                    key={`${channelData.channel.id}-${channelData.channel.lcn}`}
+                    channelData={channelData}
+                  />
                 ))}
               </div>
             </div>
           ))}
         </div>
       );
-    } else {
-      return (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))]">
-          {filteredChannels.map((channelData) => (
-            <ChannelCard key={channelData.channel.id} channelData={channelData} />
-          ))}
-        </div>
-      );
     }
   };
+
+  const MobileView = () => (
+    <div className="divide-y">
+      {filteredChannels.map(channelData => (
+        <div
+          key={`${channelData.channel.id}-${channelData.channel.lcn}`}
+          className="flex items-center gap-3 p-4"
+        >
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" className="size-12 p-0">
+                {channelData.channel.icon.light !== 'N/A' && (
+                  <img
+                    className="block size-full rounded-md object-contain dark:hidden"
+                    src={channelData.channel.icon.light || '/placeholder.svg'}
+                    alt={channelData.channel.name.real}
+                  />
+                )}
+                {channelData.channel.icon.dark !== 'N/A' && (
+                  <img
+                    className="hidden size-full rounded-md object-contain dark:block"
+                    src={channelData.channel.icon.dark || '/placeholder.svg'}
+                    alt={channelData.channel.name.real}
+                  />
+                )}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Channel Information</DialogTitle>
+              </DialogHeader>
+              <ChannelDetails channel={channelData.channel} />
+            </DialogContent>
+          </Dialog>
+          <div className="grid min-w-0 flex-1 grid-cols-2 gap-4">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="h-auto w-full justify-start p-0 text-left"
+                >
+                  <div className="w-full">
+                    <div className="text-xs font-medium text-muted-foreground">
+                      Now
+                    </div>
+                    <div
+                      className={`truncate text-sm font-medium ${
+                        !channelData.currentProgram?.title ||
+                        channelData.currentProgram.title === 'No Program Data'
+                          ? 'text-muted-foreground'
+                          : ''
+                      }`}
+                    >
+                      {channelData.currentProgram?.title || 'No Program Data'}
+                    </div>
+                    {channelData.currentProgram && (
+                      <div className="text-xs text-muted-foreground">
+                        {formatTime(channelData.currentProgram.start)} -{' '}
+                        {formatTime(channelData.currentProgram.stop)} (
+                        {channelData.currentProgram.lengthstring})
+                      </div>
+                    )}
+                    {channelData.currentProgram && (
+                      <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">
+                        <div
+                          className="h-1 bg-primary"
+                          style={{
+                            width: `${calculateProgress(
+                              channelData.currentProgram.start,
+                              channelData.currentProgram.stop,
+                            )}%`,
+                          }}
+                        ></div>
+                      </div>
+                    )}
+                  </div>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>
+                    {channelData.channel.name.real} - Now
+                  </DialogTitle>
+                </DialogHeader>
+                <ProgramDetails
+                  program={channelData.currentProgram}
+                  channel={channelData.channel}
+                />
+              </DialogContent>
+            </Dialog>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="h-auto w-full justify-start p-0 text-left"
+                >
+                  <div className="w-full">
+                    <div className="text-xs font-medium text-muted-foreground">
+                      Next
+                    </div>
+                    <div
+                      className={`truncate text-sm font-medium ${
+                        !channelData.nextProgram?.title ||
+                        channelData.nextProgram.title === 'No Program Data'
+                          ? 'text-muted-foreground'
+                          : ''
+                      }`}
+                    >
+                      {channelData.nextProgram?.title || 'No Program Data'}
+                    </div>
+                    {channelData.nextProgram && (
+                      <div className="text-xs text-muted-foreground">
+                        {formatTime(channelData.nextProgram.start)} -{' '}
+                        {formatTime(channelData.nextProgram.stop)} (
+                        {channelData.nextProgram.lengthstring})
+                      </div>
+                    )}
+                  </div>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>
+                    {channelData.channel.name.real} - Next
+                  </DialogTitle>
+                </DialogHeader>
+                <ProgramDetails
+                  program={channelData.nextProgram}
+                  channel={channelData.channel}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   const TableView = () => {
     return (
@@ -412,9 +748,9 @@ function ChannelGrid() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredChannels.map((channelData) => (
+          {filteredChannels.map(channelData => (
             <TableRow
-              key={channelData.channel.id}
+              key={`${channelData.channel.id}-${channelData.channel.lcn}`}
               className={isChannelGreyedOut(channelData) ? 'opacity-50' : ''}
             >
               <TableCell>
@@ -422,14 +758,16 @@ function ChannelGrid() {
                   {channelData.channel.icon.light !== 'N/A' && (
                     <img
                       className="size-8 object-contain"
-                      src={channelData.channel.icon.light}
+                      src={channelData.channel.icon.light || '/placeholder.svg'}
                       alt={decodeHtml(channelData.channel.name.real)}
                     />
                   )}
                   <div>
-                    <p className="font-medium">{channelData.channel.name.real}</p>
+                    <p className="font-medium">
+                      {channelData.channel.name.real}
+                    </p>
                     {channelData.channel.lcn !== 'N/A' && (
-                      <p className="text-muted-foreground text-sm">
+                      <p className="text-sm text-muted-foreground">
                         Channel {channelData.channel.lcn}
                       </p>
                     )}
@@ -438,20 +776,33 @@ function ChannelGrid() {
               </TableCell>
               <TableCell>
                 <p>{channelData.currentProgram?.title || 'N/A'}</p>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   {channelData.currentProgram
                     ? `${formatTime(channelData.currentProgram.start)} - ${formatTime(
-                        channelData.currentProgram.stop
+                        channelData.currentProgram.stop,
                       )} (${channelData.currentProgram.lengthstring})`
                     : ''}
                 </p>
+                {channelData.currentProgram && (
+                  <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">
+                    <div
+                      className="h-1 bg-primary"
+                      style={{
+                        width: `${calculateProgress(
+                          channelData.currentProgram.start,
+                          channelData.currentProgram.stop,
+                        )}%`,
+                      }}
+                    ></div>
+                  </div>
+                )}
               </TableCell>
               <TableCell>
                 <p>{channelData.nextProgram?.title || 'N/A'}</p>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   {channelData.nextProgram
                     ? `${formatTime(channelData.nextProgram.start)} - ${formatTime(
-                        channelData.nextProgram.stop
+                        channelData.nextProgram.stop,
                       )} (${channelData.nextProgram.lengthstring})`
                     : ''}
                 </p>
@@ -503,7 +854,7 @@ function ChannelGrid() {
             type="text"
             placeholder="Search channels..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             className="w-[200px]"
           />
           <DropdownMenu>
@@ -516,7 +867,9 @@ function ChannelGrid() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onSelect={() => setGroupBy('none')}>No Grouping</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setGroupBy('none')}>
+                No Grouping
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setGroupBy('channel_group')}>
                 Group by Channel Group
               </DropdownMenuItem>
@@ -525,13 +878,34 @@ function ChannelGrid() {
           <Button onClick={handleRefresh} variant="outline">
             <RefreshCw className="size-4" />
           </Button>
-          <Button
-            onClick={toggleViewMode}
-            variant="outline"
-            aria-label={`Switch to ${viewMode === 'card' ? 'table' : 'card'} view`}
-          >
-            {viewMode === 'card' ? <List className="size-4" /> : <LayoutGrid className="size-4" />}
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="justify-start">
+                {viewMode === 'card' ? (
+                  <LayoutGrid className="mr-2 size-4" />
+                ) : viewMode === 'table' ? (
+                  <List className="mr-2 size-4" />
+                ) : (
+                  <Smartphone className="mr-2 size-4" />
+                )}
+                {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setViewMode('card')}>
+                <LayoutGrid className="mr-2 size-4" />
+                Card
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setViewMode('table')}>
+                <List className="mr-2 size-4" />
+                Table
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setViewMode('mobile')}>
+                <Smartphone className="mr-2 size-4" />
+                Mobile
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <FilterMenu />
         </div>
       </div>
@@ -543,8 +917,10 @@ function ChannelGrid() {
             </div>
           ) : viewMode === 'card' ? (
             <CardView />
-          ) : (
+          ) : viewMode === 'table' ? (
             <TableView />
+          ) : (
+            <MobileView />
           )}
         </div>
       </ScrollArea>
@@ -554,7 +930,7 @@ function ChannelGrid() {
 
 export default function NowNextPage() {
   return (
-    <main>
+    <main className="h-[calc(100vh-4rem)] overflow-hidden">
       <Suspense fallback={<LoadingSpinner />}>
         <ChannelGrid />
       </Suspense>

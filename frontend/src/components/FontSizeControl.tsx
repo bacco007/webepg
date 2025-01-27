@@ -18,7 +18,7 @@ export function FontSizeControl() {
   useEffect(() => {
     const savedFontSize = localStorage.getItem('fontSize');
     if (savedFontSize) {
-      setFontSize(parseInt(savedFontSize));
+      setFontSize(Number.parseInt(savedFontSize));
       document.documentElement.style.fontSize = `${savedFontSize}%`;
     }
   }, []);
@@ -28,7 +28,10 @@ export function FontSizeControl() {
     setFontSize(newSize);
     document.documentElement.style.fontSize = `${newSize}%`;
     localStorage.setItem('fontSize', newSize.toString());
-    setCookie('fontSize', newSize.toString(), { path: '/', maxAge: 31536000 }); // 1 year
+    setCookie('fontSize', newSize.toString(), {
+      path: '/',
+      maxAge: 31_536_000,
+    }); // 1 year
   };
 
   return (
@@ -42,11 +45,19 @@ export function FontSizeControl() {
       <DropdownMenuContent align="end">
         <DropdownMenuItem>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="icon" onClick={() => changeFontSize(-10)}>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => changeFontSize(-10)}
+            >
               <Minus className="size-4" />
             </Button>
             <span className="text-sm font-medium">{fontSize}%</span>
-            <Button variant="outline" size="icon" onClick={() => changeFontSize(10)}>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => changeFontSize(10)}
+            >
               <Plus className="size-4" />
             </Button>
           </div>

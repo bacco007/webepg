@@ -183,6 +183,17 @@
     }
   },
   {
+    "id": "OPTSPT",
+    "group": "Australia",
+    "subgroup": "Subscription",
+    "location": "Optus Sport",
+    "url": "http://170.64.142.170:8080/OPTSPT_guide.xml",
+    "logo": {
+      "light": "https://i.imgur.com/fKAgFp0.png",
+      "dark": "https://i.imgur.com/fKAgFp0.png"
+    }
+  },
+  {
     "id": "test-ukskylive",
     "group": "International",
     "subgroup": "United Kingdom",
@@ -214,5 +225,69 @@
       "light": "logos/ukflag.png",
       "dark": "logos/ukflag.png"
     }
+  },
+  {
+    "id": "FOXTEL",
+    "group": "Testing",
+    "subgroup": "Australia",
+    "location": "Foxtel",
+    "url": "http://170.64.142.170:8080/FOXTEL_guide.xml",
+    "logo": {
+      "light": "logos/foxtel.png",
+      "dark": "logos/foxtel.png"
+    }
+  },
+  {
+    "id": "FOXTEL2",
+    "group": "Testing",
+    "subgroup": "Australia",
+    "location": "Foxtel 2",
+    "url": "local",
+    "logo": {
+      "light": "logos/foxtel.png",
+      "dark": "logos/foxtel.png"
+    }
+  },
+  {
+    "id": "abcradio",
+    "group": "Testing",
+    "subgroup": "Australia",
+    "location": "ABC Radio",
+    "url": "http://170.64.142.170:8080/abc_radio_guide.xml"
+  },
+  {
+    "id": "fetch-sub-test",
+    "group": "Testing",
+    "subgroup": "Australia",
+    "location": "Fetch (Subscription)",
+    "url": "http://170.64.142.170:8080/Fetch_Subscription_Guide.xml"
+  },
+  {
+    "id": "fetch-fta-test",
+    "group": "Testing",
+    "subgroup": "Australia",
+    "location": "Fetch (FTA)",
+    "url": "http://170.64.142.170:8080/Fetch_FTA_Guide.xml"
+  },
+  {
+    "id": "tataplay",
+    "group": "International",
+    "subgroup": "India",
+    "location": "TataPlay",
+    "url": "https://avkb.short.gy/tsepg.xml.gz"
+  },
+  {
+    "id": "jiotv",
+    "group": "International",
+    "subgroup": "India",
+    "location": "JioTV",
+    "url": "https://avkb.short.gy/jioepg.xml.gz"
+  },
+  {
+    "id": "astro",
+    "group": "International",
+    "subgroup": "Malaysia",
+    "location": "Astro",
+    "url": "https://raw.githubusercontent.com/azimabid00/epg/main/astro_epg.xml"
   }
 ]

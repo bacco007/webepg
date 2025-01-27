@@ -14,7 +14,7 @@ export default function TodayRedirect() {
       try {
         const now = new Date();
         if (isNaN(now.getTime())) {
-          throw new Error('Invalid date');
+          throw new TypeError('Invalid date');
         }
 
         let userTimezone = 'UTC';

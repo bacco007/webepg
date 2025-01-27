@@ -6,7 +6,13 @@ import React, { useEffect, useState } from 'react';
 import { AlertCircle, Home, RefreshCcw } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 interface ErrorPageProperties {
   statusCode?: number;
@@ -27,7 +33,9 @@ export default function ErrorPage({
   useEffect(() => {
     if (showRefresh) {
       const timer = setInterval(() => {
-        setCountdown((prevCount) => (prevCount > 0 ? prevCount - 1 : 0));
+        setCountdown(previousCount =>
+          previousCount > 0 ? previousCount - 1 : 0,
+        );
       }, 1000);
 
       return () => clearInterval(timer);
@@ -45,20 +53,23 @@ export default function ErrorPage({
   };
 
   return (
-    <div className="bg-background text-foreground flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4 text-foreground">
       <Card className="max-w-md text-center">
         <CardHeader>
           <CardTitle className="flex items-center justify-center space-x-2 text-3xl font-bold">
-            <AlertCircle className="text-destructive size-8" aria-hidden="true" />
+            <AlertCircle
+              className="size-8 text-destructive"
+              aria-hidden="true"
+            />
             <span>
               {statusCode} - {title}
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-4 text-lg">{message}</p>
+          <p className="mb-4 text-lg text-muted-foreground">{message}</p>
           {showRefresh && (
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
               The page will automatically refresh in {countdown} seconds.
             </p>
           )}

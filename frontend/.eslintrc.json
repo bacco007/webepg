@@ -1,29 +1,66 @@
 {
+  "root": true,
   "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2024,
+    "sourceType": "module",
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": "./"
+  },
   "extends": [
     "next/core-web-vitals",
     "eslint:recommended",
+    "plugin:react/recommended",
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:tailwindcss/recommended",
-    "prettier"
+    "plugin:react-hooks/recommended",
+    "plugin:import/recommended",
+    "prettier",
+    "next/typescript",
+    "plugin:tailwindcss/recommended"
   ],
-  "plugins": ["simple-import-sort", "prettier", "@typescript-eslint", "unicorn"],
+  "plugins": [
+    "react",
+    "react-hooks",
+    "simple-import-sort",
+    "prettier",
+    "@typescript-eslint",
+    "unicorn",
+    "tailwindcss"
+  ],
   "rules": {
+    "import/named": "warn",
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "react/jsx-uses-react": "off",
+    "react/jsx-uses-vars": "error",
+    "react/no-unknown-property": [
+      2,
+      {
+        "ignore": ["jsx"]
+      }
+    ],
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
     "prettier/prettier": [
       "error",
       {
         "endOfLine": "auto"
       },
-      { "usePrettierrc": true }
+      {
+        "usePrettierrc": true
+      }
     ],
-    "unicorn/better-regex": "error",
-    "unicorn/filename-case": "off",
     "sort-imports": "off",
     "tailwindcss/no-custom-classname": "off",
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-var-requires": "warn",
-    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
     "@typescript-eslint/no-empty-object-type": "warn",
     "@next/next/no-img-element": "off",
     "simple-import-sort/imports": [
@@ -39,10 +76,37 @@
       }
     ]
   },
+  "ignorePatterns": ["src/components/ui/**/*"],
+  "overrides": [
+    {
+      "files": ["*.js"],
+      "rules": {
+        "unicorn/prefer-module": "off"
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx", "*.js"],
+      "parser": "@typescript-eslint/parser"
+    }
+  ],
   "settings": {
     "tailwindcss": {
-      "callees": ["cn"],
-      "config": "tailwind.config.js"
+      // These are the default values but feel free to customize
+      "callees": ["classnames", "clsx", "ctl"],
+      "config": "tailwind.config.js", // returned from `loadConfig()` utility if not provided
+      "cssFiles": [
+        "**/*.css",
+        "!**/node_modules",
+        "!**/.*",
+        "!**/dist",
+        "!**/build"
+      ],
+      "cssFilesRefreshRate": 5.0,
+      "removeDuplicates": true,
+      "skipClassAttribute": false,
+      "whitelist": [],
+      "tags": [], // can be set to e.g. ['tw'] for use in tw`bg-blue`
+      "classRegex": "^class(Name)?$" // can be modified to support custom attributes. E.g. "^tw$" for `twin.macro`
     }
   }
 }

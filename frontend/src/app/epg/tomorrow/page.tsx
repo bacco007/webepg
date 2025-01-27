@@ -15,7 +15,7 @@ export default function TomorrowRedirect() {
       try {
         const now = new Date();
         if (isNaN(now.getTime())) {
-          throw new Error('Invalid date');
+          throw new TypeError('Invalid date');
         }
 
         let userTimezone = 'UTC';
@@ -30,7 +30,9 @@ export default function TomorrowRedirect() {
 
         const tomorrow = addDays(now, 1);
         const zonedTomorrow = toZonedTime(tomorrow, userTimezone);
-        const formattedTomorrow = format(zonedTomorrow, 'yyyyMMdd', { timeZone: userTimezone });
+        const formattedTomorrow = format(zonedTomorrow, 'yyyyMMdd', {
+          timeZone: userTimezone,
+        });
 
         if (!/^\d{8}$/.test(formattedTomorrow)) {
           throw new Error('Invalid date format');

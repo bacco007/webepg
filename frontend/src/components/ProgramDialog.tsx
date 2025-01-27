@@ -1,5 +1,7 @@
+'use client';
+
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   CalendarIcon,
   ClockIcon,
@@ -20,7 +22,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 
@@ -78,20 +85,36 @@ const getTimeDescription = (startDate: Date, endDate: Date) => {
   return `${durationMins} minutes`;
 };
 
-export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramDialogProperties) {
+export default function ProgramDialog({
+  event,
+  onOpenChange,
+  trigger,
+}: ProgramDialogProperties) {
   const startDate = new Date(event.start);
   const endDate = new Date(event.end);
+  const [open, setOpen] = useState(false);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    onOpenChange(newOpen);
+  };
 
   return (
-    <Dialog onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-w-3xl p-0">
-        <DialogTitle className="sr-only">{decodeHtml(event.title)} - Program Details</DialogTitle>
+        <DialogTitle className="sr-only">
+          {decodeHtml(event.title)} - Program Details
+        </DialogTitle>
         <Card className="border-none">
-          <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
-            <CardTitle className="text-2xl font-bold">{decodeHtml(event.title)}</CardTitle>
+          <CardHeader className="rounded-t-lg bg-primary text-primary-foreground">
+            <CardTitle className="text-2xl font-bold">
+              {decodeHtml(event.title)}
+            </CardTitle>
             <CardDescription className="text-primary-foreground/80">
-              {event.subtitle && event.subtitle !== 'N/A' && decodeHtml(event.subtitle)}
+              {event.subtitle &&
+                event.subtitle !== 'N/A' &&
+                decodeHtml(event.subtitle)}
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -106,23 +129,25 @@ export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramD
                     className="rounded-lg object-cover"
                   />
                 ) : (
-                  <div className="bg-secondary flex h-[187px] w-[250px] items-center justify-center rounded-lg">
-                    <TvIcon className="text-secondary-foreground/30 size-16" />
+                  <div className="flex h-[187px] w-[250px] items-center justify-center rounded-lg bg-secondary">
+                    <TvIcon className="size-16 text-secondary-foreground/30" />
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2">
                   {event.new && <Badge variant="default">New</Badge>}
                   {event.premiere && <Badge variant="default">Premiere</Badge>}
-                  {event.previouslyShown && <Badge variant="secondary">Repeat</Badge>}
+                  {event.previouslyShown && (
+                    <Badge variant="secondary">Repeat</Badge>
+                  )}
                 </div>
               </div>
               <ScrollArea className="h-[300px] grow md:h-auto">
                 <div className="space-y-4">
-                  <div className="text-muted-foreground flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 text-muted-foreground">
                     <CalendarIcon className="size-4" />
                     <span>{formatDay(startDate)}</span>
                   </div>
-                  <div className="text-muted-foreground flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 text-muted-foreground">
                     <ClockIcon className="size-4" />
                     <span>
                       {formatTime(startDate)} - {formatTime(endDate)} (
@@ -130,7 +155,7 @@ export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramD
                     </span>
                   </div>
                   {event.channel && (
-                    <div className="text-muted-foreground flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 text-muted-foreground">
                       <TvIcon className="size-4" />
                       <span>{decodeHtml(event.channel_name)}</span>
                     </div>
@@ -177,7 +202,7 @@ export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramD
                   {event.description && event.description !== 'N/A' && (
                     <>
                       <Separator />
-                      <p className="text-muted-foreground text-sm">
+                      <p className="text-sm text-muted-foreground">
                         {decodeHtml(event.description)}
                       </p>
                     </>
@@ -186,8 +211,8 @@ export default function ProgramDialog({ event, onOpenChange, trigger }: ProgramD
               </ScrollArea>
             </div>
           </CardContent>
-          <CardFooter className="bg-muted/50 justify-end space-x-2 rounded-b-lg">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <CardFooter className="justify-end space-x-2 rounded-b-lg bg-muted/50">
+            <Button variant="outline" onClick={() => handleOpenChange(false)}>
               Close
             </Button>
           </CardFooter>

@@ -1,6 +1,11 @@
-import type { NextConfig } from "next";
+import withBundleAnalyzer from '@next/bundle-analyzer';
 
-const nextConfig: NextConfig = {
+const bundleAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+/** @type {import('next').NextConfig} */
+export default bundleAnalyzer({
   reactStrictMode: false,
   output: 'standalone',
   rewrites: async () => {
@@ -8,12 +13,16 @@ const nextConfig: NextConfig = {
       {
         source: '/api/py/:path*',
         destination:
-          process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000/api/py/:path*' : '/api/',
+          process.env.NODE_ENV === 'development'
+            ? 'http://127.0.0.1:8000/api/py/:path*'
+            : '/api/',
       },
       {
         source: '/docs',
         destination:
-          process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000/py/docs' : '/api/py/docs',
+          process.env.NODE_ENV === 'development'
+            ? 'http://127.0.0.1:8000/py/docs'
+            : '/api/py/docs',
       },
       {
         source: '/openapi.json',
@@ -36,6 +45,4 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-};
-
-export default nextConfig;
+});

@@ -1,9 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronRight, Loader2, MoreHorizontal } from 'lucide-react';
+import { ChevronRight, Loader2, MoreHorizontal, TvIcon } from 'lucide-react';
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,10 +43,14 @@ interface GroupedSources {
 
 export default function CollapsibleSourceMenu() {
   const [sources, setSources] = React.useState<GroupedSources[]>([]);
-  const [selectedSource, setSelectedSource] = React.useState<Source | null>(null);
+  const [selectedSource, setSelectedSource] = React.useState<Source | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>({});
+  const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>(
+    {},
+  );
 
   React.useEffect(() => {
     const fetchSources = async () => {
@@ -56,7 +64,7 @@ export default function CollapsibleSourceMenu() {
         setSources(groupedSources);
 
         const savedSourceId = await getCookie('xmltvdatasource');
-        const savedSource = data.find((source) => source.id === savedSourceId);
+        const savedSource = data.find(source => source.id === savedSourceId);
         if (savedSource) {
           setSelectedSource(savedSource);
         } else if (data.length > 0) {
@@ -76,7 +84,7 @@ export default function CollapsibleSourceMenu() {
   const groupSources = (data: Source[]): GroupedSources[] => {
     const groupMap = new Map<string, Map<string, Source[]>>();
 
-    data.forEach((source) => {
+    data.forEach(source => {
       if (!groupMap.has(source.group)) {
         groupMap.set(source.group, new Map());
       }
@@ -87,13 +95,16 @@ export default function CollapsibleSourceMenu() {
       subgroupMap.get(source.subgroup)!.push(source);
     });
 
-    return Array.from(groupMap.entries())
+    return [...groupMap.entries()]
       .map(([group, subgroupMap]) => ({
         group,
-        subgroups: Array.from(subgroupMap.entries())
+        subgroups: [...subgroupMap.entries()]
           .map(([name, sources]) => ({
             name,
-            sources: sources.sort((a, b) => a.location.localeCompare(b.location)),
+            sources: sources.sort(
+              (a: { location: string }, b: { location: any }) =>
+                a.location.localeCompare(b.location),
+            ),
           }))
           .sort((a, b) => a.name.localeCompare(b.name)),
       }))
@@ -103,17 +114,19 @@ export default function CollapsibleSourceMenu() {
   const handleSourceSelect = async (source: Source) => {
     setSelectedSource(source);
     await setCookie('xmltvdatasource', source.id);
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   const toggleGroup = (group: string) => {
-    setOpenGroups((prev) => ({ ...prev, [group]: !prev[group] }));
+    setOpenGroups(previous => ({ ...previous, [group]: !previous[group] }));
   };
 
   if (isLoading) {
     return (
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel className="text-xs">Select Data Source</SidebarGroupLabel>
+        <SidebarGroupLabel className="text-xs">
+          Select Data Source
+        </SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton disabled className="py-1 text-xs">
@@ -129,10 +142,14 @@ export default function CollapsibleSourceMenu() {
   if (error) {
     return (
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel className="text-xs">Select Data Source</SidebarGroupLabel>
+        <SidebarGroupLabel className="text-xs">
+          Select Data Source
+        </SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="py-1 text-xs text-red-500">{error}</SidebarMenuButton>
+            <SidebarMenuButton className="py-1 text-xs text-red-500">
+              {error}
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
@@ -144,16 +161,19 @@ export default function CollapsibleSourceMenu() {
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
         <SidebarGroupLabel
           asChild
-          className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
+          className="group/label w-full text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
-          <CollapsibleTrigger>
-            Select Guide
-            <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton>
+              <TvIcon className="mr-2 size-4" />
+              Select Guide
+              <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+            </SidebarMenuButton>
           </CollapsibleTrigger>
         </SidebarGroupLabel>
         <CollapsibleContent>
           <SidebarMenu>
-            {sources.map((groupData) => (
+            {sources.map(groupData => (
               <Collapsible
                 key={groupData.group}
                 open={openGroups[groupData.group]}
@@ -166,7 +186,7 @@ export default function CollapsibleSourceMenu() {
                       <ChevronRight
                         className={cn(
                           'size-4 transition-transform duration-200',
-                          openGroups[groupData.group] && 'rotate-90'
+                          openGroups[groupData.group] && 'rotate-90',
                         )}
                       />
                     </SidebarMenuButton>
@@ -174,7 +194,7 @@ export default function CollapsibleSourceMenu() {
                 </SidebarMenuItem>
                 <CollapsibleContent>
                   <SidebarMenuSub>
-                    {groupData.subgroups.map((subgroup) => (
+                    {groupData.subgroups.map(subgroup => (
                       <SidebarMenuItem key={subgroup.name}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -188,13 +208,16 @@ export default function CollapsibleSourceMenu() {
                             align="start"
                             className="min-w-48 rounded-lg"
                           >
-                            {subgroup.sources.map((source) => (
+                            {subgroup.sources.map(source => (
                               <DropdownMenuItem
                                 key={source.id}
                                 onSelect={() => handleSourceSelect(source)}
                               >
                                 <span
-                                  className={cn(selectedSource?.id === source.id && 'font-medium')}
+                                  className={cn(
+                                    selectedSource?.id === source.id &&
+                                      'font-medium',
+                                  )}
                                 >
                                   {source.location}
                                 </span>

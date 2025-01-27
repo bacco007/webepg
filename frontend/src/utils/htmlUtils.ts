@@ -11,7 +11,7 @@ const entities: { [key: string]: string } = {
 };
 
 export function decodeHtml(html: string): string {
-  return html.replaceAll(/&(?:#x[\da-f]+|#\d+|[\da-z]+);/gi, (match) => {
+  return html.replaceAll(/&(?:#x[\da-f]+|#\d+|[\da-z]+);/gi, match => {
     if (match.charAt(1) === '#') {
       const code =
         match.charAt(2).toLowerCase() === 'x'

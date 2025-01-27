@@ -3,8 +3,8 @@
 import { usePathname } from 'next/navigation';
 import React from 'react';
 import {
-  BookOpen,
-  Bot,
+  Antenna,
+  CableIcon,
   Calendar,
   CalendarCheck,
   CalendarClock,
@@ -13,133 +13,41 @@ import {
   Clapperboard,
   Clock,
   Database,
-  Folder,
-  Forward,
-  Frame,
   Home,
+  LayoutGrid,
+  List,
   Map,
-  MoreHorizontal,
-  PieChart,
-  Settings,
-  Settings2,
-  SquareTerminal,
-  Trash2,
+  SatelliteDish,
+  Smartphone,
   Trophy,
 } from 'lucide-react';
 
-import CollapsibleSourceMenu from '@/components/CollapsibleSourceMenu';
-import CollapsibleTimezoneMenu from '@/components/CollapsibleTimezoneMenu';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+// import CollapsibleSourceMenu from '@/components/CollapsibleSourceMenu';
+// import CollapsibleTimezoneMenu from '@/components/CollapsibleTimezoneMenu';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
   SidebarContent as SidebarContentPrimitive,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSkeleton,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const data = {
-  navMain: [
-    {
-      title: 'Playground',
-      url: '#',
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: 'History',
-          url: '#',
-        },
-        {
-          title: 'Starred',
-          url: '#',
-        },
-        {
-          title: 'Settings',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Models',
-      url: '#',
-      icon: Bot,
-      items: [
-        {
-          title: 'Genesis',
-          url: '#',
-        },
-        {
-          title: 'Explorer',
-          url: '#',
-        },
-        {
-          title: 'Quantum',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Documentation',
-      url: '#',
-      icon: BookOpen,
-      items: [
-        {
-          title: 'Introduction',
-          url: '#',
-        },
-        {
-          title: 'Get Started',
-          url: '#',
-        },
-        {
-          title: 'Tutorials',
-          url: '#',
-        },
-        {
-          title: 'Changelog',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Settings',
-      url: '#',
-      icon: Settings2,
-      items: [
-        {
-          title: 'General',
-          url: '#',
-        },
-        {
-          title: 'Team',
-          url: '#',
-        },
-        {
-          title: 'Billing',
-          url: '#',
-        },
-        {
-          title: 'Limits',
-          url: '#',
-        },
-      ],
-    },
-  ],
   projects: [
     {
       name: 'Home',
@@ -175,6 +83,23 @@ const data = {
       name: 'Now and Next',
       url: '/nownext',
       icon: Clock,
+      items: [
+        {
+          title: 'Card View',
+          url: '/nownext?view=card',
+          icon: LayoutGrid,
+        },
+        {
+          title: 'Table View',
+          url: '/nownext?view=table',
+          icon: List,
+        },
+        {
+          title: 'Mobile View',
+          url: '/nownext?view=mobile',
+          icon: Smartphone,
+        },
+      ],
     },
     {
       name: 'Upcoming Sport EPG',
@@ -186,6 +111,38 @@ const data = {
       url: '/movies',
       icon: Clapperboard,
     },
+    {
+      name: 'Australia',
+      url: '/',
+      icon: Antenna,
+      items: [
+        {
+          title: 'Channel List - Freeview',
+          url: '/channellist/freeview-au',
+          icon: Antenna,
+        },
+        {
+          title: 'Channel List - Fetch',
+          url: '/channellist/fetch',
+          icon: CableIcon,
+        },
+        {
+          title: 'Channel List - Foxtel',
+          url: '/channellist/foxtel',
+          icon: SatelliteDish,
+        },
+        {
+          title: 'Channel List - Hubbl',
+          url: '/channellist/hubbl',
+          icon: CableIcon,
+        },
+        {
+          title: 'DVB-T Transmitter Map',
+          url: '/transmitters',
+          icon: Map,
+        },
+      ],
+    },
   ],
 };
 
@@ -194,100 +151,90 @@ export default function SidebarContent() {
   const isActive = (itemUrl: string) => {
     if (itemUrl === '/epg') {
       return (
-        pathname.startsWith('/epg') && pathname !== '/epg/today' && pathname !== '/epg/tomorrow'
+        pathname.startsWith('/epg') &&
+        pathname !== '/epg/today' &&
+        pathname !== '/epg/tomorrow'
       );
     }
-    return pathname === itemUrl;
+    return pathname === itemUrl || pathname.startsWith(itemUrl + '/');
   };
+
   return (
     <SidebarContentPrimitive>
-      {/* <SidebarGroup  className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel>Platform</SidebarGroupLabel>
-        <SidebarMenu>
-          {data.navMain.map((item) => (
-            <Collapsible
-              key={item.title}
-              asChild
-              defaultOpen={item.isActive}
-              className="group/collapsible">
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title}>
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.items?.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          <a href={subItem.url}>
-                            <span>{subItem.title}</span>
-                          </a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
-          ))}
-        </SidebarMenu>
-      </SidebarGroup> */}
       <SidebarGroup>
-        {/* <SidebarGroupLabel>Projects</SidebarGroupLabel> */}
         <SidebarMenu>
-          {data.projects.map((item) => (
+          {data.projects.map(item => (
             <SidebarMenuItem key={item.name}>
-              <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.name}</span>
-                </a>
-              </SidebarMenuButton>
-              {/* <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuAction showOnHover>
-                    <MoreHorizontal />
-                    <span className="sr-only">More</span>
-                  </SidebarMenuAction>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-48 rounded-lg"
-                  side="bottom"
-                  align="end">
-                  <DropdownMenuItem>
-                    <Folder className="text-muted-foreground" />
-                    <span>View Project</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Forward className="text-muted-foreground" />
-                    <span>Share Project</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Trash2 className="text-muted-foreground" />
-                    <span>Delete Project</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu> */}
+              {item.items ? (
+                <Collapsible asChild className="group/collapsible">
+                  <div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton isActive={isActive(item.url)}>
+                              <item.icon />
+                              <span>{item.name}</span>
+                              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={10}>
+                          {item.name}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {item.items.map(subItem => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <SidebarMenuSubButton
+                                    asChild
+                                    isActive={isActive(subItem.url)}
+                                  >
+                                    <a href={subItem.url}>
+                                      <subItem.icon />
+                                      <span>{subItem.title}</span>
+                                    </a>
+                                  </SidebarMenuSubButton>
+                                </TooltipTrigger>
+                                <TooltipContent side="right" sideOffset={10}>
+                                  {subItem.title}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </div>
+                </Collapsible>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                        <a href={item.url}>
+                          <item.icon />
+                          <span>{item.name}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={10}>
+                      {item.name}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </SidebarMenuItem>
           ))}
-          {/* <SidebarMenuItem>
-            <SidebarMenuButton className="text-sidebar-foreground/70">
-              <MoreHorizontal className="text-sidebar-foreground/70" />
-              <span>More</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem> */}
         </SidebarMenu>
       </SidebarGroup>
-      <SidebarSeparator className="mx-0 group-data-[collapsible=icon]:hidden" />
-      <CollapsibleSourceMenu />
-      <SidebarSeparator className="mx-0 group-data-[collapsible=icon]:hidden" />
-      <CollapsibleTimezoneMenu />
-      <SidebarSeparator className="mx-0 group-data-[collapsible=icon]:hidden" />
+      {/* <CollapsibleSourceMenu />
+      <CollapsibleTimezoneMenu /> */}
     </SidebarContentPrimitive>
   );
 }

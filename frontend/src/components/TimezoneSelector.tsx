@@ -84,7 +84,7 @@ export function TimezoneSelector() {
             <SelectValue placeholder="Select timezone" />
           </SelectTrigger>
           <SelectContent>
-            {timezones.map((tz) => (
+            {timezones.map(tz => (
               <SelectItem key={tz} value={tz}>
                 {tz}
               </SelectItem>
@@ -94,7 +94,13 @@ export function TimezoneSelector() {
       </div>
       <Button onClick={handleSave}>Save Timezone</Button>
       {message && (
-        <p className={message.includes('success') ? 'text-green-600' : 'text-red-600'}>{message}</p>
+        <p
+          className={
+            message.includes('success') ? 'text-green-600' : 'text-red-600'
+          }
+        >
+          {message}
+        </p>
       )}
     </div>
   );
