@@ -106,12 +106,11 @@ export default function ChannelsPage() {
       accessorKey: 'channel_logo',
       header: () => <div className="text-center">Logo</div>,
       cell: ({ row }) => (
-        <div className="relative mx-auto size-14">
-          <Image
-            src={row.original.channel_logo.light || '/placeholder.svg'}
+        <div className="mx-auto flex size-16 items-center justify-center">
+          <img
+            src={row.original.channel_logo.light}
             alt={`${row.original.channel_name} logo`}
-            fill
-            className="object-contain"
+            className="max-h-full max-w-full object-contain"
           />
         </div>
       ),

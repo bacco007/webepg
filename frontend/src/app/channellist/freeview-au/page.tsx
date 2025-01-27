@@ -318,12 +318,11 @@ export default function Component() {
                         key={`${channel.channel_id}-${channel.other_data.channel_specs}-${index}`}
                         className="flex min-w-[250px] flex-1 items-center space-x-4 rounded-lg border p-3 shadow-sm"
                       >
-                        <div className="relative size-16 shrink-0">
-                          <Image
+                        <div className="flex size-16 shrink-0 items-center justify-center">
+                          <img
                             src={channel.channel_logo.light}
                             alt={`${channel.isGrouped ? channel.channel_names.clean : channel.channel_names.real} logo`}
-                            fill
-                            className="object-contain"
+                            className="max-h-full max-w-full object-contain"
                           />
                         </div>
                         <div className="ml-3 grow">

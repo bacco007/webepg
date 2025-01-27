@@ -480,14 +480,15 @@ function ChannelListContent() {
           channel.program_count === 0 ? 'bg-muted grayscale' : 'bg-card'
         }`}
       >
-        <div className="relative size-16 shrink-0">
-          <Image
+        <div className="flex size-16 items-center justify-center">
+          <img
             src={channel.channel_logo.light || '/placeholder.svg'}
             alt={decodeHtml(
               channel.channel_names?.real || channel.channel_name || '',
             )}
-            fill
-            className="object-contain"
+            width="100"
+            height="100"
+            className="max-h-full max-w-full object-contain"
           />
         </div>
         <div className="grow">
