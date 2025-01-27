@@ -1,4 +1,4 @@
-FROM node:23-alpine AS base
+FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -12,9 +12,8 @@ RUN corepack enable pnpm && \
 
 # Install dependencies based on the preferred package manager
 COPY pnpm-lock.yaml package.json ./
-# Use --prod flag to only install production dependencies in the deps stage
 RUN --mount=type=cache,id=pnpm,target=/.pnpm-store \
-    pnpm install --frozen-lockfile --prod
+    pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
