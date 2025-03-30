@@ -27,7 +27,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
-import { getCookie, setCookie } from '@/lib/cookies';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { getCookie } from '@/lib/cookies';
 import { cn } from '@/lib/utils';
 import { decodeHtml } from '@/utils/htmlUtils';
 
@@ -346,7 +352,7 @@ function WeeklyEPGContent() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex justify-center items-center h-full">
         <LoadingSpinner />
       </div>
     );
@@ -354,13 +360,13 @@ function WeeklyEPGContent() {
 
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex justify-center items-center h-full">
         <Alert variant="destructive" className="max-w-md">
-          <AlertCircle className="size-4" />
+          <AlertCircle className="w-4 h-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
           <Button onClick={fetchData} className="mt-4">
-            <RefreshCw className="mr-2 size-4" />
+            <RefreshCw className="mr-2 w-4 h-4" />
             Try Again
           </Button>
         </Alert>
@@ -369,25 +375,25 @@ function WeeklyEPGContent() {
   }
 
   return (
-    <div className="flex size-full flex-col">
-      <div className="sticky flex items-center justify-between border-b p-2">
+    <div className="flex flex-col w-full h-full">
+      <div className="top-0 z-10 sticky flex justify-between items-center bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 border-b">
         <div className="flex items-center space-x-4">
           {channelLogoLight && (
             <div>
               <img
-                className="block size-auto h-10 object-contain dark:hidden"
+                className="block dark:hidden w-auto h-10 object-contain"
                 src={channelLogoLight || '/placeholder.svg'}
                 alt={decodeHtml(channelName)}
               />
               <img
-                className="hidden size-auto h-10 object-contain dark:block"
+                className="dark:block hidden w-auto h-10 object-contain"
                 src={channelLogoDark || '/placeholder.svg'}
                 alt={decodeHtml(channelName)}
               />
             </div>
           )}
           <div className="flex items-center">
-            <h1 className="text-lg font-bold sm:text-2xl">
+            <h1 className="font-bold text-lg sm:text-2xl">
               Weekly EPG - {channelName}
             </h1>
             <Badge variant="secondary" className="ml-2 self-center">
@@ -399,28 +405,35 @@ function WeeklyEPGContent() {
           <ChannelDropdown channelslug={channelslug} />
         </div>
       </div>
-      <ScrollArea className="h-full">
-        <div className="grow overflow-hidden" ref={containerReference}>
-          <div className="min-w-fit p-2 sm:p-4">
-            <div className="mb-4 flex items-center justify-between">
+      <ScrollArea className="flex-grow">
+        <div className="overflow-hidden" ref={containerReference}>
+          <div className="p-4 min-w-fit">
+            <div className="flex justify-between items-center mb-4">
               <div className="flex items-center space-x-2">
                 <Switch
                   id="use-categories"
                   checked={useCategories}
                   onCheckedChange={setUseCategories}
                 />
-                <label htmlFor="use-categories" className="text-sm font-medium">
+                <label htmlFor="use-categories" className="font-medium text-sm">
                   Color by category
                 </label>
               </div>
               <div className="flex items-center space-x-2">
-                <Button
-                  onClick={handlePreviousDay}
-                  disabled={startDayIndex === 0}
-                  aria-label="Previous day"
-                >
-                  <ChevronLeft className="size-4" aria-hidden="true" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={handlePreviousDay}
+                        disabled={startDayIndex === 0}
+                        aria-label="Previous day"
+                      >
+                        <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Previous day</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <div className="font-semibold" aria-live="polite">
                   {days[startDayIndex] &&
                     dayjs(days[startDayIndex]).format('MMM D')}{' '}
@@ -431,17 +444,24 @@ function WeeklyEPGContent() {
                     )}{' '}
                   ({visibleDays} of {daysLength} days)
                 </div>
-                <Button
-                  onClick={handleNextDay}
-                  disabled={startDayIndex + visibleDays >= daysLength}
-                  aria-label="Next day"
-                >
-                  <ChevronRight className="size-4" aria-hidden="true" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={handleNextDay}
+                        disabled={startDayIndex + visibleDays >= daysLength}
+                        aria-label="Next day"
+                      >
+                        <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Next day</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
             <div
-              className="relative grid gap-1"
+              className="relative gap-1 grid"
               style={{
                 gridTemplateColumns: `${timeColumnWidth}px repeat(${visibleDays}, minmax(${minDayWidth}px, 1fr))`,
               }}
@@ -449,39 +469,34 @@ function WeeklyEPGContent() {
               aria-label="Weekly EPG Grid"
             >
               <div
-                className="sticky top-0 z-20 col-span-1 bg-background"
-                style={{ height: `${stickyHeaderHeight}px` }}
-                role="columnheader"
-              ></div>
+                className="top-0 left-0 z-20 sticky bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-2 py-1 font-semibold text-sm"
+                style={{
+                  width: `${timeColumnWidth}px`,
+                }}
+              >
+                Time
+              </div>
               {days
                 .slice(startDayIndex, startDayIndex + visibleDays)
-                .map((day, index) => {
-                  if (!day) {
-                    return null; // Skip rendering if day is undefined
-                  }
-                  return (
-                    <div
-                      key={`day-${index}-${day.toISOString()}`}
-                      className="sticky top-0 z-20 bg-background py-2 text-center font-semibold"
-                      style={{ height: `${stickyHeaderHeight}px` }}
-                      role="columnheader"
-                    >
-                      {dayjs(day).format('ddd, MMM D')}
-                    </div>
-                  );
-                })}
+                .map((day, index) => (
+                  <div
+                    key={`day-${index}`}
+                    className="top-0 z-10 sticky bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-2 py-1 font-semibold text-center text-sm"
+                  >
+                    {dayjs(day).format('ddd, MMM D')}
+                  </div>
+                ))}
 
               {timeSlots.map(minutes => (
                 <React.Fragment key={minutes}>
                   <div
-                    className="py-1 pr-2 text-right text-xs font-semibold text-muted-foreground sm:text-sm"
+                    className="text-right left-0 z-10 sticky bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-2 py-1 text-muted-foreground text-xs"
                     style={{
+                      width: `${timeColumnWidth}px`,
                       height: `${timeSlotHeight}px`,
                     }}
-                    role="rowheader"
                   >
                     {dayjs()
-                      .tz(clientTimezone)
                       .startOf('day')
                       .add(minutes, 'minute')
                       .format('HH:mm')}
@@ -489,18 +504,20 @@ function WeeklyEPGContent() {
                   {Array.from({ length: visibleDays }).map((_, index) => (
                     <div
                       key={`timeslot-${index}-${minutes}`}
-                      className="py-4"
+                      className="border-t border-border/50"
                       style={{
                         height: `${timeSlotHeight}px`,
                       }}
-                      role="gridcell"
-                    ></div>
+                    />
                   ))}
                 </React.Fragment>
               ))}
 
               {allEvents.map(event => {
-                const hasEnded = dayjs().isAfter(dayjs(event.end));
+                const hasEnded = now.isAfter(dayjs(event.end));
+                const isLive =
+                  now.isAfter(dayjs(event.start)) &&
+                  now.isBefore(dayjs(event.end));
                 return (
                   <ProgramDialog
                     key={event.id}
@@ -508,45 +525,39 @@ function WeeklyEPGContent() {
                     onOpenChange={() => {}}
                     trigger={
                       <div
-                        style={{
-                          ...getEventStyle(event),
-                          opacity: hasEnded ? 0.7 : 1,
-                          transition: 'opacity 0.3s ease-in-out',
-                        }}
+                        style={getEventStyle(event)}
                         className={cn(
                           'absolute overflow-hidden rounded-md p-1 text-xs text-white',
                           useCategories ? event.color : defaultColorClasses[0],
-                          now.isAfter(dayjs(event.start)) &&
-                            now.isBefore(dayjs(event.end)) &&
-                            defaultLiveColor,
-                          // eslint-disable-next-line
-                          // prettier-ignore
-                          event.title === 'No Data Available' &&
-                            "bg-[url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"4\" height=\"4\" viewBox=\"0 0 4 4\"><path fill=\"none\" stroke=\"%23ffffff\" stroke-width=\"1\" d=\"M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3\"/></svg>')] bg-gray-300 bg-gradient-to-br from-gray-300 to-gray-400 bg-[length:4px_4px] bg-[position:1px_1px]",
+                          isLive && defaultLiveColor,
+                          hasEnded && 'opacity-70',
                           'cursor-pointer hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2',
                         )}
                         role="button"
                         tabIndex={0}
-                        aria-label={`${event.title} from ${dayjs.tz(event.start, clientTimezone).format('HH:mm')} to ${dayjs.tz(event.end, clientTimezone).format('HH:mm')}`}
+                        aria-label={`${event.title} from ${dayjs(event.start).format('HH:mm')} to ${dayjs(event.end).format('HH:mm')}`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="truncate font-semibold">
+                        <div className="flex justify-between items-center">
+                          <div className="font-semibold truncate">
                             {decodeHtml(event.title)}
                           </div>
-                          <div className="text-[10px] opacity-90">
-                            {dayjs
-                              .tz(event.start, clientTimezone)
-                              .format('HH:mm')}{' '}
-                            -{' '}
-                            {dayjs
-                              .tz(event.end, clientTimezone)
-                              .format('HH:mm')}
+                          <div className="opacity-90 text-[10px]">
+                            {dayjs(event.start).format('HH:mm')} -{' '}
+                            {dayjs(event.end).format('HH:mm')}
                           </div>
                         </div>
-                        {event.subtitle !== 'N/A' && (
-                          <div className="truncate italic">
+                        {event.subtitle && event.subtitle !== 'N/A' && (
+                          <div className="text-[10px] truncate italic">
                             {decodeHtml(event.subtitle)}
                           </div>
+                        )}
+                        {isLive && (
+                          <Badge
+                            variant="secondary"
+                            className="mt-1 text-[10px]"
+                          >
+                            LIVE
+                          </Badge>
                         )}
                       </div>
                     }
@@ -563,7 +574,7 @@ function WeeklyEPGContent() {
 
 export default function WeeklyEPG() {
   return (
-    <main>
+    <main className="h-full">
       <Suspense fallback={<LoadingSpinner />}>
         <WeeklyEPGContent />
       </Suspense>

@@ -1,0 +1,12 @@
+{
+  "depcheck": {
+    "ignoreMatches": [
+      "eslint-plugin-import-helpers",
+      "eslint-plugin-testing-library",
+      "prettier-eslint",
+      "prettier-plugin-tailwindcss",
+      "typescript-eslint",
+      "tslint-config-prettier"
+    ]
+  }
+}

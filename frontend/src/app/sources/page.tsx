@@ -6,7 +6,6 @@ import { AlertCircle, FilterIcon, RefreshCw, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Command,
@@ -26,6 +25,7 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import { getCookie, setCookie } from '@/lib/cookies';
 
 interface Source {
@@ -159,7 +159,7 @@ export default function XmltvSourcesPage() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="end">
+      <PopoverContent className="p-0 w-[300px]" align="end">
         <Command>
           <CommandInput placeholder="Search filters..." />
           <CommandList>
@@ -204,7 +204,7 @@ export default function XmltvSourcesPage() {
               </ScrollArea>
             </CommandGroup>
           </CommandList>
-          <div className="border-t p-2">
+          <div className="p-2 border-t">
             <Button variant="outline" className="w-full" onClick={clearFilters}>
               <X className="mr-2 size-4" />
               Clear Filters
@@ -217,15 +217,15 @@ export default function XmltvSourcesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="size-32 animate-spin rounded-full border-b-2 border-gray-900"></div>
+      <div className="flex justify-center items-center h-screen">
+        <div className="border-gray-900 border-b-2 rounded-full size-32 animate-spin"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center">
+      <div className="flex flex-col justify-center items-center h-full">
         <Alert variant="destructive" className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>
@@ -240,9 +240,11 @@ export default function XmltvSourcesPage() {
   }
 
   return (
-    <div className="flex size-full flex-col">
-      <div className="flex items-center justify-between border-b p-2">
-        <h1 className="text-xl font-bold">XMLTV Sources</h1>
+    <div className="flex flex-col size-full">
+      <div className="flex justify-between items-center p-4 border-b">
+        <div>
+          <h1 className="font-bold text-2xl">Guide Sources</h1>
+        </div>
         <div className="flex items-center space-x-2">
           <Input
             type="text"
@@ -256,14 +258,14 @@ export default function XmltvSourcesPage() {
       </div>
       <ScrollArea className="grow">
         <div className="p-4">
-          <Tabs defaultValue={groups[0]} className="w-full space-y-6">
+          <Tabs defaultValue={groups[0]} className="space-y-6 w-full">
             <div className="border-b">
-              <TabsList className="relative mb-3 h-auto gap-0.5 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-border">
+              <TabsList className="before:bottom-0 before:absolute relative before:inset-x-0 gap-0.5 bg-transparent mb-3 p-0 before:bg-border h-auto before:h-px">
                 {groups.map(group => (
                   <TabsTrigger
                     key={group}
                     value={group}
-                    className="overflow-hidden rounded-b-none border-x border-t border-border bg-muted py-2 data-[state=active]:z-10 data-[state=active]:shadow-none"
+                    className="data-[state=active]:z-10 bg-muted data-[state=active]:shadow-none py-2 border-x border-t border-border rounded-b-none overflow-hidden"
                   >
                     {group}
                   </TabsTrigger>
@@ -272,66 +274,72 @@ export default function XmltvSourcesPage() {
             </div>
             {groups.map(group => (
               <TabsContent key={group} value={group} className="space-y-6">
-                <div className="xs:grid-cols-2 xs:gap-3 xs:p-3 grid grid-cols-1 gap-2 p-2 sm:grid-cols-3 sm:gap-4 sm:p-4 md:grid-cols-4 lg:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+                <div className="gap-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8">
                   {filteredSources
                     .filter(source => source.group === group)
                     .map(source => (
-                      <Card
+                      <div
                         key={source.id}
-                        className={`h-full overflow-hidden transition-shadow duration-300 hover:shadow-lg ${
+                        className={cn(
+                          'relative flex flex-col rounded-lg bg-card p-3 transition-all hover:shadow-md',
                           selectedSourceId === source.id
-                            ? 'bg-muted'
-                            : 'bg-card'
-                        }`}
+                            ? 'ring-2 ring-primary'
+                            : 'border',
+                        )}
                       >
-                        <CardContent className="flex h-full flex-col items-center justify-center p-2">
-                          {source.logo && (
-                            <div className="mb-2 flex h-20 items-center justify-center">
+                        <div className="flex justify-start items-start mb-2 h-10">
+                          {source.logo ? (
+                            <>
                               <img
-                                className="block size-auto max-h-full object-contain dark:hidden"
-                                src={source.logo.light}
+                                className="dark:hidden block w-auto h-8 object-contain"
+                                src={source.logo.light || '/placeholder.svg'}
                                 alt={source.location}
                               />
                               <img
-                                className="hidden size-auto max-h-full object-contain dark:block"
-                                src={source.logo.dark}
+                                className="hidden dark:block w-auto h-8 object-contain"
+                                src={source.logo.dark || '/placeholder.svg'}
                                 alt={source.location}
                               />
+                            </>
+                          ) : (
+                            <div className="flex justify-center items-center bg-primary/10 rounded-full w-8 h-8">
+                              <span className="font-bold text-primary text-lg">
+                                {source.location.charAt(0)}
+                              </span>
                             </div>
                           )}
-                          <h3 className="text-center text-lg font-bold">
-                            {source.location}
-                          </h3>
-                          <div className="flex items-center">
-                            <Badge variant="secondary" className="mr-2">
-                              {source.group}
-                            </Badge>{' '}
-                            <Badge variant="secondary" className="mr-2">
-                              {source.subgroup}
-                            </Badge>
-                          </div>
-                          {/* <div className="flex items-center pt-1">
-                            <Badge variant="secondary" className="mr-2">
-                              ID: {source.id}
-                            </Badge>
-                          </div> */}
-                          <div className="mt-2">
-                            <Button
-                              variant={
-                                selectedSourceId === source.id
-                                  ? 'default'
-                                  : 'outline'
-                              }
-                              className="w-full"
-                              onClick={() => handleSourceSelect(source.id)}
-                            >
-                              {selectedSourceId === source.id
-                                ? 'Current Source'
-                                : 'Select Source'}
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+
+                        <h3 className="mb-2 font-semibold text-sm text-left line-clamp-1">
+                          {source.location}
+                        </h3>
+
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {source.group}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {source.subgroup}
+                          </Badge>
+                        </div>
+
+                        <div className="mt-auto">
+                          <Button
+                            variant={
+                              selectedSourceId === source.id
+                                ? 'default'
+                                : 'outline'
+                            }
+                            size="sm"
+                            className="w-full text-xs"
+                            onClick={() => handleSourceSelect(source.id)}
+                          >
+                            {selectedSourceId === source.id
+                              ? 'Selected'
+                              : 'Select Source'}
+                          </Button>
+                        </div>
+                      </div>
                     ))}
                 </div>
               </TabsContent>

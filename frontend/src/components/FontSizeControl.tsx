@@ -2,67 +2,91 @@
 
 import { useEffect, useState } from 'react';
 import { Minus, Plus, Text } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { setCookie } from '@/lib/cookies';
 
-export function FontSizeControl() {
-  const [fontSize, setFontSize] = useState(100);
+const fontSizeOptions = [
+  { key: 'small', icon: Minus, label: 'Decrease font size' },
+  { key: 'normal', icon: Text, label: 'Normal font size' },
+  { key: 'large', icon: Plus, label: 'Increase font size' },
+];
+
+const fontSizeValues = {
+  small: 90,
+  normal: 100,
+  large: 110,
+};
+
+export function FontSizeControl({ className }: { className?: string }) {
+  const [fontSize, setFontSize] =
+    useState<keyof typeof fontSizeValues>('normal');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const savedFontSize = localStorage.getItem('fontSize');
     if (savedFontSize) {
-      setFontSize(Number.parseInt(savedFontSize));
-      document.documentElement.style.fontSize = `${savedFontSize}%`;
+      const size = Number.parseInt(savedFontSize);
+      const key = Object.entries(fontSizeValues).find(
+        ([, value]) => value === size,
+      )?.[0] as keyof typeof fontSizeValues;
+      if (key) {
+        setFontSize(key);
+        document.documentElement.style.fontSize = `${size}%`;
+      }
     }
+    setMounted(true);
   }, []);
 
-  const changeFontSize = (delta: number) => {
-    const newSize = Math.max(60, Math.min(140, fontSize + delta));
+  const changeFontSize = (newSize: keyof typeof fontSizeValues) => {
     setFontSize(newSize);
-    document.documentElement.style.fontSize = `${newSize}%`;
-    localStorage.setItem('fontSize', newSize.toString());
-    setCookie('fontSize', newSize.toString(), {
+    const sizeValue = fontSizeValues[newSize];
+    document.documentElement.style.fontSize = `${sizeValue}%`;
+    localStorage.setItem('fontSize', sizeValue.toString());
+    setCookie('fontSize', sizeValue.toString(), {
       path: '/',
       maxAge: 31_536_000,
     }); // 1 year
   };
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Text className="size-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <span className="sr-only">Change Font Size</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => changeFontSize(-10)}
-            >
-              <Minus className="size-4" />
-            </Button>
-            <span className="text-sm font-medium">{fontSize}%</span>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => changeFontSize(10)}
-            >
-              <Plus className="size-4" />
-            </Button>
-          </div>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div
+      className={cn(
+        'relative flex h-8 rounded-full bg-background p-1 ring-1 ring-border',
+        className,
+      )}
+    >
+      {fontSizeOptions.map(({ key, icon: Icon, label }) => {
+        const isActive = fontSize === key;
+
+        return (
+          <button
+            type="button"
+            key={key}
+            className="relative h-6 w-6 rounded-full"
+            onClick={() => changeFontSize(key as keyof typeof fontSizeValues)}
+            aria-label={label}
+          >
+            {isActive && (
+              <motion.div
+                layoutId="activeFontSize"
+                className="absolute inset-0 rounded-full bg-secondary"
+                transition={{ type: 'spring', duration: 0.5 }}
+              />
+            )}
+            <Icon
+              className={cn(
+                'relative m-auto h-4 w-4',
+                isActive ? 'text-foreground' : 'text-muted-foreground',
+              )}
+            />
+          </button>
+        );
+      })}
+    </div>
   );
 }

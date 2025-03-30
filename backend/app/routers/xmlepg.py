@@ -127,7 +127,7 @@ async def get_providers() -> List[Dict[str, Any]]:
     union all
     -- Get Provider List (Other)
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Other' as subgroup, concat(provgroupname, ' ', provname) as location, 'local' as url from providers
-    where provid in ('SKYRAC', 'INSTV', 'OPTALL', 'IPTVSYD')
+    where provid in ('SKYRAC', 'INSTV', 'OPTALL', 'IPTVSYD', 'FTANOR', 'FTAPAR', 'BEINALL', 'R_LOCSYD', 'R_FVALL', 'FOXPL', 'ALLIPTV')
 
     union all
     -- Get Provider List (Streaming)
@@ -160,7 +160,7 @@ async def get_channels(csv_file_path: str = None) -> List[Dict[str, Any]]:
     left join chanlogos cl on ch.chanlogo = cl.logoid
     left join chantypes ct on ch.chantype = ct.chantypeid
     left join networks nt on ch.channetwork = nt.networkid
-    where ch.chanshowonlistview <> '0'
+    where ch.chanshowonlistview <> '0' and ch.guidelink <> 'CLOSED'
     order by guidelink
     """
 

@@ -55,6 +55,17 @@
     }
   },
   {
+    "id": "xmlepg_FOXALL",
+    "group": "Australia",
+    "subgroup": "Subscription",
+    "location": "Foxtel (All)",
+    "url": "local",
+    "logo": {
+      "light": "logos/foxtel.png",
+      "dark": "logos/foxtel.png"
+    }
+  },
+  {
     "id": "xmlepg_FOXNOW",
     "group": "Australia",
     "subgroup": "Subscription",

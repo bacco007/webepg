@@ -11,23 +11,15 @@ import React, {
   useState,
 } from 'react';
 import { createRoot } from 'react-dom/client';
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  useMap,
-  useMapEvents,
-} from 'react-leaflet';
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import {
   ChevronDown,
-  ChevronRight,
+  ChevronUp,
   Layers,
   Locate,
   Maximize,
   Search,
-  X,
 } from 'lucide-react';
 
 import '@drustack/leaflet.resetview';
@@ -44,6 +36,8 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 
 // Fix for default marker icon in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -191,6 +185,8 @@ function GeolocationControl() {
   );
 }
 
+// Now update the FilterSection component to hide options with zero count
+// Modify the FilterSection component to filter out options with zero count
 function FilterSection({
   title,
   options,
@@ -198,6 +194,9 @@ function FilterSection({
   onFilterChange,
   searchValue,
   onSearchChange,
+  counts,
+  showSearch = false,
+  badge,
 }: {
   title: string;
   options: string[];
@@ -205,87 +204,238 @@ function FilterSection({
   onFilterChange: (value: string) => void;
   searchValue: string;
   onSearchChange: (value: string) => void;
+  counts: Record<string, number>;
+  showSearch?: boolean;
+  badge?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const debouncedSearch = useDebounce(searchValue, 300);
 
-  const filteredOptions = useMemo(() => {
-    return options.filter(option =>
-      option.toLowerCase().includes(debouncedSearch.toLowerCase()),
-    );
-  }, [options, debouncedSearch]);
+  // Filter options to only include those with counts > 0 or those already selected
+  const availableOptions = useMemo(() => {
+    return options
+      .filter(
+        option =>
+          filters.includes(option) || // Always show selected options
+          counts[option] > 0, // Only show options with counts > 0
+      )
+      .filter(option =>
+        option.toLowerCase().includes(debouncedSearch.toLowerCase()),
+      );
+  }, [options, counts, filters, debouncedSearch]);
+
+  // Calculate total available options for display
+  const totalAvailableOptions = useMemo(() => {
+    return options.filter(
+      option => counts[option] > 0 || filters.includes(option),
+    ).length;
+  }, [options, counts, filters]);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="flex w-full items-center justify-between p-4 hover:bg-muted/50">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-b">
+      <CollapsibleTrigger className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full">
         <div className="flex items-center gap-2">
-          <span className="font-medium">{title}</span>
+          <span className="font-medium text-muted-foreground text-sm">
+            {title}
+          </span>
+          {badge && (
+            <Badge variant="outline" className="font-normal text-xs">
+              {badge}
+            </Badge>
+          )}
           {filters.length > 0 && (
-            <Badge variant="secondary" className="font-normal">
+            <Badge variant="primary" className="font-normal text-xs">
               {filters.length}
             </Badge>
           )}
         </div>
-        {isOpen ? (
-          <ChevronDown className="size-4" />
-        ) : (
-          <ChevronRight className="size-4" />
-        )}
-      </CollapsibleTrigger>
-      <CollapsibleContent className="px-4 pb-4">
-        <div className="relative">
-          <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-          <Input
-            placeholder={`Search ${title}...`}
-            value={searchValue}
-            onChange={e => onSearchChange(e.target.value)}
-            className="mb-2 pl-8"
-          />
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground text-xs">
+            {totalAvailableOptions}
+          </span>
+          {isOpen ? (
+            <ChevronUp className="size-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="size-4 text-muted-foreground" />
+          )}
         </div>
-        <ScrollArea className="h-[200px]">
-          <div className="space-y-2">
-            {filteredOptions.map(option => (
-              <label key={option} className="flex cursor-pointer items-center">
-                <Checkbox
-                  checked={filters.includes(option)}
-                  onCheckedChange={() => onFilterChange(option)}
-                  className="mr-2"
-                />
-                <span className="text-sm">{option}</span>
-              </label>
-            ))}
+      </CollapsibleTrigger>
+      <CollapsibleContent className="px-4 pb-3">
+        {showSearch && (
+          <div className="relative mb-2">
+            <Search className="top-2.5 left-2 absolute size-4 text-muted-foreground" />
+            <Input
+              placeholder={`Search`}
+              value={searchValue}
+              onChange={e => onSearchChange(e.target.value)}
+              className="pl-8 text-sm"
+            />
           </div>
-        </ScrollArea>
+        )}
+        <div className="space-y-1 pr-1 max-h-[200px] overflow-y-auto">
+          {availableOptions.length > 0 ? (
+            availableOptions.map(option => (
+              <label
+                key={option}
+                className="flex justify-between items-center py-1 cursor-pointer"
+              >
+                <div className="flex items-center">
+                  <Checkbox
+                    checked={filters.includes(option)}
+                    onCheckedChange={() => onFilterChange(option)}
+                    className="mr-2"
+                  />
+                  <span className="text-sm">{option}</span>
+                </div>
+                <span className="text-muted-foreground text-xs">
+                  {counts[option]}
+                </span>
+              </label>
+            ))
+          ) : (
+            <div className="py-2 text-muted-foreground text-sm text-center">
+              No options available
+            </div>
+          )}
+        </div>
       </CollapsibleContent>
     </Collapsible>
   );
 }
 
+// Update the FrequencyRangeFilter component to accept props from the parent
+function FrequencyRangeFilter({
+  minFrequency,
+  maxFrequency,
+  frequencyRange,
+  setMinFrequency,
+  setMaxFrequency,
+  setFrequencyRange,
+}: {
+  minFrequency: string;
+  maxFrequency: string;
+  frequencyRange: [number, number];
+  setMinFrequency: (value: string) => void;
+  setMaxFrequency: (value: string) => void;
+  setFrequencyRange: (value: [number, number]) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleFrequencyInputChange = (type: 'min' | 'max', value: string) => {
+    const numValue = Number.parseFloat(value);
+
+    if (type === 'min') {
+      setMinFrequency(value);
+      if (!isNaN(numValue)) {
+        setFrequencyRange([numValue, frequencyRange[1]]);
+      }
+    } else {
+      setMaxFrequency(value);
+      if (!isNaN(numValue)) {
+        setFrequencyRange([frequencyRange[0], numValue]);
+      }
+    }
+  };
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-b">
+      <CollapsibleTrigger className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-muted-foreground text-sm">
+            Frequency
+          </span>
+        </div>
+        {isOpen ? (
+          <ChevronUp className="size-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="size-4 text-muted-foreground" />
+        )}
+      </CollapsibleTrigger>
+      <CollapsibleContent className="px-4 pb-3">
+        <div className="space-y-4">
+          <div className="flex justify-between">
+            <div className="space-y-1">
+              <Label htmlFor="min-frequency" className="text-xs">
+                Min.
+              </Label>
+              <div className="flex items-center">
+                <Input
+                  id="min-frequency"
+                  type="number"
+                  value={minFrequency}
+                  onChange={e =>
+                    handleFrequencyInputChange('min', e.target.value)
+                  }
+                  className="w-20 h-8 text-sm"
+                />
+                <span className="ml-1 text-muted-foreground text-xs">MHz</span>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="max-frequency" className="text-xs">
+                Max.
+              </Label>
+              <div className="flex items-center">
+                <Input
+                  id="max-frequency"
+                  type="number"
+                  value={maxFrequency}
+                  onChange={e =>
+                    handleFrequencyInputChange('max', e.target.value)
+                  }
+                  className="w-20 h-8 text-sm"
+                />
+                <span className="ml-1 text-muted-foreground text-xs">MHz</span>
+              </div>
+            </div>
+          </div>
+          <Slider
+            value={frequencyRange}
+            min={150}
+            max={670}
+            step={1}
+            onValueChange={value => {
+              setFrequencyRange(value as [number, number]);
+              setMinFrequency(value[0].toString());
+              setMaxFrequency(value[1].toString());
+            }}
+            className="mt-2"
+          />
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+// Update the TransmitterMap component to initialize frequency range with 150-670
 export default function TransmitterMap() {
-  const [transmittersData, setTransmittersData] = useState<Transmitter[]>([]);
+  // ... existing code ...
+
+  // Update initial frequency range values
+  const [frequencyRange, setFrequencyRange] = useState<[number, number]>([
+    150, 670,
+  ]);
+  const [minFrequency, setMinFrequency] = useState<string>('150');
+  const [maxFrequency, setMaxFrequency] = useState<string>('670');
+
+  // ... existing code ...
+  const [globalSearchTerm, setGlobalSearchTerm] = useState<string>('');
+  const [callSignSearch, setCallSignSearch] = useState<string>('');
+  const [areaServedSearch, setAreaServedSearch] = useState<string>('');
+  const [licenceAreaSearch, setLicenceAreaSearch] = useState<string>('');
+  const [operatorSearch, setOperatorSearch] = useState<string>('');
+  const [networkSearch, setNetworkSearch] = useState<string>('');
   const [callSignFilters, setCallSignFilters] = useState<string[]>([]);
   const [areaServedFilters, setAreaServedFilters] = useState<string[]>([]);
   const [licenceAreaFilters, setLicenceAreaFilters] = useState<string[]>([]);
   const [operatorFilters, setOperatorFilters] = useState<string[]>([]);
   const [networkFilters, setNetworkFilters] = useState<string[]>([]);
-  const [globalSearchTerm, setGlobalSearchTerm] = useState('');
-  const [callSignSearch, setCallSignSearch] = useState('');
-  const [areaServedSearch, setAreaServedSearch] = useState('');
-  const [licenceAreaSearch, setLicenceAreaSearch] = useState('');
-  const [operatorSearch, setOperatorSearch] = useState('');
-  const [networkSearch, setNetworkSearch] = useState('');
+  const [transmittersData, setTransmittersData] = useState<Transmitter[]>([]);
+  const [geoJsonData, setGeoJsonData] = useState<GeoJsonData | null>(null);
   const [localIsLoading, setLocalIsLoading] = useState(true);
   const [localError, setLocalError] = useState<string | null>(null);
-  const [openSections, setOpenSections] = useState({
-    callSign: false,
-    areaServed: false,
-    licenceArea: false,
-    operator: false,
-    network: false,
-  });
-  const [showTVLicenceAreas, setShowTVLicenceAreas] = useState(false);
-  const [geoJsonData, setGeoJsonData] = useState<GeoJsonData | null>(null);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const [showTVLicenceAreas, setShowTVLicenceAreas] = useState(false);
 
   const mapRef = useRef<L.Map | null>(null);
 
@@ -327,6 +477,8 @@ export default function TransmitterMap() {
             operatorFilters.includes(transmitter.Operator)) &&
           (networkFilters.length === 0 ||
             networkFilters.includes(transmitter.Network)) &&
+          transmitter.Frequency >= frequencyRange[0] &&
+          transmitter.Frequency <= frequencyRange[1] &&
           (debouncedGlobalSearch === '' ||
             transmitter.CallSign.toLowerCase().includes(
               debouncedGlobalSearch.toLowerCase(),
@@ -351,14 +503,37 @@ export default function TransmitterMap() {
       licenceAreaFilters,
       operatorFilters,
       networkFilters,
+      frequencyRange,
       debouncedGlobalSearch,
     ],
   );
 
-  const filteredTransmitters = useMemo(
-    () => filterTransmitters(transmittersData),
-    [transmittersData, filterTransmitters],
-  );
+  // Update the useEffect that sets frequency range to respect the 150-670 bounds
+  useEffect(() => {
+    if (transmittersData.length > 0) {
+      // Don't automatically set the frequency range from data
+      // Keep the 150-670 range as specified
+      setFrequencyRange([150, 670]);
+      setMinFrequency('150');
+      setMaxFrequency('670');
+    }
+  }, [transmittersData]);
+
+  const handleFrequencyInputChange = (type: 'min' | 'max', value: string) => {
+    const numValue = Number.parseFloat(value);
+
+    if (type === 'min') {
+      setMinFrequency(value);
+      if (!isNaN(numValue)) {
+        setFrequencyRange([numValue, frequencyRange[1]]);
+      }
+    } else {
+      setMaxFrequency(value);
+      if (!isNaN(numValue)) {
+        setFrequencyRange([frequencyRange[0], numValue]);
+      }
+    }
+  };
 
   const uniqueCallSigns = useMemo(
     () => [...new Set(transmittersData.map(t => t.CallSign))].sort(),
@@ -384,6 +559,273 @@ export default function TransmitterMap() {
     () => [...new Set(transmittersData.map(t => t.Network))].sort(),
     [transmittersData],
   );
+
+  // Update the filter counts to be based on the currently filtered data, not the entire dataset
+  // Modify the useMemo hooks for filter counts to use the filtered data
+
+  // Replace the existing callSignCounts useMemo with this:
+  const callSignCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Create a version of the filter function that excludes callSign filter
+    const filterWithoutCallSign = (transmitter: Transmitter) =>
+      (areaServedFilters.length === 0 ||
+        areaServedFilters.includes(transmitter.AreaServed)) &&
+      (licenceAreaFilters.length === 0 ||
+        licenceAreaFilters.includes(transmitter.LicenceArea)) &&
+      (operatorFilters.length === 0 ||
+        operatorFilters.includes(transmitter.Operator)) &&
+      (networkFilters.length === 0 ||
+        networkFilters.includes(transmitter.Network)) &&
+      transmitter.Frequency >= frequencyRange[0] &&
+      transmitter.Frequency <= frequencyRange[1] &&
+      (debouncedGlobalSearch === '' ||
+        transmitter.CallSign.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.AreaServed.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.LicenceArea.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Operator.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Network.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ));
+
+    // Count only transmitters that match all other filters
+    uniqueCallSigns.forEach(callSign => {
+      counts[callSign] = transmittersData.filter(
+        t => t.CallSign === callSign && filterWithoutCallSign(t),
+      ).length;
+    });
+
+    return counts;
+  }, [
+    transmittersData,
+    uniqueCallSigns,
+    areaServedFilters,
+    licenceAreaFilters,
+    operatorFilters,
+    networkFilters,
+    frequencyRange,
+    debouncedGlobalSearch,
+  ]);
+
+  // Replace the existing areaServedCounts useMemo with this:
+  const areaServedCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Create a version of the filter function that excludes areaServed filter
+    const filterWithoutAreaServed = (transmitter: Transmitter) =>
+      (callSignFilters.length === 0 ||
+        callSignFilters.includes(transmitter.CallSign)) &&
+      (licenceAreaFilters.length === 0 ||
+        licenceAreaFilters.includes(transmitter.LicenceArea)) &&
+      (operatorFilters.length === 0 ||
+        operatorFilters.includes(transmitter.Operator)) &&
+      (networkFilters.length === 0 ||
+        networkFilters.includes(transmitter.Network)) &&
+      transmitter.Frequency >= frequencyRange[0] &&
+      transmitter.Frequency <= frequencyRange[1] &&
+      (debouncedGlobalSearch === '' ||
+        transmitter.CallSign.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.AreaServed.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.LicenceArea.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Operator.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Network.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ));
+
+    // Count only transmitters that match all other filters
+    uniqueAreaServed.forEach(area => {
+      counts[area] = transmittersData.filter(
+        t => t.AreaServed === area && filterWithoutAreaServed(t),
+      ).length;
+    });
+
+    return counts;
+  }, [
+    transmittersData,
+    uniqueAreaServed,
+    callSignFilters,
+    licenceAreaFilters,
+    operatorFilters,
+    networkFilters,
+    frequencyRange,
+    debouncedGlobalSearch,
+  ]);
+
+  // Replace the existing licenceAreaCounts useMemo with this:
+  const licenceAreaCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Create a version of the filter function that excludes licenceArea filter
+    const filterWithoutLicenceArea = (transmitter: Transmitter) =>
+      (callSignFilters.length === 0 ||
+        callSignFilters.includes(transmitter.CallSign)) &&
+      (areaServedFilters.length === 0 ||
+        areaServedFilters.includes(transmitter.AreaServed)) &&
+      (operatorFilters.length === 0 ||
+        operatorFilters.includes(transmitter.Operator)) &&
+      (networkFilters.length === 0 ||
+        networkFilters.includes(transmitter.Network)) &&
+      transmitter.Frequency >= frequencyRange[0] &&
+      transmitter.Frequency <= frequencyRange[1] &&
+      (debouncedGlobalSearch === '' ||
+        transmitter.CallSign.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.AreaServed.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.LicenceArea.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Operator.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Network.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ));
+
+    // Count only transmitters that match all other filters
+    uniqueLicenceAreas.forEach(area => {
+      counts[area] = transmittersData.filter(
+        t => t.LicenceArea === area && filterWithoutLicenceArea(t),
+      ).length;
+    });
+
+    return counts;
+  }, [
+    transmittersData,
+    uniqueLicenceAreas,
+    callSignFilters,
+    areaServedFilters,
+    operatorFilters,
+    networkFilters,
+    frequencyRange,
+    debouncedGlobalSearch,
+  ]);
+
+  // Replace the existing operatorCounts useMemo with this:
+  const operatorCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Create a version of the filter function that excludes operator filter
+    const filterWithoutOperator = (transmitter: Transmitter) =>
+      (callSignFilters.length === 0 ||
+        callSignFilters.includes(transmitter.CallSign)) &&
+      (areaServedFilters.length === 0 ||
+        areaServedFilters.includes(transmitter.AreaServed)) &&
+      (licenceAreaFilters.length === 0 ||
+        licenceAreaFilters.includes(transmitter.LicenceArea)) &&
+      (networkFilters.length === 0 ||
+        networkFilters.includes(transmitter.Network)) &&
+      transmitter.Frequency >= frequencyRange[0] &&
+      transmitter.Frequency <= frequencyRange[1] &&
+      (debouncedGlobalSearch === '' ||
+        transmitter.CallSign.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.AreaServed.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.LicenceArea.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Operator.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Network.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ));
+
+    // Count only transmitters that match all other filters
+    uniqueOperators.forEach(operator => {
+      counts[operator] = transmittersData.filter(
+        t => t.Operator === operator && filterWithoutOperator(t),
+      ).length;
+    });
+
+    return counts;
+  }, [
+    transmittersData,
+    uniqueOperators,
+    callSignFilters,
+    areaServedFilters,
+    licenceAreaFilters,
+    networkFilters,
+    frequencyRange,
+    debouncedGlobalSearch,
+  ]);
+
+  // Replace the existing networkCounts useMemo with this:
+  const networkCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Create a version of the filter function that excludes network filter
+    const filterWithoutNetwork = (transmitter: Transmitter) =>
+      (callSignFilters.length === 0 ||
+        callSignFilters.includes(transmitter.CallSign)) &&
+      (areaServedFilters.length === 0 ||
+        areaServedFilters.includes(transmitter.AreaServed)) &&
+      (licenceAreaFilters.length === 0 ||
+        licenceAreaFilters.includes(transmitter.LicenceArea)) &&
+      (operatorFilters.length === 0 ||
+        operatorFilters.includes(transmitter.Operator)) &&
+      transmitter.Frequency >= frequencyRange[0] &&
+      transmitter.Frequency <= frequencyRange[1] &&
+      (debouncedGlobalSearch === '' ||
+        transmitter.CallSign.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.AreaServed.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.LicenceArea.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Operator.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ) ||
+        transmitter.Network.toLowerCase().includes(
+          debouncedGlobalSearch.toLowerCase(),
+        ));
+
+    // Count only transmitters that match all other filters
+    uniqueNetworks.forEach(network => {
+      counts[network] = transmittersData.filter(
+        t => t.Network === network && filterWithoutNetwork(t),
+      ).length;
+    });
+
+    return counts;
+  }, [
+    transmittersData,
+    uniqueNetworks,
+    callSignFilters,
+    areaServedFilters,
+    licenceAreaFilters,
+    operatorFilters,
+    frequencyRange,
+    debouncedGlobalSearch,
+  ]);
+
+  const filteredTransmitters = useMemo(() => {
+    return filterTransmitters(transmittersData);
+  }, [transmittersData, filterTransmitters]);
 
   const bounds = useMemo(() => {
     if (filteredTransmitters.length === 0) return null;
@@ -446,6 +888,7 @@ export default function TransmitterMap() {
     }
   };
 
+  // Update the clearAllFilters function to reset to 150-670
   const clearAllFilters = () => {
     setCallSignFilters([]);
     setAreaServedFilters([]);
@@ -458,24 +901,16 @@ export default function TransmitterMap() {
     setLicenceAreaSearch('');
     setOperatorSearch('');
     setNetworkSearch('');
-  };
 
-  const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections(previous => ({
-      ...previous,
-      [section]: !previous[section],
-    }));
-  };
-
-  const filterOptions = (options: string[], searchTerm: string) => {
-    return options.filter(option =>
-      option.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+    // Reset frequency range to 150-670
+    setFrequencyRange([150, 670]);
+    setMinFrequency('150');
+    setMaxFrequency('670');
   };
 
   if (localIsLoading || isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex justify-center items-center h-screen">
         Loading transmitter data...
       </div>
     );
@@ -483,37 +918,31 @@ export default function TransmitterMap() {
 
   if (localError || error) {
     return (
-      <div className="flex h-screen items-center justify-center text-red-500">
+      <div className="flex justify-center items-center h-screen text-red-500">
         Error: {localError || error}
       </div>
     );
   }
 
+  // In the return statement, update the FrequencyRangeFilter component
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <div className="w-64 shrink-0 border-r bg-background">
-        <ScrollArea className="h-full">
-          <div className="space-y-4 p-4">
-            <div className="sticky top-0 z-10 bg-background pb-4 pt-2">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                <Input
-                  placeholder="Global Search..."
-                  value={globalSearchTerm}
-                  onChange={e => setGlobalSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={clearAllFilters}
-                className="mt-2 w-full"
-              >
-                Clear All Filters
-              </Button>
+    <div className="flex w-full h-screen overflow-hidden">
+      {/* ... existing code ... */}
+      <div className="bg-background border-r w-64 shrink-0">
+        <div className="flex flex-col h-full">
+          <div className="p-3 border-b">
+            <div className="relative">
+              <Search className="top-2.5 left-2 absolute size-4 text-muted-foreground" />
+              <Input
+                placeholder="Search transmitters..."
+                value={globalSearchTerm}
+                onChange={e => setGlobalSearchTerm(e.target.value)}
+                className="pl-8 text-sm"
+              />
             </div>
-            <div className="space-y-2">
+          </div>
+          <ScrollArea className="flex-1">
+            <div className="divide-y">
               <FilterSection
                 title="Call Signs"
                 options={uniqueCallSigns}
@@ -521,6 +950,8 @@ export default function TransmitterMap() {
                 onFilterChange={value => handleFilterChange('callSign', value)}
                 searchValue={callSignSearch}
                 onSearchChange={setCallSignSearch}
+                counts={callSignCounts}
+                showSearch={true}
               />
               <FilterSection
                 title="Areas Served"
@@ -531,6 +962,8 @@ export default function TransmitterMap() {
                 }
                 searchValue={areaServedSearch}
                 onSearchChange={setAreaServedSearch}
+                counts={areaServedCounts}
+                showSearch={true}
               />
               <FilterSection
                 title="Licence Areas"
@@ -541,6 +974,8 @@ export default function TransmitterMap() {
                 }
                 searchValue={licenceAreaSearch}
                 onSearchChange={setLicenceAreaSearch}
+                counts={licenceAreaCounts}
+                showSearch={true}
               />
               <FilterSection
                 title="Operators"
@@ -549,6 +984,8 @@ export default function TransmitterMap() {
                 onFilterChange={value => handleFilterChange('operator', value)}
                 searchValue={operatorSearch}
                 onSearchChange={setOperatorSearch}
+                counts={operatorCounts}
+                showSearch={true}
               />
               <FilterSection
                 title="Networks"
@@ -557,12 +994,38 @@ export default function TransmitterMap() {
                 onFilterChange={value => handleFilterChange('network', value)}
                 searchValue={networkSearch}
                 onSearchChange={setNetworkSearch}
+                counts={networkCounts}
+                showSearch={true}
+              />
+              <FrequencyRangeFilter
+                minFrequency={minFrequency}
+                maxFrequency={maxFrequency}
+                frequencyRange={frequencyRange}
+                setMinFrequency={setMinFrequency}
+                setMaxFrequency={setMaxFrequency}
+                setFrequencyRange={setFrequencyRange}
               />
             </div>
+          </ScrollArea>
+
+          <div className="p-3 border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearAllFilters}
+              className="w-full text-xs"
+            >
+              Clear All Filters
+            </Button>
+            <div className="mt-2 text-muted-foreground text-xs text-center">
+              Showing {filteredTransmitters.length} of {transmittersData.length}{' '}
+              transmitters
+            </div>
           </div>
-        </ScrollArea>
+        </div>
       </div>
-      <div className="h-full flex-1">
+      {/* ... rest of the component ... */}
+      <div className="flex-1 h-full">
         <MapContainer
           center={center}
           zoom={zoom}
@@ -627,7 +1090,7 @@ export default function TransmitterMap() {
           <GeolocationControl />
         </MapContainer>
         {selectedArea && (
-          <div className="absolute right-4 top-4 z-[1000] rounded bg-white p-2 shadow">
+          <div className="top-4 right-4 z-[1000] absolute bg-white shadow p-2 rounded">
             Selected Area: {selectedArea}
           </div>
         )}

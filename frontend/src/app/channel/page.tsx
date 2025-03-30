@@ -1,23 +1,17 @@
 'use client';
 
-import Image from 'next/image';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
 import {
   AlertCircle,
   ArrowRight,
   ChevronDown,
   ChevronUp,
-  FilterIcon,
   LayoutGrid,
   List,
   RefreshCw,
+  Search,
+  Sliders,
   X,
 } from 'lucide-react';
 
@@ -28,28 +22,14 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from '@/components/ui/command';
-import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
   TableBody,
@@ -111,6 +91,91 @@ const decodeHtml = (html: string): string => {
   return txt.value;
 };
 
+function FilterSection({
+  title,
+  options,
+  filters,
+  onFilterChange,
+  counts,
+}: {
+  title: string;
+  options: string[];
+  filters: string[];
+  onFilterChange: (value: string) => void;
+  counts: Record<string, number>;
+}) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  // Filter options to only include those with counts > 0 or those already selected
+  const availableOptions = useMemo(() => {
+    return options.filter(
+      option =>
+        filters.includes(option) || // Always show selected options
+        counts[option] > 0, // Only show options with counts > 0
+    );
+  }, [options, counts, filters]);
+
+  // Calculate total available options for display
+  const totalAvailableOptions = useMemo(() => {
+    return options.filter(
+      option => counts[option] > 0 || filters.includes(option),
+    ).length;
+  }, [options, counts, filters]);
+
+  return (
+    <div className="border-b">
+      <div
+        className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/10"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{title}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">
+            {totalAvailableOptions}
+          </span>
+          {isOpen ? (
+            <ChevronUp className="size-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="size-4 text-muted-foreground" />
+          )}
+        </div>
+      </div>
+      {isOpen && (
+        <div className="px-4 pb-3">
+          <div className="thin-scrollbar max-h-[200px] space-y-1 overflow-y-auto pr-1">
+            {availableOptions.length > 0 ? (
+              availableOptions.map(option => (
+                <label
+                  key={option}
+                  className="flex cursor-pointer items-center justify-between py-1"
+                >
+                  <div className="flex items-center">
+                    <Checkbox
+                      checked={filters.includes(option)}
+                      onCheckedChange={() => onFilterChange(option)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">{option}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {counts[option]}
+                  </span>
+                </label>
+              ))
+            ) : (
+              <div className="py-2 text-center text-sm text-muted-foreground">
+                No options available
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ChannelListContent() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [filteredChannels, setFilteredChannels] = useState<Channel[]>([]);
@@ -124,11 +189,21 @@ function ChannelListContent() {
   const [selectedSpecs, setSelectedSpecs] = useState<string[]>([]);
   const [selectedNameGroups, setSelectedNameGroups] = useState<string[]>([]);
   const [hideNoPrograms, setHideNoPrograms] = useState(false);
-  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('card');
   const [sortField, setSortField] = useState<SortField>('number');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [groupBy, setGroupBy] = useState<GroupBy>('none');
+  const [columnVisibility, setColumnVisibility] = useState({
+    logo: true,
+    number: true,
+    name: true,
+    group: true,
+    type: true,
+    specs: true,
+    nameGroup: true,
+    programs: true,
+    actions: true,
+  });
 
   const fetchChannels = useCallback(async () => {
     setLoading(true);
@@ -192,10 +267,6 @@ function ChannelListContent() {
     sortDirection,
   ]);
 
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-  };
-
   const handleRefresh = () => {
     fetchChannels();
   };
@@ -257,9 +328,11 @@ function ChannelListContent() {
         }
         case 'number': {
           const aNumber =
-            Number.parseInt(String(a.channel_number), 10) || Infinity;
+            Number.parseInt(String(a.channel_number), 10) ||
+            Number.POSITIVE_INFINITY;
           const bNumber =
-            Number.parseInt(String(b.channel_number), 10) || Infinity;
+            Number.parseInt(String(b.channel_number), 10) ||
+            Number.POSITIVE_INFINITY;
           comparison = aNumber - bNumber;
           break;
         }
@@ -284,6 +357,7 @@ function ChannelListContent() {
     () => [...new Set(channels.map(channel => channel.channel_group))].sort(),
     [channels],
   );
+
   const uniqueTypes = useMemo(
     () =>
       [
@@ -291,6 +365,7 @@ function ChannelListContent() {
       ].sort(),
     [channels],
   );
+
   const uniqueSpecs = useMemo(
     () =>
       [
@@ -298,6 +373,7 @@ function ChannelListContent() {
       ].sort(),
     [channels],
   );
+
   const uniqueNameGroups = useMemo(
     () =>
       [
@@ -321,147 +397,178 @@ function ChannelListContent() {
     setHideNoPrograms(false);
   }, []);
 
-  const FilterMenu = () => (
-    <Popover open={isFilterMenuOpen} onOpenChange={setIsFilterMenuOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="ml-auto">
-          <FilterIcon className="mr-2 size-4" />
-          Filters
-          {(selectedGroups.length > 0 ||
-            selectedTypes.length > 0 ||
-            selectedSpecs.length > 0 ||
-            selectedNameGroups.length > 0 ||
-            hideNoPrograms) && (
-            <Badge variant="secondary" className="ml-2">
-              {selectedGroups.length +
-                selectedTypes.length +
-                selectedSpecs.length +
-                selectedNameGroups.length +
-                (hideNoPrograms ? 1 : 0)}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="end">
-        <Command>
-          <CommandInput placeholder="Search filters..." />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading="Options">
-              <CommandItem>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="hide-no-programs"
-                    checked={hideNoPrograms}
-                    onCheckedChange={checked =>
-                      setHideNoPrograms(checked as boolean)
-                    }
-                  />
-                  <Label htmlFor="hide-no-programs">
-                    Hide channels with no programs
-                  </Label>
-                </div>
-              </CommandItem>
-            </CommandGroup>
-            <CommandSeparator />
-            <CommandGroup heading="Channel Groups">
-              <ScrollArea className="h-[200px]">
-                {uniqueGroups.map(group => (
-                  <CommandItem
-                    key={group}
-                    onSelect={() => handleGroupFilter(group)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`group-${group}`}
-                        checked={selectedGroups.includes(group)}
-                        onCheckedChange={() => handleGroupFilter(group)}
-                      />
-                      <Label htmlFor={`group-${group}`}>{group}</Label>
-                    </div>
-                  </CommandItem>
-                ))}
-              </ScrollArea>
-            </CommandGroup>
-            <CommandSeparator />
-            <CommandGroup heading="Channel Types">
-              <ScrollArea className="h-[200px]">
-                {uniqueTypes.map(type => (
-                  <CommandItem
-                    key={type}
-                    onSelect={() => handleTypeFilter(type)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`type-${type}`}
-                        checked={selectedTypes.includes(type)}
-                        onCheckedChange={() => handleTypeFilter(type)}
-                      />
-                      <Label htmlFor={`type-${type}`}>{type}</Label>
-                    </div>
-                  </CommandItem>
-                ))}
-              </ScrollArea>
-            </CommandGroup>
-            <CommandSeparator />
-            <CommandGroup heading="Channel Specs">
-              <ScrollArea className="h-[200px]">
-                {uniqueSpecs.map(specs => (
-                  <CommandItem
-                    key={specs}
-                    onSelect={() => handleSpecsFilter(specs)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`specs-${specs}`}
-                        checked={selectedSpecs.includes(specs)}
-                        onCheckedChange={() => handleSpecsFilter(specs)}
-                      />
-                      <Label htmlFor={`specs-${specs}`}>{specs}</Label>
-                    </div>
-                  </CommandItem>
-                ))}
-              </ScrollArea>
-            </CommandGroup>
-            {hasNameGroups && (
-              <>
-                <CommandSeparator />
-                <CommandGroup heading="Channel Name Groups">
-                  <ScrollArea className="h-[200px]">
-                    {uniqueNameGroups.map(nameGroup => (
-                      <CommandItem
-                        key={nameGroup}
-                        onSelect={() => handleNameGroupFilter(nameGroup)}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`name-group-${nameGroup}`}
-                            checked={selectedNameGroups.includes(nameGroup)}
-                            onCheckedChange={() =>
-                              handleNameGroupFilter(nameGroup)
-                            }
-                          />
-                          <Label htmlFor={`name-group-${nameGroup}`}>
-                            {nameGroup}
-                          </Label>
-                        </div>
-                      </CommandItem>
-                    ))}
-                  </ScrollArea>
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
-          <div className="border-t p-2">
-            <Button variant="outline" className="w-full" onClick={clearFilters}>
-              <X className="mr-2 size-4" />
-              Clear Filters
-            </Button>
-          </div>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
+  // Calculate counts for each filter option
+  const groupCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Create a version of the filter function that excludes group filter
+    const filterWithoutGroup = (channel: Channel) =>
+      (selectedTypes.length === 0 ||
+        selectedTypes.includes(channel.other_data.channel_type)) &&
+      (selectedSpecs.length === 0 ||
+        selectedSpecs.includes(channel.other_data.channel_specs)) &&
+      (selectedNameGroups.length === 0 ||
+        (channel.other_data.channel_name_group &&
+          selectedNameGroups.includes(
+            channel.other_data.channel_name_group,
+          ))) &&
+      (!hideNoPrograms || channel.program_count > 0) &&
+      (searchTerm === '' ||
+        (channel.channel_names?.real || channel.channel_name || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (typeof channel.channel_number === 'string' &&
+          channel.channel_number.includes(searchTerm)));
+
+    // Count only channels that match all other filters
+    uniqueGroups.forEach(group => {
+      counts[group] = channels.filter(
+        c => c.channel_group === group && filterWithoutGroup(c),
+      ).length;
+    });
+
+    return counts;
+  }, [
+    channels,
+    uniqueGroups,
+    selectedTypes,
+    selectedSpecs,
+    selectedNameGroups,
+    hideNoPrograms,
+    searchTerm,
+  ]);
+
+  const typeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Create a version of the filter function that excludes type filter
+    const filterWithoutType = (channel: Channel) =>
+      (selectedGroups.length === 0 ||
+        selectedGroups.includes(channel.channel_group)) &&
+      (selectedSpecs.length === 0 ||
+        selectedSpecs.includes(channel.other_data.channel_specs)) &&
+      (selectedNameGroups.length === 0 ||
+        (channel.other_data.channel_name_group &&
+          selectedNameGroups.includes(
+            channel.other_data.channel_name_group,
+          ))) &&
+      (!hideNoPrograms || channel.program_count > 0) &&
+      (searchTerm === '' ||
+        (channel.channel_names?.real || channel.channel_name || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (typeof channel.channel_number === 'string' &&
+          channel.channel_number.includes(searchTerm)));
+
+    // Count only channels that match all other filters
+    uniqueTypes.forEach(type => {
+      counts[type] = channels.filter(
+        c => c.other_data.channel_type === type && filterWithoutType(c),
+      ).length;
+    });
+
+    return counts;
+  }, [
+    channels,
+    uniqueTypes,
+    selectedGroups,
+    selectedSpecs,
+    selectedNameGroups,
+    hideNoPrograms,
+    searchTerm,
+  ]);
+
+  const specsCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Create a version of the filter function that excludes specs filter
+    const filterWithoutSpecs = (channel: Channel) =>
+      (selectedGroups.length === 0 ||
+        selectedGroups.includes(channel.channel_group)) &&
+      (selectedTypes.length === 0 ||
+        selectedTypes.includes(channel.other_data.channel_type)) &&
+      (selectedNameGroups.length === 0 ||
+        (channel.other_data.channel_name_group &&
+          selectedNameGroups.includes(
+            channel.other_data.channel_name_group,
+          ))) &&
+      (!hideNoPrograms || channel.program_count > 0) &&
+      (searchTerm === '' ||
+        (channel.channel_names?.real || channel.channel_name || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (typeof channel.channel_number === 'string' &&
+          channel.channel_number.includes(searchTerm)));
+
+    // Count only channels that match all other filters
+    uniqueSpecs.forEach(spec => {
+      counts[spec] = channels.filter(
+        c => c.other_data.channel_specs === spec && filterWithoutSpecs(c),
+      ).length;
+    });
+
+    return counts;
+  }, [
+    channels,
+    uniqueSpecs,
+    selectedGroups,
+    selectedTypes,
+    selectedNameGroups,
+    hideNoPrograms,
+    searchTerm,
+  ]);
+
+  const nameGroupCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    // Create a version of the filter function that excludes name group filter
+    const filterWithoutNameGroup = (channel: Channel) =>
+      (selectedGroups.length === 0 ||
+        selectedGroups.includes(channel.channel_group)) &&
+      (selectedTypes.length === 0 ||
+        selectedTypes.includes(channel.other_data.channel_type)) &&
+      (selectedSpecs.length === 0 ||
+        selectedSpecs.includes(channel.other_data.channel_specs)) &&
+      (!hideNoPrograms || channel.program_count > 0) &&
+      (searchTerm === '' ||
+        (channel.channel_names?.real || channel.channel_name || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (typeof channel.channel_number === 'string' &&
+          channel.channel_number.includes(searchTerm)));
+
+    // Count only channels that match all other filters
+    uniqueNameGroups.forEach(nameGroup => {
+      counts[nameGroup] = channels.filter(
+        c =>
+          c.other_data.channel_name_group === nameGroup &&
+          filterWithoutNameGroup(c),
+      ).length;
+    });
+
+    return counts;
+  }, [
+    channels,
+    uniqueNameGroups,
+    selectedGroups,
+    selectedTypes,
+    selectedSpecs,
+    hideNoPrograms,
+    searchTerm,
+  ]);
+
+  // Column display names mapping for the visibility dropdown
+  const columnDisplayNames = {
+    logo: 'Logo',
+    number: 'Ch No',
+    name: 'Channel Name',
+    group: 'Channel Operator',
+    type: 'Channel Type',
+    specs: 'Specs',
+    nameGroup: 'Name Group',
+    programs: 'Programs',
+    actions: 'Actions',
+  };
 
   const ChannelCard = ({
     channel,
@@ -503,13 +610,21 @@ function ChannelListContent() {
                 Channel {channel.channel_number}
               </p>
             )}
-          <p className="text-xs font-semibold text-primary">
-            {channel.channel_group || 'N/A'}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {channel.other_data.channel_specs},{' '}
-            {channel.other_data.channel_type}
-          </p>
+          {channel.channel_group &&
+            channel.channel_group !== 'N/A' &&
+            channel.channel_group.toLowerCase() !== 'unknown' && (
+              <p className="text-xs font-semibold text-primary">
+                {channel.channel_group}
+              </p>
+            )}
+          {channel.other_data &&
+            channel.other_data.channel_specs !== 'N/A' &&
+            channel.other_data.channel_type !== 'N/A' && (
+              <p className="text-xs text-muted-foreground">
+                {channel.other_data.channel_specs},{' '}
+                {channel.other_data.channel_type}
+              </p>
+            )}
         </div>
       </Card>
     </Link>
@@ -518,14 +633,17 @@ function ChannelListContent() {
   const CardView = () => {
     if (groupBy === 'none') {
       return (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {filteredChannels.map((channel, index) => (
-            <ChannelCard
-              key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
-              channel={channel}
-              index={index}
-            />
-          ))}
+        <div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            {filteredChannels.map((channel, index) => (
+              <ChannelCard
+                key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
+                channel={channel}
+                index={index}
+              />
+            ))}
+          </div>
+          <div className="size-16"></div>
         </div>
       );
     } else {
@@ -564,7 +682,7 @@ function ChannelListContent() {
       const sortedGroups = Object.keys(groupedChannels).sort();
 
       return (
-        <div className="space-y-8">
+        <div className="space-y-4">
           {sortedGroups.map(group => (
             <div key={group}>
               <h2 className="mb-4 text-2xl font-bold">{group}</h2>
@@ -585,75 +703,89 @@ function ChannelListContent() {
   };
 
   const TableView = () => (
-    <div className="w-full overflow-auto">
+    <div className="w-full">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 z-20 bg-muted shadow-sm">
           <TableRow>
-            <TableHead className="w-[100px]">Logo</TableHead>
-            <TableHead>
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('number')}
-                className="flex items-center hover:bg-accent hover:text-accent-foreground"
-              >
-                Number
-                {sortField === 'number' &&
-                  (sortDirection === 'asc' ? (
-                    <ChevronUp className="ml-2 size-4" />
-                  ) : (
-                    <ChevronDown className="ml-2 size-4" />
-                  ))}
-              </Button>
-            </TableHead>
-            <TableHead className="min-w-[200px]">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('name')}
-                className="flex items-center hover:bg-accent hover:text-accent-foreground"
-              >
-                Name
-                {sortField === 'name' &&
-                  (sortDirection === 'asc' ? (
-                    <ChevronUp className="ml-2 size-4" />
-                  ) : (
-                    <ChevronDown className="ml-2 size-4" />
-                  ))}
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('group')}
-                className="flex items-center hover:bg-accent hover:text-accent-foreground"
-              >
-                Group
-                {sortField === 'group' &&
-                  (sortDirection === 'asc' ? (
-                    <ChevronUp className="ml-2 size-4" />
-                  ) : (
-                    <ChevronDown className="ml-2 size-4" />
-                  ))}
-              </Button>
-            </TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Specs</TableHead>
-            {hasNameGroups && <TableHead>Name Group</TableHead>}
-            <TableHead>
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('program_count')}
-                className="flex items-center hover:bg-accent hover:text-accent-foreground"
-              >
-                Programs
-                {sortField === 'program_count' &&
-                  (sortDirection === 'asc' ? (
-                    <ChevronUp className="ml-2 size-4" />
-                  ) : (
-                    <ChevronDown className="ml-2 size-4" />
-                  ))}
-              </Button>
-            </TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            {columnVisibility.logo && (
+              <TableHead className="w-[100px]">Logo</TableHead>
+            )}
+            {columnVisibility.number && (
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('number')}
+                  className="flex items-center p-0 font-medium hover:bg-accent hover:text-accent-foreground"
+                >
+                  Ch No
+                  {sortField === 'number' &&
+                    (sortDirection === 'asc' ? (
+                      <ChevronUp className="ml-2 size-4" />
+                    ) : (
+                      <ChevronDown className="ml-2 size-4" />
+                    ))}
+                </Button>
+              </TableHead>
+            )}
+            {columnVisibility.name && (
+              <TableHead className="min-w-[200px]">
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('name')}
+                  className="flex items-center p-0 font-medium hover:bg-accent hover:text-accent-foreground"
+                >
+                  Channel Name
+                  {sortField === 'name' &&
+                    (sortDirection === 'asc' ? (
+                      <ChevronUp className="ml-2 size-4" />
+                    ) : (
+                      <ChevronDown className="ml-2 size-4" />
+                    ))}
+                </Button>
+              </TableHead>
+            )}
+            {columnVisibility.group && (
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('group')}
+                  className="flex items-center p-0 font-medium hover:bg-accent hover:text-accent-foreground"
+                >
+                  Channel Operator
+                  {sortField === 'group' &&
+                    (sortDirection === 'asc' ? (
+                      <ChevronUp className="ml-2 size-4" />
+                    ) : (
+                      <ChevronDown className="ml-2 size-4" />
+                    ))}
+                </Button>
+              </TableHead>
+            )}
+            {columnVisibility.type && <TableHead>Channel Type</TableHead>}
+            {columnVisibility.specs && <TableHead>Specs</TableHead>}
+            {hasNameGroups && columnVisibility.nameGroup && (
+              <TableHead>Name Group</TableHead>
+            )}
+            {columnVisibility.programs && (
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('program_count')}
+                  className="flex items-center p-0 font-medium hover:bg-accent hover:text-accent-foreground"
+                >
+                  Programs
+                  {sortField === 'program_count' &&
+                    (sortDirection === 'asc' ? (
+                      <ChevronUp className="ml-2 size-4" />
+                    ) : (
+                      <ChevronDown className="ml-2 size-4" />
+                    ))}
+                </Button>
+              </TableHead>
+            )}
+            {columnVisibility.actions && (
+              <TableHead className="text-right">Actions</TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -662,95 +794,111 @@ function ChannelListContent() {
               key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
               className="hover:bg-muted/50"
             >
-              <TableCell>
-                {channel.chlogo === 'N/A' ? (
-                  <div className="flex size-12 items-center justify-center rounded-md bg-muted">
-                    <span className="text-xs text-muted-foreground">
-                      No logo
-                    </span>
-                  </div>
-                ) : (
-                  <div>
-                    <img
-                      className="block size-12 max-h-full object-contain dark:hidden"
-                      src={channel.channel_logo.light || '/placeholder.svg'}
-                      alt={decodeHtml(
-                        channel.channel_names?.real ||
-                          channel.channel_name ||
-                          '',
-                      )}
-                    />
-                    <img
-                      className="hidden size-12 max-h-full object-contain dark:block"
-                      src={channel.channel_logo.dark || '/placeholder.svg'}
-                      alt={decodeHtml(
-                        channel.channel_names?.real ||
-                          channel.channel_name ||
-                          '',
-                      )}
-                    />
-                  </div>
-                )}
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary">
-                  {typeof channel.channel_number === 'string' &&
-                  channel.channel_number !== 'N/A'
-                    ? channel.channel_number
-                    : '-'}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                {decodeHtml(
-                  channel.channel_names?.real || channel.channel_name || '',
-                )}
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary" className="mr-2">
-                  {channel.channel_group === 'N/A'
-                    ? '-'
-                    : channel.channel_group}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary" className="mr-2">
-                  {channel.other_data.channel_type === 'N/A'
-                    ? '-'
-                    : channel.other_data.channel_type}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary" className="mr-2">
-                  {channel.other_data.channel_specs === 'N/A'
-                    ? '-'
-                    : channel.other_data.channel_specs}
-                </Badge>
-              </TableCell>
-              {hasNameGroups && (
+              {columnVisibility.logo && (
+                <TableCell>
+                  {channel.chlogo === 'N/A' ? (
+                    <div className="flex size-12 items-center justify-center rounded-md bg-muted">
+                      <span className="text-xs text-muted-foreground">
+                        No logo
+                      </span>
+                    </div>
+                  ) : (
+                    <div>
+                      <img
+                        className="block size-12 max-h-full object-contain dark:hidden"
+                        src={channel.channel_logo.light || '/placeholder.svg'}
+                        alt={decodeHtml(
+                          channel.channel_names?.real ||
+                            channel.channel_name ||
+                            '',
+                        )}
+                      />
+                      <img
+                        className="hidden size-12 max-h-full object-contain dark:block"
+                        src={channel.channel_logo.dark || '/placeholder.svg'}
+                        alt={decodeHtml(
+                          channel.channel_names?.real ||
+                            channel.channel_name ||
+                            '',
+                        )}
+                      />
+                    </div>
+                  )}
+                </TableCell>
+              )}
+              {columnVisibility.number && (
+                <TableCell>
+                  <Badge variant="secondary">
+                    {typeof channel.channel_number === 'string' &&
+                    channel.channel_number !== 'N/A'
+                      ? channel.channel_number
+                      : '-'}
+                  </Badge>
+                </TableCell>
+              )}
+              {columnVisibility.name && (
+                <TableCell>
+                  {decodeHtml(
+                    channel.channel_names?.real || channel.channel_name || '',
+                  )}
+                </TableCell>
+              )}
+              {columnVisibility.group && (
+                <TableCell>
+                  <Badge variant="secondary" className="mr-2">
+                    {channel.channel_group === 'N/A'
+                      ? '-'
+                      : channel.channel_group}
+                  </Badge>
+                </TableCell>
+              )}
+              {columnVisibility.type && (
+                <TableCell>
+                  <Badge variant="secondary" className="mr-2">
+                    {channel.other_data.channel_type === 'N/A'
+                      ? '-'
+                      : channel.other_data.channel_type}
+                  </Badge>
+                </TableCell>
+              )}
+              {columnVisibility.specs && (
+                <TableCell>
+                  <Badge variant="secondary" className="mr-2">
+                    {channel.other_data.channel_specs === 'N/A'
+                      ? '-'
+                      : channel.other_data.channel_specs}
+                  </Badge>
+                </TableCell>
+              )}
+              {hasNameGroups && columnVisibility.nameGroup && (
                 <TableCell>
                   <Badge variant="secondary" className="mr-2">
                     {channel.other_data.channel_name_group || '-'}
                   </Badge>
                 </TableCell>
               )}
-              <TableCell>
-                <Badge variant="secondary" className="mr-2">
-                  {typeof channel.program_count === 'number'
-                    ? channel.program_count.toString()
-                    : '-'}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right">
-                <Button variant="ghost" size="sm" asChild>
-                  <Link
-                    href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
-                    className="inline-flex items-center font-medium hover:text-primary"
-                  >
-                    View
-                    <ArrowRight className="ml-2 size-4" />
-                  </Link>
-                </Button>
-              </TableCell>
+              {columnVisibility.programs && (
+                <TableCell>
+                  <Badge variant="secondary" className="mr-2">
+                    {typeof channel.program_count === 'number'
+                      ? channel.program_count.toString()
+                      : '-'}
+                  </Badge>
+                </TableCell>
+              )}
+              {columnVisibility.actions && (
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link
+                      href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
+                      className="inline-flex items-center font-medium hover:text-primary"
+                    >
+                      View
+                      <ArrowRight className="ml-2 size-4" />
+                    </Link>
+                  </Button>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
@@ -775,87 +923,247 @@ function ChannelListContent() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
-      <div className="flex items-center justify-between border-b bg-background p-2">
+    <div className="flex h-full w-full flex-col overflow-hidden">
+      {/* Main header */}
+      <div className="w-full border-b bg-background p-4">
         <h1 className="text-xl font-bold">Channel List</h1>
-        <div className="flex items-center space-x-2">
-          <Input
-            type="text"
-            placeholder="Search channels..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-[200px]"
-          />
-          <ToggleGroup
-            type="single"
-            value={viewMode}
-            onValueChange={value => value && setViewMode(value as ViewMode)}
-          >
-            <ToggleGroupItem value="card" aria-label="Card view">
-              <LayoutGrid className="size-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="table" aria-label="Table view">
-              <List className="size-4" />
-            </ToggleGroupItem>
-          </ToggleGroup>
-          {viewMode === 'card' && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="sm:w-auto">
-                  {groupBy === 'none'
-                    ? 'Group By'
-                    : `By ${
-                        groupBy === 'channel_group'
-                          ? 'Group'
-                          : groupBy === 'channel_type'
-                            ? 'Type'
-                            : groupBy === 'channel_specs'
-                              ? 'Specs'
-                              : 'Name Group'
-                      }`}
-                  <ChevronDown className="ml-2 size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onSelect={() => setGroupBy('none')}>
-                  No Grouping
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setGroupBy('channel_group')}>
-                  Group
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setGroupBy('channel_type')}>
-                  Type
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setGroupBy('channel_specs')}>
-                  Specs
-                </DropdownMenuItem>
-                {hasNameGroups && (
-                  <DropdownMenuItem
-                    onSelect={() => setGroupBy('channel_name_group')}
-                  >
-                    Name Group
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-          <Button onClick={handleRefresh} variant="outline">
-            <RefreshCw className="size-4" />
-          </Button>
-          <FilterMenu />
-        </div>
       </div>
-      <div className="grow overflow-auto">
-        <div className="p-6">
-          {loading ? (
-            <div className="flex h-full items-center justify-center">
-              <LoadingSpinner />
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left sidebar with filters - fixed */}
+        <div className="flex w-64 shrink-0 flex-col overflow-hidden border-r bg-background">
+          {/* Search input */}
+          <div className="border-b p-3">
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Search channels..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="pl-8 text-sm"
+                aria-label="Search channels"
+              />
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1 h-7 w-7 p-0"
+                  onClick={() => setSearchTerm('')}
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-          ) : viewMode === 'card' ? (
-            <CardView />
-          ) : (
-            <TableView />
-          )}
+          </div>
+
+          {/* Filter sections */}
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="thin-scrollbar h-full">
+              {/* Options section */}
+              <div className="border-b">
+                <div className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/10">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">Options</span>
+                  </div>
+                </div>
+                <div className="px-4 pb-3">
+                  <label className="flex cursor-pointer items-center py-1">
+                    <div className="flex items-center">
+                      <Checkbox
+                        id="hide-no-programs"
+                        checked={hideNoPrograms}
+                        onCheckedChange={checked =>
+                          setHideNoPrograms(checked as boolean)
+                        }
+                        className="mr-2"
+                      />
+                      <span className="text-sm">
+                        Hide channels with no programs
+                      </span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <FilterSection
+                title="Channel Groups"
+                options={uniqueGroups}
+                filters={selectedGroups}
+                onFilterChange={handleGroupFilter}
+                counts={groupCounts}
+              />
+
+              <FilterSection
+                title="Channel Types"
+                options={uniqueTypes}
+                filters={selectedTypes}
+                onFilterChange={handleTypeFilter}
+                counts={typeCounts}
+              />
+
+              <FilterSection
+                title="Channel Specs"
+                options={uniqueSpecs}
+                filters={selectedSpecs}
+                onFilterChange={handleSpecsFilter}
+                counts={specsCounts}
+              />
+
+              {hasNameGroups && (
+                <FilterSection
+                  title="Name Groups"
+                  options={uniqueNameGroups}
+                  filters={selectedNameGroups}
+                  onFilterChange={handleNameGroupFilter}
+                  counts={nameGroupCounts}
+                />
+              )}
+            </ScrollArea>
+          </div>
+
+          {/* Footer with clear filters button */}
+          <div className="border-t p-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearFilters}
+              className="w-full text-xs"
+            >
+              Clear All Filters
+            </Button>
+            <div className="mt-2 text-center text-xs text-muted-foreground">
+              Showing {filteredChannels.length} of {channels.length} channels
+            </div>
+          </div>
+        </div>
+
+        {/* Main content - only table scrolls */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Table header - fixed */}
+          <div className="flex w-full items-center justify-between border-b bg-background p-2">
+            <div className="flex items-center space-x-2">
+              <ToggleGroup
+                type="single"
+                value={viewMode}
+                onValueChange={value => value && setViewMode(value as ViewMode)}
+              >
+                <ToggleGroupItem value="card" aria-label="Card view">
+                  <LayoutGrid className="size-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="table" aria-label="Table view">
+                  <List className="size-4" />
+                </ToggleGroupItem>
+              </ToggleGroup>
+
+              {viewMode === 'card' && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="sm:w-auto">
+                      {groupBy === 'none'
+                        ? 'Group By'
+                        : `By ${
+                            groupBy === 'channel_group'
+                              ? 'Group'
+                              : groupBy === 'channel_type'
+                                ? 'Type'
+                                : groupBy === 'channel_specs'
+                                  ? 'Specs'
+                                  : 'Name Group'
+                          }`}
+                      <ChevronDown className="ml-2 size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onSelect={() => setGroupBy('none')}>
+                      No Grouping
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => setGroupBy('channel_group')}
+                    >
+                      Group
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => setGroupBy('channel_type')}
+                    >
+                      Type
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => setGroupBy('channel_specs')}
+                    >
+                      Specs
+                    </DropdownMenuItem>
+                    {hasNameGroups && (
+                      <DropdownMenuItem
+                        onSelect={() => setGroupBy('channel_name_group')}
+                      >
+                        Name Group
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-2">
+              {viewMode === 'table' && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <Sliders className="h-4 w-4" />
+                      Columns
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {Object.entries(columnDisplayNames).map(([key, value]) => (
+                      <DropdownMenuCheckboxItem
+                        key={key}
+                        className="capitalize"
+                        checked={
+                          columnVisibility[key as keyof typeof columnVisibility]
+                        }
+                        onCheckedChange={checked =>
+                          setColumnVisibility(prev => ({
+                            ...prev,
+                            [key]: checked,
+                          }))
+                        }
+                      >
+                        {value}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+
+              <Button
+                onClick={handleRefresh}
+                variant="outline"
+                size="sm"
+                className="gap-1"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
+                />
+                Refresh
+              </Button>
+            </div>
+          </div>
+
+          {/* Table content - scrollable */}
+          <div className="flex-1 overflow-auto">
+            <div className="p-4">
+              {loading ? (
+                <div className="flex h-full items-center justify-center">
+                  <LoadingSpinner />
+                </div>
+              ) : viewMode === 'card' ? (
+                <CardView />
+              ) : (
+                <TableView />
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -864,10 +1172,8 @@ function ChannelListContent() {
 
 export default function ChannelListPage() {
   return (
-    <main className="h-[calc(100vh-4rem)] overflow-hidden">
-      <Suspense fallback={<LoadingSpinner />}>
-        <ChannelListContent />
-      </Suspense>
-    </main>
+    <div className="h-screen w-full overflow-hidden">
+      <ChannelListContent />
+    </div>
   );
 }

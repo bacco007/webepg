@@ -256,6 +256,13 @@
     "url": "http://170.64.142.170:8080/abc_radio_guide.xml"
   },
   {
+    "id": "foxsportsuhd",
+    "group": "Testing",
+    "subgroup": "Australia",
+    "location": "Fox Sports UHD",
+    "url": "http://170.64.142.170:8080/foxsportsuhd.xml"
+  },
+  {
     "id": "fetch-sub-test",
     "group": "Testing",
     "subgroup": "Australia",

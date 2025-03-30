@@ -6,7 +6,17 @@ const bundleAnalyzer = withBundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 export default bundleAnalyzer({
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? { exclude: ['error', 'warn'] }
+        : false,
+  },
+  experimental: {
+    viewTransition: true,
+  },
   reactStrictMode: false,
+  productionBrowserSourceMaps: false,
   output: 'standalone',
   rewrites: async () => {
     return [

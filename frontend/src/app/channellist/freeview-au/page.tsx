@@ -1,17 +1,14 @@
 'use client';
 
-import Image from 'next/image';
+import type React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ChannelLogo {
@@ -75,6 +72,48 @@ interface GroupedSources {
   [key: string]: Source[];
 }
 
+function FilterSection({
+  title,
+  children,
+  isOpen,
+  onToggle,
+  count,
+}: {
+  title: string;
+  children: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+  count: number;
+}) {
+  return (
+    <div className="border-b">
+      <div
+        className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/10"
+        onClick={onToggle}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{title}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">{count}</span>
+          {isOpen ? (
+            <ChevronUp className="size-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="size-4 text-muted-foreground" />
+          )}
+        </div>
+      </div>
+      {isOpen && (
+        <div className="px-4 pb-3">
+          <div className="thin-scrollbar max-h-[300px] space-y-1 overflow-y-auto pr-1">
+            {children}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Component() {
   const [channels, setChannels] = useState<UniqueChannel[]>([]);
   const [groupedSources, setGroupedSources] = useState<GroupedSources>({});
@@ -82,6 +121,9 @@ export default function Component() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openGroups, setOpenGroups] = useState<{ [key: string]: boolean }>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredSources, setFilteredSources] = useState<Source[]>([]);
+  const [allSources, setAllSources] = useState<Source[]>([]);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -94,14 +136,18 @@ export default function Component() {
         return response.json();
       })
       .then((data: Source[]) => {
-        const filteredSources = data.filter(
+        const filtered = data.filter(
           source =>
             source.group === 'Australia' &&
             source.subgroup.includes('FTA') &&
             !source.subgroup.includes('Streaming') &&
             !source.subgroup.includes('by Network'),
         );
-        const grouped = filteredSources.reduce((accumulator, source) => {
+
+        setAllSources(filtered);
+        setFilteredSources(filtered);
+
+        const grouped = filtered.reduce((accumulator, source) => {
           if (!accumulator[source.subgroup]) {
             accumulator[source.subgroup] = [];
           }
@@ -117,21 +163,33 @@ export default function Component() {
         });
 
         setGroupedSources(grouped);
+
+        // Set all groups to open by default
+        const initialOpenGroups = Object.keys(grouped).reduce(
+          (acc, key) => {
+            acc[key] = true;
+            return acc;
+          },
+          {} as { [key: string]: boolean },
+        );
+
         if (sourceId) {
           setSelectedSource(sourceId);
-          const sourceSubgroup = filteredSources.find(
+          const sourceSubgroup = filtered.find(
             s => s.id === sourceId,
           )?.subgroup;
           if (sourceSubgroup) {
             setOpenGroups(previous => ({
-              ...previous,
+              ...initialOpenGroups,
               [sourceSubgroup]: true,
             }));
+          } else {
+            setOpenGroups(initialOpenGroups);
           }
-        } else if (filteredSources.length > 0) {
-          setSelectedSource(filteredSources[0].id);
-          setOpenGroups({ [filteredSources[0].subgroup]: true });
-          router.push(`?source=${filteredSources[0].id}`);
+        } else if (filtered.length > 0) {
+          setSelectedSource(filtered[0].id);
+          setOpenGroups(initialOpenGroups);
+          router.push(`?source=${filtered[0].id}`);
         }
       })
       .catch(error_ => {
@@ -139,6 +197,19 @@ export default function Component() {
         setLoading(false);
       });
   }, [sourceId, router]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = allSources.filter(
+        source =>
+          source.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          source.subgroup.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+      setFilteredSources(filtered);
+    } else {
+      setFilteredSources(allSources);
+    }
+  }, [searchTerm, allSources]);
 
   useEffect(() => {
     if (selectedSource) {
@@ -219,17 +290,21 @@ export default function Component() {
 
   const selectSource = (source: Source) => {
     setSelectedSource(source.id);
-    setOpenGroups(previous => ({ ...previous, [source.subgroup]: true }));
     router.push(`?source=${source.id}`);
   };
 
-  if (loading) {
-    return (
-      <div className="flex size-full items-center justify-center">
-        <p className="text-lg">Loading data...</p>
-      </div>
-    );
-  }
+  const clearSearch = () => {
+    setSearchTerm('');
+  };
+
+  // Create a filtered and grouped version of sources based on search
+  const filteredGroupedSources = filteredSources.reduce((acc, source) => {
+    if (!acc[source.subgroup]) {
+      acc[source.subgroup] = [];
+    }
+    acc[source.subgroup].push(source);
+    return acc;
+  }, {} as GroupedSources);
 
   if (error) {
     return (
@@ -239,116 +314,149 @@ export default function Component() {
     );
   }
 
+  const selectedSourceDetails = allSources.find(
+    source => source.id === selectedSource,
+  );
+
   return (
-    <div className="flex size-full flex-col">
-      <div className="flex items-center justify-between border-b p-4">
-        <h1 className="text-2xl font-bold">
-          Freeview Services (by Operator):{' '}
-          {selectedSource
-            ? groupedSources[
-                Object.keys(groupedSources).find(key =>
-                  groupedSources[key].some(
-                    source => source.id === selectedSource,
-                  ),
-                ) || ''
-              ]
-                ?.find(source => source.id === selectedSource)
-                ?.subgroup.replace('FTA - ', '')
-            : ''}{' '}
-          -{' '}
-          {selectedSource
-            ? groupedSources[
-                Object.keys(groupedSources).find(key =>
-                  groupedSources[key].some(
-                    source => source.id === selectedSource,
-                  ),
-                ) || ''
-              ]?.find(source => source.id === selectedSource)?.location
-            : ''}
+    <div className="flex h-screen flex-col overflow-hidden">
+      <div className="w-full border-b bg-background p-4">
+        <h1 className="text-xl font-bold">
+          Freeview Services
+          {selectedSourceDetails && (
+            <>
+              : {selectedSourceDetails.subgroup.replace('FTA - ', '')} -{' '}
+              {selectedSourceDetails.location}
+            </>
+          )}
         </h1>
       </div>
+
       <div className="flex flex-1 overflow-hidden">
-        <ScrollArea className="w-64 border-r">
-          <div className="space-y-2 p-4">
-            {Object.entries(groupedSources).map(([subgroup, sources]) => (
-              <Collapsible
-                key={subgroup}
-                open={openGroups[subgroup]}
-                onOpenChange={() => toggleGroup(subgroup)}
-              >
-                <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 text-sm font-medium hover:bg-muted">
-                  {subgroup.replace('FTA - ', '')}
-                  {openGroups[subgroup] ? (
-                    <ChevronDown className="size-4" />
-                  ) : (
-                    <ChevronRight className="size-4" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  {sources.map(source => (
-                    <Button
-                      key={source.id}
-                      variant={
-                        selectedSource === source.id ? 'secondary' : 'ghost'
-                      }
-                      className="w-full justify-start px-2 py-1 text-xs"
-                      onClick={() => selectSource(source)}
-                    >
-                      <span className="whitespace-normal text-left">
-                        {source.location}
-                      </span>
-                    </Button>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
-            ))}
+        {/* Left sidebar with filters - fixed */}
+        <div className="flex w-64 shrink-0 flex-col overflow-hidden border-r bg-background">
+          <div className="border-b p-3">
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Search locations..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="pl-8 text-sm"
+                aria-label="Search locations"
+              />
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1 h-7 w-7 p-0"
+                  onClick={clearSearch}
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
-        </ScrollArea>
-        <ScrollArea className="flex-1">
-          <div className="space-y-6 p-6">
-            {sortedNetworks.map(networkName => (
-              <Card key={networkName}>
-                <CardHeader className="bg-muted py-3">
-                  <CardTitle>{networkName}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="flex flex-wrap justify-start gap-4">
-                    {channelGroups[networkName].map((channel, index) => (
-                      <div
-                        key={`${channel.channel_id}-${channel.other_data.channel_specs}-${index}`}
-                        className="flex min-w-[250px] flex-1 items-center space-x-4 rounded-lg border p-3 shadow-sm"
+
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="thin-scrollbar h-full">
+              {Object.entries(filteredGroupedSources).map(
+                ([subgroup, sources]) => (
+                  <FilterSection
+                    key={subgroup}
+                    title={subgroup.replace('FTA - ', '')}
+                    isOpen={openGroups[subgroup] ?? true}
+                    onToggle={() => toggleGroup(subgroup)}
+                    count={sources.length}
+                  >
+                    {sources.map(source => (
+                      <Button
+                        key={source.id}
+                        variant={
+                          selectedSource === source.id ? 'secondary' : 'ghost'
+                        }
+                        className="mb-1 w-full justify-start px-2 py-1.5 text-sm"
+                        onClick={() => selectSource(source)}
                       >
-                        <div className="flex size-16 shrink-0 items-center justify-center">
-                          <img
-                            src={channel.channel_logo.light}
-                            alt={`${channel.isGrouped ? channel.channel_names.clean : channel.channel_names.real} logo`}
-                            className="max-h-full max-w-full object-contain"
-                          />
-                        </div>
-                        <div className="ml-3 grow">
-                          <p className="text-sm font-bold">
-                            {channel.isGrouped
-                              ? channel.channel_names.clean
-                              : channel.channel_names.real}
-                          </p>
-                          <p className="text-xs font-semibold text-primary">
-                            Channel {channel.channel_numbers.join(', ')}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {channel.other_data.channel_specs}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {channel.other_data.channel_type}
-                          </p>
-                        </div>
-                      </div>
+                        <span className="truncate whitespace-normal text-left">
+                          {source.location}
+                        </span>
+                      </Button>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </FilterSection>
+                ),
+              )}
+            </ScrollArea>
           </div>
-        </ScrollArea>
+
+          <div className="border-t p-3">
+            <div className="text-center text-xs text-muted-foreground">
+              {filteredSources.length} locations available
+            </div>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {loading ? (
+            <div className="flex flex-1 items-center justify-center">
+              <p className="text-lg">Loading data...</p>
+            </div>
+          ) : (
+            <ScrollArea className="flex-1">
+              <div className="space-y-6 p-6">
+                {sortedNetworks.map(networkName => (
+                  <Card key={networkName}>
+                    <CardHeader className="bg-muted py-3">
+                      <CardTitle>{networkName}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="flex flex-wrap justify-start gap-4">
+                        {channelGroups[networkName].map((channel, index) => (
+                          <div
+                            key={`${channel.channel_id}-${channel.other_data.channel_specs}-${index}`}
+                            className="flex min-w-[250px] flex-1 items-center space-x-4 rounded-lg border p-3 shadow-sm"
+                          >
+                            <div className="flex size-16 shrink-0 items-center justify-center">
+                              <img
+                                src={
+                                  channel.channel_logo.light ||
+                                  '/placeholder.svg'
+                                }
+                                alt={`${channel.isGrouped ? channel.channel_names.clean : channel.channel_names.real} logo`}
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            </div>
+                            <div className="ml-3 grow">
+                              <p className="text-sm font-bold">
+                                {channel.isGrouped
+                                  ? channel.channel_names.clean
+                                  : channel.channel_names.real}
+                              </p>
+                              <p className="text-xs font-semibold text-primary">
+                                Channel {channel.channel_numbers.join(', ')}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {channel.other_data.channel_specs}
+                              </p>
+                              {/* <Badge
+                                variant="outline"
+                                className="mt-1 font-normal text-xs"
+                              >
+                                {channel.other_data.channel_type}
+                              </Badge> */}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </div>
       </div>
     </div>
   );
