@@ -191,7 +191,7 @@ export function SourcesDropdown({ onSourceSelect }: SourcesDropdownProps = {}) {
                 <DropdownMenuLabel>{group.group}</DropdownMenuLabel>
                 {group.subgroups.map(subgroup => (
                   <React.Fragment key={subgroup.name}>
-                    <DropdownMenuLabel className="px-2 py-1 text-xs font-normal text-muted-foreground">
+                    <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-xs font-normal">
                       {subgroup.name}
                     </DropdownMenuLabel>
                     {subgroup.sources.map(source => (

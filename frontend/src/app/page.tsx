@@ -10,18 +10,10 @@ import {
 } from 'lucide-react';
 
 import { EPGStats } from '@/components/EPGStats';
-import { SourcesDropdown } from '@/components/SourcesDropdown';
+import { SourcesDropdown } from '@/components/sidebar/SourcesDropdown';
 import { TimezoneDropdown } from '@/components/TimezoneDropdown';
 import TvGuideTicker from '@/components/TvGuideTicker';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { siteConfig } from '@/config/site';
 
 export default async function Home() {
@@ -75,12 +67,12 @@ export default async function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      <div className="lg:max-w-9xl container mx-auto px-2 py-16 md:px-6">
-        <section className="mb-2 text-center">
+    <main className="from-background to-secondary/20 min-h-screen bg-gradient-to-b">
+      <div className="container mx-auto px-4 py-16 md:px-6 lg:max-w-7xl">
+        <section className="mb-8 text-center">
           <div className="mb-6 flex items-center justify-center">
             <Link href="/" className="relative inline-flex items-center">
-              <span className="text-5xl font-extrabold tracking-tight text-primary sm:text-5xl md:text-5xl">
+              <span className="text-primary text-5xl font-extrabold tracking-tight sm:text-5xl md:text-5xl">
                 {siteConfig.name}
               </span>
               <Badge
@@ -91,63 +83,57 @@ export default async function Home() {
               </Badge>
             </Link>
           </div>
-          <h1 className="mb-5 text-4xl font-extrabold tracking-tight text-primary sm:text-4xl md:text-4xl">
+          <h1 className="text-primary mb-5 text-4xl font-extrabold tracking-tight sm:text-4xl md:text-4xl">
             Your Ultimate EPG Experience
           </h1>
-          <p className="mx-auto mb-8 max-w-3xl text-xl text-muted-foreground">
+          <p className="text-muted-foreground mx-auto mb-8 max-w-3xl text-xl">
             Discover a new way to explore TV schedules with our innovative
             Electronic Program Guide. Stay up-to-date with your favorite shows
             and never miss a moment of entertainment.
           </p>
-          <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+          <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             <SourcesDropdown />
             <TimezoneDropdown />
           </div>
         </section>
-        <section className="mb-2">
+
+        <section className="mb-8">
           <TvGuideTicker />
         </section>
-        <section className="mb-8">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+        <section className="mb-12">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {cards.map((card, index) => (
               <Link
                 key={index}
                 href={card.link}
-                className="group focus:outline-none"
-                tabIndex={0}
+                className="block focus:outline-none"
               >
-                <Card className="h-[200px] overflow-hidden bg-white/90 transition-all duration-300 hover:shadow-xl dark:bg-gray-800/90">
-                  <CardHeader className="bg-primary/10 pb-2">
-                    <div className="mb-2 flex justify-center">
-                      <card.icon
-                        className="size-10 text-primary transition-transform duration-300 group-hover:scale-110"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <CardTitle className="text-center text-xl text-primary">
+                <div className="overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md">
+                  <div className="bg-gray-200 p-2 text-center dark:bg-gray-800">
+                    <card.icon className="mx-auto mb-2 size-8 text-gray-800 dark:text-gray-200" />
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                       {card.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="py-2">
-                    <p className="text-center text-sm text-muted-foreground">
+                    </h3>
+                  </div>
+                  <div className="bg-white p-4 text-center dark:bg-gray-700">
+                    <p className="gray-600 mb-4 text-sm dark:text-gray-300">
                       {card.description}
                     </p>
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      variant="ghost"
-                      className="w-full transition-all duration-300 hover:bg-primary/10 hover:text-primary"
-                    >
-                      Explore
-                      <ArrowRightIcon className="ml-2 size-4" />
-                    </Button>
-                  </CardFooter>
-                </Card>
+                    <div className="flex items-center justify-center">
+                      <span className="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100">
+                        Explore
+                        <ArrowRightIcon className="ml-2 size-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
         </section>
-        <section className="mb-2">
+
+        <section className="mb-8">
           <EPGStats />
         </section>
       </div>

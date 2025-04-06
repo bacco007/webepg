@@ -19,6 +19,7 @@ import {
   Layers,
   Locate,
   Maximize,
+  Menu,
   Search,
 } from 'lucide-react';
 
@@ -33,11 +34,12 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Slider } from '@/components/ui/slider';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
-import { Slider } from '@/components/ui/slider';
-import { Label } from '@/components/ui/label';
 
 // Fix for default marker icon in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -233,18 +235,18 @@ function FilterSection({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-b">
-      <CollapsibleTrigger className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full">
+      <CollapsibleTrigger className="hover:bg-muted/10 flex w-full items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-muted-foreground text-sm">
+          <span className="text-muted-foreground text-sm font-medium">
             {title}
           </span>
           {badge && (
-            <Badge variant="outline" className="font-normal text-xs">
+            <Badge variant="outline" className="text-xs font-normal">
               {badge}
             </Badge>
           )}
           {filters.length > 0 && (
-            <Badge variant="primary" className="font-normal text-xs">
+            <Badge variant="secondary" className="text-xs font-normal">
               {filters.length}
             </Badge>
           )}
@@ -254,16 +256,16 @@ function FilterSection({
             {totalAvailableOptions}
           </span>
           {isOpen ? (
-            <ChevronUp className="size-4 text-muted-foreground" />
+            <ChevronUp className="text-muted-foreground size-4" />
           ) : (
-            <ChevronDown className="size-4 text-muted-foreground" />
+            <ChevronDown className="text-muted-foreground size-4" />
           )}
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent className="px-4 pb-3">
         {showSearch && (
           <div className="relative mb-2">
-            <Search className="top-2.5 left-2 absolute size-4 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
             <Input
               placeholder={`Search`}
               value={searchValue}
@@ -272,12 +274,12 @@ function FilterSection({
             />
           </div>
         )}
-        <div className="space-y-1 pr-1 max-h-[200px] overflow-y-auto">
+        <div className="max-h-[200px] space-y-1 overflow-y-auto pr-1">
           {availableOptions.length > 0 ? (
             availableOptions.map(option => (
               <label
                 key={option}
-                className="flex justify-between items-center py-1 cursor-pointer"
+                className="flex cursor-pointer items-center justify-between py-1"
               >
                 <div className="flex items-center">
                   <Checkbox
@@ -293,7 +295,7 @@ function FilterSection({
               </label>
             ))
           ) : (
-            <div className="py-2 text-muted-foreground text-sm text-center">
+            <div className="text-muted-foreground py-2 text-center text-sm">
               No options available
             </div>
           )}
@@ -339,16 +341,16 @@ function FrequencyRangeFilter({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-b">
-      <CollapsibleTrigger className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full">
+      <CollapsibleTrigger className="hover:bg-muted/10 flex w-full items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-muted-foreground text-sm">
+          <span className="text-muted-foreground text-sm font-medium">
             Frequency
           </span>
         </div>
         {isOpen ? (
-          <ChevronUp className="size-4 text-muted-foreground" />
+          <ChevronUp className="text-muted-foreground size-4" />
         ) : (
-          <ChevronDown className="size-4 text-muted-foreground" />
+          <ChevronDown className="text-muted-foreground size-4" />
         )}
       </CollapsibleTrigger>
       <CollapsibleContent className="px-4 pb-3">
@@ -366,9 +368,9 @@ function FrequencyRangeFilter({
                   onChange={e =>
                     handleFrequencyInputChange('min', e.target.value)
                   }
-                  className="w-20 h-8 text-sm"
+                  className="h-8 w-20 text-sm"
                 />
-                <span className="ml-1 text-muted-foreground text-xs">MHz</span>
+                <span className="text-muted-foreground ml-1 text-xs">MHz</span>
               </div>
             </div>
             <div className="space-y-1">
@@ -383,9 +385,9 @@ function FrequencyRangeFilter({
                   onChange={e =>
                     handleFrequencyInputChange('max', e.target.value)
                   }
-                  className="w-20 h-8 text-sm"
+                  className="h-8 w-20 text-sm"
                 />
-                <span className="ml-1 text-muted-foreground text-xs">MHz</span>
+                <span className="text-muted-foreground ml-1 text-xs">MHz</span>
               </div>
             </div>
           </div>
@@ -409,8 +411,6 @@ function FrequencyRangeFilter({
 
 // Update the TransmitterMap component to initialize frequency range with 150-670
 export default function TransmitterMap() {
-  // ... existing code ...
-
   // Update initial frequency range values
   const [frequencyRange, setFrequencyRange] = useState<[number, number]>([
     150, 670,
@@ -418,7 +418,6 @@ export default function TransmitterMap() {
   const [minFrequency, setMinFrequency] = useState<string>('150');
   const [maxFrequency, setMaxFrequency] = useState<string>('670');
 
-  // ... existing code ...
   const [globalSearchTerm, setGlobalSearchTerm] = useState<string>('');
   const [callSignSearch, setCallSignSearch] = useState<string>('');
   const [areaServedSearch, setAreaServedSearch] = useState<string>('');
@@ -436,6 +435,7 @@ export default function TransmitterMap() {
   const [localError, setLocalError] = useState<string | null>(null);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [showTVLicenceAreas, setShowTVLicenceAreas] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const mapRef = useRef<L.Map | null>(null);
 
@@ -908,9 +908,103 @@ export default function TransmitterMap() {
     setMaxFrequency('670');
   };
 
+  // Sidebar content component to avoid duplication
+  const SidebarContent = () => (
+    <div className="flex h-full flex-col">
+      <div className="border-b p-3">
+        <div className="relative">
+          <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
+          <Input
+            placeholder="Search transmitters..."
+            value={globalSearchTerm}
+            onChange={e => setGlobalSearchTerm(e.target.value)}
+            className="pl-8 text-sm"
+          />
+        </div>
+      </div>
+      <ScrollArea className="flex-1">
+        <div className="divide-y">
+          <FilterSection
+            title="Call Signs"
+            options={uniqueCallSigns}
+            filters={callSignFilters}
+            onFilterChange={value => handleFilterChange('callSign', value)}
+            searchValue={callSignSearch}
+            onSearchChange={setCallSignSearch}
+            counts={callSignCounts}
+            showSearch={true}
+          />
+          <FilterSection
+            title="Areas Served"
+            options={uniqueAreaServed}
+            filters={areaServedFilters}
+            onFilterChange={value => handleFilterChange('areaServed', value)}
+            searchValue={areaServedSearch}
+            onSearchChange={setAreaServedSearch}
+            counts={areaServedCounts}
+            showSearch={true}
+          />
+          <FilterSection
+            title="Licence Areas"
+            options={uniqueLicenceAreas}
+            filters={licenceAreaFilters}
+            onFilterChange={value => handleFilterChange('licenceArea', value)}
+            searchValue={licenceAreaSearch}
+            onSearchChange={setLicenceAreaSearch}
+            counts={licenceAreaCounts}
+            showSearch={true}
+          />
+          <FilterSection
+            title="Operators"
+            options={uniqueOperators}
+            filters={operatorFilters}
+            onFilterChange={value => handleFilterChange('operator', value)}
+            searchValue={operatorSearch}
+            onSearchChange={setOperatorSearch}
+            counts={operatorCounts}
+            showSearch={true}
+          />
+          <FilterSection
+            title="Networks"
+            options={uniqueNetworks}
+            filters={networkFilters}
+            onFilterChange={value => handleFilterChange('network', value)}
+            searchValue={networkSearch}
+            onSearchChange={setNetworkSearch}
+            counts={networkCounts}
+            showSearch={true}
+          />
+          <FrequencyRangeFilter
+            minFrequency={minFrequency}
+            maxFrequency={maxFrequency}
+            frequencyRange={frequencyRange}
+            setMinFrequency={setMinFrequency}
+            setMaxFrequency={setMaxFrequency}
+            setFrequencyRange={setFrequencyRange}
+          />
+        </div>
+      </ScrollArea>
+
+      <div className="border-t p-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearAllFilters}
+          className="w-full text-xs"
+        >
+          Clear All Filters
+        </Button>
+        <div className="text-muted-foreground mt-2 text-center text-xs">
+          Showing {filteredTransmitters.length} of {transmittersData.length}{' '}
+          transmitters
+        </div>
+      </div>
+    </div>
+  );
+
   if (localIsLoading || isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex h-screen items-center justify-center">
         Loading transmitter data...
       </div>
     );
@@ -918,182 +1012,108 @@ export default function TransmitterMap() {
 
   if (localError || error) {
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
+      <div className="flex h-screen items-center justify-center text-red-500">
         Error: {localError || error}
       </div>
     );
   }
 
-  // In the return statement, update the FrequencyRangeFilter component
   return (
-    <div className="flex w-full h-screen overflow-hidden">
-      {/* ... existing code ... */}
-      <div className="bg-background border-r w-64 shrink-0">
-        <div className="flex flex-col h-full">
-          <div className="p-3 border-b">
-            <div className="relative">
-              <Search className="top-2.5 left-2 absolute size-4 text-muted-foreground" />
-              <Input
-                placeholder="Search transmitters..."
-                value={globalSearchTerm}
-                onChange={e => setGlobalSearchTerm(e.target.value)}
-                className="pl-8 text-sm"
-              />
-            </div>
-          </div>
-          <ScrollArea className="flex-1">
-            <div className="divide-y">
-              <FilterSection
-                title="Call Signs"
-                options={uniqueCallSigns}
-                filters={callSignFilters}
-                onFilterChange={value => handleFilterChange('callSign', value)}
-                searchValue={callSignSearch}
-                onSearchChange={setCallSignSearch}
-                counts={callSignCounts}
-                showSearch={true}
-              />
-              <FilterSection
-                title="Areas Served"
-                options={uniqueAreaServed}
-                filters={areaServedFilters}
-                onFilterChange={value =>
-                  handleFilterChange('areaServed', value)
-                }
-                searchValue={areaServedSearch}
-                onSearchChange={setAreaServedSearch}
-                counts={areaServedCounts}
-                showSearch={true}
-              />
-              <FilterSection
-                title="Licence Areas"
-                options={uniqueLicenceAreas}
-                filters={licenceAreaFilters}
-                onFilterChange={value =>
-                  handleFilterChange('licenceArea', value)
-                }
-                searchValue={licenceAreaSearch}
-                onSearchChange={setLicenceAreaSearch}
-                counts={licenceAreaCounts}
-                showSearch={true}
-              />
-              <FilterSection
-                title="Operators"
-                options={uniqueOperators}
-                filters={operatorFilters}
-                onFilterChange={value => handleFilterChange('operator', value)}
-                searchValue={operatorSearch}
-                onSearchChange={setOperatorSearch}
-                counts={operatorCounts}
-                showSearch={true}
-              />
-              <FilterSection
-                title="Networks"
-                options={uniqueNetworks}
-                filters={networkFilters}
-                onFilterChange={value => handleFilterChange('network', value)}
-                searchValue={networkSearch}
-                onSearchChange={setNetworkSearch}
-                counts={networkCounts}
-                showSearch={true}
-              />
-              <FrequencyRangeFilter
-                minFrequency={minFrequency}
-                maxFrequency={maxFrequency}
-                frequencyRange={frequencyRange}
-                setMinFrequency={setMinFrequency}
-                setMaxFrequency={setMaxFrequency}
-                setFrequencyRange={setFrequencyRange}
-              />
-            </div>
-          </ScrollArea>
-
-          <div className="p-3 border-t">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearAllFilters}
-              className="w-full text-xs"
-            >
-              Clear All Filters
-            </Button>
-            <div className="mt-2 text-muted-foreground text-xs text-center">
-              Showing {filteredTransmitters.length} of {transmittersData.length}{' '}
-              transmitters
-            </div>
-          </div>
-        </div>
+    <div className="flex h-screen w-full overflow-hidden">
+      {/* Desktop sidebar - hidden on small screens */}
+      <div className="bg-background hidden w-64 shrink-0 border-r lg:block">
+        <SidebarContent />
       </div>
-      {/* ... rest of the component ... */}
-      <div className="flex-1 h-full">
-        <MapContainer
-          center={center}
-          zoom={zoom}
-          className="size-full"
-          ref={mapRef}
-          whenReady={() => {
-            if (mapRef.current) {
-              const map = mapRef.current;
-              // Use a more efficient method for adding markers
-              const markerLayer = L.layerGroup().addTo(map);
-              filteredTransmitters.forEach(transmitter => {
-                const marker = L.marker([transmitter.Lat, transmitter.Long]);
-                marker.bindPopup(() => {
-                  const popupContent = document.createElement('div');
-                  const root = createRoot(popupContent);
-                  root.render(<TransmitterPopup transmitter={transmitter} />);
-                  return popupContent;
+
+      {/* Main content */}
+      <div className="flex h-full flex-1 flex-col">
+        {/* Mobile header with sidebar trigger */}
+        <div className="bg-background flex items-center border-b p-2 lg:hidden">
+          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="mr-2">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle sidebar</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-0">
+              <SidebarContent />
+            </SheetContent>
+          </Sheet>
+          <h1 className="text-lg font-semibold">Transmitter Map</h1>
+        </div>
+
+        {/* Map container */}
+        <div className="h-full flex-1">
+          <MapContainer
+            center={center}
+            zoom={zoom}
+            className="size-full"
+            ref={mapRef}
+            whenReady={() => {
+              if (mapRef.current) {
+                const map = mapRef.current;
+                // Use a more efficient method for adding markers
+                const markerLayer = L.layerGroup().addTo(map);
+                filteredTransmitters.forEach(transmitter => {
+                  const marker = L.marker([transmitter.Lat, transmitter.Long]);
+                  marker.bindPopup(() => {
+                    const popupContent = document.createElement('div');
+                    const root = createRoot(popupContent);
+                    root.render(<TransmitterPopup transmitter={transmitter} />);
+                    return popupContent;
+                  });
+                  markerLayer.addLayer(marker);
                 });
-                markerLayer.addLayer(marker);
-              });
-            }
-          }}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-          />
-          <React.Suspense fallback={<div>Loading TV Licence Areas...</div>}>
-            {showTVLicenceAreas && geoJsonData && (
-              <TVLicenceAreasLayer
-                geoJsonData={geoJsonData}
-                onSelectArea={setSelectedArea}
-              />
-            )}
-          </React.Suspense>
-          <MarkerClusterGroup
-            chunkedLoading
-            iconCreateFunction={(cluster: { getChildCount: () => any }) => {
-              return L.divIcon({
-                html: `<div class="cluster-icon">${cluster.getChildCount()}</div>`,
-                className: 'custom-marker-cluster',
-                iconSize: L.point(40, 40, true),
-              });
+              }
             }}
           >
-            {filteredTransmitters.map(transmitter => (
-              <Marker
-                key={`${transmitter.ACMASiteID}-${transmitter.CallSignChannel}`}
-                position={[transmitter.Lat, transmitter.Long]}
-              >
-                <Popup maxWidth={350}>
-                  <TransmitterPopup transmitter={transmitter} />
-                </Popup>
-              </Marker>
-            ))}
-          </MarkerClusterGroup>
-          {bounds && <ResetViewControl bounds={bounds} />}
-          <LayerControl
-            showLayer={showTVLicenceAreas}
-            setShowLayer={setShowTVLicenceAreas}
-          />
-          <GeolocationControl />
-        </MapContainer>
-        {selectedArea && (
-          <div className="top-4 right-4 z-[1000] absolute bg-white shadow p-2 rounded">
-            Selected Area: {selectedArea}
-          </div>
-        )}
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+            />
+            <React.Suspense fallback={<div>Loading TV Licence Areas...</div>}>
+              {showTVLicenceAreas && geoJsonData && (
+                <TVLicenceAreasLayer
+                  geoJsonData={geoJsonData}
+                  onSelectArea={setSelectedArea}
+                />
+              )}
+            </React.Suspense>
+            <MarkerClusterGroup
+              chunkedLoading
+              iconCreateFunction={(cluster: { getChildCount: () => any }) => {
+                return L.divIcon({
+                  html: `<div class="cluster-icon">${cluster.getChildCount()}</div>`,
+                  className: 'custom-marker-cluster',
+                  iconSize: L.point(40, 40, true),
+                });
+              }}
+            >
+              {filteredTransmitters.map(transmitter => (
+                <Marker
+                  key={`${transmitter.ACMASiteID}-${transmitter.CallSignChannel}`}
+                  position={[transmitter.Lat, transmitter.Long]}
+                >
+                  <Popup maxWidth={350}>
+                    <TransmitterPopup transmitter={transmitter} />
+                  </Popup>
+                </Marker>
+              ))}
+            </MarkerClusterGroup>
+            {bounds && <ResetViewControl bounds={bounds} />}
+            <LayerControl
+              showLayer={showTVLicenceAreas}
+              setShowLayer={setShowTVLicenceAreas}
+            />
+            <GeolocationControl />
+          </MapContainer>
+          {selectedArea && (
+            <div className="absolute top-4 right-4 z-1000 rounded bg-white p-2 shadow-sm">
+              Selected Area: {selectedArea}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

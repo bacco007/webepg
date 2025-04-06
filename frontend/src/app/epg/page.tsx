@@ -126,9 +126,9 @@ function EPGDayListContent() {
                         isToday(date) ? 'border-primary bg-primary/5' : ''
                       }`}
                     >
-                      <CardContent className="flex h-full flex-col items-center justify-center p-6">
+                      <CardContent className="flex h-full flex-col items-center justify-center p-1">
                         <Calendar
-                          className={`mb-2 size-8 transition-colors group-hover:text-secondary ${
+                          className={`group-hover:text-secondary mb-2 size-8 transition-colors ${
                             isToday(date)
                               ? 'text-primary'
                               : 'text-muted-foreground'

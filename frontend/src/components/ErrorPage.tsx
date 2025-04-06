@@ -53,12 +53,12 @@ export default function ErrorPage({
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4 text-foreground">
+    <div className="bg-background text-foreground flex min-h-screen items-center justify-center p-4">
       <Card className="max-w-md text-center">
         <CardHeader>
           <CardTitle className="flex items-center justify-center space-x-2 text-3xl font-bold">
             <AlertCircle
-              className="size-8 text-destructive"
+              className="text-destructive size-8"
               aria-hidden="true"
             />
             <span>
@@ -67,9 +67,9 @@ export default function ErrorPage({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-4 text-lg text-muted-foreground">{message}</p>
+          <p className="text-muted-foreground mb-4 text-lg">{message}</p>
           {showRefresh && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               The page will automatically refresh in {countdown} seconds.
             </p>
           )}

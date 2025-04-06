@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { CalendarDays, Film, Loader2, Tv } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getCookie } from '@/lib/cookies';
 
 interface EPGStats {
@@ -92,7 +91,7 @@ export function EPGStats() {
   if (isLoading) {
     return (
       <div className="flex h-40 items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-primary" />
+        <Loader2 className="text-primary size-8 animate-spin" />
       </div>
     );
   }
@@ -115,43 +114,43 @@ export function EPGStats() {
       value: stats.days,
       icon: CalendarDays,
       color: 'bg-blue-500',
+      textColor: 'text-white',
     },
     {
       title: 'Channels',
       value: stats.channels,
       icon: Tv,
       color: 'bg-green-500',
+      textColor: 'text-white',
     },
     {
       title: 'Programs',
       value: stats.programs,
       icon: Film,
       color: 'bg-purple-500',
+      textColor: 'text-white',
     },
   ];
 
   return (
-    <section className="fade-in-up">
-      <h3 className="mb-4 text-center text-2xl font-bold">
-        Selected EPG at a Glance
-      </h3>
+    <div className="fade-in-up">
       <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3">
         {statCards.map((stat, index) => (
-          <Card key={index} className="overflow-hidden">
-            <CardHeader className={`${stat.color} p-4`}>
-              <CardTitle className="flex items-center justify-between text-white">
-                <span>{stat.title}</span>
-                <stat.icon className="size-6" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <p className="text-center text-3xl font-bold text-primary">
+          <div key={index} className="overflow-hidden rounded-lg shadow-sm">
+            <div
+              className={`flex items-center justify-between p-4 ${stat.color}`}
+            >
+              <h3 className={`font-bold ${stat.textColor}`}>{stat.title}</h3>
+              <stat.icon className={`size-6 ${stat.textColor}`} />
+            </div>
+            <div className="bg-white p-6 text-center dark:bg-gray-700">
+              <p className="text-4xl font-bold text-gray-900 dark:text-white">
                 <CountUpAnimation end={stat.value} />
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

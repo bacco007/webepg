@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -17,6 +17,8 @@ import {
   ArrowUpDown,
   ChevronDown,
   ChevronUp,
+  Menu,
+  RefreshCw,
   RotateCw,
   Search,
   Sliders,
@@ -35,6 +37,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -98,20 +101,20 @@ function FilterSection({
   return (
     <div className="border-b">
       <div
-        className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/10"
+        className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{title}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             {totalAvailableOptions}
           </span>
           {isOpen ? (
-            <ChevronUp className="size-4 text-muted-foreground" />
+            <ChevronUp className="text-muted-foreground size-4" />
           ) : (
-            <ChevronDown className="size-4 text-muted-foreground" />
+            <ChevronDown className="text-muted-foreground size-4" />
           )}
         </div>
       </div>
@@ -132,13 +135,13 @@ function FilterSection({
                     />
                     <span className="text-sm">{option}</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {counts[option]}
                   </span>
                 </label>
               ))
             ) : (
-              <div className="py-2 text-center text-sm text-muted-foreground">
+              <div className="text-muted-foreground py-2 text-center text-sm">
                 No options available
               </div>
             )}
@@ -146,6 +149,114 @@ function FilterSection({
         </div>
       )}
     </div>
+  );
+}
+
+// Create a reusable sidebar content component to avoid duplication
+function SidebarContent({
+  globalFilter,
+  setGlobalFilter,
+  channelTypes,
+  selectedTypes,
+  channelGroups,
+  selectedGroups,
+  channelSpecs,
+  selectedSpecs,
+  handleFilterChange,
+  typeCounts,
+  groupCounts,
+  specsCounts,
+  clearFilters,
+  filteredCount,
+  totalCount,
+}: {
+  globalFilter: string;
+  setGlobalFilter: (value: string) => void;
+  channelTypes: string[];
+  selectedTypes: string[];
+  channelGroups: string[];
+  selectedGroups: string[];
+  channelSpecs: string[];
+  selectedSpecs: string[];
+  handleFilterChange: (
+    filterType: 'type' | 'group' | 'specs',
+    value: string,
+  ) => void;
+  typeCounts: Record<string, number>;
+  groupCounts: Record<string, number>;
+  specsCounts: Record<string, number>;
+  clearFilters: () => void;
+  filteredCount: number;
+  totalCount: number;
+}) {
+  return (
+    <>
+      <div className="border-b p-3">
+        <div className="relative">
+          <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
+          <Input
+            placeholder="Search channels..."
+            value={globalFilter}
+            onChange={e => setGlobalFilter(e.target.value)}
+            className="pl-8 text-sm"
+            aria-label="Search channels"
+          />
+          {globalFilter && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-1 right-1 h-7 w-7 p-0"
+              onClick={() => setGlobalFilter('')}
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="thin-scrollbar h-full">
+          <FilterSection
+            title="Channel Type"
+            options={channelTypes}
+            filters={selectedTypes}
+            onFilterChange={value => handleFilterChange('type', value)}
+            counts={typeCounts}
+          />
+
+          <FilterSection
+            title="Channel Operator"
+            options={channelGroups}
+            filters={selectedGroups}
+            onFilterChange={value => handleFilterChange('group', value)}
+            counts={groupCounts}
+          />
+
+          <FilterSection
+            title="Channel Specs"
+            options={channelSpecs}
+            filters={selectedSpecs}
+            onFilterChange={value => handleFilterChange('specs', value)}
+            counts={specsCounts}
+          />
+        </ScrollArea>
+      </div>
+
+      <div className="border-t p-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearFilters}
+          className="w-full text-xs"
+        >
+          Clear All Filters
+        </Button>
+        <div className="text-muted-foreground mt-2 text-center text-xs">
+          Showing {filteredCount} of {totalCount} channels
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -159,6 +270,7 @@ export default function ChannelsPage() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Filter state
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -264,7 +376,7 @@ export default function ChannelsPage() {
         accessorKey: 'channel_logo',
         header: () => <div className="text-center">Logo</div>,
         cell: ({ row }) => (
-          <div className="mx-auto flex size-12 items-center justify-center rounded-md bg-muted/50 p-1">
+          <div className="bg-muted/50 mx-auto flex size-12 items-center justify-center rounded-md p-1">
             {row.original.channel_logo.light ? (
               <img
                 src={row.original.channel_logo.light || '/placeholder.svg'}
@@ -276,7 +388,7 @@ export default function ChannelsPage() {
                 }}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex h-full w-full items-center justify-center text-xs">
                 No logo
               </div>
             )}
@@ -300,7 +412,7 @@ export default function ChannelsPage() {
           </div>
         ),
         cell: ({ row }) => (
-          <div className="text-center font-bold hover:text-primary hover:underline">
+          <div className="hover:text-primary text-center font-bold hover:underline">
             <Link href={`/channel/${row.original.channel_slug}`}>
               {row.getValue('channel_name')}
             </Link>
@@ -641,7 +753,7 @@ export default function ChannelsPage() {
     return (
       <div className="flex h-full items-center justify-center">
         <Card className="p-6">
-          <h2 className="mb-4 text-xl font-bold text-destructive">Error</h2>
+          <h2 className="text-destructive mb-4 text-xl font-bold">Error</h2>
           <p>{error}</p>
           <Button onClick={handleRefresh} className="mt-4">
             <RotateCw className="mr-2 h-4 w-4" />
@@ -653,196 +765,183 @@ export default function ChannelsPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      {/* Main header */}
-      <div className="w-full border-b bg-background p-4">
-        <h1 className="text-xl font-bold">Fetch TV Channels</h1>
+    <div className="flex h-screen overflow-hidden">
+      {/* Desktop sidebar - hidden on mobile */}
+      <div className="bg-background hidden w-64 shrink-0 flex-col overflow-hidden border-r lg:flex">
+        <SidebarContent
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          channelTypes={channelTypes}
+          selectedTypes={selectedTypes}
+          channelGroups={channelGroups}
+          selectedGroups={selectedGroups}
+          channelSpecs={channelSpecs}
+          selectedSpecs={selectedSpecs}
+          handleFilterChange={handleFilterChange}
+          typeCounts={typeCounts}
+          groupCounts={groupCounts}
+          specsCounts={specsCounts}
+          clearFilters={clearFilters}
+          filteredCount={filteredCount}
+          totalCount={totalCount}
+        />
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar with filters - fixed */}
-        <div className="flex w-64 shrink-0 flex-col overflow-hidden border-r bg-background">
-          <div className="border-b p-3">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-              <Input
-                placeholder="Search channels..."
-                value={globalFilter}
-                onChange={e => setGlobalFilter(e.target.value)}
-                className="pl-8 text-sm"
-                aria-label="Search channels"
-              />
-              {globalFilter && (
+      {/* Main content area */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Banner with mobile sidebar trigger and controls */}
+        <div className="bg-background flex items-center justify-between border-b p-2">
+          <div className="flex items-center space-x-2">
+            {/* Mobile sidebar trigger - only visible on small screens */}
+            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+              <SheetTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-1 top-1 h-7 w-7 p-0"
-                  onClick={() => setGlobalFilter('')}
-                  aria-label="Clear search"
+                  variant="outline"
+                  size="icon"
+                  className="mr-2 lg:hidden"
                 >
-                  <X className="h-4 w-4" />
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle sidebar</span>
                 </Button>
-              )}
-            </div>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 p-0">
+                <SidebarContent
+                  globalFilter={globalFilter}
+                  setGlobalFilter={setGlobalFilter}
+                  channelTypes={channelTypes}
+                  selectedTypes={selectedTypes}
+                  channelGroups={channelGroups}
+                  selectedGroups={selectedGroups}
+                  channelSpecs={channelSpecs}
+                  selectedSpecs={selectedSpecs}
+                  handleFilterChange={handleFilterChange}
+                  typeCounts={typeCounts}
+                  groupCounts={groupCounts}
+                  specsCounts={specsCounts}
+                  clearFilters={clearFilters}
+                  filteredCount={filteredCount}
+                  totalCount={totalCount}
+                />
+              </SheetContent>
+            </Sheet>
+            <span className="text-lg font-medium">Fetch TV Channels</span>
           </div>
 
-          <div className="flex-1 overflow-hidden">
-            <ScrollArea className="thin-scrollbar h-full">
-              <FilterSection
-                title="Channel Type"
-                options={channelTypes}
-                filters={selectedTypes}
-                onFilterChange={value => handleFilterChange('type', value)}
-                counts={typeCounts}
-              />
-
-              <FilterSection
-                title="Channel Operator"
-                options={channelGroups}
-                filters={selectedGroups}
-                onFilterChange={value => handleFilterChange('group', value)}
-                counts={groupCounts}
-              />
-
-              <FilterSection
-                title="Channel Specs"
-                options={channelSpecs}
-                filters={selectedSpecs}
-                onFilterChange={value => handleFilterChange('specs', value)}
-                counts={specsCounts}
-              />
-            </ScrollArea>
-          </div>
-
-          <div className="border-t p-3">
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              placeholder="Search channels..."
+              value={globalFilter}
+              onChange={e => setGlobalFilter(e.target.value)}
+              className="w-[200px]"
+            />
             <Button
+              onClick={handleRefresh}
               variant="outline"
               size="sm"
-              onClick={clearFilters}
-              className="w-full text-xs"
+              className="gap-1"
             >
-              Clear All Filters
+              <RefreshCw
+                className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
+              />
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
-              Showing {filteredCount} of {totalCount} channels
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <Sliders className="h-4 w-4" />
+                  <span className="hidden sm:inline">Columns</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter(column => column.getCanHide())
+                  .map(column => {
+                    // Use a proper lookup instead of direct access to handle keys with dots
+                    const displayName =
+                      Object.entries(columnDisplayNames).find(
+                        ([key]) => key === column.id,
+                      )?.[1] || column.id;
+
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={value =>
+                          column.toggleVisibility(!!value)
+                        }
+                      >
+                        {displayName}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
-        {/* Main content - only table scrolls */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Table header - fixed */}
-          <div className="flex w-full items-center justify-end border-b bg-background p-2">
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefresh}
-                className="gap-1"
-              >
-                <RotateCw
-                  className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
-                />
-                Refresh
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Sliders className="h-4 w-4" />
-                    Columns
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {table
-                    .getAllColumns()
-                    .filter(column => column.getCanHide())
-                    .map(column => {
-                      // Use a proper lookup instead of direct access to handle keys with dots
-                      const displayName =
-                        Object.entries(columnDisplayNames).find(
-                          ([key]) => key === column.id,
-                        )?.[1] || column.id;
-
-                      return (
-                        <DropdownMenuCheckboxItem
-                          key={column.id}
-                          className="capitalize"
-                          checked={column.getIsVisible()}
-                          onCheckedChange={value =>
-                            column.toggleVisibility(!!value)
-                          }
-                        >
-                          {displayName}
-                        </DropdownMenuCheckboxItem>
-                      );
-                    })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-
-          {/* Table content - scrollable */}
-          <div className="flex-1 overflow-auto">
-            <Table>
-              <TableHeader className="sticky top-0 z-20 bg-muted shadow-sm">
-                {table.getHeaderGroups().map(headerGroup => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map(header => (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
+        {/* Table content - scrollable */}
+        <div className="flex-1 overflow-auto">
+          <Table>
+            <TableHeader className="bg-muted sticky top-0 z-20 shadow-sm">
+              {table.getHeaderGroups().map(headerGroup => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: 10 }).map((_, index) => (
+                  <TableRow key={index}>
+                    {columns.map((column, cellIndex) => (
+                      <TableCell key={cellIndex} className="p-2">
+                        <Skeleton
+                          className={`h-8 w-full ${cellIndex === 2 ? 'h-12' : ''}`}
+                        />
+                      </TableCell>
                     ))}
                   </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  Array.from({ length: 10 }).map((_, index) => (
-                    <TableRow key={index}>
-                      {columns.map((column, cellIndex) => (
-                        <TableCell key={cellIndex} className="p-2">
-                          <Skeleton
-                            className={`h-8 w-full ${cellIndex === 2 ? 'h-12' : ''}`}
-                          />
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map(row => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && 'selected'}
-                    >
-                      {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results found. Try adjusting your filters.
-                    </TableCell>
+                ))
+              ) : table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map(row => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                  >
+                    {row.getVisibleCells().map(cell => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results found. Try adjusting your filters.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>

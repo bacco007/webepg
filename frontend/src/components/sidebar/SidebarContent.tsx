@@ -143,6 +143,23 @@ const data = {
         },
       ],
     },
+    {
+      name: 'New Zealand',
+      url: '/',
+      icon: Antenna,
+      items: [
+        {
+          title: 'Channel List - Freeview',
+          url: '/channellist/freeview-nz',
+          icon: Antenna,
+        },
+        {
+          title: 'Channel List - Sky',
+          url: '/channellist/skynz',
+          icon: SatelliteDish,
+        },
+      ],
+    },
   ],
 };
 

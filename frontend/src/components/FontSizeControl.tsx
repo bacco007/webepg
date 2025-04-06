@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Minus, Plus, Text } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { Minus, Plus, Text } from 'lucide-react';
+
 import { setCookie } from '@/lib/cookies';
+import { cn } from '@/lib/utils';
 
 const fontSizeOptions = [
   { key: 'small', icon: Minus, label: 'Decrease font size' },
@@ -56,7 +57,7 @@ export function FontSizeControl({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'relative flex h-8 rounded-full bg-background p-1 ring-1 ring-border',
+        'bg-background ring-border relative flex h-8 rounded-full p-1 ring-1',
         className,
       )}
     >
@@ -74,7 +75,7 @@ export function FontSizeControl({ className }: { className?: string }) {
             {isActive && (
               <motion.div
                 layoutId="activeFontSize"
-                className="absolute inset-0 rounded-full bg-secondary"
+                className="bg-secondary absolute inset-0 rounded-full"
                 transition={{ type: 'spring', duration: 0.5 }}
               />
             )}

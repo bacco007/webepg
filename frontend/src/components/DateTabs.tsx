@@ -99,7 +99,7 @@ export default function DateTabs() {
 
   return (
     <div
-      className="sticky left-0 top-0 z-0 mx-auto w-full bg-background px-4 sm:px-6 lg:px-8"
+      className="bg-background sticky top-0 left-0 z-0 mx-auto w-full px-4 sm:px-6 lg:px-8"
       ref={tabsRef}
     >
       <Tabs
@@ -110,7 +110,7 @@ export default function DateTabs() {
         <div className="flex items-center space-x-2">
           <button
             onClick={() => scrollTabs('left')}
-            className="rounded-full bg-muted p-2 hover:bg-muted-foreground/10 lg:hidden"
+            className="bg-muted hover:bg-muted-foreground/10 rounded-full p-2 lg:hidden"
             aria-label="Scroll left"
           >
             <ChevronLeft className="size-4" />
@@ -119,12 +119,12 @@ export default function DateTabs() {
             ref={scrollContainerRef}
             className="scrollbar-hide flex-1 overflow-x-auto"
           >
-            <TabsList className="inline-flex h-12 w-full items-center justify-start rounded-md bg-muted p-1 text-muted-foreground">
+            <TabsList className="bg-muted text-muted-foreground inline-flex h-12 w-full items-center justify-start rounded-md p-1">
               {dates.map(date => (
                 <TabsTrigger
                   key={date}
                   value={date}
-                  className="inline-flex h-9 min-w-[160px] flex-1 flex-col items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-xs font-medium ring-offset-background transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                  className="ring-offset-background data-[state=active]:bg-background data-[state=active]:text-foreground focus-visible:ring-ring inline-flex h-9 min-w-[160px] flex-1 flex-col items-center justify-center rounded-sm px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-xs"
                 >
                   {formatDate(date)}
                 </TabsTrigger>
@@ -133,7 +133,7 @@ export default function DateTabs() {
           </div>
           <button
             onClick={() => scrollTabs('right')}
-            className="rounded-full bg-muted p-2 hover:bg-muted-foreground/10 lg:hidden"
+            className="bg-muted hover:bg-muted-foreground/10 rounded-full p-2 lg:hidden"
             aria-label="Scroll right"
           >
             <ChevronRight className="size-4" />

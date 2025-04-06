@@ -107,7 +107,7 @@ export default function ProgramDialog({
           {decodeHtml(event.title)} - Program Details
         </DialogTitle>
         <Card className="border-none">
-          <CardHeader className="rounded-t-lg bg-primary text-primary-foreground">
+          <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
             <CardTitle className="text-2xl font-bold">
               {decodeHtml(event.title)}
             </CardTitle>
@@ -129,8 +129,8 @@ export default function ProgramDialog({
                     className="rounded-lg object-cover"
                   />
                 ) : (
-                  <div className="flex h-[187px] w-[250px] items-center justify-center rounded-lg bg-secondary">
-                    <TvIcon className="size-16 text-secondary-foreground/30" />
+                  <div className="bg-secondary flex h-[187px] w-[250px] items-center justify-center rounded-lg">
+                    <TvIcon className="text-secondary-foreground/30 size-16" />
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2">
@@ -143,11 +143,11 @@ export default function ProgramDialog({
               </div>
               <ScrollArea className="h-[300px] grow md:h-auto">
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-2 text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center space-x-2">
                     <CalendarIcon className="size-4" />
                     <span>{formatDay(startDate)}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center space-x-2">
                     <ClockIcon className="size-4" />
                     <span>
                       {formatTime(startDate)} - {formatTime(endDate)} (
@@ -155,7 +155,7 @@ export default function ProgramDialog({
                     </span>
                   </div>
                   {event.channel && (
-                    <div className="flex items-center space-x-2 text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center space-x-2">
                       <TvIcon className="size-4" />
                       <span>{decodeHtml(event.channel_name)}</span>
                     </div>
@@ -202,7 +202,7 @@ export default function ProgramDialog({
                   {event.description && event.description !== 'N/A' && (
                     <>
                       <Separator />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         {decodeHtml(event.description)}
                       </p>
                     </>
@@ -211,7 +211,7 @@ export default function ProgramDialog({
               </ScrollArea>
             </div>
           </CardContent>
-          <CardFooter className="justify-end space-x-2 rounded-b-lg bg-muted/50">
+          <CardFooter className="bg-muted/50 justify-end space-x-2 rounded-b-lg">
             <Button variant="outline" onClick={() => handleOpenChange(false)}>
               Close
             </Button>

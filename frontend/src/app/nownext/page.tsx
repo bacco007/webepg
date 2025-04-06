@@ -1,17 +1,19 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
   ChevronDown,
+  ChevronUp,
   Clock,
-  FilterIcon,
   LayoutGrid,
   List,
+  Menu,
   MoreHorizontal,
   Plus,
   RefreshCw,
+  Search,
   Smartphone,
   X,
 } from 'lucide-react';
@@ -30,15 +32,6 @@ import {
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from '@/components/ui/command';
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -52,13 +45,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // ADDED
 import {
   Table,
   TableBody,
@@ -115,6 +103,91 @@ const decodeHtml = (html: string): string => {
   return txt.value;
 };
 
+function FilterSection({
+  title,
+  options,
+  filters,
+  onFilterChange,
+  counts,
+}: {
+  title: string;
+  options: string[];
+  filters: string[];
+  onFilterChange: (value: string) => void;
+  counts: Record<string, number>;
+}) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  // Filter options to only include those with counts > 0 or those already selected
+  const availableOptions = useMemo(() => {
+    return options.filter(
+      option =>
+        filters.includes(option) || // Always show selected options
+        counts[option] > 0, // Only show options with counts > 0
+    );
+  }, [options, counts, filters]);
+
+  // Calculate total available options for display
+  const totalAvailableOptions = useMemo(() => {
+    return options.filter(
+      option => counts[option] > 0 || filters.includes(option),
+    ).length;
+  }, [options, counts, filters]);
+
+  return (
+    <div className="border-b">
+      <div
+        className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{title}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground text-xs">
+            {totalAvailableOptions}
+          </span>
+          {isOpen ? (
+            <ChevronUp className="text-muted-foreground size-4" />
+          ) : (
+            <ChevronDown className="text-muted-foreground size-4" />
+          )}
+        </div>
+      </div>
+      {isOpen && (
+        <div className="px-4 pb-3">
+          <div className="thin-scrollbar max-h-[200px] space-y-1 overflow-y-auto pr-1">
+            {availableOptions.length > 0 ? (
+              availableOptions.map(option => (
+                <label
+                  key={option}
+                  className="flex cursor-pointer items-center justify-between py-1"
+                >
+                  <div className="flex items-center">
+                    <Checkbox
+                      checked={filters.includes(option)}
+                      onCheckedChange={() => onFilterChange(option)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">{option}</span>
+                  </div>
+                  <span className="text-muted-foreground text-xs">
+                    {counts[option]}
+                  </span>
+                </label>
+              ))
+            ) : (
+              <div className="text-muted-foreground py-2 text-center text-sm">
+                No options available
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ChannelGrid() {
   const [channels, setChannels] = useState<ChannelData[]>([]);
   const [filteredChannels, setFilteredChannels] = useState<ChannelData[]>([]);
@@ -123,13 +196,13 @@ function ChannelGrid() {
   const [xmltvDataSource, setXmltvDataSource] =
     useState<string>('xmlepg_FTASYD');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [hideNoProgramData, setHideNoProgramData] = useState(false);
   const [groupBy, setGroupBy] = useState<GroupBy>('none');
   const [viewMode, setViewMode] = useState<ViewMode>('card');
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [sidebarOpen, setSidebarOpen] = useState(false); // ADDED
 
   const fetchChannels = useCallback(async () => {
     setIsLoading(true);
@@ -146,8 +219,10 @@ function ChannelGrid() {
       const data = await response.json();
       const sortedChannels = data.data.sort(
         (a: ChannelData, b: ChannelData) => {
-          const aLcn = Number.parseInt(a.channel.lcn) || Infinity;
-          const bLcn = Number.parseInt(b.channel.lcn) || Infinity;
+          const aLcn =
+            Number.parseInt(a.channel.lcn) || Number.POSITIVE_INFINITY;
+          const bLcn =
+            Number.parseInt(b.channel.lcn) || Number.POSITIVE_INFINITY;
           if (aLcn === bLcn) {
             return a.channel.name.real.localeCompare(b.channel.name.real);
           }
@@ -195,10 +270,6 @@ function ChannelGrid() {
     setFilteredChannels(filtered);
   }, [searchTerm, channels, selectedGroups, hideNoProgramData]);
 
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-  };
-
   const handleRefresh = () => {
     fetchChannels();
   };
@@ -231,9 +302,11 @@ function ChannelGrid() {
     return Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
   }
 
-  const uniqueGroups = [
-    ...new Set(channels.map(channelData => channelData.channel.group)),
-  ].sort();
+  const uniqueGroups = useMemo(() => {
+    return [
+      ...new Set(channels.map(channelData => channelData.channel.group)),
+    ].sort();
+  }, [channels]);
 
   const handleGroupFilter = (group: string) => {
     setSelectedGroups(previous =>
@@ -265,71 +338,22 @@ function ChannelGrid() {
     setHideNoProgramData(false);
   };
 
-  const FilterMenu = () => (
-    <Popover open={isFilterMenuOpen} onOpenChange={setIsFilterMenuOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="ml-auto">
-          <FilterIcon className="mr-2 size-4" />
-          Filters
-          {(selectedGroups.length > 0 || hideNoProgramData) && (
-            <Badge variant="secondary" className="ml-2">
-              {selectedGroups.length + (hideNoProgramData ? 1 : 0)}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="end">
-        <Command>
-          <CommandInput placeholder="Search filters..." />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading="Options">
-              <CommandItem>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="hide-no-program-data"
-                    checked={hideNoProgramData}
-                    onCheckedChange={checked =>
-                      setHideNoProgramData(checked as boolean)
-                    }
-                  />
-                  <Label htmlFor="hide-no-program-data">
-                    Hide No Program Data
-                  </Label>
-                </div>
-              </CommandItem>
-            </CommandGroup>
-            <CommandSeparator />
-            <CommandGroup heading="Channel Groups">
-              <ScrollArea className="h-[200px]">
-                {uniqueGroups.map(group => (
-                  <CommandItem
-                    key={group}
-                    onSelect={() => handleGroupFilter(group)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`group-${group}`}
-                        checked={selectedGroups.includes(group)}
-                        onCheckedChange={() => handleGroupFilter(group)}
-                      />
-                      <Label htmlFor={`group-${group}`}>{group}</Label>
-                    </div>
-                  </CommandItem>
-                ))}
-              </ScrollArea>
-            </CommandGroup>
-          </CommandList>
-          <div className="border-t p-2">
-            <Button variant="outline" className="w-full" onClick={clearFilters}>
-              <X className="mr-2 size-4" />
-              Clear Filters
-            </Button>
-          </div>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
+  // Calculate counts for filter options
+  const groupCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    uniqueGroups.forEach(group => {
+      counts[group] = channels.filter(
+        channelData =>
+          channelData.channel.group === group &&
+          (channelData.channel.name.real
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+            channelData.channel.lcn.includes(searchTerm)) &&
+          (!hideNoProgramData || !isChannelGreyedOut(channelData)),
+      ).length;
+    });
+    return counts;
+  }, [channels, uniqueGroups, searchTerm, hideNoProgramData]);
 
   function ProgramDetails({
     program,
@@ -354,7 +378,9 @@ function ChannelGrid() {
       } else {
         const hours = Math.floor(minutesUntilStart / 60);
         const minutes = minutesUntilStart % 60;
-        timeDisplay = `Starts in ${hours} hour${hours === 1 ? '' : 's'} and ${minutes} minute${minutes === 1 ? '' : 's'}`;
+        timeDisplay = `Starts in ${hours} hour${hours === 1 ? '' : 's'} and ${minutes} minute${
+          minutes === 1 ? '' : 's'
+        }`;
       }
     } else if (now < endTime) {
       const remainingMinutes = Math.floor(
@@ -373,7 +399,7 @@ function ChannelGrid() {
       <div className="space-y-4">
         <div className="space-y-1">
           <h3 className="text-xl font-semibold">{program.title}</h3>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
             <span>
               {formatTime(program.start)} - {formatTime(program.stop)}
             </span>
@@ -396,14 +422,14 @@ function ChannelGrid() {
         </Button>
 
         {program.desc && (
-          <div className="space-y-2 rounded-lg bg-muted p-4 text-sm">
+          <div className="bg-muted space-y-2 rounded-lg p-4 text-sm">
             <p>{program.desc}</p>
             {program.category.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {program.category.map((cat, index) => (
                   <span
                     key={index}
-                    className="rounded-full bg-primary/10 px-2 py-0.5 text-xs"
+                    className="bg-primary/10 rounded-full px-2 py-0.5 text-xs"
                   >
                     {cat}
                   </span>
@@ -424,11 +450,11 @@ function ChannelGrid() {
               .map((p, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between rounded-lg bg-muted p-3"
+                  className="bg-muted flex items-center justify-between rounded-lg p-3"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{p.title}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {formatTime(p.start)} - {formatTime(p.stop)}
                     </p>
                   </div>
@@ -464,18 +490,18 @@ function ChannelGrid() {
   const ChannelCard = ({ channelData }: { channelData: ChannelData }) => (
     <Card
       key={`${channelData.channel.id}-${channelData.channel.lcn}`}
-      className={`flex flex-col bg-card ${isChannelGreyedOut(channelData) ? 'bg-muted grayscale' : ''}`}
+      className={`bg-card flex flex-col p-0 ${isChannelGreyedOut(channelData) ? 'bg-muted grayscale' : ''}`}
     >
-      <CardHeader className="flex flex-row items-center justify-between px-4 py-2">
+      <CardHeader className="flex flex-row items-center justify-between px-4 py-1 pb-0">
         {channelData.channel.icon.light !== 'N/A' && (
           <div>
             <img
-              className="block size-auto h-16 object-contain dark:hidden"
+              className="block size-auto h-14 object-contain dark:hidden"
               src={channelData.channel.icon.light || '/placeholder.svg'}
               alt={decodeHtml(channelData.channel.name.real)}
             />
             <img
-              className="hidden size-auto h-16 object-contain dark:block"
+              className="hidden size-auto h-14 object-contain dark:block"
               src={channelData.channel.icon.dark || '/placeholder.svg'}
               alt={decodeHtml(channelData.channel.name.real)}
             />
@@ -490,28 +516,23 @@ function ChannelGrid() {
           )}
         </div>
       </CardHeader>
-      <CardContent className="grow p-4">
+      <CardContent className="grow px-4 py-1">
         <div className="text-sm">
           <div className="font-semibold">
             Current Program: {channelData.currentProgram?.title || 'N/A'}
           </div>
           <div className="text-card-foreground/60">
             {channelData.currentProgram
-              ? `${formatTime(channelData.currentProgram.start)} - ${formatTime(
-                  channelData.currentProgram.stop,
-                )}`
+              ? `${formatTime(channelData.currentProgram.start)} - ${formatTime(channelData.currentProgram.stop)}`
               : ''}{' '}
             ({channelData.currentProgram?.lengthstring || 'N/A'})
           </div>
           {channelData.currentProgram && (
             <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">
               <div
-                className="h-1 bg-primary"
+                className="bg-primary h-1"
                 style={{
-                  width: `${calculateProgress(
-                    channelData.currentProgram.start,
-                    channelData.currentProgram.stop,
-                  )}%`,
+                  width: `${calculateProgress(channelData.currentProgram.start, channelData.currentProgram.stop)}%`,
                 }}
               ></div>
             </div>
@@ -521,15 +542,13 @@ function ChannelGrid() {
           </div>
           <div className="text-card-foreground/60">
             {channelData.nextProgram
-              ? `${formatTime(channelData.nextProgram.start)} - ${formatTime(
-                  channelData.nextProgram.stop,
-                )}`
+              ? `${formatTime(channelData.nextProgram.start)} - ${formatTime(channelData.nextProgram.stop)}`
               : ''}{' '}
             ({channelData.nextProgram?.lengthstring || 'N/A'})
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4">
+      <CardFooter className="px-4 py-1 pt-0">
         <div className="flex w-full gap-2">
           <Button
             variant="secondary"
@@ -640,7 +659,7 @@ function ChannelGrid() {
                   className="h-auto w-full justify-start p-0 text-left"
                 >
                   <div className="w-full">
-                    <div className="text-xs font-medium text-muted-foreground">
+                    <div className="text-muted-foreground text-xs font-medium">
                       Now
                     </div>
                     <div
@@ -654,7 +673,7 @@ function ChannelGrid() {
                       {channelData.currentProgram?.title || 'No Program Data'}
                     </div>
                     {channelData.currentProgram && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-muted-foreground text-xs">
                         {formatTime(channelData.currentProgram.start)} -{' '}
                         {formatTime(channelData.currentProgram.stop)} (
                         {channelData.currentProgram.lengthstring})
@@ -663,7 +682,7 @@ function ChannelGrid() {
                     {channelData.currentProgram && (
                       <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">
                         <div
-                          className="h-1 bg-primary"
+                          className="bg-primary h-1"
                           style={{
                             width: `${calculateProgress(
                               channelData.currentProgram.start,
@@ -695,7 +714,7 @@ function ChannelGrid() {
                   className="h-auto w-full justify-start p-0 text-left"
                 >
                   <div className="w-full">
-                    <div className="text-xs font-medium text-muted-foreground">
+                    <div className="text-muted-foreground text-xs font-medium">
                       Next
                     </div>
                     <div
@@ -709,7 +728,7 @@ function ChannelGrid() {
                       {channelData.nextProgram?.title || 'No Program Data'}
                     </div>
                     {channelData.nextProgram && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-muted-foreground text-xs">
                         {formatTime(channelData.nextProgram.start)} -{' '}
                         {formatTime(channelData.nextProgram.stop)} (
                         {channelData.nextProgram.lengthstring})
@@ -767,7 +786,7 @@ function ChannelGrid() {
                       {channelData.channel.name.real}
                     </p>
                     {channelData.channel.lcn !== 'N/A' && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         Channel {channelData.channel.lcn}
                       </p>
                     )}
@@ -776,7 +795,7 @@ function ChannelGrid() {
               </TableCell>
               <TableCell>
                 <p>{channelData.currentProgram?.title || 'N/A'}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {channelData.currentProgram
                     ? `${formatTime(channelData.currentProgram.start)} - ${formatTime(
                         channelData.currentProgram.stop,
@@ -786,12 +805,9 @@ function ChannelGrid() {
                 {channelData.currentProgram && (
                   <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">
                     <div
-                      className="h-1 bg-primary"
+                      className="bg-primary h-1"
                       style={{
-                        width: `${calculateProgress(
-                          channelData.currentProgram.start,
-                          channelData.currentProgram.stop,
-                        )}%`,
+                        width: `${calculateProgress(channelData.currentProgram.start, channelData.currentProgram.stop)}%`,
                       }}
                     ></div>
                   </div>
@@ -799,7 +815,7 @@ function ChannelGrid() {
               </TableCell>
               <TableCell>
                 <p>{channelData.nextProgram?.title || 'N/A'}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {channelData.nextProgram
                     ? `${formatTime(channelData.nextProgram.start)} - ${formatTime(
                         channelData.nextProgram.stop,
@@ -846,84 +862,267 @@ function ChannelGrid() {
   }
 
   return (
-    <div className="flex size-full flex-col">
-      <div className="flex items-center justify-between border-b p-2">
+    <div className="flex h-screen flex-col overflow-hidden">
+      {/* Main header */}
+      <div className="bg-background w-full border-b p-4">
         <h1 className="text-xl font-bold">Now and Next</h1>
-        <div className="flex items-center space-x-2">
-          <Input
-            type="text"
-            placeholder="Search channels..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-[200px]"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="sm:w-auto">
-                {groupBy === 'none'
-                  ? 'Group By'
-                  : `Grouped by ${groupBy === 'channel_group' ? 'Channel Group' : 'Channel Type'}`}
-                <ChevronDown className="ml-2 size-4" />
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Desktop sidebar - hidden on small screens */}
+        <div className="bg-background hidden w-64 shrink-0 flex-col overflow-hidden border-r lg:flex">
+          <div className="border-b p-3">
+            <div className="relative">
+              <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
+              <Input
+                placeholder="Search channels..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="pl-8 text-sm"
+                aria-label="Search channels"
+              />
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-1 right-1 h-7 w-7 p-0"
+                  onClick={() => setSearchTerm('')}
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="thin-scrollbar h-full">
+              {/* Options section */}
+              <div className="border-b">
+                <div className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">Options</span>
+                  </div>
+                </div>
+                <div className="px-4 pb-3">
+                  <label className="flex cursor-pointer items-center py-1">
+                    <div className="flex items-center">
+                      <Checkbox
+                        id="hide-no-programs"
+                        checked={hideNoProgramData}
+                        onCheckedChange={checked =>
+                          setHideNoProgramData(checked as boolean)
+                        }
+                        className="mr-2"
+                      />
+                      <span className="text-sm">
+                        Hide channels with no programs
+                      </span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <FilterSection
+                title="Channel Groups"
+                options={uniqueGroups}
+                filters={selectedGroups}
+                onFilterChange={handleGroupFilter}
+                counts={groupCounts}
+              />
+            </ScrollArea>
+          </div>
+
+          <div className="border-t p-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearFilters}
+              className="w-full text-xs"
+            >
+              Clear All Filters
+            </Button>
+            <div className="text-muted-foreground mt-2 text-center text-xs">
+              Showing {filteredChannels.length} of {channels.length} channels
+            </div>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Content header with view controls */}
+          <div className="bg-background flex items-center justify-between border-b p-2">
+            <div className="flex items-center space-x-2">
+              {/* Mobile sidebar trigger - only visible on small screens */}
+              <div className="lg:hidden">
+                <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Menu className="h-5 w-5" />
+                      <span className="sr-only">Toggle sidebar</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-64 p-0">
+                    {/* Mobile sidebar content */}
+                    <div className="flex h-full flex-col overflow-hidden">
+                      <div className="border-b p-3">
+                        <div className="relative">
+                          <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
+                          <Input
+                            placeholder="Search channels..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            className="pl-8 text-sm"
+                            aria-label="Search channels"
+                          />
+                          {searchTerm && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="absolute top-1 right-1 h-7 w-7 p-0"
+                              onClick={() => setSearchTerm('')}
+                              aria-label="Clear search"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 overflow-hidden">
+                        <ScrollArea className="thin-scrollbar h-full">
+                          {/* Options section */}
+                          <div className="border-b">
+                            <div className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">
+                                  Options
+                                </span>
+                              </div>
+                            </div>
+                            <div className="px-4 pb-3">
+                              <label className="flex cursor-pointer items-center py-1">
+                                <div className="flex items-center">
+                                  <Checkbox
+                                    id="hide-no-programs-mobile"
+                                    checked={hideNoProgramData}
+                                    onCheckedChange={checked =>
+                                      setHideNoProgramData(checked as boolean)
+                                    }
+                                    className="mr-2"
+                                  />
+                                  <span className="text-sm">
+                                    Hide channels with no programs
+                                  </span>
+                                </div>
+                              </label>
+                            </div>
+                          </div>
+
+                          <FilterSection
+                            title="Channel Groups"
+                            options={uniqueGroups}
+                            filters={selectedGroups}
+                            onFilterChange={handleGroupFilter}
+                            counts={groupCounts}
+                          />
+                        </ScrollArea>
+                      </div>
+
+                      <div className="border-t p-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={clearFilters}
+                          className="w-full text-xs"
+                        >
+                          Clear All Filters
+                        </Button>
+                        <div className="text-muted-foreground mt-2 text-center text-xs">
+                          Showing {filteredChannels.length} of {channels.length}{' '}
+                          channels
+                        </div>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="sm:w-auto">
+                    {groupBy === 'none'
+                      ? 'Group By'
+                      : `Grouped by ${groupBy === 'channel_group' ? 'Channel Group' : 'Channel Type'}`}
+                    <ChevronDown className="ml-2 size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onSelect={() => setGroupBy('none')}>
+                    No Grouping
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => setGroupBy('channel_group')}
+                  >
+                    Group by Channel Group
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="justify-start">
+                    {viewMode === 'card' ? (
+                      <LayoutGrid className="mr-2 size-4" />
+                    ) : viewMode === 'table' ? (
+                      <List className="mr-2 size-4" />
+                    ) : (
+                      <Smartphone className="mr-2 size-4" />
+                    )}
+                    {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setViewMode('card')}>
+                    <LayoutGrid className="mr-2 size-4" />
+                    Card
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setViewMode('table')}>
+                    <List className="mr-2 size-4" />
+                    Table
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setViewMode('mobile')}>
+                    <Smartphone className="mr-2 size-4" />
+                    Mobile
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button onClick={handleRefresh} variant="outline">
+                <RefreshCw className="size-4" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onSelect={() => setGroupBy('none')}>
-                No Grouping
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setGroupBy('channel_group')}>
-                Group by Channel Group
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button onClick={handleRefresh} variant="outline">
-            <RefreshCw className="size-4" />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="justify-start">
-                {viewMode === 'card' ? (
-                  <LayoutGrid className="mr-2 size-4" />
-                ) : viewMode === 'table' ? (
-                  <List className="mr-2 size-4" />
-                ) : (
-                  <Smartphone className="mr-2 size-4" />
-                )}
-                {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setViewMode('card')}>
-                <LayoutGrid className="mr-2 size-4" />
-                Card
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setViewMode('table')}>
-                <List className="mr-2 size-4" />
-                Table
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setViewMode('mobile')}>
-                <Smartphone className="mr-2 size-4" />
-                Mobile
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <FilterMenu />
+            </div>
+          </div>
+
+          {/* Content area - scrollable */}
+          <div className="flex-1 overflow-auto">
+            <div className="p-4">
+              {isLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <LoadingSpinner />
+                </div>
+              ) : viewMode === 'card' ? (
+                <CardView />
+              ) : viewMode === 'table' ? (
+                <TableView />
+              ) : (
+                <MobileView />
+              )}
+            </div>
+          </div>
         </div>
       </div>
-      <ScrollArea className="grow">
-        <div className="w-full p-4">
-          {isLoading ? (
-            <div className="flex h-full items-center justify-center">
-              <LoadingSpinner />
-            </div>
-          ) : viewMode === 'card' ? (
-            <CardView />
-          ) : viewMode === 'table' ? (
-            <TableView />
-          ) : (
-            <MobileView />
-          )}
-        </div>
-      </ScrollArea>
     </div>
   );
 }

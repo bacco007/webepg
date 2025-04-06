@@ -6,7 +6,7 @@ import Script from 'next/script';
 import type { Metadata, Viewport } from 'next';
 
 import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
+import Sidebar from '@/components/sidebar/Sidebar';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import TopLoader from '@/components/TopLoader';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -29,7 +29,11 @@ export const metadata: Metadata = {
     default: 'webEPG',
     template: '%s | webEPG',
   },
+  metadataBase: new URL('https://www.webepg.xyz'),
   description: 'Your comprehensive Electronic Program Guide',
+  keywords: ['EPG', 'Television'],
+  authors: [{ name: 'webEPG', url: 'https://www.webepg.xyz' }],
+  creator: 'webEPG',
   robots: {
     index: true,
     follow: true,
@@ -74,11 +78,16 @@ export default async function RootLayout({
 }) {
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get('sidebar:state')?.value === 'true';
-  //const defaultOpen = (await getCookie('sidebar:state')) === 'true';
   const fontSize = (await getCookie('fontSize')) || '100';
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ fontSize: `${fontSize}%` }}
@@ -89,23 +98,27 @@ export default async function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          enableColorScheme
         >
           <SidebarProvider defaultOpen={defaultOpen}>
             <div
               className="flex h-screen w-full overflow-hidden"
               style={
                 {
-                  '--sidebar-width': '18rem',
-                  '--sidebar-width-mobile': '20rem',
+                  '--sidebar-width': 'calc(var(--spacing) * 72)',
                 } as React.CSSProperties
               }
             >
               <Sidebar />
-              <SidebarInset className="flex size-full flex-col overflow-hidden">
-                <Header />
-                <main className="flex size-full flex-col overflow-auto">
-                  {children}
-                </main>
+              <SidebarInset>
+                <div className="h-svh w-full overflow-hidden lg:p-2">
+                  <div className="bg-container flex h-full w-full flex-col justify-start overflow-hidden lg:rounded-md lg:border">
+                    <Header />
+                    <main className="flex size-full h-[calc(100svh-40px)] flex-col overflow-auto lg:h-[calc(100svh-56px)]">
+                      {children}
+                    </main>
+                  </div>
+                </div>
               </SidebarInset>
             </div>
           </SidebarProvider>

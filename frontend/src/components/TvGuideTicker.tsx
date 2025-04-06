@@ -98,12 +98,12 @@ export default function TVGuideTicker() {
   };
 
   if (isLoading) {
-    return <div className="w-full bg-background p-4">Loading...</div>;
+    return <div className="bg-background w-full p-4">Loading...</div>;
   }
 
   if (error) {
     return (
-      <div className="w-full bg-background p-4 text-red-500">
+      <div className="bg-background w-full p-4 text-red-500">
         Error: {error}
       </div>
     );
@@ -136,11 +136,11 @@ export default function TVGuideTicker() {
   const scrollDuration = totalWidth / pixelsPerSecond;
 
   return (
-    <div className="w-full bg-background">
+    <div className="bg-background w-full">
       <div className="container mx-auto px-4 py-8">
         <div className="relative w-full overflow-hidden">
-          <div className="absolute bottom-0 left-0 top-0 z-10 w-16 bg-gradient-to-r from-background to-transparent"></div>
-          <div className="absolute bottom-0 right-0 top-0 z-10 w-16 bg-gradient-to-l from-background to-transparent"></div>
+          <div className="from-background absolute top-0 bottom-0 left-0 z-10 w-16 bg-linear-to-r to-transparent"></div>
+          <div className="from-background absolute top-0 right-0 bottom-0 z-10 w-16 bg-linear-to-l to-transparent"></div>
           <div className="overflow-hidden">
             <div
               ref={containerRef}
@@ -157,7 +157,7 @@ export default function TVGuideTicker() {
                 <Link
                   key={`${item.channel.id}-${index}`}
                   href={`/channel/${item.channel.slug}?source=${xmltvDataSource}`}
-                  className="focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="focus:ring-primary focus:ring-2 focus:outline-hidden"
                 >
                   <Card className="mr-3 flex h-20 w-[300px] shrink-0 flex-row items-center gap-3 p-3 shadow-md transition-shadow hover:shadow-lg">
                     <div className="shrink-0">
@@ -174,7 +174,7 @@ export default function TVGuideTicker() {
                         <div className="truncate text-xs font-semibold">
                           {item.channel.name.real}
                         </div>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-muted-foreground text-xs">
                           {item.currentProgram && item.currentProgram.stop
                             ? `Ends ${new Date(item.currentProgram.stop).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                             : ''}

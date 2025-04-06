@@ -19,7 +19,7 @@ export default async function SidebarHeader() {
             size="lg"
             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
               <Avatar className="size-8 rounded-lg">
                 <AvatarImage src="/favicon/apple-touch-icon.png" alt="webEPG" />
                 <AvatarFallback className="rounded-lg">wE</AvatarFallback>

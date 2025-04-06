@@ -5,3 +5,4 @@ node_modules
 *.esm.js
 src/components/ui
 ../v1/*
+src/

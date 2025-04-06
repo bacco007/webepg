@@ -1,8 +1,8 @@
 import React from 'react';
 
-import SidebarContent from '@/components/SidebarContent';
-import SidebarFooter from '@/components/SidebarFooter';
-import SidebarHeader from '@/components/SidebarHeader';
+import SidebarContent from '@/components/sidebar/SidebarContent';
+import SidebarFooter from '@/components/sidebar/SidebarFooter';
+import SidebarHeader from '@/components/sidebar/SidebarHeader';
 import {
   Sidebar as SidebarPrimitive,
   SidebarRail,

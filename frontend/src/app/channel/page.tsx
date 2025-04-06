@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
   ArrowRight,
@@ -125,20 +125,20 @@ function FilterSection({
   return (
     <div className="border-b">
       <div
-        className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/10"
+        className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{title}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             {totalAvailableOptions}
           </span>
           {isOpen ? (
-            <ChevronUp className="size-4 text-muted-foreground" />
+            <ChevronUp className="text-muted-foreground size-4" />
           ) : (
-            <ChevronDown className="size-4 text-muted-foreground" />
+            <ChevronDown className="text-muted-foreground size-4" />
           )}
         </div>
       </div>
@@ -159,13 +159,13 @@ function FilterSection({
                     />
                     <span className="text-sm">{option}</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {counts[option]}
                   </span>
                 </label>
               ))
             ) : (
-              <div className="py-2 text-center text-sm text-muted-foreground">
+              <div className="text-muted-foreground py-2 text-center text-sm">
                 No options available
               </div>
             )}
@@ -580,14 +580,14 @@ function ChannelListContent() {
     <Link
       href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
       passHref
-      className="focus:outline-none focus:ring-2 focus:ring-primary"
+      className="focus:ring-primary focus:ring-2 focus:outline-hidden"
     >
       <Card
-        className={`flex h-full items-center space-x-4 rounded-lg border p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg ${
+        className={`flex h-full flex-row items-center space-x-4 rounded-lg border p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg ${
           channel.program_count === 0 ? 'bg-muted grayscale' : 'bg-card'
         }`}
       >
-        <div className="flex size-16 items-center justify-center">
+        <div className="flex size-16 shrink-0 items-center justify-center">
           <img
             src={channel.channel_logo.light || '/placeholder.svg'}
             alt={decodeHtml(
@@ -598,7 +598,7 @@ function ChannelListContent() {
             className="max-h-full max-w-full object-contain"
           />
         </div>
-        <div className="grow">
+        <div className="flex flex-col">
           <p className="text-sm font-bold">
             {decodeHtml(
               channel.channel_names?.real || channel.channel_name || '',
@@ -606,21 +606,21 @@ function ChannelListContent() {
           </p>
           {typeof channel.channel_number === 'string' &&
             channel.channel_number !== 'N/A' && (
-              <p className="text-xs font-semibold text-primary">
+              <p className="text-primary text-xs font-semibold">
                 Channel {channel.channel_number}
               </p>
             )}
           {channel.channel_group &&
             channel.channel_group !== 'N/A' &&
             channel.channel_group.toLowerCase() !== 'unknown' && (
-              <p className="text-xs font-semibold text-primary">
+              <p className="text-primary text-xs font-semibold">
                 {channel.channel_group}
               </p>
             )}
           {channel.other_data &&
             channel.other_data.channel_specs !== 'N/A' &&
             channel.other_data.channel_type !== 'N/A' && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {channel.other_data.channel_specs},{' '}
                 {channel.other_data.channel_type}
               </p>
@@ -705,7 +705,7 @@ function ChannelListContent() {
   const TableView = () => (
     <div className="w-full">
       <Table>
-        <TableHeader className="sticky top-0 z-20 bg-muted shadow-sm">
+        <TableHeader className="bg-muted sticky top-0 z-20 shadow-xs">
           <TableRow>
             {columnVisibility.logo && (
               <TableHead className="w-[100px]">Logo</TableHead>
@@ -715,7 +715,7 @@ function ChannelListContent() {
                 <Button
                   variant="ghost"
                   onClick={() => handleSort('number')}
-                  className="flex items-center p-0 font-medium hover:bg-accent hover:text-accent-foreground"
+                  className="hover:bg-accent hover:text-accent-foreground flex items-center p-0 font-medium"
                 >
                   Ch No
                   {sortField === 'number' &&
@@ -732,7 +732,7 @@ function ChannelListContent() {
                 <Button
                   variant="ghost"
                   onClick={() => handleSort('name')}
-                  className="flex items-center p-0 font-medium hover:bg-accent hover:text-accent-foreground"
+                  className="hover:bg-accent hover:text-accent-foreground flex items-center p-0 font-medium"
                 >
                   Channel Name
                   {sortField === 'name' &&
@@ -749,7 +749,7 @@ function ChannelListContent() {
                 <Button
                   variant="ghost"
                   onClick={() => handleSort('group')}
-                  className="flex items-center p-0 font-medium hover:bg-accent hover:text-accent-foreground"
+                  className="hover:bg-accent hover:text-accent-foreground flex items-center p-0 font-medium"
                 >
                   Channel Operator
                   {sortField === 'group' &&
@@ -771,7 +771,7 @@ function ChannelListContent() {
                 <Button
                   variant="ghost"
                   onClick={() => handleSort('program_count')}
-                  className="flex items-center p-0 font-medium hover:bg-accent hover:text-accent-foreground"
+                  className="hover:bg-accent hover:text-accent-foreground flex items-center p-0 font-medium"
                 >
                   Programs
                   {sortField === 'program_count' &&
@@ -797,8 +797,8 @@ function ChannelListContent() {
               {columnVisibility.logo && (
                 <TableCell>
                   {channel.chlogo === 'N/A' ? (
-                    <div className="flex size-12 items-center justify-center rounded-md bg-muted">
-                      <span className="text-xs text-muted-foreground">
+                    <div className="bg-muted flex size-12 items-center justify-center rounded-md">
+                      <span className="text-muted-foreground text-xs">
                         No logo
                       </span>
                     </div>
@@ -891,7 +891,7 @@ function ChannelListContent() {
                   <Button variant="ghost" size="sm" asChild>
                     <Link
                       href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
-                      className="inline-flex items-center font-medium hover:text-primary"
+                      className="hover:text-primary inline-flex items-center font-medium"
                     >
                       View
                       <ArrowRight className="ml-2 size-4" />
@@ -924,18 +924,13 @@ function ChannelListContent() {
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden">
-      {/* Main header */}
-      <div className="w-full border-b bg-background p-4">
-        <h1 className="text-xl font-bold">Channel List</h1>
-      </div>
-
       <div className="flex flex-1 overflow-hidden">
         {/* Left sidebar with filters - fixed */}
-        <div className="flex w-64 shrink-0 flex-col overflow-hidden border-r bg-background">
+        <div className="bg-background w-64 shrink-0 flex-col overflow-hidden border-r">
           {/* Search input */}
           <div className="border-b p-3">
             <div className="relative">
-              <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
               <Input
                 placeholder="Search channels..."
                 value={searchTerm}
@@ -947,7 +942,7 @@ function ChannelListContent() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="absolute right-1 top-1 h-7 w-7 p-0"
+                  className="absolute top-1 right-1 h-7 w-7 p-0"
                   onClick={() => setSearchTerm('')}
                   aria-label="Clear search"
                 >
@@ -962,7 +957,7 @@ function ChannelListContent() {
             <ScrollArea className="thin-scrollbar h-full">
               {/* Options section */}
               <div className="border-b">
-                <div className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/10">
+                <div className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Options</span>
                   </div>
@@ -1032,7 +1027,7 @@ function ChannelListContent() {
             >
               Clear All Filters
             </Button>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="text-muted-foreground mt-2 text-center text-xs">
               Showing {filteredChannels.length} of {channels.length} channels
             </div>
           </div>
@@ -1041,7 +1036,7 @@ function ChannelListContent() {
         {/* Main content - only table scrolls */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Table header - fixed */}
-          <div className="flex w-full items-center justify-between border-b bg-background p-2">
+          <div className="bg-background flex w-full items-center justify-between border-b p-2">
             <div className="flex items-center space-x-2">
               <ToggleGroup
                 type="single"

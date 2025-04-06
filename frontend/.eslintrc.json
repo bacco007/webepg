@@ -16,17 +16,17 @@
     "plugin:react-hooks/recommended",
     "plugin:import/recommended",
     "prettier",
-    "next/typescript",
-    "plugin:tailwindcss/recommended"
+    "next/typescript"
+    // "plugin:tailwindcss/recommended"
   ],
   "plugins": [
     "react",
     "react-hooks",
     "simple-import-sort",
     "prettier",
-    "@typescript-eslint",
-    "unicorn",
-    "tailwindcss"
+    "@typescript-eslint"
+    // "unicorn",
+    // "tailwindcss"
   ],
   "rules": {
     "import/named": "warn",
@@ -85,7 +85,7 @@
       }
     },
     {
-      "files": ["*.ts", "*.tsx", "*.js"],
+      "files": ["*.ts", "*.tsx", "*.js", "src /**/*.ts", "src /**/*.tsx"],
       "parser": "@typescript-eslint/parser"
     }
   ],

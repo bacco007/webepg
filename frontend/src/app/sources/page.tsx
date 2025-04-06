@@ -1,32 +1,25 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, FilterIcon, RefreshCw, X } from 'lucide-react';
+import {
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  Menu,
+  RefreshCw,
+  Search,
+  X,
+} from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { getCookie, setCookie } from '@/lib/cookies';
+import { cn } from '@/lib/utils';
 
 interface Source {
   id: string;
@@ -40,6 +33,91 @@ interface Source {
   };
 }
 
+function FilterSection({
+  title,
+  options,
+  filters,
+  onFilterChange,
+  counts,
+}: {
+  title: string;
+  options: string[];
+  filters: string[];
+  onFilterChange: (value: string) => void;
+  counts: Record<string, number>;
+}) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  // Filter options to only include those with counts > 0 or those already selected
+  const availableOptions = useMemo(() => {
+    return options.filter(
+      option =>
+        filters.includes(option) || // Always show selected options
+        counts[option] > 0, // Only show options with counts > 0
+    );
+  }, [options, counts, filters]);
+
+  // Calculate total available options for display
+  const totalAvailableOptions = useMemo(() => {
+    return options.filter(
+      option => counts[option] > 0 || filters.includes(option),
+    ).length;
+  }, [options, counts, filters]);
+
+  return (
+    <div className="border-b">
+      <div
+        className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{title}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground text-xs">
+            {totalAvailableOptions}
+          </span>
+          {isOpen ? (
+            <ChevronUp className="text-muted-foreground size-4" />
+          ) : (
+            <ChevronDown className="text-muted-foreground size-4" />
+          )}
+        </div>
+      </div>
+      {isOpen && (
+        <div className="px-4 pb-3">
+          <div className="thin-scrollbar max-h-[200px] space-y-1 overflow-y-auto pr-1">
+            {availableOptions.length > 0 ? (
+              availableOptions.map(option => (
+                <label
+                  key={option}
+                  className="flex cursor-pointer items-center justify-between py-1"
+                >
+                  <div className="flex items-center">
+                    <Checkbox
+                      checked={filters.includes(option)}
+                      onCheckedChange={() => onFilterChange(option)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">{option}</span>
+                  </div>
+                  <span className="text-muted-foreground text-xs">
+                    {counts[option]}
+                  </span>
+                </label>
+              ))
+            ) : (
+              <div className="text-muted-foreground py-2 text-center text-sm">
+                No options available
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function XmltvSourcesPage() {
   const [sources, setSources] = useState<Source[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,7 +126,7 @@ export default function XmltvSourcesPage() {
   const [filterText, setFilterText] = useState('');
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [selectedSubgroups, setSelectedSubgroups] = useState<string[]>([]);
-  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchSources = async () => {
@@ -146,92 +224,115 @@ export default function XmltvSourcesPage() {
     setSelectedSubgroups([]);
   };
 
-  const FilterMenu = () => (
-    <Popover open={isFilterMenuOpen} onOpenChange={setIsFilterMenuOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="ml-auto">
-          <FilterIcon className="mr-2 size-4" />
-          Filters
-          {(selectedGroups.length > 0 || selectedSubgroups.length > 0) && (
-            <Badge variant="secondary" className="ml-2">
-              {selectedGroups.length + selectedSubgroups.length}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="p-0 w-[300px]" align="end">
-        <Command>
-          <CommandInput placeholder="Search filters..." />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading="Groups">
-              <ScrollArea className="h-[200px]">
-                {groups.map(group => (
-                  <CommandItem
-                    key={group}
-                    onSelect={() => handleGroupFilter(group)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`group-${group}`}
-                        checked={selectedGroups.includes(group)}
-                        onCheckedChange={() => handleGroupFilter(group)}
-                      />
-                      <Label htmlFor={`group-${group}`}>{group}</Label>
-                    </div>
-                  </CommandItem>
-                ))}
-              </ScrollArea>
-            </CommandGroup>
-            <CommandSeparator />
-            <CommandGroup heading="Subgroups">
-              <ScrollArea className="h-[200px]">
-                {uniqueSubgroups.map(subgroup => (
-                  <CommandItem
-                    key={subgroup}
-                    onSelect={() => handleSubgroupFilter(subgroup)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`subgroup-${subgroup}`}
-                        checked={selectedSubgroups.includes(subgroup)}
-                        onCheckedChange={() => handleSubgroupFilter(subgroup)}
-                      />
-                      <Label htmlFor={`subgroup-${subgroup}`}>{subgroup}</Label>
-                    </div>
-                  </CommandItem>
-                ))}
-              </ScrollArea>
-            </CommandGroup>
-          </CommandList>
-          <div className="p-2 border-t">
-            <Button variant="outline" className="w-full" onClick={clearFilters}>
-              <X className="mr-2 size-4" />
-              Clear Filters
+  // Calculate counts for filter options
+  const groupCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    groups.forEach(group => {
+      counts[group] = sources.filter(
+        source =>
+          source.group === group &&
+          source.location.toLowerCase().includes(filterText.toLowerCase()) &&
+          (selectedSubgroups.length === 0 ||
+            selectedSubgroups.includes(source.subgroup)),
+      ).length;
+    });
+    return counts;
+  }, [sources, groups, filterText, selectedSubgroups]);
+
+  const subgroupCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    uniqueSubgroups.forEach(subgroup => {
+      counts[subgroup] = sources.filter(
+        source =>
+          source.subgroup === subgroup &&
+          source.location.toLowerCase().includes(filterText.toLowerCase()) &&
+          (selectedGroups.length === 0 ||
+            selectedGroups.includes(source.group)),
+      ).length;
+    });
+    return counts;
+  }, [sources, uniqueSubgroups, filterText, selectedGroups]);
+
+  // Sidebar content component to avoid duplication
+  const SidebarContent = () => (
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="border-b p-3">
+        <div className="relative">
+          <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
+          <Input
+            placeholder="Search sources..."
+            value={filterText}
+            onChange={e => setFilterText(e.target.value)}
+            className="pl-8 text-sm"
+            aria-label="Search sources"
+          />
+          {filterText && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-1 right-1 h-7 w-7 p-0"
+              onClick={() => setFilterText('')}
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
             </Button>
-          </div>
-        </Command>
-      </PopoverContent>
-    </Popover>
+          )}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="thin-scrollbar h-full">
+          <FilterSection
+            title="Groups"
+            options={groups}
+            filters={selectedGroups}
+            onFilterChange={handleGroupFilter}
+            counts={groupCounts}
+          />
+
+          <FilterSection
+            title="Subgroups"
+            options={uniqueSubgroups}
+            filters={selectedSubgroups}
+            onFilterChange={handleSubgroupFilter}
+            counts={subgroupCounts}
+          />
+        </ScrollArea>
+      </div>
+
+      <div className="border-t p-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearFilters}
+          className="w-full text-xs"
+        >
+          Clear All Filters
+        </Button>
+        <div className="text-muted-foreground mt-2 text-center text-xs">
+          Showing {filteredSources.length} of {sources.length} sources
+        </div>
+      </div>
+    </div>
   );
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="border-gray-900 border-b-2 rounded-full size-32 animate-spin"></div>
+      <div className="flex h-screen items-center justify-center">
+        <div className="size-32 animate-spin rounded-full border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col justify-center items-center h-full">
+      <div className="flex h-full flex-col items-center justify-center">
         <Alert variant="destructive" className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-        <Button onClick={() => globalThis.location.reload()}>
+        <Button onClick={() => window.location.reload()}>
           <RefreshCw className="mr-2 size-4" />
           Retry
         </Button>
@@ -240,113 +341,116 @@ export default function XmltvSourcesPage() {
   }
 
   return (
-    <div className="flex flex-col size-full">
-      <div className="flex justify-between items-center p-4 border-b">
-        <div>
-          <h1 className="font-bold text-2xl">Guide Sources</h1>
+    <div className="flex h-screen overflow-hidden">
+      {/* Desktop sidebar - hidden on small screens */}
+      <div className="bg-background hidden w-64 shrink-0 flex-col overflow-hidden border-r lg:flex">
+        <SidebarContent />
+      </div>
+
+      {/* Main content */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Content header with view controls */}
+        <div className="bg-background flex items-center justify-between border-b p-2">
+          <div className="flex items-center space-x-2">
+            {/* Mobile sidebar trigger - only visible on small screens */}
+            <div className="lg:hidden">
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle sidebar</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-64 p-0">
+                  <SidebarContent />
+                </SheetContent>
+              </Sheet>
+            </div>
+            <span className="text-sm font-medium">Guide Sources</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              placeholder="Search sources..."
+              value={filterText}
+              onChange={e => setFilterText(e.target.value)}
+              className="w-[200px]"
+            />
+            <Button onClick={() => window.location.reload()} variant="outline">
+              <RefreshCw className="size-4" />
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Input
-            type="text"
-            placeholder="Search sources..."
-            value={filterText}
-            onChange={e => setFilterText(e.target.value)}
-            className="w-[200px]"
-          />
-          <FilterMenu />
+
+        {/* Content area - scrollable */}
+        <div className="flex-1 overflow-auto p-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            {filteredSources.map(source => (
+              <div
+                key={source.id}
+                className={cn(
+                  'bg-card relative flex flex-col rounded-lg p-3 transition-all hover:shadow-md',
+                  selectedSourceId === source.id
+                    ? 'ring-primary ring-2'
+                    : 'border',
+                )}
+              >
+                <div className="mb-2 flex h-10 items-start justify-start">
+                  {source.logo ? (
+                    <>
+                      <img
+                        className="block h-8 w-auto object-contain dark:hidden"
+                        src={source.logo.light || '/placeholder.svg'}
+                        alt={source.location}
+                      />
+                      <img
+                        className="hidden h-8 w-auto object-contain dark:block"
+                        src={source.logo.dark || '/placeholder.svg'}
+                        alt={source.location}
+                      />
+                    </>
+                  ) : (
+                    <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+                      <span className="text-primary text-lg font-bold">
+                        {source.location.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <h3 className="mb-2 line-clamp-1 text-left text-sm font-semibold">
+                  {source.location}
+                </h3>
+
+                <div className="mb-2 flex flex-wrap gap-1">
+                  <Badge variant="secondary" className="text-xs">
+                    {source.group}
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    {source.subgroup}
+                  </Badge>
+                </div>
+
+                <div className="mt-auto">
+                  <Button
+                    variant={
+                      selectedSourceId === source.id ? 'default' : 'outline'
+                    }
+                    size="sm"
+                    className="w-full text-xs"
+                    onClick={() => handleSourceSelect(source.id)}
+                  >
+                    {selectedSourceId === source.id
+                      ? 'Selected'
+                      : 'Select Source'}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <ScrollArea className="grow">
-        <div className="p-4">
-          <Tabs defaultValue={groups[0]} className="space-y-6 w-full">
-            <div className="border-b">
-              <TabsList className="before:bottom-0 before:absolute relative before:inset-x-0 gap-0.5 bg-transparent mb-3 p-0 before:bg-border h-auto before:h-px">
-                {groups.map(group => (
-                  <TabsTrigger
-                    key={group}
-                    value={group}
-                    className="data-[state=active]:z-10 bg-muted data-[state=active]:shadow-none py-2 border-x border-t border-border rounded-b-none overflow-hidden"
-                  >
-                    {group}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-            {groups.map(group => (
-              <TabsContent key={group} value={group} className="space-y-6">
-                <div className="gap-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8">
-                  {filteredSources
-                    .filter(source => source.group === group)
-                    .map(source => (
-                      <div
-                        key={source.id}
-                        className={cn(
-                          'relative flex flex-col rounded-lg bg-card p-3 transition-all hover:shadow-md',
-                          selectedSourceId === source.id
-                            ? 'ring-2 ring-primary'
-                            : 'border',
-                        )}
-                      >
-                        <div className="flex justify-start items-start mb-2 h-10">
-                          {source.logo ? (
-                            <>
-                              <img
-                                className="dark:hidden block w-auto h-8 object-contain"
-                                src={source.logo.light || '/placeholder.svg'}
-                                alt={source.location}
-                              />
-                              <img
-                                className="hidden dark:block w-auto h-8 object-contain"
-                                src={source.logo.dark || '/placeholder.svg'}
-                                alt={source.location}
-                              />
-                            </>
-                          ) : (
-                            <div className="flex justify-center items-center bg-primary/10 rounded-full w-8 h-8">
-                              <span className="font-bold text-primary text-lg">
-                                {source.location.charAt(0)}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        <h3 className="mb-2 font-semibold text-sm text-left line-clamp-1">
-                          {source.location}
-                        </h3>
-
-                        <div className="flex flex-wrap gap-1 mb-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {source.group}
-                          </Badge>
-                          <Badge variant="secondary" className="text-xs">
-                            {source.subgroup}
-                          </Badge>
-                        </div>
-
-                        <div className="mt-auto">
-                          <Button
-                            variant={
-                              selectedSourceId === source.id
-                                ? 'default'
-                                : 'outline'
-                            }
-                            size="sm"
-                            className="w-full text-xs"
-                            onClick={() => handleSourceSelect(source.id)}
-                          >
-                            {selectedSourceId === source.id
-                              ? 'Selected'
-                              : 'Select Source'}
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
-      </ScrollArea>
     </div>
   );
 }

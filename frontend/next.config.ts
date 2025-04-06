@@ -18,6 +18,8 @@ export default bundleAnalyzer({
   reactStrictMode: false,
   productionBrowserSourceMaps: false,
   output: 'standalone',
+  // Add this to ensure Tailwind CSS v4 is properly transpiled
+  transpilePackages: ['tailwindcss'],
   rewrites: async () => {
     return [
       {

@@ -4,7 +4,7 @@ import React, { Fragment, useState } from 'react';
 import { ChevronRight, Menu, X } from 'lucide-react';
 
 import { FontSizeControl } from '@/components/FontSizeControl';
-import { SourcesDropdown } from '@/components/SourcesDropdown';
+import { SourcesDropdown } from '@/components/sidebar/SourcesDropdown';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -28,10 +28,13 @@ export default function Header() {
   if (items.length === 0) return null;
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-      <div className="flex items-center gap-2 px-4">
+    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+      <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="hidden h-6 md:block" />
+        <Separator
+          orientation="vertical"
+          className="mx-2 data-[orientation=vertical]:h-4"
+        />
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -48,6 +51,9 @@ export default function Header() {
             <BreadcrumbItem className="hidden md:block">
               <SourcesDropdown />
             </BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block">
+              <ChevronRight />
+            </BreadcrumbSeparator>
             {items.map((item, index) => (
               <Fragment key={item.title}>
                 {index !== items.length - 1 && (
@@ -63,7 +69,7 @@ export default function Header() {
                   </BreadcrumbSeparator>
                 )}
                 {index === items.length - 1 && (
-                  <BreadcrumbPage className="hidden md:block">
+                  <BreadcrumbPage className="hidden font-bold md:block">
                     {item.title}
                   </BreadcrumbPage>
                 )}
@@ -90,7 +96,7 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMenuOpen(false)}
-                className="absolute right-4 top-4"
+                className="absolute top-4 right-4"
               >
                 <X className="size-5" />
                 <span className="sr-only">Close menu</span>

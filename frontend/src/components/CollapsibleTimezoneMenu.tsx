@@ -151,7 +151,7 @@ export default function CollapsibleTimezoneMenu() {
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
         <SidebarGroupLabel
           asChild
-          className="group/label w-full text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
         >
           <CollapsibleTrigger asChild>
             <SidebarMenuButton>

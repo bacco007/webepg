@@ -26,7 +26,7 @@ export default function ChannelFilter({
         Filter channels
       </Label>
       <div className="relative">
-        <Search className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+        <Search className="absolute top-1/2 left-2 size-4 -translate-y-1/2 text-gray-400" />
         <Input
           id={id}
           type="text"
@@ -42,7 +42,7 @@ export default function ChannelFilter({
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute right-1 top-1/2 size-6 -translate-y-1/2"
+            className="absolute top-1/2 right-1 size-6 -translate-y-1/2"
             onClick={handleClear}
             aria-label="Clear filter"
           >

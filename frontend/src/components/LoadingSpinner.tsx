@@ -17,7 +17,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProperties> = ({
   return (
     <div
       className={cn(
-        'fixed inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm',
+        'bg-background/80 fixed inset-0 flex flex-col items-center justify-center backdrop-blur-xs',
         className,
       )}
     >
@@ -27,11 +27,11 @@ const LoadingSpinner: React.FC<LoadingSpinnerProperties> = ({
         aria-live="polite"
       >
         <Loader2
-          className="animate-spin text-primary"
+          className="text-primary animate-spin"
           size={size}
           aria-hidden="true"
         />
-        <p className="text-xl font-semibold text-primary">{text}</p>
+        <p className="text-primary text-xl font-semibold">{text}</p>
         <span className="sr-only">Loading, please wait...</span>
       </div>
     </div>

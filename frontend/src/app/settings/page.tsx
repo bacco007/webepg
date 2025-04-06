@@ -158,7 +158,7 @@ export default function SettingsPage() {
         {status.status}
       </Badge>
       {status.date && (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground text-sm">
           {new Date(status.date).toLocaleString()}
         </span>
       )}
@@ -288,7 +288,7 @@ export default function SettingsPage() {
                     <h3 className="text-lg font-medium">
                       XML Datasource Status
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Check the status of the XMLTV Datasources used by webEPG
                     </p>
                   </div>

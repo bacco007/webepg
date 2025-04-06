@@ -135,11 +135,11 @@ const defaultColorClasses = ['bg-cyan-600'];
 const HOVER_COLOR = 'bg-green-600';
 const titleColorMappings = {
   'No Data Available':
-    'bg-gray-400 bg-gradient-to-br from-gray-400 to-gray-500 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+    'bg-gray-400 bg-linear-to-br from-gray-400 to-gray-500 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
   'To Be Advised':
-    'bg-gray-400 bg-gradient-to-br from-gray-400 to-gray-500 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+    'bg-gray-400 bg-linear-to-br from-gray-400 to-gray-500 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
   'To Be Advised (cont)':
-    'bg-gray-400 bg-gradient-to-br from-gray-400 to-gray-500 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+    'bg-gray-400 bg-linear-to-br from-gray-400 to-gray-500 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" stroke-width="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
 };
 
 const timeSlotWidth = 180;
@@ -573,7 +573,7 @@ function EPGContent() {
             <PopoverContent className="w-80">
               <div className="grid gap-4">
                 <div className="space-y-2">
-                  <h4 className="font-medium leading-none">Sort by</h4>
+                  <h4 className="leading-none font-medium">Sort by</h4>
                   <Select
                     value={sortBy}
                     onValueChange={value =>
@@ -592,7 +592,7 @@ function EPGContent() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium leading-none">Group by</h4>
+                  <h4 className="leading-none font-medium">Group by</h4>
                   <Select
                     value={groupBy}
                     onValueChange={value =>
@@ -614,7 +614,7 @@ function EPGContent() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium leading-none">Display Name</h4>
+                  <h4 className="leading-none font-medium">Display Name</h4>
                   <Select
                     value={displayNameType}
                     onValueChange={value =>
@@ -632,7 +632,7 @@ function EPGContent() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium leading-none">
+                  <h4 className="leading-none font-medium">
                     Filter by Channel Name
                   </h4>
                   <Input
@@ -643,7 +643,7 @@ function EPGContent() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium leading-none">
+                  <h4 className="leading-none font-medium">
                     Filter by Channel Group
                   </h4>
                   <Popover>
@@ -692,7 +692,7 @@ function EPGContent() {
                   </Popover>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium leading-none">
+                  <h4 className="leading-none font-medium">
                     Filter by Channel Type
                   </h4>
                   <Popover>
@@ -741,7 +741,7 @@ function EPGContent() {
                   </Popover>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium leading-none">
+                  <h4 className="leading-none font-medium">
                     Filter by Channel Specs
                   </h4>
                   <Popover>
@@ -813,7 +813,7 @@ function EPGContent() {
       </div>
       <div className="relative grow overflow-hidden">
         <ScrollArea className="h-[calc(100vh-200px)]" ref={scrollAreaRef}>
-          <div className="sticky left-0 top-0 z-20 bg-background">
+          <div className="bg-background sticky top-0 left-0 z-20">
             <div className="flex" role="row">
               <div
                 className="shrink-0"
@@ -827,7 +827,7 @@ function EPGContent() {
               {timeSlots.map(minutes => (
                 <div
                   key={minutes}
-                  className="shrink-0 border-l border-border py-2 text-left text-sm text-muted-foreground"
+                  className="border-border text-muted-foreground shrink-0 border-l py-2 text-left text-sm"
                   style={{ width: `${timeSlotWidth}px` }}
                   role="columnheader"
                 >
@@ -884,7 +884,7 @@ const ChannelRow = React.memo(
       <div className="flex" role="row">
         <div
           className={cn(
-            'sticky left-0 z-10 flex items-center border-t border-border bg-background px-2 py-1 font-semibold transition-colors duration-200',
+            'border-border bg-background sticky left-0 z-10 flex items-center border-t px-2 py-1 font-semibold transition-colors duration-200',
             hoveredProgram && HOVER_COLOR,
           )}
           style={{
@@ -928,7 +928,7 @@ const ChannelRow = React.memo(
           )}
         </div>
         <div
-          className="relative border-t border-border"
+          className="border-border relative border-t"
           style={{
             height: `${rowHeight}px`,
             width: `${timeSlotWidth * 48}px`,
@@ -939,7 +939,7 @@ const ChannelRow = React.memo(
             {timeSlots.map(minutes => (
               <div
                 key={`${channel.channel_slug}-${minutes}`}
-                className="shrink-0 border-l border-border"
+                className="border-border shrink-0 border-l"
                 style={{
                   width: `${timeSlotWidth}px`,
                   height: '100%',
@@ -962,7 +962,7 @@ const ChannelRow = React.memo(
                   }}
                   className={cn(
                     'absolute overflow-hidden rounded-md p-1 text-xs text-white',
-                    'cursor-pointer hover:z-10 focus:outline-none focus:ring-2 focus:ring-offset-2',
+                    'cursor-pointer hover:z-10 focus:ring-2 focus:ring-offset-2 focus:outline-hidden',
                     hoveredProgram === program
                       ? HOVER_COLOR
                       : program.color || 'bg-blue-600',

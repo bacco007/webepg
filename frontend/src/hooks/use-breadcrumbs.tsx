@@ -11,19 +11,29 @@ type BreadcrumbItem = {
 const routeMapping: Record<string, BreadcrumbItem[]> = {
   '/sources': [{ title: 'Data Sources', link: '/sources' }],
   '/movies': [{ title: 'Upcoming Movies', link: '/movies' }],
-  '/sports': [{ title: 'Upcoming Sports', link: '/sports' }],
+  '/sports': [{ title: 'Upcoming Sports Programming', link: '/sports' }],
   '/epg': [{ title: 'Daily EPG', link: '/epg' }],
   '/channellist': [{ title: 'Channels by Service', link: '/channellist' }],
+  '/channellist/fetch': [
+    { title: 'Channels by Service', link: '/channellist' },
+    { title: 'Fetch TV', link: '/channellist/fetch' },
+  ],
+  '/channellist/foxtel': [
+    { title: 'Channels by Service', link: '/channellist' },
+    { title: 'Foxtel', link: '/channellist/foxtel' },
+  ],
   '/channellist/freeview-au': [
     { title: 'Channels by Service', link: '/channellist' },
     { title: 'Freeview (AU)', link: '/channellist/freeview-au' },
   ],
-  '/nownext': [{ title: 'Now & Next', link: '/nownext' }],
-  '/dashboard/product': [
-    { title: 'Dashboard', link: '/dashboard' },
-    { title: 'Product', link: '/dashboard/product' },
+  '/channellist/hubbl': [
+    { title: 'Channels by Service', link: '/channellist' },
+    { title: 'Hubbl', link: '/channellist/hubbl' },
   ],
-  // Add more custom mappings as needed
+  '/nownext': [{ title: 'Now & Next', link: '/nownext' }],
+  '/transmitters': [
+    { title: 'DVB-T Transmitter Sites', link: '/transmitters' },
+  ],
 };
 
 const formatDate = (dateString: string): string => {
