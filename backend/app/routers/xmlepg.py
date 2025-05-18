@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import re
+from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Set
 
@@ -108,7 +109,7 @@ async def get_providers() -> List[Dict[str, Any]]:
     union all
     -- Get Provider List (Foxtel)
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Foxtel / Hubbl' as subgroup, 'Foxtel' as location, 'local' as url from providers
-    where provid in ('FOXHD', 'FOXNOW', 'FOXALL')
+    where provid in ('FOXHD', 'FOXNOW', 'FOXALL', 'FOXPL')
 
     union all
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Foxtel / Hubbl' as subgroup, provname as location, 'local' as url from providers
@@ -117,7 +118,7 @@ async def get_providers() -> List[Dict[str, Any]]:
     union all
     -- Get Provider List (Fetch)
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Fetch' as subgroup, 'Fetch' as location, 'local' as url from providers
-    where provid in ('FETALL', 'FETOPT')
+    where provid in ('FETALL', 'FETOPT', 'FETITA', 'FETULT')
 
     union all
     -- Get Provider List (VAST)
@@ -127,7 +128,7 @@ async def get_providers() -> List[Dict[str, Any]]:
     union all
     -- Get Provider List (Other)
     select providnum, provid, provname, provnamelong, provgroupname, provlcn, provaltid1, 'XMLEPG' as "group", 'Other' as subgroup, concat(provgroupname, ' ', provname) as location, 'local' as url from providers
-    where provid in ('SKYRAC', 'INSTV', 'OPTALL', 'IPTVSYD', 'FTANOR', 'FTAPAR', 'BEINALL', 'R_LOCSYD', 'R_FVALL', 'FOXPL', 'ALLIPTV')
+    where provid in ('SKYRAC', 'INSTV', 'OPTALL', 'IPTVSYD', 'FTANOR', 'FTAPAR', 'BEINALL', 'R_LOCSYD', 'R_FVALL', 'FOXPL', 'ALLIPTV', 'TVPLUSGR')
 
     union all
     -- Get Provider List (Streaming)
@@ -424,6 +425,8 @@ async def create_provider_program_files(  # noqa: C901
 
         # Get the provlcn value
         provlcn = provider.get("provlcn", "")
+        if provlcn == "chanlcnfta4":
+            provlcn = "chanlcnfta1"
 
         # Update channel information with channel_number
         updated_provider_channels = []
@@ -617,8 +620,103 @@ async def save_json_file(data: Any, file_path: str) -> None:
         logging.error(f"Error saving data to '{file_path}': {e}")
 
 
+async def build_provider_from_sql(
+    provid: str,
+    sql: str,
+    group: str = "Custom SQL",
+    subgroup: str = "Custom",
+    location: str = "SQL",
+    url: str = "local",
+) -> Dict[str, Any]:
+    """
+    Execute the given SQL to retrieve rows, then wrap them in a provider dict.
+    SQL must return columns matching your channel fields (guidelink, channel_slug, etc.).
+    """
+    # Execute raw SQL against your MySQL datasource
+    conn = mysql.connector.connect(**mysql_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    channels = []
+    for row in rows:
+        # Attach provider id to each channel row
+        # row["provid"] = provid
+        channels.append(row)
+
+    return {
+        "provid": provid,
+        "group": group,
+        "subgroup": subgroup,
+        "location": location,
+        "url": url,
+        "channels": channels,
+    }
+
+
+def post_process_channels(
+    raw_channels: List[Dict[str, Any]],
+    channel_counts: Dict[str, int],
+) -> List[Dict[str, Any]]:
+    """
+    Take raw SQL channel dicts and annotate them with:
+      - channel_number (from chanlcnfta1)
+      - program_count
+      - structured channel_logo and channel_names
+      - other_data
+    Remove raw cruft fields afterwards.
+    """
+    processed = []
+    for ch in raw_channels:
+        upd = ch.copy()
+        # channel number
+        num = ch.get("chanlcnfta1")
+        upd["channel_number"] = str(num) if num and num != 0 else "N/A"
+        # program count
+        slug = ch.get("channel_slug") or ch.get("guidelink", "").replace(".", "-")
+        upd["program_count"] = channel_counts.get(slug, 0)
+        # logos
+        upd["channel_logo"] = {
+            "light": ch.get("chlogo_light"),
+            "dark": ch.get("chlogo_dark"),
+        }
+        # names
+        upd["channel_names"] = {
+            "clean": ch.get("channel_name", ""),
+            "location": ch.get("channel_name_location") or ch.get("channel_name", ""),
+            "real": ch.get("channel_name_real", ""),
+        }
+        # other data
+        upd["other_data"] = {
+            "channel_type": ch.get("channel_type"),
+            "channel_specs": " ".join(
+                filter(None, [ch.get("chantype"), ch.get("chancomp")])
+            ),
+            "channel_name_group": ch.get("channel_name"),
+        }
+        # drop raw columns
+        for key in [
+            "chanlcnfta1",
+            "chanlcnfta2",
+            "chanlcnfta3",
+            "chanlcnfox",
+            "chanlcnfet",
+            "chlogo_light",
+            "chlogo_dark",
+            "channel_name_location",
+            "channel_name_real",
+            "chantype",
+            "chancomp",
+            "channel_type",
+        ]:
+            upd.pop(key, None)
+        processed.append(upd)
+    return processed
+
+
 def count_programs_per_channel(guide_data: List[Dict[str, Any]]) -> Dict[str, int]:
-    from collections import Counter
 
     channel_counts = Counter(item["channel"] for item in guide_data)
     return dict(channel_counts)
@@ -1048,6 +1146,238 @@ async def process_single_source(
             "status": process_status,
         },
         status_code=202,
+    )
+
+@router.post("/py/xmlepg/process-sql-provider")
+async def process_sql_provider(
+    body: Dict[str, str],
+    background_tasks: BackgroundTasks,
+) -> JSONResponse:
+    if process_status.get("is_running"):
+        return JSONResponse({"message": "Busy", "status": process_status}, 409)
+
+    # Build provider dict from user-supplied SQL
+    provider = await build_provider_from_sql(
+        provid=body["provid"],
+        sql=body["sql"],
+        group=body.get("group", "Custom SQL"),
+        subgroup=body.get("subgroup", "Custom"),
+        location=body.get("location", "SQL"),
+        url=body.get("url", "local"),
+    )
+
+    async def run() -> None:
+        process_status.update(
+            is_running=True,
+            current_source=provider["provid"],
+            start_time=datetime.now().isoformat(),
+        )
+        try:
+            # Fetch guide rows only for these channels
+            links = {ch["guidelink"] for ch in provider["channels"]}
+            in_clause = format_sql_in_clause(links)
+            guide_rows = await get_guide_data(in_clause)
+            # Count programs
+            counts = count_programs_per_channel(guide_rows)
+            # Post-process channels
+            processed = post_process_channels(provider["channels"], counts)
+            channels_file = os.path.join(
+                DATA_LOCATION, f"xmlepg_{provider['provid']}_channels.json"
+            )
+            await save_json_file(processed, channels_file)
+            # Save programs raw
+            programs_file = os.path.join(
+                DATA_LOCATION, f"xmlepg_{provider['provid']}_programs.json"
+            )
+            await save_json_file(guide_rows, programs_file)
+        except Exception as e:
+            logging.error(f"SQL-provider run failed: {e}")
+            process_status.setdefault("errors", []).append(str(e))
+        finally:
+            process_status.update(
+                is_running=False,
+                end_time=datetime.now().isoformat(),
+                current_source=None,
+            )
+
+    background_tasks.add_task(run)
+    return JSONResponse(
+        {"message": "SQL provider queued", "status": process_status}, 202
+    )
+
+
+# === Specific FTA-SQL provider endpoint ===
+@router.post("/py/xmlepg/process-fta-sql-provider")
+async def process_fta_sql_provider(
+    background_tasks: BackgroundTasks,
+) -> JSONResponse:
+    if process_status.get("is_running"):
+        return JSONResponse({"message": "Busy", "status": process_status}, 409)
+
+    sql = """
+    SELECT
+      ch.guidelink,
+      ch.guidelink AS channel_id,
+      REPLACE(ch.guidelink, '.', '-') AS channel_slug,
+      ch.channame AS channel_name,
+      TRIM(CONCAT(ch.channame, ' ', ch.chanloc)) AS channel_name_location,
+      ch.channamereal AS channel_name_real,
+      ct.chantypename AS chantype,
+      cc.chancompname AS chancomp,
+      ch.channetweb AS channel_url,
+      ch.chanbouq,
+      ch.chanlcnfta1,
+      ch.chanlcnfta2,
+      ch.chanlcnfta3,
+      ch.chanlcnfox,
+      ch.chanlcnfet,
+      NULL AS channel_number,
+      cl.logoremotelight AS chlogo_light,
+      cl.logoremotedark AS chlogo_dark,
+      nt.networkname AS channel_group,
+      cg.groupname AS channel_type,
+      cl.logoremotelight AS chlogo
+    FROM channels ch
+    LEFT JOIN chancomp cc ON ch.chancomp = cc.chancompid
+    LEFT JOIN changroups cg ON ch.changroup = cg.groupid
+    LEFT JOIN chanlogos cl ON ch.chanlogo = cl.logoid
+    LEFT JOIN chantypes ct ON ch.chantype = ct.chantypeid
+    LEFT JOIN networks nt ON ch.channetwork = nt.networkid
+    WHERE
+      ch.chanshowonlistview <> '0'
+      AND ch.guidelink <> 'CLOSED'
+      AND EXISTS (
+          SELECT 1
+          FROM providers p
+          WHERE p.providnum IS NOT NULL
+            AND p.provgroupname = 'FTA'
+            AND p.provshow = 1
+            AND p.provid != 'FTASEVAFL'
+            AND FIND_IN_SET(p.providnum, ch.chanbouq) > 0
+      );
+    """
+
+    provider = await build_provider_from_sql(
+        provid="FTAALL",
+        sql=sql,
+        group="FTA Services",
+        subgroup="FTA Channels",
+        location="DB",
+        url="local",
+    )
+
+    async def run() -> None:
+        process_status.update(
+            is_running=True,
+            current_source="FTAALL",
+            start_time=datetime.now().isoformat(),
+        )
+        try:
+            # 1. Build provider and fetch guide rows
+            provider = await build_provider_from_sql(
+                provid="FTAALL",
+                sql=sql,
+                group="FTA Services",
+                subgroup="FTA Channels",
+                location="DB",
+                url="local",
+            )
+            links = {ch["guidelink"] for ch in provider["channels"]}
+            in_clause = format_sql_in_clause(links)
+            guide_rows = await get_guide_data(in_clause)
+
+            # 2. Initial channel post-processing
+            counts = Counter(item["channel"] for item in guide_rows)
+            updated_channels = post_process_channels(provider["channels"], counts)
+            # override channel_name to use the 'location' variant
+            for ch in updated_channels:
+                ch["channel_name"] = ch["channel_names"]["location"]
+                ch["channel_names"]["real"] = ch["channel_names"]["location"]
+                ch["channel_names"]["clean"] = ch["channel_names"]["location"]
+
+            # 3. Filter and post-process programs
+            with open(GUIDE_DATA_FILE, "r") as f:
+                all_programs = json.load(f)
+
+            channel_slugs = {ch["channel_slug"] for ch in updated_channels}
+            filtered_programs = []
+            program_counts = {slug: 0 for slug in channel_slugs}
+
+            for program in all_programs:
+                slug = re.sub(r"\W+", "-", program.get("channel", ""))
+                if slug in channel_slugs:
+                    try:
+                        start_time = round_to_nearest_minute(
+                            parse_datetime(program["start_time"])
+                        )
+                        end_time = round_to_nearest_minute(
+                            parse_datetime(program["end_time"])
+                        )
+
+                        program.update(
+                            {
+                                "start_time": start_time.isoformat(),
+                                "end_time": end_time.isoformat(),
+                                "start": start_time.strftime("%H:%M:%S"),
+                                "end": end_time.strftime("%H:%M:%S"),
+                                "length": str(
+                                    timedelta(
+                                        seconds=int(
+                                            (end_time - start_time).total_seconds()
+                                        )
+                                    )
+                                ),
+                                "channel": slug,
+                            }
+                        )
+
+                        # Normalize null/empty
+                        for k, v in list(program.items()):
+                            if v is None or (isinstance(v, str) and not v.strip()):
+                                program[k] = "N/A"
+
+                        # Normalize categories to a list
+                        cats = program.get("categories", [])
+                        if isinstance(cats, str) and cats != "N/A":
+                            program["categories"] = [
+                                c.strip() for c in cats.split(",") if c.strip()
+                            ]
+                        elif isinstance(cats, list):
+                            program["categories"] = [
+                                c.strip() for c in cats if c.strip()
+                            ]
+                        else:
+                            program["categories"] = []
+
+                        filtered_programs.append(program)
+                        program_counts[slug] += 1
+
+                    except Exception as e:
+                        logging.error(f"Error processing program: {e}")
+
+            # 4. Update channels with their final program_count
+            for ch in updated_channels:
+                ch["program_count"] = program_counts.get(ch["channel_slug"], 0)
+
+            # 5. Persist outputs
+            channels_file = os.path.join(DATA_LOCATION, "xmlepg_FTAALL_channels.json")
+            await save_json_file(updated_channels, channels_file)
+
+            programs_file = os.path.join(DATA_LOCATION, "xmlepg_FTAALL_programs.json")
+            await save_json_file(filtered_programs, programs_file)
+
+        except Exception as e:
+            logging.error(f"FTA-SQL provider run failed: {e}")
+            process_status.setdefault("errors", []).append(str(e))
+        finally:
+            process_status.update(
+                is_running=False,
+                end_time=datetime.now().isoformat(),
+            )
+
+    background_tasks.add_task(run)
+    return JSONResponse(
+        {"message": "FTA-SQL provider queued", "status": process_status}, 202
     )
 
 

@@ -1,7 +1,13 @@
 'use client';
 
 import React, { Fragment, useState } from 'react';
-import { ChevronRight, Menu, X } from 'lucide-react';
+import {
+  ChevronRight,
+  Menu,
+  X,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
+} from 'lucide-react';
 
 import { FontSizeControl } from '@/components/FontSizeControl';
 import { SourcesDropdown } from '@/components/sidebar/SourcesDropdown';
@@ -18,19 +24,35 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTrigger } from '@/components/ui-custom/SidebarTrigger';
 import { useBreadcrumbs } from '@/hooks/use-breadcrumbs';
+import { useSidebar } from '@/components/ui/sidebar';
 
 export default function Header() {
   const items = useBreadcrumbs();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { state } = useSidebar(); // Get the sidebar state
+
+  const isSidebarOpen = state === 'expanded';
 
   if (items.length === 0) return null;
 
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-      <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-        <SidebarTrigger className="-ml-1" />
+    <header className="flex items-center gap-2 border-b h-(--header-height) group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) transition-[width,height] ease-linear shrink-0">
+      <div className="flex items-center gap-1 lg:gap-2 px-4 lg:px-6 w-full">
+        <SidebarTrigger
+          className="-ml-1"
+          icon={
+            isSidebarOpen ? (
+              <PanelLeftCloseIcon aria-hidden="true" />
+            ) : (
+              <PanelLeftOpenIcon aria-hidden="true" />
+            )
+          }
+          aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+          aria-expanded={isSidebarOpen}
+          aria-controls="main-sidebar"
+        />
         <Separator
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
@@ -69,7 +91,7 @@ export default function Header() {
                   </BreadcrumbSeparator>
                 )}
                 {index === items.length - 1 && (
-                  <BreadcrumbPage className="hidden font-bold md:block">
+                  <BreadcrumbPage className="hidden md:block font-bold">
                     {item.title}
                   </BreadcrumbPage>
                 )}
@@ -79,7 +101,7 @@ export default function Header() {
         </Breadcrumb>
       </div>
       <div className="flex items-center gap-2 px-4">
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden md:flex items-center gap-2">
           <FontSizeControl />
           <ThemeSwitcher />
         </div>
@@ -96,7 +118,7 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMenuOpen(false)}
-                className="absolute top-4 right-4"
+                className="top-4 right-4 absolute"
               >
                 <X className="size-5" />
                 <span className="sr-only">Close menu</span>
@@ -111,7 +133,7 @@ export default function Header() {
                   {item.title}
                 </BreadcrumbLink>
               ))}
-              <div className="mt-4 flex items-center gap-4">
+              <div className="flex items-center gap-4 mt-4">
                 <FontSizeControl />
                 <ThemeSwitcher />
               </div>

@@ -1,0 +1,1685 @@
+'use client';
+
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import Link from 'next/link';
+import { useParams, useSearchParams, usePathname } from 'next/navigation';
+import React, {
+  type JSX,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { differenceInMinutes, format } from 'date-fns';
+import {
+  AlertCircle,
+  Check,
+  ChevronsUpDown,
+  RefreshCw,
+  Settings,
+  Grid,
+  List,
+  Circle,
+  ChevronRight,
+  Star,
+  Film,
+  Tv2,
+  Music,
+  Newspaper,
+  Users,
+  Gamepad2,
+  BookOpen,
+  Sparkles,
+  Clock,
+} from 'lucide-react';
+import DateTabs from '@/components/DateTabs';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import ProgramDialog from '@/components/ProgramDialog';
+import TimeJumpDropdown from '@/components/TimeJumpDropdown';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Input } from '@/components/ui/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { getCookie } from '@/lib/cookies';
+import { cn } from '@/lib/utils';
+import { decodeHtml } from '@/lib/html-utils';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+interface Program {
+  id: string;
+  title: string;
+  description: string;
+  start: string;
+  end: string;
+  color: string;
+  channel: string;
+  channel_name: string;
+  subtitle: string;
+  episodeNum: string;
+  rating: string;
+  category: string[];
+  lengthstring: string;
+  previouslyShown: boolean;
+  date: string;
+  icon: string;
+  image: string;
+  premiere: boolean;
+  country: string;
+  language: string;
+  new: boolean;
+}
+
+interface ProgramData {
+  start_time: string;
+  end_time: string;
+  length: string;
+  channel: {
+    id: string;
+  };
+  title: string;
+  subtitle: string;
+  description: string;
+  categories: string[];
+  episode: string;
+  original_air_date: string;
+  rating: string;
+}
+
+interface Channel {
+  channel_id: string;
+  channel_slug: string;
+  channel_names: {
+    real: string;
+    clean: string;
+    location: string;
+  };
+  channel_number: string;
+  channel_logo: {
+    light: string;
+    dark: string;
+  };
+  channel_name: string;
+  channel_group: string;
+  other_data: {
+    channel_type: string;
+    channel_specs: string;
+  };
+}
+
+interface ChannelData {
+  channel: {
+    id: string;
+    name: {
+      real: string;
+      clean: string;
+      location: string;
+    };
+  };
+  programs: ProgramData[];
+}
+
+// Constants
+const timeSlotWidth = 180;
+const channelColumnWidth = 250;
+const mobileChannelColumnWidth = 90;
+const HOVER_COLOR = 'bg-green-600';
+
+// Theme-based color mappings
+const titleColorMappings = {
+  'No Data Available':
+    'bg-gray-400 bg-linear-to-br from-gray-400 to-gray-500 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" strokeWidth="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+  'To Be Advised':
+    'bg-gray-400 bg-linear-to-br from-gray-400 to-gray-500 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" strokeWidth="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+  'To Be Advised (cont)':
+    'bg-gray-400 bg-linear-to-br from-gray-400 to-gray-500 bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23ffffff" strokeWidth="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+};
+
+// Program category icons
+const categoryIcons: Record<string, React.ReactNode> = {
+  Movie: <Film className="w-3 h-3" />,
+  Series: <Tv2 className="w-3 h-3" />,
+  News: <Newspaper className="w-3 h-3" />,
+  Sports: <Users className="w-3 h-3" />,
+  Music: <Music className="w-3 h-3" />,
+  Game: <Gamepad2 className="w-3 h-3" />,
+  Documentary: <BookOpen className="w-3 h-3" />,
+  Special: <Sparkles className="w-3 h-3" />,
+  Premiere: <Star className="w-3 h-3 text-yellow-500" />,
+};
+
+const PROGRAM_HOVER_TRANSITION = 'transition-all duration-200 ease-in-out';
+const PROGRAM_HOVER_EFFECT =
+  'hover:brightness-110 hover:z-20 hover:scale-[1.02] hover:shadow-md';
+const CURRENT_TIME_INDICATOR_CLASS =
+  "bg-green-500 w-0.5 after:content-[''] after:absolute after:top-0 after:w-3 after:h-3 after:rounded-full after:-translate-x-[50%] after:animate-pulse after:shadow-[0_0_8px_rgba(34,197,94,0.6)]";
+
+// Adjusted dimensions for better fit
+const rowHeight = 80;
+const rowGap = 4;
+const programBoxHeight = rowHeight - rowGap;
+const horizontalProgramGap = 2;
+
+// Helper function to check if we're in a mobile viewport
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+};
+
+// Get program category icon
+const getProgramCategoryIcon = (categories: string[] | undefined) => {
+  if (!categories || categories.length === 0) return null;
+
+  for (const category of categories) {
+    for (const [key, icon] of Object.entries(categoryIcons)) {
+      if (category.toLowerCase().includes(key.toLowerCase())) {
+        return icon;
+      }
+    }
+  }
+
+  return null;
+};
+
+// Channel Row Component
+const ChannelRow = React.memo(
+  ({
+    channel,
+    programs,
+    xmltvDataSource,
+    timeSlots,
+    getProgramStyle,
+    clientTimezone,
+    isMobile,
+    displayNameType,
+  }: {
+    channel: Channel;
+    programs: Program[];
+    xmltvDataSource: string | null;
+    timeSlots: number[];
+    getProgramStyle: (program: Program) => React.CSSProperties;
+    clientTimezone: string | null;
+    isMobile: boolean;
+    displayNameType: 'real' | 'clean' | 'location';
+  }) => {
+    const [hoveredProgram, setHoveredProgram] = useState<Program | null>(null);
+    const now = dayjs().tz(clientTimezone || 'UTC');
+
+    // Calculate program progress for currently airing programs
+    const getProgramProgress = (program: Program): number => {
+      const start = dayjs(program.start);
+      const end = dayjs(program.end);
+
+      if (now.isBefore(start) || now.isAfter(end)) return 0;
+
+      const totalDuration = end.diff(start, 'millisecond');
+      const elapsed = now.diff(start, 'millisecond');
+      return Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+    };
+
+    // Get program color based on category or status
+    const getProgramColor = (program: Program): string => {
+      // Check if it's a special title with predefined color
+      if (program.title in titleColorMappings) {
+        return titleColorMappings[
+          program.title as keyof typeof titleColorMappings
+        ];
+      }
+
+      // Check if it's currently airing
+      const isCurrentlyAiring =
+        now.isAfter(dayjs(program.start)) && now.isBefore(dayjs(program.end));
+      if (isCurrentlyAiring) {
+        return 'bg-red-500/80 text-white';
+      }
+
+      // // Check if it's a movie
+      // if (program.category && program.category.some((cat) => cat.toLowerCase().includes("movie"))) {
+      //   return "bg-blue-600 text-white"
+      // }
+
+      // // Check if it's a series
+      // if (program.category && program.category.some((cat) => cat.toLowerCase().includes("series"))) {
+      //   return "bg-purple-600 text-white"
+      // }
+
+      // // Check if it's news
+      // if (program.category && program.category.some((cat) => cat.toLowerCase().includes("news"))) {
+      //   return "bg-red-600 text-white"
+      // }
+
+      // // Check if it's sports
+      // if (program.category && program.category.some((cat) => cat.toLowerCase().includes("sport"))) {
+      //   return "bg-green-600 text-white"
+      // }
+
+      // Default color
+      return 'bg-cyan-600 text-white';
+    };
+
+    return (
+      <div className="flex" role="row">
+        <div
+          className={cn(
+            'border-border bg-background sticky left-0 z-10 flex items-center border-t px-2 py-1 font-semibold transition-colors duration-200',
+            hoveredProgram && 'bg-accent text-accent-foreground',
+          )}
+          style={{
+            width: isMobile
+              ? `${mobileChannelColumnWidth}px`
+              : `${channelColumnWidth}px`,
+            height: `${rowHeight}px`,
+          }}
+          role="rowheader"
+        >
+          <div className="flex items-center px-2 w-full">
+            <div
+              className="flex flex-shrink-0 justify-center items-center mr-3"
+              style={{
+                width: isMobile ? '24px' : '40px',
+                height: isMobile ? '24px' : '40px',
+              }}
+            >
+              <img
+                className="dark:hidden block rounded-md max-w-full max-h-full object-contain"
+                src={channel.channel_logo.light || '/placeholder.svg'}
+                alt={decodeHtml(channel.channel_name)}
+                style={{ maxWidth: '100%', maxHeight: '100%' }}
+              />
+              <img
+                className="hidden dark:block rounded-md max-w-full max-h-full object-contain"
+                src={channel.channel_logo.dark || '/placeholder.svg'}
+                alt={decodeHtml(channel.channel_name)}
+                style={{ maxWidth: '100%', maxHeight: '100%' }}
+              />
+            </div>
+            <div className="flex flex-col flex-grow min-w-0">
+              {!isMobile && (
+                <Link
+                  href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
+                  className={cn('truncate text-sm font-medium hover:underline')}
+                >
+                  {channel.channel_names[displayNameType]}
+                </Link>
+              )}
+              {channel.channel_number && channel.channel_number !== 'N/A' && (
+                <Badge variant="secondary" className="mt-1 w-fit text-xs">
+                  {channel.channel_number}
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+        <div
+          className="relative border-t border-border"
+          style={{
+            height: `${rowHeight}px`,
+            width: `${timeSlotWidth * 48}px`,
+          }}
+          role="gridcell"
+        >
+          <div className="absolute inset-0 flex">
+            {timeSlots.map(minutes => (
+              <div
+                key={`${channel.channel_slug}-${minutes}`}
+                className="border-border border-l shrink-0"
+                style={{
+                  width: `${timeSlotWidth}px`,
+                  height: '100%',
+                }}
+              ></div>
+            ))}
+          </div>
+          {programs.map(program => {
+            const isCurrentlyAiring =
+              dayjs().isAfter(dayjs(program.start)) &&
+              dayjs().isBefore(dayjs(program.end));
+            const progress = getProgramProgress(program);
+            const categoryIcon = getProgramCategoryIcon(program.category);
+            const isPremiere =
+              program.premiere ||
+              (program.category &&
+                program.category.some(cat =>
+                  cat.toLowerCase().includes('premiere'),
+                ));
+            const isNew =
+              program.new ||
+              (program.category &&
+                program.category.some(cat =>
+                  cat.toLowerCase().includes('new'),
+                ));
+
+            return (
+              <ProgramDialog
+                key={program.id}
+                event={program}
+                onOpenChange={() => {}}
+                trigger={
+                  <div
+                    id={program.id}
+                    style={{
+                      ...getProgramStyle(program),
+                      transition: 'all 0.2s ease-in-out',
+                      opacity: dayjs().isAfter(dayjs(program.end)) ? 0.7 : 1,
+                      top: `${rowGap / 2}px`, // Add half the rowGap to the top
+                      height: `${programBoxHeight - rowGap}px`, // Reduce height by rowGap to account for top and bottom spacing
+                    }}
+                    className={cn(
+                      'absolute overflow-hidden rounded-md p-1 text-xs text-white',
+                      'cursor-pointer focus:ring-2 focus:ring-offset-2 focus:outline-hidden',
+                      PROGRAM_HOVER_TRANSITION,
+                      PROGRAM_HOVER_EFFECT,
+                      hoveredProgram === program
+                        ? HOVER_COLOR
+                        : getProgramColor(program),
+                    )}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${program.title} from ${dayjs(program.start)
+                      .tz(clientTimezone || 'UTC')
+                      .format('HH:mm')} to ${dayjs(program.end)
+                      .tz(clientTimezone || 'UTC')
+                      .format('HH:mm')}`}
+                    onMouseEnter={() => {
+                      setHoveredProgram(program);
+                      const element = document.getElementById(program.id);
+                      if (element) {
+                        const content =
+                          element.querySelector('.program-content');
+                        if (content) {
+                          element.style.zIndex = '10';
+                          element.style.width = 'auto';
+                          element.style.maxWidth = 'none';
+                        }
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredProgram(null);
+                      const element = document.getElementById(program.id);
+                      if (element) {
+                        element.style.zIndex = '0';
+                        element.style.width = getProgramStyle(program)
+                          .width as string;
+                        element.style.maxWidth = '';
+                      }
+                    }}
+                  >
+                    {isCurrentlyAiring && progress > 0 && (
+                      <div
+                        className="bottom-0 left-0 absolute bg-green-400/70 h-1"
+                        style={{ width: `${progress}%` }}
+                      />
+                    )}
+                    <div className="whitespace-nowrap program-content shrink-0">
+                      <div className="flex justify-between items-center text-[10px] truncate">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {dayjs(program.start)
+                            .tz(clientTimezone || 'UTC')
+                            .format('HH:mm')}
+                          -
+                          {dayjs(program.end)
+                            .tz(clientTimezone || 'UTC')
+                            .format('HH:mm')}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {isPremiere && (
+                            <Star className="w-3 h-3 text-yellow-500" />
+                          )}
+                          {isNew && (
+                            <Badge
+                              variant="outline"
+                              className="px-1 h-3 font-bold text-[8px]"
+                            >
+                              NEW
+                            </Badge>
+                          )}
+                          {categoryIcon}
+                        </div>
+                      </div>
+                      <div className="font-semibold truncate">
+                        {program.title}
+                      </div>
+                      {!isMobile &&
+                        program.subtitle &&
+                        program.subtitle !== 'N/A' && (
+                          <div className="text-[10px] truncate italic">
+                            {program.subtitle}
+                          </div>
+                        )}
+                      {program.rating && program.rating !== 'N/A' && (
+                        <Badge
+                          variant="outline"
+                          className="mt-0.5 h-4 text-[8px]"
+                        >
+                          {program.rating}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                }
+              />
+            );
+          })}
+        </div>
+      </div>
+    );
+  },
+);
+
+ChannelRow.displayName = 'ChannelRow';
+
+// List View Component - Redesigned to match the screenshot
+const ListView = React.memo(
+  ({
+    channels,
+    programs,
+    xmltvDataSource,
+    clientTimezone,
+    displayNameType,
+    groupBy,
+  }: {
+    channels: Channel[];
+    programs: Program[];
+    xmltvDataSource: string | null;
+    clientTimezone: string | null;
+    displayNameType: 'real' | 'clean' | 'location';
+    groupBy: 'none' | 'channel_group' | 'channel_type';
+  }) => {
+    const now = dayjs().tz(clientTimezone || 'UTC');
+    const [expandedChannels, setExpandedChannels] = useState<
+      Record<string, boolean>
+    >({});
+
+    // Get current program for each channel
+    const getCurrentProgram = (channelId: string) => {
+      return programs
+        .filter(program => program.channel === channelId)
+        .find(program => {
+          const startTime = dayjs(program.start);
+          const endTime = dayjs(program.end);
+          return now.isAfter(startTime) && now.isBefore(endTime);
+        });
+    };
+
+    // Get all programs for a channel
+    const getChannelPrograms = (channelId: string) => {
+      return programs
+        .filter(program => program.channel === channelId)
+        .sort((a, b) => dayjs(a.start).valueOf() - dayjs(b.start).valueOf());
+    };
+
+    // Get program status
+    const getProgramStatus = (program: Program) => {
+      const startTime = dayjs(program.start);
+      const endTime = dayjs(program.end);
+
+      if (now.isAfter(startTime) && now.isBefore(endTime)) {
+        return 'now-playing';
+      } else if (now.isBefore(startTime)) {
+        return 'upcoming';
+      } else {
+        return 'ended';
+      }
+    };
+
+    // Group channels
+    const groupedChannels = useMemo(() => {
+      // First, group channels by the selected grouping criteria
+      const groups: Record<string, Channel[]> = {};
+
+      if (groupBy === 'none') {
+        groups['All Channels'] = channels;
+      } else if (groupBy === 'channel_group') {
+        channels.forEach(channel => {
+          const groupName = channel.channel_group || 'Uncategorized';
+          if (!groups[groupName]) groups[groupName] = [];
+          groups[groupName].push(channel);
+        });
+      } else if (groupBy === 'channel_type') {
+        channels.forEach(channel => {
+          const groupName = channel.other_data.channel_type || 'Uncategorized';
+          if (!groups[groupName]) groups[groupName] = [];
+          groups[groupName].push(channel);
+        });
+      }
+
+      return Object.entries(groups).map(([groupName, groupChannels]) => ({
+        groupName,
+        channels: groupChannels,
+      }));
+    }, [channels, groupBy]);
+
+    // Toggle channel expansion
+    const toggleChannel = (channelId: string, channelNumber: string) => {
+      const key = `${channelId}-${channelNumber}`;
+      setExpandedChannels(prev => ({
+        ...prev,
+        [key]: !prev[key],
+      }));
+    };
+
+    return (
+      <ScrollArea className="pr-4 h-full">
+        {groupedChannels.map(group => (
+          <div key={group.groupName} className="mb-6">
+            {groupBy !== 'none' && (
+              <h3 className="mb-2 font-medium text-muted-foreground text-sm">
+                {group.groupName}
+              </h3>
+            )}
+
+            {group.channels.map(channel => {
+              const currentProgram = getCurrentProgram(channel.channel_id);
+              const allPrograms = getChannelPrograms(channel.channel_id);
+              const channelKey = `${channel.channel_id}-${channel.channel_number}`;
+
+              return (
+                <div
+                  key={channelKey}
+                  className="mb-4 border rounded-md overflow-hidden"
+                >
+                  <div
+                    className="flex items-center bg-muted/20 hover:bg-muted/30 p-3 cursor-pointer"
+                    onClick={() =>
+                      toggleChannel(channel.channel_id, channel.channel_number)
+                    }
+                  >
+                    <div className="flex-shrink-0 mr-3 w-10 h-10">
+                      <img
+                        className="dark:hidden rounded-sm w-full h-full object-contain"
+                        src={channel.channel_logo.light || '/placeholder.svg'}
+                        alt=""
+                      />
+                      <img
+                        className="hidden dark:block rounded-sm w-full h-full object-contain"
+                        src={channel.channel_logo.dark || '/placeholder.svg'}
+                        alt=""
+                      />
+                    </div>
+                    <div className="flex flex-col flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">
+                          {channel.channel_names[displayNameType]}
+                        </span>
+                        {channel.channel_number &&
+                          channel.channel_number !== 'N/A' && (
+                            <Badge variant="outline" className="h-5 text-xs">
+                              {channel.channel_number}
+                            </Badge>
+                          )}
+                      </div>
+
+                      {currentProgram && (
+                        <div className="mt-1">
+                          <div className="flex items-center gap-1">
+                            <Circle className="flex-shrink-0 fill-green-500 w-2 h-2 text-green-500" />
+                            <span className="text-sm truncate">
+                              {currentProgram.title}
+                            </span>
+                          </div>
+                          {currentProgram.subtitle &&
+                            currentProgram.subtitle !== 'N/A' && (
+                              <p className="pl-3 text-muted-foreground text-xs truncate">
+                                {currentProgram.subtitle}
+                              </p>
+                            )}
+                        </div>
+                      )}
+
+                      {!currentProgram && (
+                        <div className="mt-1 text-muted-foreground text-xs">
+                          No program currently airing
+                        </div>
+                      )}
+                    </div>
+                    <ChevronRight
+                      className={cn(
+                        'h-5 w-5 transition-transform',
+                        expandedChannels[channelKey] ? 'rotate-90' : '',
+                      )}
+                    />
+                  </div>
+
+                  {expandedChannels[channelKey] && (
+                    <div className="divide-y">
+                      {allPrograms.length > 0 ? (
+                        allPrograms.map(program => {
+                          const status = getProgramStatus(program);
+                          const categoryIcon = getProgramCategoryIcon(
+                            program.category,
+                          );
+                          const isPremiere =
+                            program.premiere ||
+                            (program.category &&
+                              program.category.some(cat =>
+                                cat.toLowerCase().includes('premiere'),
+                              ));
+                          const isNew =
+                            program.new ||
+                            (program.category &&
+                              program.category.some(cat =>
+                                cat.toLowerCase().includes('new'),
+                              ));
+
+                          return (
+                            <ProgramDialog
+                              key={program.id}
+                              event={program}
+                              onOpenChange={() => {}}
+                              trigger={
+                                <div
+                                  className={cn(
+                                    'hover:bg-muted/50 flex cursor-pointer items-center px-3 py-2',
+                                    'border-l-2',
+                                    status === 'now-playing'
+                                      ? 'border-l-green-500'
+                                      : status === 'upcoming'
+                                        ? 'border-l-blue-500'
+                                        : 'border-l-transparent',
+                                  )}
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <div className="mr-2 text-muted-foreground text-xs whitespace-nowrap">
+                                        {dayjs(program.start)
+                                          .tz(clientTimezone || 'UTC')
+                                          .format('HH:mm')}
+                                        -
+                                        {dayjs(program.end)
+                                          .tz(clientTimezone || 'UTC')
+                                          .format('HH:mm')}
+                                      </div>
+
+                                      <div className="flex flex-1 items-center gap-1">
+                                        {status === 'now-playing' && (
+                                          <Circle className="flex-shrink-0 fill-green-500 w-2 h-2 text-green-500" />
+                                        )}
+                                        <span className="font-medium text-sm truncate">
+                                          {program.title}
+                                        </span>
+                                        {isPremiere && (
+                                          <Star className="ml-1 w-3 h-3 text-yellow-500" />
+                                        )}
+                                        {isNew && (
+                                          <Badge
+                                            variant="outline"
+                                            className="ml-1 px-1 h-4 font-bold text-[8px]"
+                                          >
+                                            NEW
+                                          </Badge>
+                                        )}
+                                        {categoryIcon && (
+                                          <span className="ml-1">
+                                            {categoryIcon}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {program.subtitle &&
+                                      program.subtitle !== 'N/A' && (
+                                        <p className="mt-0.5 pl-12 text-muted-foreground text-xs truncate">
+                                          {program.subtitle}
+                                        </p>
+                                      )}
+                                  </div>
+
+                                  <div className="flex items-center gap-2 ml-2">
+                                    {program.category &&
+                                      program.category.length > 0 && (
+                                        <Badge
+                                          variant="secondary"
+                                          className="text-[10px]"
+                                        >
+                                          {program.category[0]}
+                                        </Badge>
+                                      )}
+                                    <div className="text-muted-foreground text-xs whitespace-nowrap">
+                                      {differenceInMinutes(
+                                        dayjs(program.end).toDate(),
+                                        dayjs(program.start).toDate(),
+                                      )}
+                                      min
+                                    </div>
+                                  </div>
+                                </div>
+                              }
+                            />
+                          );
+                        })
+                      ) : (
+                        <div className="p-3 text-muted-foreground text-sm italic">
+                          No programs available for this channel
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </ScrollArea>
+    );
+  },
+);
+
+ListView.displayName = 'ListView';
+
+const QuickJumpButtons = ({
+  onTimeJump,
+}: {
+  onTimeJump: (time: number) => void;
+}) => {
+  const times = [
+    { label: '8:00', minutes: 8 * 60 },
+    { label: '12:00', minutes: 12 * 60 },
+    { label: '18:00', minutes: 18 * 60 },
+    { label: '20:00', minutes: 20 * 60 },
+  ];
+
+  const now = dayjs();
+  const startOfDay = now.startOf('day');
+  const currentMinutes = now.diff(startOfDay, 'minute');
+
+  return (
+    <div className="flex items-center gap-1">
+      {times.map(time => (
+        <Button
+          key={time.label}
+          variant="outline"
+          size="sm"
+          className="px-2 h-7 text-xs"
+          onClick={() => onTimeJump(time.minutes)}
+        >
+          {time.label}
+        </Button>
+      ))}
+      <Button
+        variant="outline"
+        size="sm"
+        className="bg-green-500/10 hover:bg-green-500/20 px-2 border-green-500/20 h-7 hover:text-green-700 dark:hover:text-green-300 text-xs"
+        onClick={() => onTimeJump(currentMinutes)}
+      >
+        Now
+      </Button>
+    </div>
+  );
+};
+
+// Main EPG Component
+function EPGContent() {
+  const parameters = useParams();
+  const inputDate = parameters.date as string;
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [allPrograms, setAllPrograms] = useState<Program[]>([]);
+  const [xmltvDataSource, setXmltvDataSource] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [clientTimezone, setClientTimezone] = useState<string | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [sortBy, setSortBy] = useState<'channel_number' | 'channel_name'>(
+    'channel_number',
+  );
+  const [groupBy, setGroupBy] = useState<
+    'none' | 'channel_group' | 'channel_type'
+  >('none');
+  const [displayNameType, setDisplayNameType] = useState<
+    'real' | 'clean' | 'location'
+  >('real');
+  const [nameFilter, setNameFilter] = useState('');
+  const [groupFilters, setGroupFilters] = useState<string[]>([]);
+  const [typeFilters, setTypeFilters] = useState<string[]>([]);
+  const [specsFilters, setSpecsFilters] = useState<string[]>([]);
+  const [groupOptions, setGroupOptions] = useState<string[]>([]);
+  const [typeOptions, setTypeOptions] = useState<string[]>([]);
+  const [specsOptions, setSpecsOptions] = useState<string[]>([]);
+  const [visibleHours, setVisibleHours] = useState<number>(6); // Default to showing 6 hours at a time
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid'); // Add view mode state
+
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  // Set initial view mode based on URL parameter
+  useEffect(() => {
+    const viewParam = searchParams.get('view');
+    if (viewParam === 'list' || viewParam === 'grid') {
+      setViewMode(viewParam);
+    }
+  }, [searchParams]);
+
+  const inputDateDJS = useMemo(
+    () => dayjs(inputDate, 'YYYYMMDD').toDate(),
+    [inputDate],
+  );
+
+  // Create URLs for view switching that preserve the current path
+  const getViewUrl = (view: string) => {
+    // This ensures we keep the exact same path but just change the view parameter
+    const source = searchParams.get('source') || xmltvDataSource;
+    return `/epg/${inputDate}?source=${source}&view=${view}`;
+  };
+
+  const defaultColorClasses = ['bg-cyan-600'];
+
+  // Transform API data into program objects
+  const transformPrograms = useCallback(
+    (channelsData: ChannelData[]): Program[] => {
+      const programs: Program[] = [];
+      const now = dayjs().tz(clientTimezone || 'UTC');
+
+      for (const channelData of channelsData) {
+        const channel = channelData.channel;
+        const uniquePrograms = new Map<string, ProgramData>();
+
+        channelData.programs.forEach((programData: ProgramData) => {
+          const key = `${programData.start_time}-${programData.end_time}-${programData.title}`;
+          if (!uniquePrograms.has(key)) {
+            uniquePrograms.set(key, programData);
+          }
+        });
+
+        Array.from(uniquePrograms.values()).forEach(
+          (programData: ProgramData, index: number) => {
+            const start = dayjs(programData.start_time);
+            const end = dayjs(programData.end_time);
+
+            const isCurrentProgram = now.isAfter(start) && now.isBefore(end);
+
+            const getColorClass = () => {
+              if (programData.title in titleColorMappings) {
+                return titleColorMappings[
+                  programData.title as keyof typeof titleColorMappings
+                ];
+              }
+              if (isCurrentProgram) {
+                return 'bg-red-500/80';
+              }
+              return defaultColorClasses[index % defaultColorClasses.length];
+            };
+
+            programs.push({
+              id: `${channel.id}-${start.valueOf()}-${end.valueOf()}`,
+              title: decodeHtml(programData.title),
+              description: decodeHtml(programData.description),
+              start: start.toISOString(),
+              end: end.toISOString(),
+              color: getColorClass(),
+              channel: channel.id,
+              channel_name: channel.name.real,
+              subtitle: programData.subtitle,
+              episodeNum: programData.episode,
+              rating: programData.rating,
+              category: programData.categories,
+              lengthstring: programData.length,
+              previouslyShown: false,
+              date: programData.original_air_date,
+              icon: '',
+              image: '',
+              premiere: false,
+              country: '',
+              language: '',
+              new: false,
+            });
+          },
+        );
+      }
+      return programs;
+    },
+    [clientTimezone],
+  );
+
+  // Fetch channel and program data
+  const fetchData = useCallback(
+    async (storedDataSource: string, storedTimezone: string) => {
+      if (!storedDataSource || !storedTimezone) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const channelResponse = await fetch(
+          `/api/py/channels/${storedDataSource}`,
+        );
+        if (!channelResponse.ok) {
+          throw new Error('Failed to fetch channel data');
+        }
+        const channelData = await channelResponse.json();
+        const sortedChannels = (channelData.data.channels || []).sort(
+          (a: Channel, b: Channel) => {
+            if (sortBy === 'channel_number') {
+              const aNumber = Number.parseInt(a.channel_number);
+              const bNumber = Number.parseInt(b.channel_number);
+              if (isNaN(aNumber) && isNaN(bNumber))
+                return a.channel_names.real.localeCompare(b.channel_names.real);
+              if (isNaN(aNumber)) return 1;
+              if (isNaN(bNumber)) return -1;
+              if (aNumber === bNumber)
+                return a.channel_names.real.localeCompare(b.channel_names.real);
+              return aNumber - bNumber;
+            } else {
+              return a.channel_names.real.localeCompare(b.channel_names.real);
+            }
+          },
+        );
+        setChannels(sortedChannels);
+
+        // Extract filter options
+        const groups = [
+          ...new Set(
+            sortedChannels.map((c: { channel_group: any }) => c.channel_group),
+          ),
+        ];
+        const types = [
+          ...new Set(
+            sortedChannels.map(
+              (c: { other_data: { channel_type: any } }) =>
+                c.other_data.channel_type,
+            ),
+          ),
+        ];
+        const specs = [
+          ...new Set(
+            sortedChannels.map(
+              (c: { other_data: { channel_specs: any } }) =>
+                c.other_data.channel_specs,
+            ),
+          ),
+        ];
+        setGroupOptions(
+          groups.filter((group): group is string => typeof group === 'string'),
+        );
+        setTypeOptions(
+          types.filter((type): type is string => typeof type === 'string'),
+        );
+        setSpecsOptions(
+          specs.filter((spec): spec is string => typeof spec === 'string'),
+        );
+
+        // Fetch program data
+        const programResponse = await fetch(
+          `/api/py/epg/date/${inputDate}/${storedDataSource}?timezone=${encodeURIComponent(storedTimezone)}`,
+        );
+        if (!programResponse.ok) {
+          throw new Error('Failed to fetch program data');
+        }
+        const programData = await programResponse.json();
+
+        if (!programData.channels || !Array.isArray(programData.channels)) {
+          console.error('Unexpected API response structure:', programData);
+          setAllPrograms([]);
+        } else {
+          const programs = transformPrograms(programData.channels);
+          setAllPrograms(programs);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError(
+          error instanceof Error ? error.message : 'An unknown error occurred',
+        );
+        setLoading(false);
+      }
+    },
+    [inputDate, transformPrograms, sortBy],
+  );
+
+  // Initialize data
+  useEffect(() => {
+    const initializeData = async () => {
+      const storedDataSource = await getCookie('xmltvdatasource');
+      const storedTimezone = await getCookie('userTimezone');
+
+      setXmltvDataSource(storedDataSource || 'xmlepg_FTASYD');
+      setClientTimezone(storedTimezone || dayjs.tz.guess());
+
+      if (storedDataSource && storedTimezone) {
+        await fetchData(storedDataSource, storedTimezone);
+      }
+
+      setIsInitialized(true);
+    };
+
+    initializeData();
+  }, [fetchData]);
+
+  // Refetch when dependencies change
+  useEffect(() => {
+    if (isInitialized && xmltvDataSource && clientTimezone) {
+      fetchData(xmltvDataSource, clientTimezone);
+    }
+  }, [isInitialized, xmltvDataSource, clientTimezone, fetchData]);
+
+  // Calculate program position and size
+  const getProgramStyle = useCallback(
+    (program: Program): React.CSSProperties => {
+      const start = dayjs(program.start);
+      const end = dayjs(program.end);
+      const dayStart = start.startOf('day');
+
+      const startMinutes = start.diff(dayStart, 'minute');
+      const durationExact = end.diff(start, 'minute', true);
+      const duration = Math.round(durationExact);
+
+      return {
+        position: 'absolute',
+        left: `${startMinutes * (timeSlotWidth / 30) + horizontalProgramGap}px`,
+        width: `${duration * (timeSlotWidth / 30) - 2 * horizontalProgramGap}px`,
+        minWidth: `${duration * (timeSlotWidth / 30) - 2 * horizontalProgramGap}px`,
+        height: `${programBoxHeight}px`,
+        top: '0',
+      };
+    },
+    [],
+  );
+
+  // Calculate current time position
+  const calculateCurrentTimePosition = useCallback((): number => {
+    const now = dayjs().tz(clientTimezone || 'UTC');
+    const startOfDay = now.startOf('day');
+    const minutesFromMidnight = now.diff(startOfDay, 'minute');
+    return (
+      (minutesFromMidnight / 30) * timeSlotWidth +
+      (isMobile ? mobileChannelColumnWidth : channelColumnWidth)
+    );
+  }, [clientTimezone, isMobile]);
+
+  // Scroll to specific time
+  const scrollToTime = useCallback(
+    (minutesFromMidnight: number): void => {
+      const position =
+        (minutesFromMidnight / 30) * timeSlotWidth +
+        (isMobile ? mobileChannelColumnWidth : channelColumnWidth);
+
+      if (scrollAreaRef.current) {
+        const scrollViewport = scrollAreaRef.current.querySelector(
+          '[data-radix-scroll-area-viewport]',
+        );
+        if (scrollViewport) {
+          scrollViewport.scrollTo({
+            left:
+              position -
+              (isMobile ? mobileChannelColumnWidth : channelColumnWidth) -
+              20,
+            behavior: 'smooth',
+          });
+        }
+      }
+    },
+    [isMobile],
+  );
+
+  // Generate time slots
+  const timeSlots = useMemo(
+    () => Array.from({ length: 48 }, (_, index) => index * 30),
+    [],
+  );
+
+  // Filter channels based on user selections
+  const filteredChannels = useMemo(() => {
+    return channels.filter(channel => {
+      const nameMatch = channel.channel_names.real
+        .toLowerCase()
+        .includes(nameFilter.toLowerCase());
+      const groupMatch =
+        groupFilters.length === 0 ||
+        groupFilters.includes(channel.channel_group);
+      const typeMatch =
+        typeFilters.length === 0 ||
+        typeFilters.includes(channel.other_data.channel_type);
+      const specsMatch =
+        specsFilters.length === 0 ||
+        specsFilters.includes(channel.other_data.channel_specs);
+      return nameMatch && groupMatch && typeMatch && specsMatch;
+    });
+  }, [channels, nameFilter, groupFilters, typeFilters, specsFilters]);
+
+  const renderSchedule = useCallback((): JSX.Element => {
+    const currentTimePosition = calculateCurrentTimePosition();
+
+    return (
+      <div className="relative">
+        {filteredChannels.map(channel => (
+          <ChannelRow
+            key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names.real}`}
+            channel={channel}
+            programs={allPrograms.filter(
+              program => program.channel === channel.channel_id,
+            )}
+            xmltvDataSource={xmltvDataSource}
+            timeSlots={timeSlots}
+            getProgramStyle={getProgramStyle}
+            clientTimezone={clientTimezone}
+            isMobile={isMobile}
+            displayNameType={displayNameType}
+          />
+        ))}
+
+        <div
+          className={cn('absolute bottom-0 z-20', CURRENT_TIME_INDICATOR_CLASS)}
+          style={{
+            display: 'inline-block',
+            left: `${currentTimePosition}px`,
+            transform: 'translateX(-50%)',
+            height: 'calc(100%)',
+          }}
+          role="presentation"
+          aria-label="Current time"
+        />
+      </div>
+    );
+  }, [
+    filteredChannels,
+    allPrograms,
+    xmltvDataSource,
+    calculateCurrentTimePosition,
+    getProgramStyle,
+    clientTimezone,
+    timeSlots,
+    isMobile,
+    displayNameType,
+  ]);
+
+  // Handle time jump
+  const onTimeJump = useCallback(
+    (time: number | string | { value: string }) => {
+      if (typeof time === 'number') {
+        // If it's a number, it's already minutes from midnight
+        scrollToTime(time);
+      } else {
+        let timeString: string;
+        if (typeof time === 'object' && 'value' in time) {
+          timeString = time.value;
+        } else if (typeof time === 'string') {
+          timeString = time;
+        } else {
+          console.error('Invalid time format');
+          return;
+        }
+        const [hours, minutes] = timeString.split(':').map(Number);
+        const totalMinutes = hours * 60 + minutes;
+        scrollToTime(totalMinutes);
+      }
+    },
+    [scrollToTime],
+  );
+
+  // Scroll to current time on initial load
+  useEffect(() => {
+    if (!loading && isInitialized && viewMode === 'grid') {
+      // Get current time in minutes from midnight
+      const now = dayjs().tz(clientTimezone || 'UTC');
+      const startOfDay = now.startOf('day');
+      const minutesFromMidnight = now.diff(startOfDay, 'minute');
+
+      // Add a small delay to ensure the component is fully rendered
+      const timer = setTimeout(() => {
+        scrollToTime(minutesFromMidnight);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loading, isInitialized, scrollToTime, clientTimezone, viewMode]);
+
+  // Add basic keyboard navigation (without time jump shortcuts)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (viewMode !== 'grid') return;
+
+      const scrollViewport = scrollAreaRef.current?.querySelector(
+        '[data-radix-scroll-area-viewport]',
+      );
+      if (!scrollViewport) return;
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          scrollViewport.scrollBy({ left: -200, behavior: 'smooth' });
+          break;
+        case 'ArrowRight':
+          scrollViewport.scrollBy({ left: 200, behavior: 'smooth' });
+          break;
+        case 'ArrowUp':
+          scrollViewport.scrollBy({ top: -100, behavior: 'smooth' });
+          break;
+        case 'ArrowDown':
+          scrollViewport.scrollBy({ top: 100, behavior: 'smooth' });
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [viewMode, scrollAreaRef]);
+
+  // Loading state
+  if (!isInitialized || loading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="size-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button
+            onClick={() =>
+              xmltvDataSource &&
+              clientTimezone &&
+              fetchData(xmltvDataSource, clientTimezone)
+            }
+            className="mt-4"
+          >
+            <RefreshCw className="mr-2 size-4" />
+            Try Again
+          </Button>
+        </Alert>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col w-full max-w-full">
+      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center p-2 border-b">
+        <h1 className="font-bold text-xl sm:text-2xl">
+          Daily EPG - {format(inputDateDJS, 'EEEE, do MMMM')}
+        </h1>
+        <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+          <div className="flex items-center gap-2">
+            <Link
+              href={getViewUrl('grid')}
+              className={cn(
+                'ring-offset-background focus-visible:ring-ring inline-flex h-9 items-center justify-center rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+                viewMode === 'grid'
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  : 'border-input bg-background hover:bg-accent hover:text-accent-foreground border',
+              )}
+            >
+              <Grid className="mr-2 w-4 h-4" />
+              Grid
+            </Link>
+            <Link
+              href={getViewUrl('list')}
+              className={cn(
+                'ring-offset-background focus-visible:ring-ring inline-flex h-9 items-center justify-center rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+                viewMode === 'list'
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  : 'border-input bg-background hover:bg-accent hover:text-accent-foreground border',
+              )}
+            >
+              <List className="mr-2 w-4 h-4" />
+              List
+            </Link>
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Settings className="mr-2 size-4" />
+                Display Options
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="gap-4 grid">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Sort by</h4>
+                  <Select
+                    value={sortBy}
+                    onValueChange={value =>
+                      setSortBy(value as 'channel_number' | 'channel_name')
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select sort option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="channel_number">
+                        Channel Number
+                      </SelectItem>
+                      <SelectItem value="channel_name">Channel Name</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Group by</h4>
+                  <Select
+                    value={groupBy}
+                    onValueChange={value =>
+                      setGroupBy(
+                        value as 'none' | 'channel_group' | 'channel_type',
+                      )
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select group option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="channel_group">
+                        Channel Group
+                      </SelectItem>
+                      <SelectItem value="channel_type">Channel Type</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Display Name</h4>
+                  <Select
+                    value={displayNameType}
+                    onValueChange={value =>
+                      setDisplayNameType(value as 'real' | 'clean' | 'location')
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select display name type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="real">Real</SelectItem>
+                      <SelectItem value="clean">Clean</SelectItem>
+                      <SelectItem value="location">Location</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">
+                    Filter by Channel Name
+                  </h4>
+                  <Input
+                    type="text"
+                    placeholder="Filter by channel name..."
+                    value={nameFilter}
+                    onChange={e => setNameFilter(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">
+                    Filter by Channel Group
+                  </h4>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="justify-between w-full"
+                      >
+                        {groupFilters.length > 0
+                          ? `${groupFilters.length} selected`
+                          : 'Select groups'}
+                        <ChevronsUpDown className="opacity-50 ml-2 size-4 shrink-0" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0 w-full">
+                      <Command>
+                        <CommandInput placeholder="Search groups..." />
+                        <CommandList>
+                          <CommandEmpty>No group found.</CommandEmpty>
+                          <CommandGroup className="max-h-60 overflow-y-auto">
+                            {groupOptions.map(group => (
+                              <CommandItem
+                                key={group}
+                                onSelect={() => {
+                                  setGroupFilters(previous =>
+                                    previous.includes(group)
+                                      ? previous.filter(item => item !== group)
+                                      : [...previous, group],
+                                  );
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 size-4',
+                                    groupFilters.includes(group)
+                                      ? 'opacity-100'
+                                      : 'opacity-0',
+                                  )}
+                                />
+                                {group}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">
+                    Filter by Channel Type
+                  </h4>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="justify-between w-full"
+                      >
+                        {typeFilters.length > 0
+                          ? `${typeFilters.length} selected`
+                          : 'Select types'}
+                        <ChevronsUpDown className="opacity-50 ml-2 size-4 shrink-0" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0 w-full">
+                      <Command>
+                        <CommandInput placeholder="Search types..." />
+                        <CommandList>
+                          <CommandEmpty>No type found.</CommandEmpty>
+                          <CommandGroup className="max-h-60 overflow-y-auto">
+                            {typeOptions.map(type => (
+                              <CommandItem
+                                key={type}
+                                onSelect={() => {
+                                  setTypeFilters(previous =>
+                                    previous.includes(type)
+                                      ? previous.filter(item => item !== type)
+                                      : [...previous, type],
+                                  );
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 size-4',
+                                    typeFilters.includes(type)
+                                      ? 'opacity-100'
+                                      : 'opacity-0',
+                                  )}
+                                />
+                                {type}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">
+                    Filter by Channel Specs
+                  </h4>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="justify-between w-full"
+                      >
+                        {specsFilters.length > 0
+                          ? `${specsFilters.length} selected`
+                          : 'Select specs'}
+                        <ChevronsUpDown className="opacity-50 ml-2 size-4 shrink-0" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0 w-full">
+                      <Command>
+                        <CommandInput placeholder="Search specs..." />
+                        <CommandList>
+                          <CommandEmpty>No specs found.</CommandEmpty>
+                          <CommandGroup className="max-h-60 overflow-y-auto">
+                            {specsOptions.map(specs => (
+                              <CommandItem
+                                key={specs}
+                                onSelect={() => {
+                                  setSpecsFilters(previous =>
+                                    previous.includes(specs)
+                                      ? previous.filter(item => item !== specs)
+                                      : [...previous, specs],
+                                  );
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 size-4',
+                                    specsFilters.includes(specs)
+                                      ? 'opacity-100'
+                                      : 'opacity-0',
+                                  )}
+                                />
+                                {specs}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <Button
+                  onClick={() => {
+                    setSortBy('channel_number');
+                    setGroupBy('none');
+                    setDisplayNameType('real');
+                    setNameFilter('');
+                    setGroupFilters([]);
+                    setTypeFilters([]);
+                    setSpecsFilters([]);
+                  }}
+                >
+                  Reset to Defaults
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+          {viewMode === 'grid' && (
+            <div className="flex items-center gap-2">
+              <TimeJumpDropdown onTimeJump={onTimeJump} />
+              {/* <QuickJumpButtons onTimeJump={onTimeJump} /> */}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="p-1">
+        <DateTabs />
+      </div>
+      <div className="relative h-[calc(100vh-180px)] overflow-hidden">
+        {viewMode === 'grid' ? (
+          <ScrollArea className="h-full scroll-smooth" ref={scrollAreaRef}>
+            <div className="top-0 left-0 z-20 sticky bg-background">
+              <div className="flex" role="row">
+                <div
+                  className="shrink-0"
+                  style={{
+                    width: isMobile
+                      ? mobileChannelColumnWidth
+                      : channelColumnWidth,
+                  }}
+                  role="columnheader"
+                ></div>
+                {timeSlots.map(minutes => (
+                  <div
+                    key={minutes}
+                    className="py-2 border-border border-l text-muted-foreground text-sm text-left shrink-0"
+                    style={{ width: `${timeSlotWidth}px` }}
+                    role="columnheader"
+                  >
+                    <span className="ml-2 font-bold text-sm">
+                      {dayjs()
+                        .startOf('day')
+                        .add(minutes, 'minute')
+                        .format('HH:mm')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="relative" role="grid" aria-label="EPG Schedule">
+              {renderSchedule()}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        ) : (
+          <div className="h-full">
+            <ListView
+              channels={filteredChannels}
+              programs={allPrograms}
+              xmltvDataSource={xmltvDataSource}
+              clientTimezone={clientTimezone}
+              displayNameType={displayNameType}
+              groupBy={groupBy}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function EPGComponent() {
+  return (
+    <div
+      className="w-full h-screen overflow-hidden"
+      style={{ width: 'calc(100svw - 100px)' }}
+    >
+      <div className="h-full">
+        <EPGContent />
+      </div>
+    </div>
+  );
+}

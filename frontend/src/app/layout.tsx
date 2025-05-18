@@ -102,7 +102,7 @@ export default async function RootLayout({
         >
           <SidebarProvider defaultOpen={defaultOpen}>
             <div
-              className="flex h-screen w-full overflow-hidden"
+              className="flex w-full h-screen overflow-hidden"
               style={
                 {
                   '--sidebar-width': 'calc(var(--spacing) * 72)',
@@ -111,10 +111,13 @@ export default async function RootLayout({
             >
               <Sidebar />
               <SidebarInset>
-                <div className="h-svh w-full overflow-hidden lg:p-2">
-                  <div className="bg-container flex h-full w-full flex-col justify-start overflow-hidden lg:rounded-md lg:border">
+                <div className="lg:p-2 w-full h-svh overflow-hidden">
+                  <div className="flex flex-col justify-start bg-container lg:border lg:rounded-md w-full h-full overflow-hidden">
                     <Header />
-                    <main className="flex size-full h-[calc(100svh-40px)] flex-col overflow-auto lg:h-[calc(100svh-56px)]">
+                    <main
+                      className="flex flex-col h-[calc(100svh-40px)] lg:h-[calc(100svh-56px)] size-full overflow-auto"
+                      style={{ width: 'calc(100svw - 100px)' }}
+                    >
                       {children}
                     </main>
                   </div>

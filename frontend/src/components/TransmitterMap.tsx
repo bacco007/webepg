@@ -10,7 +10,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { createRoot } from 'react-dom/client';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import {
@@ -19,15 +18,12 @@ import {
   Layers,
   Locate,
   Maximize,
-  Menu,
-  Search,
+  RefreshCw,
 } from 'lucide-react';
 
 import '@drustack/leaflet.resetview';
 import { TransmitterPopup } from '@/components/TransmitterPopup';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Collapsible,
   CollapsibleContent,
@@ -35,11 +31,18 @@ import {
 } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
+import { FilterSection } from '@/components/filter-section';
+import {
+  SidebarContainer,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarLayout,
+  SidebarSearch,
+} from '@/components/layouts/sidebar-layout';
 
 // Fix for default marker icon in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -187,125 +190,7 @@ function GeolocationControl() {
   );
 }
 
-// Now update the FilterSection component to hide options with zero count
-// Modify the FilterSection component to filter out options with zero count
-function FilterSection({
-  title,
-  options,
-  filters,
-  onFilterChange,
-  searchValue,
-  onSearchChange,
-  counts,
-  showSearch = false,
-  badge,
-}: {
-  title: string;
-  options: string[];
-  filters: string[];
-  onFilterChange: (value: string) => void;
-  searchValue: string;
-  onSearchChange: (value: string) => void;
-  counts: Record<string, number>;
-  showSearch?: boolean;
-  badge?: string;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const debouncedSearch = useDebounce(searchValue, 300);
-
-  // Filter options to only include those with counts > 0 or those already selected
-  const availableOptions = useMemo(() => {
-    return options
-      .filter(
-        option =>
-          filters.includes(option) || // Always show selected options
-          counts[option] > 0, // Only show options with counts > 0
-      )
-      .filter(option =>
-        option.toLowerCase().includes(debouncedSearch.toLowerCase()),
-      );
-  }, [options, counts, filters, debouncedSearch]);
-
-  // Calculate total available options for display
-  const totalAvailableOptions = useMemo(() => {
-    return options.filter(
-      option => counts[option] > 0 || filters.includes(option),
-    ).length;
-  }, [options, counts, filters]);
-
-  return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-b">
-      <CollapsibleTrigger className="hover:bg-muted/10 flex w-full items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-sm font-medium">
-            {title}
-          </span>
-          {badge && (
-            <Badge variant="outline" className="text-xs font-normal">
-              {badge}
-            </Badge>
-          )}
-          {filters.length > 0 && (
-            <Badge variant="secondary" className="text-xs font-normal">
-              {filters.length}
-            </Badge>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-xs">
-            {totalAvailableOptions}
-          </span>
-          {isOpen ? (
-            <ChevronUp className="text-muted-foreground size-4" />
-          ) : (
-            <ChevronDown className="text-muted-foreground size-4" />
-          )}
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="px-4 pb-3">
-        {showSearch && (
-          <div className="relative mb-2">
-            <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
-            <Input
-              placeholder={`Search`}
-              value={searchValue}
-              onChange={e => onSearchChange(e.target.value)}
-              className="pl-8 text-sm"
-            />
-          </div>
-        )}
-        <div className="max-h-[200px] space-y-1 overflow-y-auto pr-1">
-          {availableOptions.length > 0 ? (
-            availableOptions.map(option => (
-              <label
-                key={option}
-                className="flex cursor-pointer items-center justify-between py-1"
-              >
-                <div className="flex items-center">
-                  <Checkbox
-                    checked={filters.includes(option)}
-                    onCheckedChange={() => onFilterChange(option)}
-                    className="mr-2"
-                  />
-                  <span className="text-sm">{option}</span>
-                </div>
-                <span className="text-muted-foreground text-xs">
-                  {counts[option]}
-                </span>
-              </label>
-            ))
-          ) : (
-            <div className="text-muted-foreground py-2 text-center text-sm">
-              No options available
-            </div>
-          )}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-}
-
-// Update the FrequencyRangeFilter component to accept props from the parent
+// Frequency Range Filter component
 function FrequencyRangeFilter({
   minFrequency,
   maxFrequency,
@@ -341,16 +226,16 @@ function FrequencyRangeFilter({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-b">
-      <CollapsibleTrigger className="hover:bg-muted/10 flex w-full items-center justify-between px-4 py-3">
+      <CollapsibleTrigger className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full">
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-sm font-medium">
+          <span className="font-medium text-muted-foreground text-sm">
             Frequency
           </span>
         </div>
         {isOpen ? (
-          <ChevronUp className="text-muted-foreground size-4" />
+          <ChevronUp className="size-4 text-muted-foreground" />
         ) : (
-          <ChevronDown className="text-muted-foreground size-4" />
+          <ChevronDown className="size-4 text-muted-foreground" />
         )}
       </CollapsibleTrigger>
       <CollapsibleContent className="px-4 pb-3">
@@ -368,9 +253,9 @@ function FrequencyRangeFilter({
                   onChange={e =>
                     handleFrequencyInputChange('min', e.target.value)
                   }
-                  className="h-8 w-20 text-sm"
+                  className="w-20 h-8 text-sm"
                 />
-                <span className="text-muted-foreground ml-1 text-xs">MHz</span>
+                <span className="ml-1 text-muted-foreground text-xs">MHz</span>
               </div>
             </div>
             <div className="space-y-1">
@@ -385,9 +270,9 @@ function FrequencyRangeFilter({
                   onChange={e =>
                     handleFrequencyInputChange('max', e.target.value)
                   }
-                  className="h-8 w-20 text-sm"
+                  className="w-20 h-8 text-sm"
                 />
-                <span className="text-muted-foreground ml-1 text-xs">MHz</span>
+                <span className="ml-1 text-muted-foreground text-xs">MHz</span>
               </div>
             </div>
           </div>
@@ -409,7 +294,6 @@ function FrequencyRangeFilter({
   );
 }
 
-// Update the TransmitterMap component to initialize frequency range with 150-670
 export default function TransmitterMap() {
   // Update initial frequency range values
   const [frequencyRange, setFrequencyRange] = useState<[number, number]>([
@@ -435,7 +319,6 @@ export default function TransmitterMap() {
   const [localError, setLocalError] = useState<string | null>(null);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [showTVLicenceAreas, setShowTVLicenceAreas] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const mapRef = useRef<L.Map | null>(null);
 
@@ -452,6 +335,7 @@ export default function TransmitterMap() {
     isLoading,
     error,
   } = useTransmitterData();
+
   useEffect(() => {
     if (!isLoading) {
       setTransmittersData(fetchedTransmittersData);
@@ -519,22 +403,6 @@ export default function TransmitterMap() {
     }
   }, [transmittersData]);
 
-  const handleFrequencyInputChange = (type: 'min' | 'max', value: string) => {
-    const numValue = Number.parseFloat(value);
-
-    if (type === 'min') {
-      setMinFrequency(value);
-      if (!isNaN(numValue)) {
-        setFrequencyRange([numValue, frequencyRange[1]]);
-      }
-    } else {
-      setMaxFrequency(value);
-      if (!isNaN(numValue)) {
-        setFrequencyRange([frequencyRange[0], numValue]);
-      }
-    }
-  };
-
   const uniqueCallSigns = useMemo(
     () => [...new Set(transmittersData.map(t => t.CallSign))].sort(),
     [transmittersData],
@@ -560,10 +428,7 @@ export default function TransmitterMap() {
     [transmittersData],
   );
 
-  // Update the filter counts to be based on the currently filtered data, not the entire dataset
-  // Modify the useMemo hooks for filter counts to use the filtered data
-
-  // Replace the existing callSignCounts useMemo with this:
+  // Filter counts
   const callSignCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
@@ -615,7 +480,6 @@ export default function TransmitterMap() {
     debouncedGlobalSearch,
   ]);
 
-  // Replace the existing areaServedCounts useMemo with this:
   const areaServedCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
@@ -667,7 +531,6 @@ export default function TransmitterMap() {
     debouncedGlobalSearch,
   ]);
 
-  // Replace the existing licenceAreaCounts useMemo with this:
   const licenceAreaCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
@@ -719,7 +582,6 @@ export default function TransmitterMap() {
     debouncedGlobalSearch,
   ]);
 
-  // Replace the existing operatorCounts useMemo with this:
   const operatorCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
@@ -771,7 +633,6 @@ export default function TransmitterMap() {
     debouncedGlobalSearch,
   ]);
 
-  // Replace the existing networkCounts useMemo with this:
   const networkCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
@@ -888,7 +749,7 @@ export default function TransmitterMap() {
     }
   };
 
-  // Update the clearAllFilters function to reset to 150-670
+  // Clear all filters
   const clearAllFilters = () => {
     setCallSignFilters([]);
     setAreaServedFilters([]);
@@ -908,84 +769,141 @@ export default function TransmitterMap() {
     setMaxFrequency('670');
   };
 
-  // Sidebar content component to avoid duplication
-  const SidebarContent = () => (
-    <div className="flex h-full flex-col">
-      <div className="border-b p-3">
-        <div className="relative">
-          <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
-          <Input
-            placeholder="Search transmitters..."
-            value={globalSearchTerm}
-            onChange={e => setGlobalSearchTerm(e.target.value)}
-            className="pl-8 text-sm"
-          />
-        </div>
-      </div>
-      <ScrollArea className="flex-1">
-        <div className="divide-y">
-          <FilterSection
-            title="Call Signs"
-            options={uniqueCallSigns}
-            filters={callSignFilters}
-            onFilterChange={value => handleFilterChange('callSign', value)}
-            searchValue={callSignSearch}
-            onSearchChange={setCallSignSearch}
-            counts={callSignCounts}
-            showSearch={true}
-          />
-          <FilterSection
-            title="Areas Served"
-            options={uniqueAreaServed}
-            filters={areaServedFilters}
-            onFilterChange={value => handleFilterChange('areaServed', value)}
-            searchValue={areaServedSearch}
-            onSearchChange={setAreaServedSearch}
-            counts={areaServedCounts}
-            showSearch={true}
-          />
-          <FilterSection
-            title="Licence Areas"
-            options={uniqueLicenceAreas}
-            filters={licenceAreaFilters}
-            onFilterChange={value => handleFilterChange('licenceArea', value)}
-            searchValue={licenceAreaSearch}
-            onSearchChange={setLicenceAreaSearch}
-            counts={licenceAreaCounts}
-            showSearch={true}
-          />
-          <FilterSection
-            title="Operators"
-            options={uniqueOperators}
-            filters={operatorFilters}
-            onFilterChange={value => handleFilterChange('operator', value)}
-            searchValue={operatorSearch}
-            onSearchChange={setOperatorSearch}
-            counts={operatorCounts}
-            showSearch={true}
-          />
-          <FilterSection
-            title="Networks"
-            options={uniqueNetworks}
-            filters={networkFilters}
-            onFilterChange={value => handleFilterChange('network', value)}
-            searchValue={networkSearch}
-            onSearchChange={setNetworkSearch}
-            counts={networkCounts}
-            showSearch={true}
-          />
-          <FrequencyRangeFilter
-            minFrequency={minFrequency}
-            maxFrequency={maxFrequency}
-            frequencyRange={frequencyRange}
-            setMinFrequency={setMinFrequency}
-            setMaxFrequency={setMaxFrequency}
-            setFrequencyRange={setFrequencyRange}
-          />
-        </div>
-      </ScrollArea>
+  // Refresh data
+  const handleRefresh = async () => {
+    setLocalIsLoading(true);
+    try {
+      const [transmittersResponse, geoJsonResponse] = await Promise.all([
+        fetch('/api/py/transmitters'),
+        fetch('/TVLicenceAreas.geojson'),
+      ]);
 
-      <div className="border-t p-3">
+      if (!transmittersResponse.ok)
+        throw new Error('Failed to fetch transmitter data');
+      if (!geoJsonResponse.ok)
+        throw new Error('Failed to fetch TV Licence Areas data');
+
+      const transmittersData = await transmittersResponse.json();
+      const geoJsonData = await geoJsonResponse.json();
+
+      setTransmittersData(transmittersData);
+      setGeoJsonData(geoJsonData);
+      setLocalError(null);
+
+      toast({
+        title: 'Data refreshed',
+        description: `Loaded ${transmittersData.length} transmitters.`,
+      });
+    } catch (error) {
+      setLocalError(error instanceof Error ? error.message : 'Unknown error');
+      toast({
+        title: 'Error refreshing data',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setLocalIsLoading(false);
+    }
+  };
+
+  // Define header actions
+  const headerActions = (
+    <div className="flex items-center gap-2">
+      <Button
+        onClick={handleRefresh}
+        variant="outline"
+        size="sm"
+        className="gap-1"
+        disabled={localIsLoading}
+      >
+        <RefreshCw
+          className={`h-4 w-4 ${localIsLoading ? 'animate-spin' : ''}`}
+        />
+        <span className="hidden sm:inline">Refresh</span>
+      </Button>
+      <Button
+        variant={showTVLicenceAreas ? 'default' : 'outline'}
+        size="sm"
+        className="gap-1"
+        onClick={() => setShowTVLicenceAreas(!showTVLicenceAreas)}
+      >
+        <Layers className="w-4 h-4" />
+        <span className="hidden sm:inline">TV Areas</span>
+      </Button>
+    </div>
+  );
+
+  // Prepare sidebar content
+  const sidebar = (
+    <SidebarContainer>
+      <SidebarHeader>
+        <SidebarSearch
+          value={globalSearchTerm}
+          onChange={setGlobalSearchTerm}
+          placeholder="Search transmitters..."
+        />
+      </SidebarHeader>
+      <SidebarContent>
+        <FilterSection
+          title="Call Signs"
+          options={uniqueCallSigns}
+          filters={callSignFilters}
+          onFilterChange={value => handleFilterChange('callSign', value)}
+          searchValue={callSignSearch}
+          onSearchChange={setCallSignSearch}
+          counts={callSignCounts}
+          showSearch={true}
+        />
+        <FilterSection
+          title="Areas Served"
+          options={uniqueAreaServed}
+          filters={areaServedFilters}
+          onFilterChange={value => handleFilterChange('areaServed', value)}
+          searchValue={areaServedSearch}
+          onSearchChange={setAreaServedSearch}
+          counts={areaServedCounts}
+          showSearch={true}
+        />
+        <FilterSection
+          title="Licence Areas"
+          options={uniqueLicenceAreas}
+          filters={licenceAreaFilters}
+          onFilterChange={value => handleFilterChange('licenceArea', value)}
+          searchValue={licenceAreaSearch}
+          onSearchChange={setLicenceAreaSearch}
+          counts={licenceAreaCounts}
+          showSearch={true}
+        />
+        <FilterSection
+          title="Operators"
+          options={uniqueOperators}
+          filters={operatorFilters}
+          onFilterChange={value => handleFilterChange('operator', value)}
+          searchValue={operatorSearch}
+          onSearchChange={setOperatorSearch}
+          counts={operatorCounts}
+          showSearch={true}
+        />
+        <FilterSection
+          title="Networks"
+          options={uniqueNetworks}
+          filters={networkFilters}
+          onFilterChange={value => handleFilterChange('network', value)}
+          searchValue={networkSearch}
+          onSearchChange={setNetworkSearch}
+          counts={networkCounts}
+          showSearch={true}
+        />
+        <FrequencyRangeFilter
+          minFrequency={minFrequency}
+          maxFrequency={maxFrequency}
+          frequencyRange={frequencyRange}
+          setMinFrequency={setMinFrequency}
+          setMaxFrequency={setMaxFrequency}
+          setFrequencyRange={setFrequencyRange}
+        />
+      </SidebarContent>
+      <SidebarFooter>
         <Button
           variant="outline"
           size="sm"
@@ -994,128 +912,99 @@ export default function TransmitterMap() {
         >
           Clear All Filters
         </Button>
-        <div className="text-muted-foreground mt-2 text-center text-xs">
+        <div className="mt-2 text-muted-foreground text-xs text-center">
           Showing {filteredTransmitters.length} of {transmittersData.length}{' '}
           transmitters
         </div>
-      </div>
-    </div>
+      </SidebarFooter>
+    </SidebarContainer>
   );
 
   if (localIsLoading || isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        Loading transmitter data...
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <RefreshCw className="mx-auto w-8 h-8 text-muted-foreground animate-spin" />
+          <p className="mt-2">Loading transmitter data...</p>
+        </div>
       </div>
     );
   }
 
   if (localError || error) {
     return (
-      <div className="flex h-screen items-center justify-center text-red-500">
-        Error: {localError || error}
+      <div className="flex justify-center items-center h-screen">
+        <div className="p-6 border rounded-lg max-w-md text-center">
+          <p className="mb-4 font-semibold text-destructive text-lg">
+            Error loading data
+          </p>
+          <p className="mb-4 text-muted-foreground">{localError || error}</p>
+          <Button onClick={handleRefresh}>
+            <RefreshCw className="mr-2 w-4 h-4" />
+            Retry
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      {/* Desktop sidebar - hidden on small screens */}
-      <div className="bg-background hidden w-64 shrink-0 border-r lg:block">
-        <SidebarContent />
-      </div>
-
-      {/* Main content */}
-      <div className="flex h-full flex-1 flex-col">
-        {/* Mobile header with sidebar trigger */}
-        <div className="bg-background flex items-center border-b p-2 lg:hidden">
-          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="mr-2">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle sidebar</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-0">
-              <SidebarContent />
-            </SheetContent>
-          </Sheet>
-          <h1 className="text-lg font-semibold">Transmitter Map</h1>
-        </div>
-
-        {/* Map container */}
-        <div className="h-full flex-1">
-          <MapContainer
-            center={center}
-            zoom={zoom}
-            className="size-full"
-            ref={mapRef}
-            whenReady={() => {
-              if (mapRef.current) {
-                const map = mapRef.current;
-                // Use a more efficient method for adding markers
-                const markerLayer = L.layerGroup().addTo(map);
-                filteredTransmitters.forEach(transmitter => {
-                  const marker = L.marker([transmitter.Lat, transmitter.Long]);
-                  marker.bindPopup(() => {
-                    const popupContent = document.createElement('div');
-                    const root = createRoot(popupContent);
-                    root.render(<TransmitterPopup transmitter={transmitter} />);
-                    return popupContent;
-                  });
-                  markerLayer.addLayer(marker);
-                });
-              }
+    <SidebarLayout
+      title="Transmitter Map"
+      sidebar={sidebar}
+      contentClassName="p-0"
+      actions={headerActions}
+    >
+      <div className="relative w-full h-full">
+        <MapContainer
+          center={center}
+          zoom={zoom}
+          className="size-full"
+          ref={mapRef}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+          />
+          <React.Suspense fallback={<div>Loading TV Licence Areas...</div>}>
+            {showTVLicenceAreas && geoJsonData && (
+              <TVLicenceAreasLayer
+                geoJsonData={geoJsonData}
+                onSelectArea={setSelectedArea}
+              />
+            )}
+          </React.Suspense>
+          <MarkerClusterGroup
+            chunkedLoading
+            iconCreateFunction={(cluster: { getChildCount: () => any }) => {
+              return L.divIcon({
+                html: `<div class="cluster-icon">${cluster.getChildCount()}</div>`,
+                className: 'custom-marker-cluster',
+                iconSize: L.point(40, 40, true),
+              });
             }}
           >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-            />
-            <React.Suspense fallback={<div>Loading TV Licence Areas...</div>}>
-              {showTVLicenceAreas && geoJsonData && (
-                <TVLicenceAreasLayer
-                  geoJsonData={geoJsonData}
-                  onSelectArea={setSelectedArea}
-                />
-              )}
-            </React.Suspense>
-            <MarkerClusterGroup
-              chunkedLoading
-              iconCreateFunction={(cluster: { getChildCount: () => any }) => {
-                return L.divIcon({
-                  html: `<div class="cluster-icon">${cluster.getChildCount()}</div>`,
-                  className: 'custom-marker-cluster',
-                  iconSize: L.point(40, 40, true),
-                });
-              }}
-            >
-              {filteredTransmitters.map(transmitter => (
-                <Marker
-                  key={`${transmitter.ACMASiteID}-${transmitter.CallSignChannel}`}
-                  position={[transmitter.Lat, transmitter.Long]}
-                >
-                  <Popup maxWidth={350}>
-                    <TransmitterPopup transmitter={transmitter} />
-                  </Popup>
-                </Marker>
-              ))}
-            </MarkerClusterGroup>
-            {bounds && <ResetViewControl bounds={bounds} />}
-            <LayerControl
-              showLayer={showTVLicenceAreas}
-              setShowLayer={setShowTVLicenceAreas}
-            />
-            <GeolocationControl />
-          </MapContainer>
-          {selectedArea && (
-            <div className="absolute top-4 right-4 z-1000 rounded bg-white p-2 shadow-sm">
-              Selected Area: {selectedArea}
-            </div>
-          )}
-        </div>
+            {filteredTransmitters.map(transmitter => (
+              <Marker
+                key={`${transmitter.ACMASiteID}-${transmitter.CallSignChannel}`}
+                position={[transmitter.Lat, transmitter.Long]}
+              >
+                <Popup maxWidth={350}>
+                  <TransmitterPopup transmitter={transmitter} />
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
+          {bounds && <ResetViewControl bounds={bounds} />}
+          <GeolocationControl />
+        </MapContainer>
+        {selectedArea && (
+          <div className="top-4 right-4 z-[1000] absolute bg-background shadow-sm p-2 rounded">
+            <p className="font-medium text-sm">Selected Area: {selectedArea}</p>
+          </div>
+        )}
       </div>
-    </div>
+    </SidebarLayout>
   );
 }
 

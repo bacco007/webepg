@@ -7,7 +7,13 @@ import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  SidebarContainer,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarLayout,
+} from '@/components/layouts/sidebar-layout';
 
 interface ChannelLogo {
   light: string;
@@ -86,24 +92,24 @@ function FilterSection({
   return (
     <div className="border-b">
       <div
-        className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3"
+        className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full cursor-pointer"
         onClick={onToggle}
       >
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{title}</span>
+          <span className="font-medium text-sm">{title}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-xs">{count}</span>
           {isOpen ? (
-            <ChevronUp className="text-muted-foreground size-4" />
+            <ChevronUp className="size-4 text-muted-foreground" />
           ) : (
-            <ChevronDown className="text-muted-foreground size-4" />
+            <ChevronDown className="size-4 text-muted-foreground" />
           )}
         </div>
       </div>
       {isOpen && (
         <div className="px-4 pb-3">
-          <div className="thin-scrollbar max-h-[300px] space-y-1 overflow-y-auto pr-1">
+          <div className="space-y-1 pr-1 max-h-[300px] overflow-y-auto thin-scrollbar">
             {children}
           </div>
         </div>
@@ -112,7 +118,7 @@ function FilterSection({
   );
 }
 
-export default function Component() {
+export default function FreeviewAuPage() {
   const [channels, setChannels] = useState<UniqueChannel[]>([]);
   const [groupedSources, setGroupedSources] = useState<GroupedSources>({});
   const [selectedSource, setSelectedSource] = useState<string>('');
@@ -139,6 +145,7 @@ export default function Component() {
             source.group === 'Australia' &&
             source.subgroup.includes('FTA') &&
             !source.subgroup.includes('Streaming') &&
+            !source.subgroup.includes('All Regions') &&
             !source.subgroup.includes('by Network'),
         );
 
@@ -223,7 +230,10 @@ export default function Component() {
         .then((data: APIResponse) => {
           const uniqueChannels = data.data.channels.reduce(
             (accumulator, channel) => {
-              if (channel.channel_id === 'NOEPG') {
+              if (
+                channel.channel_id === 'NOEPG' ||
+                channel.channel_id.startsWith('R_')
+              ) {
                 accumulator.push({
                   ...channel,
                   channel_numbers: [channel.channel_number],
@@ -256,7 +266,9 @@ export default function Component() {
             const aNumber = Number.parseInt(a.channel_numbers[0]);
             const bNumber = Number.parseInt(b.channel_numbers[0]);
             if (aNumber !== bNumber) return aNumber - bNumber;
-            return a.channel_names.clean.localeCompare(b.channel_names.clean);
+            return a.channel_names.location.localeCompare(
+              b.channel_names.location,
+            );
           });
 
           setChannels(uniqueChannels);
@@ -320,7 +332,7 @@ export default function Component() {
 
   if (error) {
     return (
-      <div className="flex size-full items-center justify-center">
+      <div className="flex justify-center items-center size-full">
         <p className="text-destructive text-lg">Error: {error}</p>
       </div>
     );
@@ -330,142 +342,128 @@ export default function Component() {
     source => source.id === selectedSource,
   );
 
+  // Create the sidebar content
+  const sidebar = (
+    <SidebarContainer>
+      <SidebarHeader>
+        <div className="relative">
+          <Search className="top-2.5 left-2 absolute size-4 text-muted-foreground" />
+          <Input
+            placeholder="Search locations..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="pl-8 text-sm"
+            aria-label="Search locations"
+          />
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="top-1 right-1 absolute p-0 w-7 h-7"
+              onClick={clearSearch}
+              aria-label="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        {Object.entries(filteredGroupedSources).map(([subgroup, sources]) => (
+          <FilterSection
+            key={subgroup}
+            title={subgroup.replace('FTA - ', '')}
+            isOpen={openGroups[subgroup] ?? false}
+            onToggle={() => toggleGroup(subgroup)}
+            count={sources.length}
+          >
+            {sources.map(source => (
+              <Button
+                key={source.id}
+                variant={selectedSource === source.id ? 'secondary' : 'ghost'}
+                className="justify-start mb-1 px-2 py-1.5 w-full text-sm"
+                onClick={() => selectSource(source)}
+              >
+                <span className="text-left truncate whitespace-normal">
+                  {source.location}
+                </span>
+              </Button>
+            ))}
+          </FilterSection>
+        ))}
+      </SidebarContent>
+      <SidebarFooter>
+        <div className="text-muted-foreground text-xs text-center">
+          {filteredSources.length} locations available
+        </div>
+      </SidebarFooter>
+    </SidebarContainer>
+  );
+
+  // Create the page title
+  const pageTitle = selectedSourceDetails
+    ? `Freeview Services: ${selectedSourceDetails.subgroup.replace('FTA - ', '')} - ${selectedSourceDetails.location}`
+    : 'Freeview Services';
+
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      <div className="bg-background w-full border-b p-4">
-        <h1 className="text-xl font-bold">
-          Freeview Services
-          {selectedSourceDetails && (
-            <>
-              : {selectedSourceDetails.subgroup.replace('FTA - ', '')} -{' '}
-              {selectedSourceDetails.location}
-            </>
-          )}
-        </h1>
-      </div>
-
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar with filters - fixed */}
-        <div className="bg-background w-64 shrink-0 flex-col overflow-hidden border-r">
-          <div className="border-b p-3">
-            <div className="relative">
-              <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
-              <Input
-                placeholder="Search locations..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="pl-8 text-sm"
-                aria-label="Search locations"
-              />
-              {searchTerm && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute top-1 right-1 h-7 w-7 p-0"
-                  onClick={clearSearch}
-                  aria-label="Clear search"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-hidden">
-            <ScrollArea className="thin-scrollbar h-full">
-              {Object.entries(filteredGroupedSources).map(
-                ([subgroup, sources]) => (
-                  <FilterSection
-                    key={subgroup}
-                    title={subgroup.replace('FTA - ', '')}
-                    isOpen={openGroups[subgroup] ?? false}
-                    onToggle={() => toggleGroup(subgroup)}
-                    count={sources.length}
+    <SidebarLayout
+      title={pageTitle}
+      sidebar={sidebar}
+      contentClassName="p-0 overflow-auto"
+    >
+      {loading ? (
+        <div className="flex flex-1 justify-center items-center">
+          <p className="text-lg">Loading data...</p>
+        </div>
+      ) : (
+        <div className="bg-gray-50 h-full overflow-auto">
+          {sortedNetworks.map(networkName => (
+            <div key={networkName} className="mb-4">
+              <div className="bg-gray-100 px-4 py-2">
+                <h2 className="font-medium">{networkName}</h2>
+              </div>
+              <div className="gap-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 p-2">
+                {channelGroups[networkName].map((channel, index) => (
+                  <div
+                    key={`${channel.channel_id}-${channel.other_data.channel_specs}-${index}`}
+                    className="flex items-start bg-white p-3 border rounded-sm"
                   >
-                    {sources.map(source => (
-                      <Button
-                        key={source.id}
-                        variant={
-                          selectedSource === source.id ? 'secondary' : 'ghost'
+                    <div className="flex justify-center items-center mr-3 size-12 shrink-0">
+                      <img
+                        src={
+                          channel.channel_logo.light ||
+                          '/placeholder.svg' ||
+                          '/placeholder.svg'
                         }
-                        className="mb-1 w-full justify-start px-2 py-1.5 text-sm"
-                        onClick={() => selectSource(source)}
-                      >
-                        <span className="truncate text-left whitespace-normal">
-                          {source.location}
-                        </span>
-                      </Button>
-                    ))}
-                  </FilterSection>
-                ),
-              )}
-            </ScrollArea>
-          </div>
-
-          <div className="border-t p-3">
-            <div className="text-muted-foreground text-center text-xs">
-              {filteredSources.length} locations available
-            </div>
-          </div>
-        </div>
-
-        {/* Main content */}
-        <div className="flex-1 overflow-hidden">
-          {loading ? (
-            <div className="flex flex-1 items-center justify-center">
-              <p className="text-lg">Loading data...</p>
-            </div>
-          ) : (
-            <div className="h-full overflow-auto bg-gray-50">
-              {sortedNetworks.map(networkName => (
-                <div key={networkName} className="mb-4">
-                  <div className="bg-gray-100 px-4 py-2">
-                    <h2 className="font-medium">{networkName}</h2>
-                  </div>
-                  <div className="grid grid-cols-1 gap-2 p-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-                    {channelGroups[networkName].map((channel, index) => (
-                      <div
-                        key={`${channel.channel_id}-${channel.other_data.channel_specs}-${index}`}
-                        className="flex items-start rounded-sm border bg-white p-3"
-                      >
-                        <div className="mr-3 flex size-12 shrink-0 items-center justify-center">
-                          <img
-                            src={
-                              channel.channel_logo.light ||
-                              '/placeholder.svg' ||
-                              '/placeholder.svg'
-                            }
-                            alt={`${channel.isGrouped ? channel.channel_names.clean : channel.channel_names.real} logo`}
-                            className="max-h-full max-w-full object-contain"
-                          />
-                        </div>
-                        <div className="min-w-0 grow">
-                          <div className="leading-tight font-medium">
-                            {channel.isGrouped
-                              ? channel.channel_names.clean
-                              : channel.channel_names.real}
-                          </div>
-                          <div className="text-sm leading-tight">
-                            Channel {channel.channel_numbers.join(', ')}
-                          </div>
-                          <div className="text-xs leading-tight text-gray-600">
-                            {channel.other_data.channel_specs}
-                          </div>
-                          <div className="text-xs leading-tight text-gray-600">
-                            {channel.other_data.channel_type === 'Radio'
-                              ? 'Radio'
-                              : 'Free-to-Air'}
-                          </div>
-                        </div>
+                        alt={`${channel.isGrouped ? channel.channel_names.location : channel.channel_names.real} logo`}
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                    <div className="min-w-0 grow">
+                      <div className="font-medium leading-tight">
+                        {channel.isGrouped
+                          ? channel.channel_names.location
+                          : channel.channel_names.location}
                       </div>
-                    ))}
+                      <div className="text-sm leading-tight">
+                        Channel {channel.channel_numbers.join(', ')}
+                      </div>
+                      <div className="text-gray-600 text-xs leading-tight">
+                        {channel.other_data.channel_specs}
+                      </div>
+                      <div className="text-gray-600 text-xs leading-tight">
+                        {channel.other_data.channel_type === 'Radio'
+                          ? 'Radio'
+                          : 'Free-to-Air'}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          )}
+          ))}
         </div>
-      </div>
-    </div>
+      )}
+    </SidebarLayout>
   );
 }

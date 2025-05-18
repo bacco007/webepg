@@ -1,0 +1,1321 @@
+'use client';
+
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import { useParams, useSearchParams } from 'next/navigation';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  AlertCircle,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  RefreshCw,
+  Tv,
+  Star,
+  Film,
+  Radio,
+  Music,
+  Trophy,
+  Newspaper,
+  Laugh,
+  Theater,
+  Users,
+  Layers,
+} from 'lucide-react';
+
+import ChannelDropdown from '@/components/ChannelDropdown';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import ProgramDialog from '@/components/ProgramDialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { getCookie } from '@/lib/cookies';
+import { cn } from '@/lib/utils';
+import { decodeHtml } from '@/lib/html-utils';
+import {
+  SidebarContainer,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarLayout,
+  SidebarSearch,
+} from '@/components/layouts/sidebar-layout';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+interface Event {
+  id: number;
+  title: string;
+  start: string;
+  end: string;
+  color: string;
+  description: string;
+  categories: string[];
+  subtitle: string;
+  episodeNum: string;
+  rating: string;
+  lengthstring: string;
+  previouslyShown: boolean;
+  date: string;
+  icon: string;
+  image: string;
+  premiere: boolean;
+  country: string;
+  language: string;
+  new: boolean;
+  channel: string;
+  channel_name: string;
+  category: string[];
+}
+
+interface ApiData {
+  date_pulled: string;
+  query: string;
+  source: string;
+  channel: {
+    channel_id: string;
+    channel_slug: string;
+    channel_name: string;
+    channel_names: {
+      real: string;
+      clean: string;
+      location: string;
+    };
+    channel_number: string;
+    chlogo: string;
+    channel_logo: {
+      light: string;
+      dark: string;
+    };
+  };
+  programs: {
+    [date: string]: Array<{
+      start_time: string;
+      start: string;
+      end_time: string;
+      end: string;
+      length: string;
+      channel: string;
+      title: string;
+      subtitle: string;
+      description: string;
+      categories: string[];
+      episode: string;
+      original_air_date: string;
+      rating: string;
+    }>;
+  };
+}
+
+// Enhanced category colors with better contrast and accessibility
+const categoryColors: { [key: string]: string } = {
+  Sports: 'bg-emerald-600 hover:bg-emerald-500',
+  News: 'bg-blue-600 hover:bg-blue-500',
+  Movie: 'bg-purple-600 hover:bg-purple-500',
+  Series: 'bg-amber-600 hover:bg-amber-500',
+  Documentary: 'bg-teal-600 hover:bg-teal-500',
+  Kids: 'bg-pink-600 hover:bg-pink-500',
+  Music: 'bg-indigo-600 hover:bg-indigo-500',
+  Reality: 'bg-orange-600 hover:bg-orange-500',
+  Comedy: 'bg-cyan-600 hover:bg-cyan-500',
+  Drama: 'bg-rose-600 hover:bg-rose-500',
+};
+
+// Category icons mapping
+const categoryIcons: { [key: string]: React.ReactNode } = {
+  Sports: <Trophy className="w-3 h-3" />,
+  News: <Newspaper className="w-3 h-3" />,
+  Movie: <Film className="w-3 h-3" />,
+  Series: <Tv className="w-3 h-3" />,
+  Documentary: <Layers className="w-3 h-3" />,
+  Kids: <Users className="w-3 h-3" />,
+  Music: <Music className="w-3 h-3" />,
+  Reality: <Users className="w-3 h-3" />,
+  Comedy: <Laugh className="w-3 h-3" />,
+  Drama: <Theater className="w-3 h-3" />,
+  Radio: <Radio className="w-3 h-3" />,
+};
+
+const defaultColorClasses = ['bg-slate-600 hover:bg-slate-500'];
+const liveColor = 'bg-red-600 hover:bg-red-500';
+const pastColor = 'bg-gray-600 hover:bg-gray-500';
+const upNextColor = 'bg-amber-600 hover:bg-amber-500';
+
+// Improved layout constants
+const timeSlotHeight = 60; // Height of each 30-minute slot in pixels
+const timeColumnWidth = 60; // Width of time column in pixels
+const gridGap = 4; // Gap between grid items in pixels
+const minDayWidth = 200; // Minimum width for each day column
+const headerHeight = 48; // Height of the sticky header
+
+// Time block definitions for grouping programs
+const timeBlocks = [
+  { name: 'Early Morning', start: 0, end: 6 },
+  { name: 'Morning', start: 6, end: 12 },
+  { name: 'Afternoon', start: 12, end: 17 },
+  { name: 'Evening', start: 17, end: 20 },
+  { name: 'Prime Time', start: 20, end: 23 },
+  { name: 'Late Night', start: 23, end: 24 },
+];
+
+type DensityOption = 'compact' | 'normal' | 'detailed';
+
+function WeeklyEPGContent() {
+  const parameters = useParams();
+  const searchParams = useSearchParams();
+  const channelslug = parameters.channelslug as string;
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [daysLength, setDaysLength] = useState<number>(7);
+  const [channelName, setChannelName] = useState<string>('');
+  const [channelNumber, setChannelNumber] = useState<string>('');
+  const [channelLogoLight, setChannelLogoLight] = useState<string>('');
+  const [channelLogoDark, setChannelLogoDark] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [clientTimezone, setClientTimezone] = useState<string>('UTC');
+  const [visibleDays, setVisibleDays] = useState<number>(7);
+  const [startDayIndex, setStartDayIndex] = useState(0);
+  const [storedDataSource, setStoredDataSource] = useState<string>('');
+  const [useCategories, setUseCategories] = useState(false);
+  const [now, setNow] = useState(() => dayjs());
+  const [totalDays, setTotalDays] = useState<number>(0);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedDay, setSelectedDay] = useState<number>(0);
+  const [filteredCategory, setFilteredCategory] = useState<string | null>(null);
+  const [showPastPrograms, setShowPastPrograms] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [density, setDensity] = useState<DensityOption>('normal');
+  const [showTimeBlocks, setShowTimeBlocks] = useState(true);
+
+  const containerReference = useRef<HTMLDivElement>(null);
+  const gridReference = useRef<HTMLDivElement | null>(null);
+
+  // Set client timezone
+  useEffect(() => {
+    const detectedTimezone = dayjs.tz.guess();
+    setClientTimezone(detectedTimezone);
+  }, []);
+
+  // Fetch data source from cookies or URL
+  useEffect(() => {
+    const fetchDataSource = async () => {
+      const urlSource = searchParams.get('source');
+      const initialDataSource =
+        urlSource || (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      setStoredDataSource(initialDataSource);
+    };
+
+    fetchDataSource();
+  }, [searchParams]);
+
+  // Check for data source changes
+  useEffect(() => {
+    if (!storedDataSource) return;
+
+    const checkDataSource = async () => {
+      const currentDataSource =
+        (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      if (currentDataSource !== storedDataSource) {
+        globalThis.location.href = `/channel?source=${currentDataSource}`;
+      }
+    };
+
+    const intervalId = setInterval(checkDataSource, 200);
+    return () => clearInterval(intervalId);
+  }, [storedDataSource]);
+
+  // Process API data
+  const processApiData = useCallback(
+    (data: ApiData) => {
+      const dates = Object.keys(data.programs);
+      if (dates.length === 0) {
+        setError('No program data available');
+        return;
+      }
+
+      const startDay = dayjs.tz(dates[0], clientTimezone).toDate();
+
+      setStartDate(startDay);
+      setDaysLength(dates.length);
+      setTotalDays(dates.length);
+      setChannelName(data.channel.channel_names.real);
+      setChannelNumber(data.channel.channel_number);
+      setChannelLogoLight(data.channel.channel_logo.light);
+      setChannelLogoDark(data.channel.channel_logo.dark);
+
+      const events = dates.flatMap((date, dayIndex) => {
+        return data.programs[date].map((program, eventIndex) => {
+          const start = dayjs.tz(program.start_time, clientTimezone);
+          const end = dayjs.tz(program.end_time, clientTimezone);
+          const category = program.categories[0] || 'No Data Available';
+
+          return {
+            id: dayIndex * 1000 + eventIndex,
+            title: program.title,
+            start: program.start_time,
+            end: program.end_time,
+            color: categoryColors[category] || 'bg-gray-600 hover:bg-gray-500',
+            description: program.description,
+            categories: program.categories,
+            subtitle: program.subtitle,
+            episodeNum: program.episode,
+            rating: program.rating,
+            lengthstring: program.length,
+            previouslyShown: false,
+            date: program.original_air_date,
+            icon: '',
+            image: '',
+            premiere: false,
+            country: '',
+            language: '',
+            new: false,
+            channel: data.channel.channel_name,
+            channel_name: data.channel.channel_names.real,
+            category: program.categories,
+          };
+        });
+      });
+
+      setAllEvents(events);
+      setError(null);
+    },
+    [clientTimezone],
+  );
+
+  // Fetch data from API
+  const fetchData = useCallback(async () => {
+    if (!channelslug || !storedDataSource) {
+      setError('No channel or data source selected');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const url = `/api/py/epg/channels/${storedDataSource}/${channelslug}?timezone=${encodeURIComponent(clientTimezone)}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: ApiData = await response.json();
+      if (!data || !data.programs) {
+        throw new Error('Invalid data received from API');
+      }
+      processApiData(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError(
+        error instanceof Error ? error.message : 'An unknown error occurred',
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [channelslug, clientTimezone, storedDataSource, processApiData]);
+
+  // Initial data fetch and timer setup
+  useEffect(() => {
+    if (storedDataSource && channelslug) {
+      fetchData();
+    }
+
+    const timer = setInterval(() => {
+      setNow(dayjs());
+    }, 60_000);
+
+    return () => clearInterval(timer);
+  }, [fetchData, storedDataSource, channelslug]);
+
+  // Calculate event style for grid view
+  const getEventStyle = useCallback(
+    (event: Event): React.CSSProperties => {
+      if (!startDate) return {};
+
+      const eventStartDate = dayjs.tz(event.start, clientTimezone);
+      const eventEndDate = dayjs.tz(event.end, clientTimezone);
+
+      const dayIndex = dayjs(eventStartDate).diff(
+        dayjs(startDate).startOf('day'),
+        'day',
+      );
+
+      if (dayIndex < startDayIndex || dayIndex >= startDayIndex + visibleDays) {
+        return { display: 'none' };
+      }
+
+      const startMinutes = eventStartDate.hour() * 60 + eventStartDate.minute();
+      const endMinutes = eventEndDate.hour() * 60 + eventEndDate.minute();
+      const duration = endMinutes - startMinutes;
+      const startRow = Math.floor(startMinutes / 30) + 2;
+      const endRow = Math.ceil(endMinutes / 30) + 2;
+      const rowSpan = endRow - startRow;
+      const endTime = eventEndDate.minute();
+      const gG = [0, 30].includes(endTime) ? 0 : -4;
+
+      return {
+        gridColumnStart: dayIndex - startDayIndex + 2,
+        gridColumnEnd: dayIndex - startDayIndex + 3,
+        gridRowStart: startRow,
+        gridRowEnd: endRow,
+        marginTop: `${(startMinutes % 30) * (timeSlotHeight / 30)}px`,
+        height: `calc(${duration * (timeSlotHeight / 30)}px + ${(rowSpan - 1) * gridGap + gG}px)`,
+        width: '100%',
+      };
+    },
+    [startDate, clientTimezone, startDayIndex, visibleDays],
+  );
+
+  // Generate days array
+  const days = useMemo(() => {
+    if (!startDate) return [];
+    return Array.from({ length: daysLength }, (_, index) =>
+      dayjs(startDate).add(index, 'day').toDate(),
+    );
+  }, [startDate, daysLength]);
+
+  // Generate time slots array
+  const timeSlots = useMemo(
+    () => Array.from({ length: 48 }, (_, index) => index * 30),
+    [],
+  );
+
+  // Navigation handlers
+  const handlePreviousDay = useCallback(() => {
+    setStartDayIndex(previous => Math.max(0, previous - 1));
+  }, []);
+
+  const handleNextDay = useCallback(() => {
+    setStartDayIndex(previous =>
+      Math.min(daysLength - visibleDays, previous + 1),
+    );
+  }, [daysLength, visibleDays]);
+
+  // Scroll to current time
+  const scrollToCurrentTime = useCallback(() => {
+    // Find the current time position
+    const currentHour = now.hour();
+    const currentMinute = now.minute();
+    const totalMinutes = currentHour * 60 + currentMinute;
+    const scrollPosition = (totalMinutes / 30) * timeSlotHeight - 100;
+
+    // Use setTimeout to ensure the scroll happens after render
+    setTimeout(() => {
+      if (gridReference.current) {
+        gridReference.current.scrollTop = scrollPosition;
+      }
+    }, 0);
+  }, [now, timeSlotHeight]);
+
+  // Update visible days based on container width
+  useEffect(() => {
+    const updateVisibleDays = () => {
+      if (containerReference.current) {
+        const containerWidth = containerReference.current.offsetWidth;
+        const availableWidth = containerWidth - timeColumnWidth;
+        const possibleDays = Math.floor(availableWidth / minDayWidth);
+        setVisibleDays(Math.min(possibleDays, 7, daysLength));
+      }
+    };
+
+    updateVisibleDays();
+    window.addEventListener('resize', updateVisibleDays);
+
+    return () => window.removeEventListener('resize', updateVisibleDays);
+  }, [daysLength]);
+
+  // Get unique categories from events
+  const uniqueCategories = useMemo(() => {
+    const categories = new Set<string>();
+    allEvents.forEach(event => {
+      event.categories.forEach(category => categories.add(category));
+    });
+    return Array.from(categories).sort();
+  }, [allEvents]);
+
+  // Filter events for list view
+  const filteredEvents = useMemo(() => {
+    if (!days[selectedDay]) return [];
+
+    const selectedDayStart = dayjs(days[selectedDay]).startOf('day');
+    const selectedDayEnd = dayjs(days[selectedDay]).endOf('day');
+
+    return allEvents
+      .filter(event => {
+        const eventStart = dayjs(event.start);
+        const eventEnd = dayjs(event.end);
+
+        // Check if event is on the selected day
+        const isOnSelectedDay =
+          (eventStart.isAfter(selectedDayStart) ||
+            eventStart.isSame(selectedDayStart)) &&
+          (eventStart.isBefore(selectedDayEnd) ||
+            eventStart.isSame(selectedDayEnd));
+
+        // Check category filter
+        const matchesCategory =
+          !filteredCategory || event.categories.includes(filteredCategory);
+
+        // Check past programs filter
+        const isPast = eventEnd.isBefore(now);
+        const showBasedOnPastSetting = showPastPrograms || !isPast;
+
+        // Check search term
+        const matchesSearch =
+          !searchTerm ||
+          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (event.subtitle &&
+            event.subtitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (event.description &&
+            event.description.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        return (
+          isOnSelectedDay &&
+          matchesCategory &&
+          showBasedOnPastSetting &&
+          matchesSearch
+        );
+      })
+      .sort((a, b) => dayjs(a.start).valueOf() - dayjs(b.start).valueOf());
+  }, [
+    allEvents,
+    days,
+    selectedDay,
+    filteredCategory,
+    showPastPrograms,
+    now,
+    searchTerm,
+  ]);
+
+  // Group events by time blocks
+  const groupedEvents = useMemo(() => {
+    if (!showTimeBlocks) return { 'All Programs': filteredEvents };
+
+    const grouped: Record<string, Event[]> = {};
+
+    timeBlocks.forEach(block => {
+      grouped[block.name] = filteredEvents.filter(event => {
+        const hour = dayjs(event.start).hour();
+        return hour >= block.start && hour < block.end;
+      });
+    });
+
+    // Filter out empty blocks
+    return Object.fromEntries(
+      Object.entries(grouped).filter(([_, events]) => events.length > 0),
+    );
+  }, [filteredEvents, showTimeBlocks]);
+
+  // Get program status (live, upcoming, past)
+  const getProgramStatus = useCallback(
+    (event: Event) => {
+      const eventStart = dayjs(event.start);
+      const eventEnd = dayjs(event.end);
+      const isLive = now.isAfter(eventStart) && now.isBefore(eventEnd);
+      const hasEnded = now.isAfter(eventEnd);
+      const isUpNext =
+        !isLive && !hasEnded && eventStart.diff(now, 'minute') <= 30;
+
+      return { isLive, hasEnded, isUpNext };
+    },
+    [now],
+  );
+
+  // Define header actions
+  const headerActions = (
+    <div className="flex items-center space-x-2">
+      <ChannelDropdown channelslug={channelslug} />
+      {viewMode === 'grid' && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={scrollToCurrentTime}
+          className="flex items-center gap-1"
+        >
+          <Clock className="w-4 h-4" />
+          <span className="hidden sm:inline">Now</span>
+        </Button>
+      )}
+      <Button
+        onClick={fetchData}
+        variant="outline"
+        size="sm"
+        className="gap-1"
+        disabled={isLoading}
+      >
+        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+        <span className="hidden sm:inline">Refresh</span>
+      </Button>
+    </div>
+  );
+
+  // Prepare sidebar content
+  const sidebar = (
+    <SidebarContainer>
+      <SidebarHeader>
+        <SidebarSearch
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Search programs..."
+        />
+      </SidebarHeader>
+      <SidebarContent>
+        <div className="px-4 py-3 border-b">
+          <div className="flex flex-col space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="font-medium text-sm">View Mode</span>
+              <Tabs
+                value={viewMode}
+                onValueChange={v => setViewMode(v as 'grid' | 'list')}
+                className="w-auto"
+              >
+                <TabsList>
+                  <TabsTrigger value="grid" className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    <span className="hidden sm:inline">Grid</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="list" className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    <span className="hidden sm:inline">List</span>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="font-medium text-sm">Display Density</span>
+              <ToggleGroup
+                type="single"
+                value={density}
+                onValueChange={value =>
+                  value && setDensity(value as DensityOption)
+                }
+              >
+                <ToggleGroupItem value="compact" aria-label="Compact view">
+                  <Layers className="w-4 h-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="normal" aria-label="Normal view">
+                  <Tv className="w-4 h-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="detailed" aria-label="Detailed view">
+                  <Film className="w-4 h-4" />
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <label htmlFor="use-categories" className="font-medium text-sm">
+                Color by category
+              </label>
+              <Switch
+                id="use-categories"
+                checked={useCategories}
+                onCheckedChange={setUseCategories}
+                className="data-[state=checked]:bg-primary"
+              />
+            </div>
+
+            <div className="flex justify-between items-center">
+              <label htmlFor="show-past" className="font-medium text-sm">
+                Show past programs
+              </label>
+              <Switch
+                id="show-past"
+                checked={showPastPrograms}
+                onCheckedChange={setShowPastPrograms}
+                className="data-[state=checked]:bg-primary"
+              />
+            </div>
+
+            {viewMode === 'list' && (
+              <div className="flex justify-between items-center">
+                <label
+                  htmlFor="show-timeblocks"
+                  className="font-medium text-sm"
+                >
+                  Group by time blocks
+                </label>
+                <Switch
+                  id="show-timeblocks"
+                  checked={showTimeBlocks}
+                  onCheckedChange={setShowTimeBlocks}
+                  className="data-[state=checked]:bg-primary"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {uniqueCategories.length > 0 && (
+          <div className="px-4 py-3 border-b">
+            <div className="mb-2 font-medium text-sm">Filter by Category</div>
+            <div className="space-y-1 max-h-[300px] overflow-y-auto">
+              <div
+                className={cn(
+                  'hover:bg-muted cursor-pointer rounded px-2 py-1 text-sm',
+                  !filteredCategory && 'bg-muted font-medium',
+                )}
+                onClick={() => setFilteredCategory(null)}
+              >
+                All Categories
+              </div>
+              {uniqueCategories.map(category => (
+                <div
+                  key={category}
+                  className={cn(
+                    'hover:bg-muted flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-sm',
+                    filteredCategory === category && 'bg-muted font-medium',
+                  )}
+                  onClick={() => setFilteredCategory(category)}
+                >
+                  {categoryIcons[category] || <Tv className="w-3 h-3" />}
+                  <span>{category}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Channel info */}
+        {channelName && (
+          <div className="px-4 py-3 border-b">
+            <div className="mb-2 font-medium text-sm">Channel Information</div>
+            <div className="flex items-center space-x-3">
+              {channelLogoLight && (
+                <div className="flex-shrink-0">
+                  <img
+                    className="dark:hidden block w-auto h-10 object-contain"
+                    src={channelLogoLight || '/placeholder.svg'}
+                    alt={decodeHtml(channelName)}
+                  />
+                  <img
+                    className="hidden dark:block w-auto h-10 object-contain"
+                    src={channelLogoDark || '/placeholder.svg'}
+                    alt={decodeHtml(channelName)}
+                  />
+                </div>
+              )}
+              <div>
+                <div className="font-medium">{channelName}</div>
+                {channelNumber && (
+                  <div className="text-muted-foreground text-sm">
+                    Channel {channelNumber}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </SidebarContent>
+      <SidebarFooter>
+        <div className="text-muted-foreground text-xs text-center">
+          {days[startDayIndex] && dayjs(days[startDayIndex]).format('MMM D')} -{' '}
+          {days[startDayIndex + visibleDays - 1] &&
+            dayjs(days[startDayIndex + visibleDays - 1]).format('MMM D')}{' '}
+          ({visibleDays} of {daysLength} days)
+        </div>
+      </SidebarFooter>
+    </SidebarContainer>
+  );
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="w-4 h-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button onClick={fetchData} className="mt-4">
+            <RefreshCw className="mr-2 w-4 h-4" />
+            Try Again
+          </Button>
+        </Alert>
+      </div>
+    );
+  }
+
+  const calculateProgress = (start: string, end: string) => {
+    const startTime = dayjs(start);
+    const endTime = dayjs(end);
+    const currentTime = now;
+
+    const totalDuration = endTime.diff(startTime);
+    const elapsedDuration = currentTime.diff(startTime);
+
+    return Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
+  };
+
+  return (
+    <SidebarLayout
+      title={`Weekly EPG - ${channelName}`}
+      sidebar={sidebar}
+      actions={headerActions}
+    >
+      <div className="flex flex-col h-full">
+        {/* Navigation controls */}
+        <div className="bg-background px-4 py-2 border-b">
+          <div className="flex justify-between items-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    onClick={handlePreviousDay}
+                    disabled={startDayIndex === 0}
+                    aria-label="Previous day"
+                  >
+                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Previous day</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <div className="font-semibold" aria-live="polite">
+              {days[startDayIndex] &&
+                dayjs(days[startDayIndex]).format('MMM D')}{' '}
+              -{' '}
+              {days[startDayIndex + visibleDays - 1] &&
+                dayjs(days[startDayIndex + visibleDays - 1]).format(
+                  'MMM D',
+                )}{' '}
+              ({visibleDays} of {daysLength} days)
+            </div>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    onClick={handleNextDay}
+                    disabled={startDayIndex + visibleDays >= daysLength}
+                    aria-label="Next day"
+                  >
+                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Next day</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+
+        {/* Content area */}
+        <div className="flex-1 overflow-hidden" ref={containerReference}>
+          {viewMode === 'grid' ? (
+            /* Grid View */
+            <div className="w-full h-full overflow-hidden">
+              <div className="w-full h-full overflow-auto" ref={gridReference}>
+                <div className="p-4 min-w-fit">
+                  <div
+                    className="relative gap-1 grid"
+                    style={{
+                      gridTemplateColumns: `${timeColumnWidth}px repeat(${visibleDays}, minmax(${minDayWidth}px, 1fr))`,
+                    }}
+                    role="grid"
+                    aria-label="Weekly EPG Grid"
+                  >
+                    {/* Time column header */}
+                    <div
+                      className="top-0 left-0 z-20 sticky flex justify-center items-center bg-background/95 supports-backdrop-filter:bg-background/60 backdrop-blur-sm px-2 py-1 border-r border-b rounded-tl-md font-semibold text-sm"
+                      style={{
+                        width: `${timeColumnWidth}px`,
+                        height: `${headerHeight}px`,
+                      }}
+                    >
+                      Time
+                    </div>
+
+                    {/* Day headers */}
+                    {days
+                      .slice(startDayIndex, startDayIndex + visibleDays)
+                      .map((day, index) => (
+                        <div
+                          key={`day-${index}`}
+                          className={cn(
+                            'bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-10 flex items-center justify-center border-b px-2 py-1 text-center text-sm font-semibold backdrop-blur-sm',
+                            index === visibleDays - 1
+                              ? 'rounded-tr-md'
+                              : 'border-r',
+                          )}
+                          style={{ height: `${headerHeight}px` }}
+                        >
+                          {dayjs(day).format('ddd, MMM D')}
+                        </div>
+                      ))}
+
+                    {/* Time slots and grid cells */}
+                    {timeSlots.map((minutes, slotIndex) => (
+                      <React.Fragment key={minutes}>
+                        {/* Time label */}
+                        <div
+                          className={cn(
+                            'bg-background/95 supports-backdrop-filter:bg-background/60 text-muted-foreground sticky left-0 z-10 flex items-center justify-end border-r px-2 py-1 text-xs backdrop-blur-sm',
+                            slotIndex === timeSlots.length - 1
+                              ? 'rounded-bl-md'
+                              : 'border-b',
+                          )}
+                          style={{
+                            width: `${timeColumnWidth}px`,
+                            height: `${timeSlotHeight}px`,
+                          }}
+                        >
+                          {dayjs()
+                            .startOf('day')
+                            .add(minutes, 'minute')
+                            .format('HH:mm')}
+                        </div>
+
+                        {/* Grid cells */}
+                        {Array.from({ length: visibleDays }).map(
+                          (_, dayIndex) => {
+                            const isCurrentTime = () => {
+                              const currentDay = dayjs(
+                                days[startDayIndex + dayIndex],
+                              );
+                              const slotStart = currentDay
+                                .startOf('day')
+                                .add(minutes, 'minute');
+                              const slotEnd = slotStart.add(30, 'minute');
+                              return (
+                                now.isAfter(slotStart) && now.isBefore(slotEnd)
+                              );
+                            };
+
+                            return (
+                              <div
+                                key={`timeslot-${dayIndex}-${minutes}`}
+                                className={cn(
+                                  'relative border-t',
+                                  dayIndex === visibleDays - 1
+                                    ? slotIndex === timeSlots.length - 1
+                                      ? 'rounded-br-md'
+                                      : 'border-b'
+                                    : 'border-r border-b',
+                                  isCurrentTime() && 'bg-muted/30',
+                                )}
+                                style={{
+                                  height: `${timeSlotHeight}px`,
+                                }}
+                              >
+                                {isCurrentTime() && (
+                                  <div
+                                    className="z-10 absolute inset-0 border-red-500 border-l-2"
+                                    style={{
+                                      left: `${((now.minute() % 30) / 30) * 100}%`,
+                                    }}
+                                  >
+                                    <div className="top-0 right-0 absolute bg-red-500 ml-1 px-1 py-0.5 rounded-sm text-[10px] text-white translate-x-full">
+                                      {now.format('HH:mm')}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          },
+                        )}
+                      </React.Fragment>
+                    ))}
+
+                    {/* Program events */}
+                    {allEvents.map(event => {
+                      const { isLive, hasEnded, isUpNext } =
+                        getProgramStatus(event);
+
+                      // Skip if we're not showing past programs and this has ended
+                      if (!showPastPrograms && hasEnded) {
+                        return null;
+                      }
+
+                      // Skip if there's a category filter and this doesn't match
+                      if (
+                        filteredCategory &&
+                        !event.categories.includes(filteredCategory)
+                      ) {
+                        return null;
+                      }
+
+                      // Skip if there's a search term and this doesn't match
+                      if (
+                        searchTerm &&
+                        !event.title
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase()) &&
+                        (!event.subtitle ||
+                          !event.subtitle
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase())) &&
+                        (!event.description ||
+                          !event.description
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()))
+                      ) {
+                        return null;
+                      }
+
+                      // Determine program color based on status and settings
+                      let programColor = useCategories
+                        ? event.color
+                        : defaultColorClasses[0];
+                      if (isLive) programColor = liveColor;
+                      if (isUpNext) programColor = upNextColor;
+
+                      return (
+                        <ProgramDialog
+                          key={event.id}
+                          event={event}
+                          onOpenChange={() => {}}
+                          trigger={
+                            <div
+                              style={getEventStyle(event)}
+                              className={cn(
+                                'absolute overflow-hidden rounded-md p-2 text-xs text-white shadow-md transition-opacity',
+                                programColor,
+                                hasEnded && 'opacity-70',
+                                'cursor-pointer hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:outline-hidden',
+                                density === 'compact'
+                                  ? 'p-1'
+                                  : density === 'detailed'
+                                    ? 'p-3'
+                                    : 'p-2',
+                              )}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`${event.title} from ${dayjs(event.start).format('HH:mm')} to ${dayjs(
+                                event.end,
+                              ).format('HH:mm')}`}
+                            >
+                              <div className="flex flex-col justify-between h-full">
+                                <div>
+                                  <div className="flex justify-between items-start">
+                                    <div className="font-semibold truncate">
+                                      {decodeHtml(event.title)}
+                                    </div>
+                                    <div className="opacity-90 ml-1 text-[10px] whitespace-nowrap">
+                                      {dayjs(event.start).format('HH:mm')} -{' '}
+                                      {dayjs(event.end).format('HH:mm')}
+                                    </div>
+                                  </div>
+                                  {event.subtitle &&
+                                    event.subtitle !== 'N/A' && (
+                                      <div className="opacity-80 text-[10px] truncate italic">
+                                        {decodeHtml(event.subtitle)}
+                                      </div>
+                                    )}
+                                  {density === 'detailed' &&
+                                    event.description && (
+                                      <div className="opacity-80 mt-1 text-[10px] line-clamp-2">
+                                        {decodeHtml(event.description)}
+                                      </div>
+                                    )}
+                                </div>
+                                <div className="flex justify-between items-end mt-1">
+                                  {event.categories[0] &&
+                                    density !== 'compact' && (
+                                      <div className="flex items-center gap-1">
+                                        {categoryIcons[event.categories[0]] || (
+                                          <Tv className="w-3 h-3" />
+                                        )}
+                                        <span className="text-[9px]">
+                                          {event.categories[0]}
+                                        </span>
+                                      </div>
+                                    )}
+                                  <div className="flex gap-1 ml-auto">
+                                    {isLive && (
+                                      <Badge className="bg-red-600 px-1 py-0 font-medium text-[9px] text-white">
+                                        LIVE
+                                      </Badge>
+                                    )}
+                                    {isUpNext && (
+                                      <Badge
+                                        variant="secondary"
+                                        className="bg-amber-500/20 px-1 py-0 text-[9px]"
+                                      >
+                                        UP NEXT
+                                      </Badge>
+                                    )}
+                                    {event.rating &&
+                                      event.rating !== 'N/A' &&
+                                      density === 'detailed' && (
+                                        <Badge
+                                          variant="outline"
+                                          className="px-1 py-0 text-[9px]"
+                                        >
+                                          {event.rating}
+                                        </Badge>
+                                      )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Add progress bar for live programs */}
+                              {isLive && (
+                                <div className="right-0 bottom-0 left-0 absolute bg-black/30 h-2">
+                                  <div
+                                    className="bg-white/80 h-full"
+                                    style={{
+                                      width: `${calculateProgress(event.start, event.end)}%`,
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          }
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* List View */
+            <div className="flex flex-col h-full">
+              {/* Day selector tabs */}
+              <div className="bg-background px-4 border-b">
+                <ScrollArea className="w-full">
+                  <div className="flex">
+                    {days.map((day, index) => (
+                      <Button
+                        key={index}
+                        variant={selectedDay === index ? 'default' : 'ghost'}
+                        className="px-4 py-2 border-transparent border-b-2 rounded-none font-medium"
+                        style={{
+                          borderBottomColor:
+                            selectedDay === index
+                              ? 'hsl(var(--primary))'
+                              : 'transparent',
+                        }}
+                        onClick={() => setSelectedDay(index)}
+                      >
+                        {dayjs(day).format('ddd, MMM D')}
+                      </Button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+
+              {/* Program list */}
+              <div className="flex-1 overflow-auto">
+                <div className="p-4">
+                  {Object.entries(groupedEvents).length > 0 ? (
+                    Object.entries(groupedEvents).map(([blockName, events]) => (
+                      <div key={blockName} className="mb-6">
+                        {showTimeBlocks && (
+                          <h3 className="mb-2 pb-1 border-b font-semibold text-lg">
+                            {blockName}
+                          </h3>
+                        )}
+                        <div className="divide-y">
+                          {events.map(event => {
+                            const { isLive, hasEnded, isUpNext } =
+                              getProgramStatus(event);
+                            const timeRange = `${dayjs(event.start).format('HH:mm')} - ${dayjs(event.end).format('HH:mm')}`;
+
+                            return (
+                              <ProgramDialog
+                                key={event.id}
+                                event={event}
+                                onOpenChange={() => {}}
+                                trigger={
+                                  <div
+                                    className={cn(
+                                      'hover:bg-muted/50 flex cursor-pointer items-start gap-3 rounded-md p-3',
+                                      isLive && 'bg-red-500/10',
+                                      isUpNext && 'bg-amber-500/10',
+                                      density === 'compact'
+                                        ? 'py-2'
+                                        : density === 'detailed'
+                                          ? 'py-4'
+                                          : 'py-3',
+                                    )}
+                                  >
+                                    {/* Time column with status indicator */}
+                                    <div className="relative flex flex-col items-center w-16 text-center">
+                                      {isLive && (
+                                        <div className="top-0 bottom-0 left-0 absolute bg-red-500 rounded-full w-1"></div>
+                                      )}
+                                      {isUpNext && (
+                                        <div className="top-0 bottom-0 left-0 absolute bg-amber-500 rounded-full w-1"></div>
+                                      )}
+                                      <div className="font-medium text-sm">
+                                        {dayjs(event.start).format('HH:mm')}
+                                      </div>
+                                      <div className="text-muted-foreground text-xs">
+                                        {dayjs(event.end).format('HH:mm')}
+                                      </div>
+                                      <div className="flex flex-col gap-1 mt-1">
+                                        {isLive && (
+                                          <Badge
+                                            variant="destructive"
+                                            className="text-[10px]"
+                                          >
+                                            LIVE
+                                          </Badge>
+                                        )}
+                                        {isUpNext && (
+                                          <Badge
+                                            variant="outline"
+                                            className="bg-amber-500/20 text-[10px]"
+                                          >
+                                            UP NEXT
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Program content */}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex justify-between items-start gap-2">
+                                        <h3
+                                          className={cn(
+                                            'font-semibold',
+                                            density === 'compact'
+                                              ? 'text-sm'
+                                              : 'text-base',
+                                          )}
+                                        >
+                                          {decodeHtml(event.title)}
+                                        </h3>
+                                        <div className="flex flex-wrap gap-1">
+                                          {event.categories.map(
+                                            (category, i) => (
+                                              <Badge
+                                                key={i}
+                                                variant="outline"
+                                                className={cn(
+                                                  'text-[10px]',
+                                                  filteredCategory ===
+                                                    category && 'bg-primary/20',
+                                                  density === 'compact' &&
+                                                    'hidden sm:inline-flex',
+                                                )}
+                                              >
+                                                <span className="flex items-center gap-1">
+                                                  {categoryIcons[category] || (
+                                                    <Tv className="w-3 h-3" />
+                                                  )}
+                                                  <span>{category}</span>
+                                                </span>
+                                              </Badge>
+                                            ),
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {event.subtitle &&
+                                        event.subtitle !== 'N/A' && (
+                                          <div className="text-muted-foreground text-sm italic">
+                                            {decodeHtml(event.subtitle)}
+                                          </div>
+                                        )}
+
+                                      {density !== 'compact' &&
+                                        event.description && (
+                                          <div
+                                            className={cn(
+                                              'text-muted-foreground mt-1 text-sm',
+                                              density === 'detailed'
+                                                ? 'line-clamp-3'
+                                                : 'line-clamp-2',
+                                            )}
+                                          >
+                                            {decodeHtml(event.description)}
+                                          </div>
+                                        )}
+
+                                      <div className="flex flex-wrap gap-2 mt-1 text-muted-foreground text-xs">
+                                        <span>{event.lengthstring}</span>
+                                        {event.rating &&
+                                          event.rating !== 'N/A' && (
+                                            <span className="flex items-center gap-1">
+                                              <Star className="w-3 h-3" />
+                                              {event.rating}
+                                            </span>
+                                          )}
+                                        {event.episodeNum &&
+                                          event.episodeNum !== 'N/A' &&
+                                          density !== 'compact' && (
+                                            <span>
+                                              Episode: {event.episodeNum}
+                                            </span>
+                                          )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                }
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex flex-col justify-center items-center py-12 text-center">
+                      <div className="font-medium text-lg">
+                        No programs found
+                      </div>
+                      <p className="text-muted-foreground">
+                        {filteredCategory
+                          ? `No ${filteredCategory} programs found for this day.`
+                          : 'No programs found for this day.'}
+                      </p>
+                      {!showPastPrograms && (
+                        <Button
+                          variant="link"
+                          onClick={() => setShowPastPrograms(true)}
+                          className="mt-2"
+                        >
+                          Show past programs
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </SidebarLayout>
+  );
+}
+
+export default function WeeklyEPG() {
+  return (
+    <main className="flex flex-col size-full">
+      <Suspense fallback={<LoadingSpinner />}>
+        <WeeklyEPGContent />
+      </Suspense>
+    </main>
+  );
+}

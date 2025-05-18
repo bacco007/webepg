@@ -206,4 +206,13 @@
     "classNames",
     "containerClassName"
   ],
+  "workbench.editor.customLabels.patterns": {
+    "**/app/**/page.tsx": "${dirname} <page>",
+    "**/app/**/layout.tsx": "${dirname} <layout>",
+    "**/app/**/route.ts": "${dirname} <route>",
+    "**/index.tsx": "${filename} <${dirname}>",
+    "**/app/**/error.tsx": "${dirname} <error>",
+    "**/app/**/not-found.tsx": "${dirname} <not-found>",
+    "**/app/**/loading.tsx": "${dirname} <loading>"
+  },
 }

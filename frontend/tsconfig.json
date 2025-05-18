@@ -33,5 +33,8 @@
     "src/**/*.ts", // Add this line
     "src/**/*.tsx" // Add this line
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "components/ui/**/*"
+  ]
 }

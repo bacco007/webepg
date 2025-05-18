@@ -99,6 +99,17 @@
     }
   },
   {
+    "id": "xmlepg_FTAALL",
+    "group": "Australia",
+    "subgroup": "FTA - All Regions",
+    "location": "All Regions",
+    "url": "local",
+    "logo": {
+      "light": "logos/freeview.png",
+      "dark": "logos/freeview.png"
+    }
+  },
+  {
     "id": "xmlepg_FTACAN",
     "group": "Australia",
     "subgroup": "FTA - Regional NSW",

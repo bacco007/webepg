@@ -1,7 +1,20 @@
 'use client';
 
+import React from 'react';
+
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, Suspense } from 'react';
+import {
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import {
   AlertCircle,
   ArrowRight,
@@ -10,9 +23,7 @@ import {
   LayoutGrid,
   List,
   RefreshCw,
-  Search,
   Sliders,
-  X,
 } from 'lucide-react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -28,8 +39,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -40,7 +50,16 @@ import {
 } from '@/components/ui/table';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { getCookie } from '@/lib/cookies';
+import {
+  SidebarContainer,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarLayout,
+  SidebarSearch,
+} from '@/components/layouts/sidebar-layout';
 
+// Define types for better type safety
 type Channel = {
   channel_id: string;
   channel_slug: string;
@@ -76,8 +95,6 @@ type ApiResponse = {
 };
 
 type ViewMode = 'card' | 'table';
-type SortField = 'name' | 'number' | 'group' | 'program_count';
-type SortDirection = 'asc' | 'desc';
 type GroupBy =
   | 'none'
   | 'channel_group'
@@ -91,6 +108,7 @@ const decodeHtml = (html: string): string => {
   return txt.value;
 };
 
+// Extract FilterSection into a separate component
 function FilterSection({
   title,
   options,
@@ -125,31 +143,31 @@ function FilterSection({
   return (
     <div className="border-b">
       <div
-        className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3"
+        className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{title}</span>
+          <span className="font-medium text-sm">{title}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-xs">
             {totalAvailableOptions}
           </span>
           {isOpen ? (
-            <ChevronUp className="text-muted-foreground size-4" />
+            <ChevronUp className="size-4 text-muted-foreground" />
           ) : (
-            <ChevronDown className="text-muted-foreground size-4" />
+            <ChevronDown className="size-4 text-muted-foreground" />
           )}
         </div>
       </div>
       {isOpen && (
         <div className="px-4 pb-3">
-          <div className="thin-scrollbar max-h-[200px] space-y-1 overflow-y-auto pr-1">
+          <div className="space-y-1 pr-1 max-h-[200px] overflow-y-auto thin-scrollbar">
             {availableOptions.length > 0 ? (
               availableOptions.map(option => (
                 <label
                   key={option}
-                  className="flex cursor-pointer items-center justify-between py-1"
+                  className="flex justify-between items-center py-1 cursor-pointer"
                 >
                   <div className="flex items-center">
                     <Checkbox
@@ -165,13 +183,728 @@ function FilterSection({
                 </label>
               ))
             ) : (
-              <div className="text-muted-foreground py-2 text-center text-sm">
+              <div className="py-2 text-muted-foreground text-sm text-center">
                 No options available
               </div>
             )}
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Extract ChannelCard into a separate component
+function ChannelCard({
+  channel,
+  index,
+  xmltvDataSource,
+}: {
+  channel: Channel;
+  index: number;
+  xmltvDataSource: string;
+}) {
+  return (
+    <Link
+      href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
+      passHref
+      className="focus:outline-hidden focus:ring-2 focus:ring-primary h-full"
+    >
+      <Card
+        className={`flex h-full flex-col rounded-lg border p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg ${
+          channel.program_count === 0 ? 'bg-muted grayscale' : 'bg-card'
+        }`}
+      >
+        <div className="flex items-center space-x-4">
+          <div className="flex justify-center items-center size-16 shrink-0">
+            <img
+              src={channel.channel_logo.light || '/placeholder.svg'}
+              alt={decodeHtml(
+                channel.channel_names?.real || channel.channel_name || '',
+              )}
+              width="100"
+              height="100"
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+          <div className="flex flex-col flex-1">
+            <p className="font-bold text-sm">
+              {decodeHtml(
+                channel.channel_names?.real || channel.channel_name || '',
+              )}
+            </p>
+            {typeof channel.channel_number === 'string' &&
+              channel.channel_number !== 'N/A' && (
+                <p className="font-semibold text-primary text-xs">
+                  Channel {channel.channel_number}
+                </p>
+              )}
+            {channel.channel_group &&
+              channel.channel_group !== 'N/A' &&
+              channel.channel_group.toLowerCase() !== 'unknown' && (
+                <p className="font-semibold text-primary text-xs">
+                  {channel.channel_group}
+                </p>
+              )}
+            {channel.other_data &&
+              channel.other_data.channel_specs !== 'N/A' &&
+              channel.other_data.channel_type !== 'N/A' && (
+                <p className="text-muted-foreground text-xs">
+                  {channel.other_data.channel_specs},{' '}
+                  {channel.other_data.channel_type}
+                </p>
+              )}
+          </div>
+        </div>
+      </Card>
+    </Link>
+  );
+}
+
+// Extract CardView into a separate component
+function CardView({
+  filteredChannels,
+  groupBy,
+  xmltvDataSource,
+}: {
+  filteredChannels: Channel[];
+  groupBy: GroupBy;
+  xmltvDataSource: string;
+}) {
+  // Sort channels by channel number first, then by name
+  const sortedChannels = [...filteredChannels].sort((a, b) => {
+    const aNumStr =
+      typeof a.channel_number === 'string' && a.channel_number !== 'N/A'
+        ? a.channel_number
+        : '';
+    const bNumStr =
+      typeof b.channel_number === 'string' && b.channel_number !== 'N/A'
+        ? b.channel_number
+        : '';
+
+    // Extract numeric parts and check if they're purely numeric
+    const aNumMatch = aNumStr.match(/^(\d+)/);
+    const bNumMatch = bNumStr.match(/^(\d+)/);
+
+    const aIsPureNumeric = aNumStr !== '' && /^\d+$/.test(aNumStr);
+    const bIsPureNumeric = bNumStr !== '' && /^\d+$/.test(bNumStr);
+
+    // Get the numeric values (if they exist)
+    const aNum = aNumMatch
+      ? Number.parseInt(aNumMatch[1], 10)
+      : Number.POSITIVE_INFINITY;
+    const bNum = bNumMatch
+      ? Number.parseInt(bNumMatch[1], 10)
+      : Number.POSITIVE_INFINITY;
+
+    // If numeric parts are different, sort by them
+    if (aNum !== bNum) {
+      return aNum - bNum;
+    }
+
+    // If numeric parts are the same, but one is pure numeric and one has suffix
+    if (aIsPureNumeric !== bIsPureNumeric) {
+      return aIsPureNumeric ? -1 : 1; // Pure numeric comes first
+    }
+
+    // If both have the same numeric part and both have suffixes or both don't
+    if (aNumStr !== bNumStr) {
+      return aNumStr.localeCompare(bNumStr);
+    }
+
+    // If channel numbers are identical or both don't have channel numbers
+    // Sort by channel name
+    const aName = (a.channel_names?.real || a.channel_name || '').toLowerCase();
+    const bName = (b.channel_names?.real || b.channel_name || '').toLowerCase();
+    return aName.localeCompare(bName);
+  });
+
+  if (groupBy === 'none') {
+    return (
+      <div>
+        <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 xl:grid-cols-4">
+          {sortedChannels.map((channel, index) => (
+            <ChannelCard
+              key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
+              channel={channel}
+              index={index}
+              xmltvDataSource={xmltvDataSource}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  } else {
+    const groupedChannels: { [key: string]: Channel[] } = {};
+    sortedChannels.forEach(channel => {
+      let groupKey;
+      switch (groupBy) {
+        case 'channel_group': {
+          groupKey = channel.channel_group;
+          break;
+        }
+        case 'channel_type': {
+          groupKey = channel.other_data.channel_type;
+          break;
+        }
+        case 'channel_name_group': {
+          groupKey = channel.other_data.channel_name_group || 'Ungrouped';
+          break;
+        }
+        case 'channel_specs': {
+          groupKey = channel.other_data.channel_specs;
+          break;
+        }
+        default: {
+          groupKey = 'Unknown';
+        }
+      }
+      if (groupKey !== 'N/A') {
+        if (!groupedChannels[groupKey]) {
+          groupedChannels[groupKey] = [];
+        }
+        groupedChannels[groupKey].push(channel);
+      }
+    });
+
+    const sortedGroups = Object.keys(groupedChannels).sort();
+
+    return (
+      <div className="space-y-8">
+        {sortedGroups.map(group => (
+          <div key={group}>
+            <h2 className="mb-4 font-bold text-2xl">{group}</h2>
+            <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 xl:grid-cols-4">
+              {groupedChannels[group].map((channel, index) => (
+                <ChannelCard
+                  key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
+                  channel={channel}
+                  index={index}
+                  xmltvDataSource={xmltvDataSource}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+}
+
+// Add a loading skeleton for the card view
+function CardViewSkeleton() {
+  return (
+    <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 xl:grid-cols-4">
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Card key={index} className="p-3 h-[100px]">
+          <div className="flex items-center space-x-4">
+            <Skeleton className="rounded-md size-16" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="w-3/4 h-4" />
+              <Skeleton className="w-1/2 h-3" />
+              <Skeleton className="w-2/3 h-3" />
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+// Also update the TableViewSkeleton to match the new column order
+function TableViewSkeleton() {
+  return (
+    <div className="w-full">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>
+              <Skeleton className="w-16 h-6" />
+            </TableHead>
+            <TableHead className="w-[100px]">
+              <Skeleton className="w-16 h-6" />
+            </TableHead>
+            <TableHead className="min-w-[200px]">
+              <Skeleton className="w-32 h-6" />
+            </TableHead>
+            <TableHead>
+              <Skeleton className="w-32 h-6" />
+            </TableHead>
+            <TableHead>
+              <Skeleton className="w-24 h-6" />
+            </TableHead>
+            <TableHead>
+              <Skeleton className="w-16 h-6" />
+            </TableHead>
+            <TableHead>
+              <Skeleton className="w-24 h-6" />
+            </TableHead>
+            <TableHead className="text-right">
+              <Skeleton className="ml-auto w-16 h-6" />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 10 }).map((_, index) => (
+            <TableRow key={index}>
+              <TableCell>
+                <Skeleton className="w-12 h-6" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="rounded-md size-12" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="w-40 h-6" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="w-24 h-6" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="w-20 h-6" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="w-16 h-6" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="w-12 h-6" />
+              </TableCell>
+              <TableCell className="text-right">
+                <Skeleton className="ml-auto w-16 h-8" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+// Create an error boundary component
+class ErrorBoundaryComponent extends React.Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error in component:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+
+    return this.props.children;
+  }
+}
+
+// Define table columns using TanStack Table
+function getColumns(
+  xmltvDataSource: string,
+  hasNameGroups: boolean,
+): ColumnDef<Channel>[] {
+  return [
+    {
+      id: 'number',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            className="flex items-center hover:bg-accent p-0 font-medium hover:text-accent-foreground"
+          >
+            Ch No
+            {column.getIsSorted() === 'asc' ? (
+              <ChevronUp className="ml-2 size-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <ChevronDown className="ml-2 size-4" />
+            ) : null}
+          </Button>
+        );
+      },
+      accessorFn: row => {
+        const num =
+          typeof row.channel_number === 'string' ? row.channel_number : '';
+        return num !== 'N/A' ? num : '';
+      },
+      cell: ({ row }) => {
+        const channel = row.original;
+        return (
+          <Badge variant="secondary">
+            {typeof channel.channel_number === 'string' &&
+            channel.channel_number !== 'N/A'
+              ? channel.channel_number
+              : '-'}
+          </Badge>
+        );
+      },
+      sortingFn: (rowA, rowB, columnId) => {
+        const aValue = rowA.getValue(columnId) as string;
+        const bValue = rowB.getValue(columnId) as string;
+
+        // Extract numeric parts and check if they're purely numeric
+        const aNumMatch = aValue.match(/^(\d+)/);
+        const bNumMatch = bValue.match(/^(\d+)/);
+
+        const aIsPureNumeric = aValue !== '' && /^\d+$/.test(aValue);
+        const bIsPureNumeric = bValue !== '' && /^\d+$/.test(bValue);
+
+        // Get the numeric values (if they exist)
+        const aNum = aNumMatch
+          ? Number.parseInt(aNumMatch[1], 10)
+          : Number.POSITIVE_INFINITY;
+        const bNum = bNumMatch
+          ? Number.parseInt(bNumMatch[1], 10)
+          : Number.POSITIVE_INFINITY;
+
+        // If numeric parts are different, sort by them
+        if (aNum !== bNum) {
+          return aNum - bNum;
+        }
+
+        // If numeric parts are the same, but one is pure numeric and one has suffix
+        if (aIsPureNumeric !== bIsPureNumeric) {
+          return aIsPureNumeric ? -1 : 1; // Pure numeric comes first
+        }
+
+        // If both have the same numeric part and both have suffixes or both don't
+        if (aValue !== bValue) {
+          return aValue.localeCompare(bValue);
+        }
+
+        return 0;
+      },
+    },
+    {
+      id: 'logo',
+      header: 'Logo',
+      cell: ({ row }) => {
+        const channel = row.original;
+        return channel.chlogo === 'N/A' ? (
+          <div className="flex justify-center items-center bg-muted rounded-md size-12">
+            <span className="text-muted-foreground text-xs">No logo</span>
+          </div>
+        ) : (
+          <div>
+            <img
+              className="dark:hidden block max-h-full size-12 object-contain"
+              src={channel.channel_logo.light || '/placeholder.svg'}
+              alt={decodeHtml(
+                channel.channel_names?.real || channel.channel_name || '',
+              )}
+            />
+            <img
+              className="hidden dark:block max-h-full size-12 object-contain"
+              src={channel.channel_logo.dark || '/placeholder.svg'}
+              alt={decodeHtml(
+                channel.channel_names?.real || channel.channel_name || '',
+              )}
+            />
+          </div>
+        );
+      },
+    },
+    {
+      id: 'name',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            className="flex items-center hover:bg-accent p-0 font-medium hover:text-accent-foreground"
+          >
+            Channel Name
+            {column.getIsSorted() === 'asc' ? (
+              <ChevronUp className="ml-2 size-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <ChevronDown className="ml-2 size-4" />
+            ) : null}
+          </Button>
+        );
+      },
+      accessorFn: row =>
+        decodeHtml(row.channel_names?.real || row.channel_name || ''),
+      cell: ({ row }) => {
+        const channel = row.original;
+        return (
+          <div>
+            {decodeHtml(
+              channel.channel_names?.real || channel.channel_name || '',
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      id: 'group',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            className="flex items-center hover:bg-accent p-0 font-medium hover:text-accent-foreground"
+          >
+            Channel Operator
+            {column.getIsSorted() === 'asc' ? (
+              <ChevronUp className="ml-2 size-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <ChevronDown className="ml-2 size-4" />
+            ) : null}
+          </Button>
+        );
+      },
+      accessorKey: 'channel_group',
+      cell: ({ row }) => {
+        const channel = row.original;
+        return (
+          <Badge variant="secondary" className="mr-2">
+            {channel.channel_group === 'N/A' ? '-' : channel.channel_group}
+          </Badge>
+        );
+      },
+    },
+    {
+      id: 'type',
+      header: 'Channel Type',
+      accessorFn: row => row.other_data.channel_type,
+      cell: ({ row }) => {
+        const channel = row.original;
+        return (
+          <Badge variant="secondary" className="mr-2">
+            {channel.other_data.channel_type === 'N/A'
+              ? '-'
+              : channel.other_data.channel_type}
+          </Badge>
+        );
+      },
+    },
+    {
+      id: 'specs',
+      header: 'Specs',
+      accessorFn: row => row.other_data.channel_specs,
+      cell: ({ row }) => {
+        const channel = row.original;
+        return (
+          <Badge variant="secondary" className="mr-2">
+            {channel.other_data.channel_specs === 'N/A'
+              ? '-'
+              : channel.other_data.channel_specs}
+          </Badge>
+        );
+      },
+    },
+    ...(hasNameGroups
+      ? [
+          {
+            id: 'nameGroup',
+            header: 'Name Group',
+            accessorFn: row => row.other_data.channel_name_group || '',
+            cell: ({ row }) => {
+              const channel = row.original;
+              return (
+                <Badge variant="secondary" className="mr-2">
+                  {channel.other_data.channel_name_group || '-'}
+                </Badge>
+              );
+            },
+          } as ColumnDef<Channel>,
+        ]
+      : []),
+    {
+      id: 'programs',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            className="flex items-center hover:bg-accent p-0 font-medium hover:text-accent-foreground"
+          >
+            Programs
+            {column.getIsSorted() === 'asc' ? (
+              <ChevronUp className="ml-2 size-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <ChevronDown className="ml-2 size-4" />
+            ) : null}
+          </Button>
+        );
+      },
+      accessorKey: 'program_count',
+      cell: ({ row }) => {
+        const channel = row.original;
+        return (
+          <Badge variant="secondary" className="mr-2">
+            {typeof channel.program_count === 'number'
+              ? channel.program_count.toString()
+              : '-'}
+          </Badge>
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const channel = row.original;
+        return (
+          <div className="text-right">
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
+                className="inline-flex items-center font-medium hover:text-primary"
+              >
+                View
+                <ArrowRight className="ml-2 size-4" />
+              </Link>
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+}
+
+// New TableView component using TanStack Table
+function TableView({
+  filteredChannels,
+  xmltvDataSource,
+  hasNameGroups,
+}: {
+  filteredChannels: Channel[];
+  xmltvDataSource: string;
+  hasNameGroups: boolean;
+}) {
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: 'number', desc: false },
+  ]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    number: true,
+    logo: true,
+    name: true,
+    group: true,
+    type: true,
+    specs: true,
+    nameGroup: true,
+    programs: true,
+    actions: true,
+  });
+
+  const columns = useMemo(
+    () => getColumns(xmltvDataSource, hasNameGroups),
+    [xmltvDataSource, hasNameGroups],
+  );
+
+  const table = useReactTable({
+    data: filteredChannels,
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  return (
+    <div className="w-full">
+      <div className="flex items-center gap-2 mb-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-1">
+              <Sliders className="w-4 h-4" />
+              Columns
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {table
+              .getAllColumns()
+              .filter(column => column.getCanHide())
+              .map(column => {
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={value => column.toggleVisibility(!!value)}
+                  >
+                    {column.id === 'number'
+                      ? 'Ch No'
+                      : column.id === 'nameGroup'
+                        ? 'Name Group'
+                        : column.id.charAt(0).toUpperCase() +
+                          column.id.slice(1)}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <div className="border rounded-md">
+        <Table>
+          <TableHeader className="top-0 z-20 sticky bg-muted shadow-xs">
+            {table.getHeaderGroups().map(headerGroup => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map(header => (
+                  <TableHead
+                    key={header.id}
+                    className={header.id === 'logo' ? 'w-[100px]' : ''}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map(row => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className="hover:bg-muted/50"
+                >
+                  {row.getVisibleCells().map(cell => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results found. Try adjusting your filters.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
@@ -190,20 +923,7 @@ function ChannelListContent() {
   const [selectedNameGroups, setSelectedNameGroups] = useState<string[]>([]);
   const [hideNoPrograms, setHideNoPrograms] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('card');
-  const [sortField, setSortField] = useState<SortField>('number');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [groupBy, setGroupBy] = useState<GroupBy>('none');
-  const [columnVisibility, setColumnVisibility] = useState({
-    logo: true,
-    number: true,
-    name: true,
-    group: true,
-    type: true,
-    specs: true,
-    nameGroup: true,
-    programs: true,
-    actions: true,
-  });
 
   const fetchChannels = useCallback(async () => {
     setLoading(true);
@@ -253,8 +973,7 @@ function ChannelListContent() {
             ))) &&
         (!hideNoPrograms || channel.program_count > 0),
     );
-    const sorted = sortChannels(filtered, sortField, sortDirection);
-    setFilteredChannels(sorted);
+    setFilteredChannels(filtered);
   }, [
     searchTerm,
     channels,
@@ -263,8 +982,6 @@ function ChannelListContent() {
     selectedSpecs,
     selectedNameGroups,
     hideNoPrograms,
-    sortField,
-    sortDirection,
   ]);
 
   const handleRefresh = () => {
@@ -301,56 +1018,6 @@ function ChannelListContent() {
         ? previous.filter(ng => ng !== nameGroup)
         : [...previous, nameGroup],
     );
-  };
-
-  const handleSort = (field: SortField) => {
-    if (field === sortField) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  const sortChannels = (
-    channels: Channel[],
-    field: SortField,
-    direction: SortDirection,
-  ) => {
-    return [...channels].sort((a, b) => {
-      let comparison = 0;
-      switch (field) {
-        case 'name': {
-          const aName = a.channel_names?.real || a.channel_name || '';
-          const bName = b.channel_names?.real || b.channel_name || '';
-          comparison = aName.localeCompare(bName);
-          break;
-        }
-        case 'number': {
-          const aNumber =
-            Number.parseInt(String(a.channel_number), 10) ||
-            Number.POSITIVE_INFINITY;
-          const bNumber =
-            Number.parseInt(String(b.channel_number), 10) ||
-            Number.POSITIVE_INFINITY;
-          comparison = aNumber - bNumber;
-          break;
-        }
-        case 'group': {
-          const aGroup = a.channel_group || '';
-          const bGroup = b.channel_group || '';
-          comparison = aGroup.localeCompare(bGroup);
-          break;
-        }
-        case 'program_count': {
-          const aCount = a.program_count || 0;
-          const bCount = b.program_count || 0;
-          comparison = aCount - bCount;
-          break;
-        }
-      }
-      return direction === 'asc' ? comparison : -comparison;
-    });
   };
 
   const uniqueGroups = useMemo(
@@ -398,517 +1065,269 @@ function ChannelListContent() {
   }, []);
 
   // Calculate counts for each filter option
-  const groupCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
+  const { groupCounts, typeCounts, specsCounts, nameGroupCounts } =
+    useMemo(() => {
+      const groupCounts: Record<string, number> = {};
+      const typeCounts: Record<string, number> = {};
+      const specsCounts: Record<string, number> = {};
+      const nameGroupCounts: Record<string, number> = {};
 
-    // Create a version of the filter function that excludes group filter
-    const filterWithoutGroup = (channel: Channel) =>
-      (selectedTypes.length === 0 ||
-        selectedTypes.includes(channel.other_data.channel_type)) &&
-      (selectedSpecs.length === 0 ||
-        selectedSpecs.includes(channel.other_data.channel_specs)) &&
-      (selectedNameGroups.length === 0 ||
-        (channel.other_data.channel_name_group &&
-          selectedNameGroups.includes(
-            channel.other_data.channel_name_group,
-          ))) &&
-      (!hideNoPrograms || channel.program_count > 0) &&
-      (searchTerm === '' ||
-        (channel.channel_names?.real || channel.channel_name || '')
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        (typeof channel.channel_number === 'string' &&
-          channel.channel_number.includes(searchTerm)));
+      // Create base filter function
+      const baseFilter = (channel: Channel) =>
+        (!hideNoPrograms || channel.program_count > 0) &&
+        (searchTerm === '' ||
+          (channel.channel_names?.real || channel.channel_name || '')
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          (typeof channel.channel_number === 'string' &&
+            channel.channel_number.includes(searchTerm)));
 
-    // Count only channels that match all other filters
-    uniqueGroups.forEach(group => {
-      counts[group] = channels.filter(
-        c => c.channel_group === group && filterWithoutGroup(c),
-      ).length;
-    });
+      // Create filter functions for each category
+      const filterWithoutGroup = (channel: Channel) =>
+        baseFilter(channel) &&
+        (selectedTypes.length === 0 ||
+          selectedTypes.includes(channel.other_data.channel_type)) &&
+        (selectedSpecs.length === 0 ||
+          selectedSpecs.includes(channel.other_data.channel_specs)) &&
+        (selectedNameGroups.length === 0 ||
+          (channel.other_data.channel_name_group &&
+            selectedNameGroups.includes(
+              channel.other_data.channel_name_group,
+            )));
 
-    return counts;
-  }, [
-    channels,
-    uniqueGroups,
-    selectedTypes,
-    selectedSpecs,
-    selectedNameGroups,
-    hideNoPrograms,
-    searchTerm,
-  ]);
+      const filterWithoutType = (channel: Channel) =>
+        baseFilter(channel) &&
+        (selectedGroups.length === 0 ||
+          selectedGroups.includes(channel.channel_group)) &&
+        (selectedSpecs.length === 0 ||
+          selectedSpecs.includes(channel.other_data.channel_specs)) &&
+        (selectedNameGroups.length === 0 ||
+          (channel.other_data.channel_name_group &&
+            selectedNameGroups.includes(
+              channel.other_data.channel_name_group,
+            )));
 
-  const typeCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
+      const filterWithoutSpecs = (channel: Channel) =>
+        baseFilter(channel) &&
+        (selectedGroups.length === 0 ||
+          selectedGroups.includes(channel.channel_group)) &&
+        (selectedTypes.length === 0 ||
+          selectedTypes.includes(channel.other_data.channel_type)) &&
+        (selectedNameGroups.length === 0 ||
+          (channel.other_data.channel_name_group &&
+            selectedNameGroups.includes(
+              channel.other_data.channel_name_group,
+            )));
 
-    // Create a version of the filter function that excludes type filter
-    const filterWithoutType = (channel: Channel) =>
-      (selectedGroups.length === 0 ||
-        selectedGroups.includes(channel.channel_group)) &&
-      (selectedSpecs.length === 0 ||
-        selectedSpecs.includes(channel.other_data.channel_specs)) &&
-      (selectedNameGroups.length === 0 ||
-        (channel.other_data.channel_name_group &&
-          selectedNameGroups.includes(
-            channel.other_data.channel_name_group,
-          ))) &&
-      (!hideNoPrograms || channel.program_count > 0) &&
-      (searchTerm === '' ||
-        (channel.channel_names?.real || channel.channel_name || '')
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        (typeof channel.channel_number === 'string' &&
-          channel.channel_number.includes(searchTerm)));
+      const filterWithoutNameGroup = (channel: Channel) =>
+        baseFilter(channel) &&
+        (selectedGroups.length === 0 ||
+          selectedGroups.includes(channel.channel_group)) &&
+        (selectedTypes.length === 0 ||
+          selectedTypes.includes(channel.other_data.channel_type)) &&
+        (selectedSpecs.length === 0 ||
+          selectedSpecs.includes(channel.other_data.channel_specs));
 
-    // Count only channels that match all other filters
-    uniqueTypes.forEach(type => {
-      counts[type] = channels.filter(
-        c => c.other_data.channel_type === type && filterWithoutType(c),
-      ).length;
-    });
-
-    return counts;
-  }, [
-    channels,
-    uniqueTypes,
-    selectedGroups,
-    selectedSpecs,
-    selectedNameGroups,
-    hideNoPrograms,
-    searchTerm,
-  ]);
-
-  const specsCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-
-    // Create a version of the filter function that excludes specs filter
-    const filterWithoutSpecs = (channel: Channel) =>
-      (selectedGroups.length === 0 ||
-        selectedGroups.includes(channel.channel_group)) &&
-      (selectedTypes.length === 0 ||
-        selectedTypes.includes(channel.other_data.channel_type)) &&
-      (selectedNameGroups.length === 0 ||
-        (channel.other_data.channel_name_group &&
-          selectedNameGroups.includes(
-            channel.other_data.channel_name_group,
-          ))) &&
-      (!hideNoPrograms || channel.program_count > 0) &&
-      (searchTerm === '' ||
-        (channel.channel_names?.real || channel.channel_name || '')
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        (typeof channel.channel_number === 'string' &&
-          channel.channel_number.includes(searchTerm)));
-
-    // Count only channels that match all other filters
-    uniqueSpecs.forEach(spec => {
-      counts[spec] = channels.filter(
-        c => c.other_data.channel_specs === spec && filterWithoutSpecs(c),
-      ).length;
-    });
-
-    return counts;
-  }, [
-    channels,
-    uniqueSpecs,
-    selectedGroups,
-    selectedTypes,
-    selectedNameGroups,
-    hideNoPrograms,
-    searchTerm,
-  ]);
-
-  const nameGroupCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-
-    // Create a version of the filter function that excludes name group filter
-    const filterWithoutNameGroup = (channel: Channel) =>
-      (selectedGroups.length === 0 ||
-        selectedGroups.includes(channel.channel_group)) &&
-      (selectedTypes.length === 0 ||
-        selectedTypes.includes(channel.other_data.channel_type)) &&
-      (selectedSpecs.length === 0 ||
-        selectedSpecs.includes(channel.other_data.channel_specs)) &&
-      (!hideNoPrograms || channel.program_count > 0) &&
-      (searchTerm === '' ||
-        (channel.channel_names?.real || channel.channel_name || '')
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        (typeof channel.channel_number === 'string' &&
-          channel.channel_number.includes(searchTerm)));
-
-    // Count only channels that match all other filters
-    uniqueNameGroups.forEach(nameGroup => {
-      counts[nameGroup] = channels.filter(
-        c =>
-          c.other_data.channel_name_group === nameGroup &&
-          filterWithoutNameGroup(c),
-      ).length;
-    });
-
-    return counts;
-  }, [
-    channels,
-    uniqueNameGroups,
-    selectedGroups,
-    selectedTypes,
-    selectedSpecs,
-    hideNoPrograms,
-    searchTerm,
-  ]);
-
-  // Column display names mapping for the visibility dropdown
-  const columnDisplayNames = {
-    logo: 'Logo',
-    number: 'Ch No',
-    name: 'Channel Name',
-    group: 'Channel Operator',
-    type: 'Channel Type',
-    specs: 'Specs',
-    nameGroup: 'Name Group',
-    programs: 'Programs',
-    actions: 'Actions',
-  };
-
-  const ChannelCard = ({
-    channel,
-    index,
-  }: {
-    channel: Channel;
-    index: number;
-  }) => (
-    <Link
-      href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
-      passHref
-      className="focus:ring-primary focus:ring-2 focus:outline-hidden"
-    >
-      <Card
-        className={`flex h-full flex-row items-center space-x-4 rounded-lg border p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg ${
-          channel.program_count === 0 ? 'bg-muted grayscale' : 'bg-card'
-        }`}
-      >
-        <div className="flex size-16 shrink-0 items-center justify-center">
-          <img
-            src={channel.channel_logo.light || '/placeholder.svg'}
-            alt={decodeHtml(
-              channel.channel_names?.real || channel.channel_name || '',
-            )}
-            width="100"
-            height="100"
-            className="max-h-full max-w-full object-contain"
-          />
-        </div>
-        <div className="flex flex-col">
-          <p className="text-sm font-bold">
-            {decodeHtml(
-              channel.channel_names?.real || channel.channel_name || '',
-            )}
-          </p>
-          {typeof channel.channel_number === 'string' &&
-            channel.channel_number !== 'N/A' && (
-              <p className="text-primary text-xs font-semibold">
-                Channel {channel.channel_number}
-              </p>
-            )}
-          {channel.channel_group &&
-            channel.channel_group !== 'N/A' &&
-            channel.channel_group.toLowerCase() !== 'unknown' && (
-              <p className="text-primary text-xs font-semibold">
-                {channel.channel_group}
-              </p>
-            )}
-          {channel.other_data &&
-            channel.other_data.channel_specs !== 'N/A' &&
-            channel.other_data.channel_type !== 'N/A' && (
-              <p className="text-muted-foreground text-xs">
-                {channel.other_data.channel_specs},{' '}
-                {channel.other_data.channel_type}
-              </p>
-            )}
-        </div>
-      </Card>
-    </Link>
-  );
-
-  const CardView = () => {
-    if (groupBy === 'none') {
-      return (
-        <div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-            {filteredChannels.map((channel, index) => (
-              <ChannelCard
-                key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
-                channel={channel}
-                index={index}
-              />
-            ))}
-          </div>
-          <div className="size-16"></div>
-        </div>
-      );
-    } else {
-      const groupedChannels: { [key: string]: Channel[] } = {};
-      filteredChannels.forEach(channel => {
-        let groupKey;
-        switch (groupBy) {
-          case 'channel_group': {
-            groupKey = channel.channel_group;
-            break;
-          }
-          case 'channel_type': {
-            groupKey = channel.other_data.channel_type;
-            break;
-          }
-          case 'channel_name_group': {
-            groupKey = channel.other_data.channel_name_group || 'Ungrouped';
-            break;
-          }
-          case 'channel_specs': {
-            groupKey = channel.other_data.channel_specs;
-            break;
-          }
-          default: {
-            groupKey = 'Unknown';
-          }
-        }
-        if (groupKey !== 'N/A') {
-          if (!groupedChannels[groupKey]) {
-            groupedChannels[groupKey] = [];
-          }
-          groupedChannels[groupKey].push(channel);
-        }
+      // Count channels for each group
+      uniqueGroups.forEach(group => {
+        groupCounts[group] = channels.filter(
+          c => c.channel_group === group && filterWithoutGroup(c),
+        ).length;
       });
 
-      const sortedGroups = Object.keys(groupedChannels).sort();
+      uniqueTypes.forEach(type => {
+        typeCounts[type] = channels.filter(
+          c => c.other_data.channel_type === type && filterWithoutType(c),
+        ).length;
+      });
 
-      return (
-        <div className="space-y-4">
-          {sortedGroups.map(group => (
-            <div key={group}>
-              <h2 className="mb-4 text-2xl font-bold">{group}</h2>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {groupedChannels[group].map((channel, index) => (
-                  <ChannelCard
-                    key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
-                    channel={channel}
-                    index={index}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
-  };
+      uniqueSpecs.forEach(spec => {
+        specsCounts[spec] = channels.filter(
+          c => c.other_data.channel_specs === spec && filterWithoutSpecs(c),
+        ).length;
+      });
 
-  const TableView = () => (
-    <div className="w-full">
-      <Table>
-        <TableHeader className="bg-muted sticky top-0 z-20 shadow-xs">
-          <TableRow>
-            {columnVisibility.logo && (
-              <TableHead className="w-[100px]">Logo</TableHead>
+      uniqueNameGroups.forEach(nameGroup => {
+        nameGroupCounts[nameGroup] = channels.filter(
+          c =>
+            c.other_data.channel_name_group === nameGroup &&
+            filterWithoutNameGroup(c),
+        ).length;
+      });
+
+      return { groupCounts, typeCounts, specsCounts, nameGroupCounts };
+    }, [
+      channels,
+      uniqueGroups,
+      uniqueTypes,
+      uniqueSpecs,
+      uniqueNameGroups,
+      selectedGroups,
+      selectedTypes,
+      selectedSpecs,
+      selectedNameGroups,
+      hideNoPrograms,
+      searchTerm,
+    ]);
+
+  // Define header actions
+  const headerActions = (
+    <div className="flex items-center space-x-2">
+      <ToggleGroup
+        type="single"
+        value={viewMode}
+        onValueChange={value => value && setViewMode(value as ViewMode)}
+      >
+        <ToggleGroupItem value="card" aria-label="Card view">
+          <LayoutGrid className="size-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="table" aria-label="Table view">
+          <List className="size-4" />
+        </ToggleGroupItem>
+      </ToggleGroup>
+
+      {viewMode === 'card' && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="sm:w-auto">
+              {groupBy === 'none'
+                ? 'Group By'
+                : `By ${
+                    groupBy === 'channel_group'
+                      ? 'Group'
+                      : groupBy === 'channel_type'
+                        ? 'Type'
+                        : groupBy === 'channel_specs'
+                          ? 'Specs'
+                          : 'Name Group'
+                  }`}
+              <ChevronDown className="ml-2 size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onSelect={() => setGroupBy('none')}>
+              No Grouping
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setGroupBy('channel_group')}>
+              Group
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setGroupBy('channel_type')}>
+              Type
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setGroupBy('channel_specs')}>
+              Specs
+            </DropdownMenuItem>
+            {hasNameGroups && (
+              <DropdownMenuItem
+                onSelect={() => setGroupBy('channel_name_group')}
+              >
+                Name Group
+              </DropdownMenuItem>
             )}
-            {columnVisibility.number && (
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('number')}
-                  className="hover:bg-accent hover:text-accent-foreground flex items-center p-0 font-medium"
-                >
-                  Ch No
-                  {sortField === 'number' &&
-                    (sortDirection === 'asc' ? (
-                      <ChevronUp className="ml-2 size-4" />
-                    ) : (
-                      <ChevronDown className="ml-2 size-4" />
-                    ))}
-                </Button>
-              </TableHead>
-            )}
-            {columnVisibility.name && (
-              <TableHead className="min-w-[200px]">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('name')}
-                  className="hover:bg-accent hover:text-accent-foreground flex items-center p-0 font-medium"
-                >
-                  Channel Name
-                  {sortField === 'name' &&
-                    (sortDirection === 'asc' ? (
-                      <ChevronUp className="ml-2 size-4" />
-                    ) : (
-                      <ChevronDown className="ml-2 size-4" />
-                    ))}
-                </Button>
-              </TableHead>
-            )}
-            {columnVisibility.group && (
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('group')}
-                  className="hover:bg-accent hover:text-accent-foreground flex items-center p-0 font-medium"
-                >
-                  Channel Operator
-                  {sortField === 'group' &&
-                    (sortDirection === 'asc' ? (
-                      <ChevronUp className="ml-2 size-4" />
-                    ) : (
-                      <ChevronDown className="ml-2 size-4" />
-                    ))}
-                </Button>
-              </TableHead>
-            )}
-            {columnVisibility.type && <TableHead>Channel Type</TableHead>}
-            {columnVisibility.specs && <TableHead>Specs</TableHead>}
-            {hasNameGroups && columnVisibility.nameGroup && (
-              <TableHead>Name Group</TableHead>
-            )}
-            {columnVisibility.programs && (
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('program_count')}
-                  className="hover:bg-accent hover:text-accent-foreground flex items-center p-0 font-medium"
-                >
-                  Programs
-                  {sortField === 'program_count' &&
-                    (sortDirection === 'asc' ? (
-                      <ChevronUp className="ml-2 size-4" />
-                    ) : (
-                      <ChevronDown className="ml-2 size-4" />
-                    ))}
-                </Button>
-              </TableHead>
-            )}
-            {columnVisibility.actions && (
-              <TableHead className="text-right">Actions</TableHead>
-            )}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredChannels.map((channel, index) => (
-            <TableRow
-              key={`${channel.channel_slug}-${channel.channel_number}-${channel.channel_names?.location}-${index}`}
-              className="hover:bg-muted/50"
-            >
-              {columnVisibility.logo && (
-                <TableCell>
-                  {channel.chlogo === 'N/A' ? (
-                    <div className="bg-muted flex size-12 items-center justify-center rounded-md">
-                      <span className="text-muted-foreground text-xs">
-                        No logo
-                      </span>
-                    </div>
-                  ) : (
-                    <div>
-                      <img
-                        className="block size-12 max-h-full object-contain dark:hidden"
-                        src={channel.channel_logo.light || '/placeholder.svg'}
-                        alt={decodeHtml(
-                          channel.channel_names?.real ||
-                            channel.channel_name ||
-                            '',
-                        )}
-                      />
-                      <img
-                        className="hidden size-12 max-h-full object-contain dark:block"
-                        src={channel.channel_logo.dark || '/placeholder.svg'}
-                        alt={decodeHtml(
-                          channel.channel_names?.real ||
-                            channel.channel_name ||
-                            '',
-                        )}
-                      />
-                    </div>
-                  )}
-                </TableCell>
-              )}
-              {columnVisibility.number && (
-                <TableCell>
-                  <Badge variant="secondary">
-                    {typeof channel.channel_number === 'string' &&
-                    channel.channel_number !== 'N/A'
-                      ? channel.channel_number
-                      : '-'}
-                  </Badge>
-                </TableCell>
-              )}
-              {columnVisibility.name && (
-                <TableCell>
-                  {decodeHtml(
-                    channel.channel_names?.real || channel.channel_name || '',
-                  )}
-                </TableCell>
-              )}
-              {columnVisibility.group && (
-                <TableCell>
-                  <Badge variant="secondary" className="mr-2">
-                    {channel.channel_group === 'N/A'
-                      ? '-'
-                      : channel.channel_group}
-                  </Badge>
-                </TableCell>
-              )}
-              {columnVisibility.type && (
-                <TableCell>
-                  <Badge variant="secondary" className="mr-2">
-                    {channel.other_data.channel_type === 'N/A'
-                      ? '-'
-                      : channel.other_data.channel_type}
-                  </Badge>
-                </TableCell>
-              )}
-              {columnVisibility.specs && (
-                <TableCell>
-                  <Badge variant="secondary" className="mr-2">
-                    {channel.other_data.channel_specs === 'N/A'
-                      ? '-'
-                      : channel.other_data.channel_specs}
-                  </Badge>
-                </TableCell>
-              )}
-              {hasNameGroups && columnVisibility.nameGroup && (
-                <TableCell>
-                  <Badge variant="secondary" className="mr-2">
-                    {channel.other_data.channel_name_group || '-'}
-                  </Badge>
-                </TableCell>
-              )}
-              {columnVisibility.programs && (
-                <TableCell>
-                  <Badge variant="secondary" className="mr-2">
-                    {typeof channel.program_count === 'number'
-                      ? channel.program_count.toString()
-                      : '-'}
-                  </Badge>
-                </TableCell>
-              )}
-              {columnVisibility.actions && (
-                <TableCell className="text-right">
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link
-                      href={`/channel/${channel.channel_slug}?source=${xmltvDataSource}`}
-                      className="hover:text-primary inline-flex items-center font-medium"
-                    >
-                      View
-                      <ArrowRight className="ml-2 size-4" />
-                    </Link>
-                  </Button>
-                </TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+
+      <Button
+        onClick={handleRefresh}
+        variant="outline"
+        size="sm"
+        className="gap-1"
+      >
+        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+        Refresh
+      </Button>
     </div>
+  );
+
+  // Prepare sidebar content
+  const sidebar = (
+    <SidebarContainer>
+      <SidebarHeader>
+        <SidebarSearch
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Search channels..."
+        />
+      </SidebarHeader>
+      <SidebarContent>
+        {/* Options section */}
+        <div className="border-b">
+          <div className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full cursor-pointer">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Options</span>
+            </div>
+          </div>
+          <div className="px-4 pb-3">
+            <label className="flex items-center py-1 cursor-pointer">
+              <div className="flex items-center">
+                <Checkbox
+                  id="hide-no-programs"
+                  checked={hideNoPrograms}
+                  onCheckedChange={checked =>
+                    setHideNoPrograms(checked as boolean)
+                  }
+                  className="mr-2"
+                />
+                <span className="text-sm">Hide channels with no programs</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <FilterSection
+          title="Channel Groups"
+          options={uniqueGroups}
+          filters={selectedGroups}
+          onFilterChange={handleGroupFilter}
+          counts={groupCounts}
+        />
+
+        <FilterSection
+          title="Channel Types"
+          options={uniqueTypes}
+          filters={selectedTypes}
+          onFilterChange={handleTypeFilter}
+          counts={typeCounts}
+        />
+
+        <FilterSection
+          title="Channel Specs"
+          options={uniqueSpecs}
+          filters={selectedSpecs}
+          onFilterChange={handleSpecsFilter}
+          counts={specsCounts}
+        />
+
+        {hasNameGroups && (
+          <FilterSection
+            title="Name Groups"
+            options={uniqueNameGroups}
+            filters={selectedNameGroups}
+            onFilterChange={handleNameGroupFilter}
+            counts={nameGroupCounts}
+          />
+        )}
+      </SidebarContent>
+      <SidebarFooter>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearFilters}
+          className="w-full text-xs"
+        >
+          Clear All Filters
+        </Button>
+        <div className="mt-2 text-muted-foreground text-xs text-center">
+          Showing {filteredChannels.length} of {channels.length} channels
+        </div>
+      </SidebarFooter>
+    </SidebarContainer>
   );
 
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex justify-center items-center h-full">
         <Alert variant="destructive" className="max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>
@@ -923,252 +1342,65 @@ function ChannelListContent() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden">
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar with filters - fixed */}
-        <div className="bg-background w-64 shrink-0 flex-col overflow-hidden border-r">
-          {/* Search input */}
-          <div className="border-b p-3">
-            <div className="relative">
-              <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
-              <Input
-                placeholder="Search channels..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="pl-8 text-sm"
-                aria-label="Search channels"
+    <SidebarLayout
+      title="Channel List"
+      sidebar={sidebar}
+      actions={headerActions}
+    >
+      <div className="p-4 pb-24">
+        {' '}
+        {/* Added extra padding at bottom to prevent content being cut off */}
+        {loading ? (
+          <div className="flex flex-col space-y-4">
+            {viewMode === 'card' ? <CardViewSkeleton /> : <TableViewSkeleton />}
+          </div>
+        ) : (
+          <div className="flex flex-col space-y-4">
+            {viewMode === 'card' ? (
+              <CardView
+                filteredChannels={filteredChannels}
+                groupBy={groupBy}
+                xmltvDataSource={xmltvDataSource}
               />
-              {searchTerm && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute top-1 right-1 h-7 w-7 p-0"
-                  onClick={() => setSearchTerm('')}
-                  aria-label="Clear search"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Filter sections */}
-          <div className="flex-1 overflow-hidden">
-            <ScrollArea className="thin-scrollbar h-full">
-              {/* Options section */}
-              <div className="border-b">
-                <div className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Options</span>
-                  </div>
-                </div>
-                <div className="px-4 pb-3">
-                  <label className="flex cursor-pointer items-center py-1">
-                    <div className="flex items-center">
-                      <Checkbox
-                        id="hide-no-programs"
-                        checked={hideNoPrograms}
-                        onCheckedChange={checked =>
-                          setHideNoPrograms(checked as boolean)
-                        }
-                        className="mr-2"
-                      />
-                      <span className="text-sm">
-                        Hide channels with no programs
-                      </span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <FilterSection
-                title="Channel Groups"
-                options={uniqueGroups}
-                filters={selectedGroups}
-                onFilterChange={handleGroupFilter}
-                counts={groupCounts}
+            ) : (
+              <TableView
+                filteredChannels={filteredChannels}
+                xmltvDataSource={xmltvDataSource}
+                hasNameGroups={hasNameGroups}
               />
-
-              <FilterSection
-                title="Channel Types"
-                options={uniqueTypes}
-                filters={selectedTypes}
-                onFilterChange={handleTypeFilter}
-                counts={typeCounts}
-              />
-
-              <FilterSection
-                title="Channel Specs"
-                options={uniqueSpecs}
-                filters={selectedSpecs}
-                onFilterChange={handleSpecsFilter}
-                counts={specsCounts}
-              />
-
-              {hasNameGroups && (
-                <FilterSection
-                  title="Name Groups"
-                  options={uniqueNameGroups}
-                  filters={selectedNameGroups}
-                  onFilterChange={handleNameGroupFilter}
-                  counts={nameGroupCounts}
-                />
-              )}
-            </ScrollArea>
+            )}
           </div>
-
-          {/* Footer with clear filters button */}
-          <div className="border-t p-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearFilters}
-              className="w-full text-xs"
-            >
-              Clear All Filters
-            </Button>
-            <div className="text-muted-foreground mt-2 text-center text-xs">
-              Showing {filteredChannels.length} of {channels.length} channels
-            </div>
-          </div>
-        </div>
-
-        {/* Main content - only table scrolls */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Table header - fixed */}
-          <div className="bg-background flex w-full items-center justify-between border-b p-2">
-            <div className="flex items-center space-x-2">
-              <ToggleGroup
-                type="single"
-                value={viewMode}
-                onValueChange={value => value && setViewMode(value as ViewMode)}
-              >
-                <ToggleGroupItem value="card" aria-label="Card view">
-                  <LayoutGrid className="size-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="table" aria-label="Table view">
-                  <List className="size-4" />
-                </ToggleGroupItem>
-              </ToggleGroup>
-
-              {viewMode === 'card' && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="sm:w-auto">
-                      {groupBy === 'none'
-                        ? 'Group By'
-                        : `By ${
-                            groupBy === 'channel_group'
-                              ? 'Group'
-                              : groupBy === 'channel_type'
-                                ? 'Type'
-                                : groupBy === 'channel_specs'
-                                  ? 'Specs'
-                                  : 'Name Group'
-                          }`}
-                      <ChevronDown className="ml-2 size-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onSelect={() => setGroupBy('none')}>
-                      No Grouping
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => setGroupBy('channel_group')}
-                    >
-                      Group
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => setGroupBy('channel_type')}
-                    >
-                      Type
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => setGroupBy('channel_specs')}
-                    >
-                      Specs
-                    </DropdownMenuItem>
-                    {hasNameGroups && (
-                      <DropdownMenuItem
-                        onSelect={() => setGroupBy('channel_name_group')}
-                      >
-                        Name Group
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-
-            <div className="flex items-center space-x-2">
-              {viewMode === 'table' && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-1">
-                      <Sliders className="h-4 w-4" />
-                      Columns
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {Object.entries(columnDisplayNames).map(([key, value]) => (
-                      <DropdownMenuCheckboxItem
-                        key={key}
-                        className="capitalize"
-                        checked={
-                          columnVisibility[key as keyof typeof columnVisibility]
-                        }
-                        onCheckedChange={checked =>
-                          setColumnVisibility(prev => ({
-                            ...prev,
-                            [key]: checked,
-                          }))
-                        }
-                      >
-                        {value}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-
-              <Button
-                onClick={handleRefresh}
-                variant="outline"
-                size="sm"
-                className="gap-1"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
-                />
-                Refresh
-              </Button>
-            </div>
-          </div>
-
-          {/* Table content - scrollable */}
-          <div className="flex-1 overflow-auto">
-            <div className="p-4">
-              {loading ? (
-                <div className="flex h-full items-center justify-center">
-                  <LoadingSpinner />
-                </div>
-              ) : viewMode === 'card' ? (
-                <CardView />
-              ) : (
-                <TableView />
-              )}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
-    </div>
+    </SidebarLayout>
   );
 }
 
 export default function ChannelListPage() {
   return (
-    <div className="h-screen w-full overflow-hidden">
-      <ChannelListContent />
+    <div className="w-full h-screen overflow-hidden">
+      <ErrorBoundaryComponent
+        fallback={
+          <div className="flex justify-center items-center h-full">
+            <Alert variant="destructive" className="max-w-md">
+              <AlertCircle className="size-4" />
+              <AlertTitle>Something went wrong</AlertTitle>
+              <AlertDescription>
+                An error occurred while rendering the channel list. Please try
+                refreshing the page.
+              </AlertDescription>
+              <Button onClick={() => window.location.reload()} className="mt-4">
+                <RefreshCw className="mr-2 size-4" />
+                Refresh Page
+              </Button>
+            </Alert>
+          </div>
+        }
+      >
+        <Suspense fallback={<LoadingSpinner />}>
+          <ChannelListContent />
+        </Suspense>
+      </ErrorBoundaryComponent>
     </div>
   );
 }

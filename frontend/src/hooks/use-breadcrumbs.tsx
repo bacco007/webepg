@@ -26,9 +26,21 @@ const routeMapping: Record<string, BreadcrumbItem[]> = {
     { title: 'Channels by Service', link: '/channellist' },
     { title: 'Freeview (AU)', link: '/channellist/freeview-au' },
   ],
+  '/channellist/freeview-nz': [
+    { title: 'Channels by Service', link: '/channellist' },
+    { title: 'Freeview (NZ)', link: '/channellist/freeview-nz' },
+  ],
   '/channellist/hubbl': [
     { title: 'Channels by Service', link: '/channellist' },
     { title: 'Hubbl', link: '/channellist/hubbl' },
+  ],
+  '/channellist/vast': [
+    { title: 'Channels by Service', link: '/channellist' },
+    { title: 'VAST', link: '/channellist/vast' },
+  ],
+  '/channellist/skynz': [
+    { title: 'Channels by Service', link: '/channellist' },
+    { title: 'Sky (NZ)', link: '/channellist/skynz' },
   ],
   '/nownext': [{ title: 'Now & Next', link: '/nownext' }],
   '/transmitters': [

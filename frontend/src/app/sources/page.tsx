@@ -5,7 +5,6 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
-  Menu,
   RefreshCw,
   Search,
   X,
@@ -16,8 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { SidebarLayout } from '@/components/layouts/sidebar-layout';
 import { getCookie, setCookie } from '@/lib/cookies';
 import { cn } from '@/lib/utils';
 
@@ -65,33 +63,33 @@ function FilterSection({
   }, [options, counts, filters]);
 
   return (
-    <div className="border-b">
+    <div className="border-b last:border-b-0">
       <div
-        className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3"
+        className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{title}</span>
+          <span className="font-medium text-sm">{title}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-xs">
             {totalAvailableOptions}
           </span>
           {isOpen ? (
-            <ChevronUp className="text-muted-foreground size-4" />
+            <ChevronUp className="size-4 text-muted-foreground" />
           ) : (
-            <ChevronDown className="text-muted-foreground size-4" />
+            <ChevronDown className="size-4 text-muted-foreground" />
           )}
         </div>
       </div>
       {isOpen && (
         <div className="px-4 pb-3">
-          <div className="thin-scrollbar max-h-[200px] space-y-1 overflow-y-auto pr-1">
+          <div className="space-y-1 pr-1 max-h-[200px] overflow-y-auto thin-scrollbar">
             {availableOptions.length > 0 ? (
               availableOptions.map(option => (
                 <label
                   key={option}
-                  className="flex cursor-pointer items-center justify-between py-1"
+                  className="flex justify-between items-center py-1 cursor-pointer"
                 >
                   <div className="flex items-center">
                     <Checkbox
@@ -107,7 +105,7 @@ function FilterSection({
                 </label>
               ))
             ) : (
-              <div className="text-muted-foreground py-2 text-center text-sm">
+              <div className="py-2 text-muted-foreground text-sm text-center">
                 No options available
               </div>
             )}
@@ -126,7 +124,6 @@ export default function XmltvSourcesPage() {
   const [filterText, setFilterText] = useState('');
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [selectedSubgroups, setSelectedSubgroups] = useState<string[]>([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchSources = async () => {
@@ -162,6 +159,31 @@ export default function XmltvSourcesPage() {
   const handleSourceSelect = async (sourceId: string) => {
     await setCookie('xmltvdatasource', sourceId);
     setSelectedSourceId(sourceId);
+  };
+
+  const handleRefresh = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/py/sources');
+      if (!response.ok) {
+        throw new Error('Failed to fetch sources');
+      }
+      const data: Source[] = await response.json();
+      const sortedSources = data.sort((a, b) => {
+        if (a.group !== b.group) return a.group.localeCompare(b.group);
+        if (a.subgroup !== b.subgroup)
+          return a.subgroup.localeCompare(b.subgroup);
+        return a.location.localeCompare(b.location);
+      });
+      setSources(sortedSources);
+    } catch {
+      setError(
+        'An error occurred while fetching the sources. Please try again later.',
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const groupedSources = useMemo(() => {
@@ -253,12 +275,12 @@ export default function XmltvSourcesPage() {
     return counts;
   }, [sources, uniqueSubgroups, filterText, selectedGroups]);
 
-  // Sidebar content component to avoid duplication
-  const SidebarContent = () => (
-    <div className="flex h-full flex-col overflow-hidden">
-      <div className="border-b p-3">
+  // Create sidebar component
+  const sidebar = (
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="p-3 border-b">
         <div className="relative">
-          <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
+          <Search className="top-2.5 left-2 absolute size-4 text-muted-foreground" />
           <Input
             placeholder="Search sources..."
             value={filterText}
@@ -270,37 +292,35 @@ export default function XmltvSourcesPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="absolute top-1 right-1 h-7 w-7 p-0"
+              className="top-1 right-1 absolute p-0 w-7 h-7"
               onClick={() => setFilterText('')}
               aria-label="Clear search"
             >
-              <X className="h-4 w-4" />
+              <X className="w-4 h-4" />
             </Button>
           )}
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="thin-scrollbar h-full">
-          <FilterSection
-            title="Groups"
-            options={groups}
-            filters={selectedGroups}
-            onFilterChange={handleGroupFilter}
-            counts={groupCounts}
-          />
+      <div className="flex-1 overflow-auto">
+        <FilterSection
+          title="Groups"
+          options={groups}
+          filters={selectedGroups}
+          onFilterChange={handleGroupFilter}
+          counts={groupCounts}
+        />
 
-          <FilterSection
-            title="Subgroups"
-            options={uniqueSubgroups}
-            filters={selectedSubgroups}
-            onFilterChange={handleSubgroupFilter}
-            counts={subgroupCounts}
-          />
-        </ScrollArea>
+        <FilterSection
+          title="Subgroups"
+          options={uniqueSubgroups}
+          filters={selectedSubgroups}
+          onFilterChange={handleSubgroupFilter}
+          counts={subgroupCounts}
+        />
       </div>
 
-      <div className="border-t p-3">
+      <div className="p-3 border-t">
         <Button
           variant="outline"
           size="sm"
@@ -309,31 +329,40 @@ export default function XmltvSourcesPage() {
         >
           Clear All Filters
         </Button>
-        <div className="text-muted-foreground mt-2 text-center text-xs">
+        <div className="mt-2 text-muted-foreground text-xs text-center">
           Showing {filteredSources.length} of {sources.length} sources
         </div>
       </div>
     </div>
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="size-32 animate-spin rounded-full border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+  // Create header actions
+  const headerActions = (
+    <div className="flex items-center gap-2">
+      <Button
+        onClick={handleRefresh}
+        variant="outline"
+        size="sm"
+        disabled={isLoading}
+      >
+        <RefreshCw
+          className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
+        />
+        Refresh
+      </Button>
+    </div>
+  );
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center">
+      <div className="flex flex-col justify-center items-center p-4 h-full">
         <Alert variant="destructive" className="mb-4 max-w-md">
-          <AlertCircle className="size-4" />
+          <AlertCircle className="w-4 h-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-        <Button onClick={() => window.location.reload()}>
-          <RefreshCw className="mr-2 size-4" />
+        <Button onClick={handleRefresh}>
+          <RefreshCw className="mr-2 w-4 h-4" />
           Retry
         </Button>
       </div>
@@ -341,51 +370,33 @@ export default function XmltvSourcesPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Desktop sidebar - hidden on small screens */}
-      <div className="bg-background hidden w-64 shrink-0 flex-col overflow-hidden border-r lg:flex">
-        <SidebarContent />
-      </div>
-
-      {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Content header with view controls */}
-        <div className="bg-background flex items-center justify-between border-b p-2">
-          <div className="flex items-center space-x-2">
-            {/* Mobile sidebar trigger - only visible on small screens */}
-            <div className="lg:hidden">
-              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle sidebar</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-64 p-0">
-                  <SidebarContent />
-                </SheetContent>
-              </Sheet>
-            </div>
-            <span className="text-sm font-medium">Guide Sources</span>
+    <SidebarLayout
+      title="XMLTV Sources"
+      sidebar={sidebar}
+      actions={headerActions}
+      contentClassName="p-0"
+      sidebarClassName="p-0"
+    >
+      <div className="flex-1 p-4 overflow-auto">
+        {isLoading ? (
+          <div className="gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 xl:grid-cols-5">
+            {Array.from({ length: 12 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-card p-3 border rounded-lg animate-pulse"
+              >
+                <div className="bg-muted mb-2 rounded w-24 h-8"></div>
+                <div className="bg-muted mb-2 rounded w-full h-4"></div>
+                <div className="flex gap-1 mb-2">
+                  <div className="bg-muted rounded-full w-16 h-6"></div>
+                  <div className="bg-muted rounded-full w-20 h-6"></div>
+                </div>
+                <div className="bg-muted rounded w-full h-8"></div>
+              </div>
+            ))}
           </div>
-
-          <div className="flex items-center gap-2">
-            <Input
-              type="text"
-              placeholder="Search sources..."
-              value={filterText}
-              onChange={e => setFilterText(e.target.value)}
-              className="w-[200px]"
-            />
-            <Button onClick={() => window.location.reload()} variant="outline">
-              <RefreshCw className="size-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Content area - scrollable */}
-        <div className="flex-1 overflow-auto p-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+        ) : (
+          <div className="gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 xl:grid-cols-5">
             {filteredSources.map(source => (
               <div
                 key={source.id}
@@ -396,34 +407,34 @@ export default function XmltvSourcesPage() {
                     : 'border',
                 )}
               >
-                <div className="mb-2 flex h-10 items-start justify-start">
+                <div className="flex justify-start items-start mb-2 h-10">
                   {source.logo ? (
                     <>
                       <img
-                        className="block h-8 w-auto object-contain dark:hidden"
+                        className="dark:hidden block w-auto h-8 object-contain"
                         src={source.logo.light || '/placeholder.svg'}
                         alt={source.location}
                       />
                       <img
-                        className="hidden h-8 w-auto object-contain dark:block"
+                        className="hidden dark:block w-auto h-8 object-contain"
                         src={source.logo.dark || '/placeholder.svg'}
                         alt={source.location}
                       />
                     </>
                   ) : (
-                    <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
-                      <span className="text-primary text-lg font-bold">
+                    <div className="flex justify-center items-center bg-primary/10 rounded-full w-8 h-8">
+                      <span className="font-bold text-primary text-lg">
                         {source.location.charAt(0)}
                       </span>
                     </div>
                   )}
                 </div>
 
-                <h3 className="mb-2 line-clamp-1 text-left text-sm font-semibold">
+                <h3 className="mb-2 font-semibold text-sm text-left line-clamp-1">
                   {source.location}
                 </h3>
 
-                <div className="mb-2 flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1 mb-2">
                   <Badge variant="secondary" className="text-xs">
                     {source.group}
                   </Badge>
@@ -448,9 +459,18 @@ export default function XmltvSourcesPage() {
                 </div>
               </div>
             ))}
+
+            {filteredSources.length === 0 && (
+              <div className="flex justify-center items-center col-span-full h-40">
+                <p className="text-muted-foreground text-center">
+                  No sources found matching your filters. Try adjusting your
+                  search criteria.
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
-    </div>
+    </SidebarLayout>
   );
 }

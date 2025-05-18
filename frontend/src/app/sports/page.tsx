@@ -1,5 +1,7 @@
 'use client';
 
+import 'leaflet/dist/leaflet.css';
+
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -29,7 +31,6 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Popover,
@@ -38,6 +39,14 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getCookie } from '@/lib/cookies';
+import {
+  SidebarContainer,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarLayout,
+  SidebarSearch,
+} from '@/components/layouts/sidebar-layout';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -100,6 +109,91 @@ const decodeHtml = (html: string): string => {
   return txt.value;
 };
 
+function FilterSection({
+  title,
+  options,
+  filters,
+  onFilterChange,
+  counts,
+}: {
+  title: string;
+  options: string[];
+  filters: string[];
+  onFilterChange: (value: string) => void;
+  counts: Record<string, number>;
+}) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  // Filter options to only include those with counts > 0 or those already selected
+  const availableOptions = useMemo(() => {
+    return options.filter(
+      option =>
+        filters.includes(option) || // Always show selected options
+        counts[option] > 0, // Only show options with counts > 0
+    );
+  }, [options, counts, filters]);
+
+  // Calculate total available options for display
+  const totalAvailableOptions = useMemo(() => {
+    return options.filter(
+      option => counts[option] > 0 || filters.includes(option),
+    ).length;
+  }, [options, counts, filters]);
+
+  return (
+    <div className="border-b">
+      <div
+        className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm">{title}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground text-xs">
+            {totalAvailableOptions}
+          </span>
+          {isOpen ? (
+            <ChevronUp className="size-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="size-4 text-muted-foreground" />
+          )}
+        </div>
+      </div>
+      {isOpen && (
+        <div className="px-4 pb-3">
+          <div className="space-y-1 pr-1 max-h-[200px] overflow-y-auto thin-scrollbar">
+            {availableOptions.length > 0 ? (
+              availableOptions.map(option => (
+                <label
+                  key={option}
+                  className="flex justify-between items-center py-1 cursor-pointer"
+                >
+                  <div className="flex items-center">
+                    <Checkbox
+                      checked={filters.includes(option)}
+                      onCheckedChange={() => onFilterChange(option)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">{option}</span>
+                  </div>
+                  <span className="text-muted-foreground text-xs">
+                    {counts[option]}
+                  </span>
+                </label>
+              ))
+            ) : (
+              <div className="py-2 text-muted-foreground text-sm text-center">
+                No options available
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SportsPageContent() {
   const [sportsData, setSportsData] = useState<SportsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -140,19 +234,15 @@ function SportsPageContent() {
         const response = await fetch(
           `/api/py/epg/sports/${dataSource}?days=${days}&timezone=${encodeURIComponent(userTimezone)}`,
         );
-        if (response.ok) {
-          const data: SportsData = await response.json();
-          setSportsData(data);
-        } else {
+        if (!response.ok) {
           const errorData = await response.json();
-          if (
-            errorData.detail ===
-            'No sports programming found for the next 7 days'
-          ) {
-            setNoSportsData(true);
-          } else {
-            throw new Error(errorData.detail || 'Failed to fetch sports data');
-          }
+          throw new Error(errorData.detail || 'Failed to fetch Sports data');
+        }
+        const data: SportsData = await response.json();
+        if (data.channels.length === 0) {
+          setNoSportsData(true);
+        } else {
+          setSportsData(data);
         }
       } catch (error_) {
         setError(
@@ -215,6 +305,53 @@ function SportsPageContent() {
     return [...categories].sort();
   }, [sportsData]);
 
+  // Calculate counts for filter options
+  const groupCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    if (!sportsData) return counts;
+
+    uniqueGroups.forEach(group => {
+      counts[group] = sportsData.channels.filter(
+        ch =>
+          ch.channel.group === group &&
+          ch.channel.name.toLowerCase().includes(filterText.toLowerCase()) &&
+          (selectedCategories.length === 0 ||
+            Object.values(ch.programs).some(programsArray =>
+              programsArray.some(program =>
+                program.categories.some(category =>
+                  selectedCategories.includes(category),
+                ),
+              ),
+            )),
+      ).length;
+    });
+
+    return counts;
+  }, [sportsData, uniqueGroups, filterText, selectedCategories]);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    if (!sportsData) return counts;
+
+    uniqueCategories.forEach(category => {
+      counts[category] = sportsData.channels.filter(
+        ch =>
+          ch.channel.name.toLowerCase().includes(filterText.toLowerCase()) &&
+          (selectedGroups.length === 0 ||
+            selectedGroups.includes(ch.channel.group)) &&
+          Object.values(ch.programs).some(programsArray =>
+            programsArray.some(program =>
+              program.categories.includes(category),
+            ),
+          ),
+      ).length;
+    });
+
+    return counts;
+  }, [sportsData, uniqueCategories, filterText, selectedGroups]);
+
   const handleGroupFilter = (group: string) => {
     setSelectedGroups(previous =>
       previous.includes(group)
@@ -237,21 +374,31 @@ function SportsPageContent() {
     setSelectedCategories([]);
   }, []);
 
-  const FilterMenu = () => (
-    <div className="">
+  // Define header actions
+  const headerActions = (
+    <div className="flex items-center gap-2">
+      <Button
+        onClick={() => window.location.reload()}
+        variant="outline"
+        size="sm"
+        className="gap-1"
+      >
+        <RefreshCw className="w-4 h-4" />
+        <span className="hidden sm:inline">Refresh</span>
+      </Button>
       <Popover open={isFilterMenuOpen} onOpenChange={setIsFilterMenuOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="ml-auto">
-            <FilterIcon className="mr-2 size-4" />
-            Filters
+          <Button variant="outline" size="sm" className="lg:hidden gap-1">
+            <FilterIcon className="w-4 h-4" />
+            <span>Filters</span>
             {(selectedGroups.length > 0 || selectedCategories.length > 0) && (
-              <Badge variant="secondary" className="ml-2">
+              <Badge variant="secondary" className="ml-1">
                 {selectedGroups.length + selectedCategories.length}
               </Badge>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0" align="end">
+        <PopoverContent className="p-0 w-[300px]" align="end">
           <Command>
             <CommandInput placeholder="Search filters..." />
             <CommandList>
@@ -298,7 +445,7 @@ function SportsPageContent() {
                 </ScrollArea>
               </CommandGroup>
             </CommandList>
-            <div className="border-t p-2">
+            <div className="p-2 border-t">
               <Button
                 variant="outline"
                 className="w-full"
@@ -314,9 +461,52 @@ function SportsPageContent() {
     </div>
   );
 
+  // Prepare sidebar content
+  const sidebar = (
+    <SidebarContainer>
+      <SidebarHeader>
+        <SidebarSearch
+          value={filterText}
+          onChange={setFilterText}
+          placeholder="Search channels..."
+        />
+      </SidebarHeader>
+      <SidebarContent>
+        <FilterSection
+          title="Channel Groups"
+          options={uniqueGroups}
+          filters={selectedGroups}
+          onFilterChange={handleGroupFilter}
+          counts={groupCounts}
+        />
+        <FilterSection
+          title="Categories"
+          options={uniqueCategories}
+          filters={selectedCategories}
+          onFilterChange={handleCategoryFilter}
+          counts={categoryCounts}
+        />
+      </SidebarContent>
+      <SidebarFooter>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearFilters}
+          className="w-full text-xs"
+        >
+          Clear All Filters
+        </Button>
+        <div className="mt-2 text-muted-foreground text-xs text-center">
+          Showing {filteredAndSortedChannels.length} of{' '}
+          {sportsData?.channels.length || 0} channels
+        </div>
+      </SidebarFooter>
+    </SidebarContainer>
+  );
+
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex justify-center items-center h-full">
         <LoadingSpinner />
       </div>
     );
@@ -324,7 +514,7 @@ function SportsPageContent() {
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center">
+      <div className="flex flex-col justify-center items-center h-full">
         <Alert variant="destructive" className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>
@@ -340,7 +530,7 @@ function SportsPageContent() {
 
   if (noSportsData) {
     return (
-      <div className="flex h-full flex-col items-center justify-center">
+      <div className="flex flex-col justify-center items-center h-full">
         <Alert className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>No Sports Programming</AlertTitle>
@@ -359,7 +549,7 @@ function SportsPageContent() {
 
   if (!sportsData || filteredAndSortedChannels.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center">
+      <div className="flex flex-col justify-center items-center h-full">
         <Alert className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>No Results</AlertTitle>
@@ -376,69 +566,61 @@ function SportsPageContent() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden">
-      <div className="flex items-center justify-between border-b p-2">
-        <h1 className="text-xl font-bold">Upcoming Sports Programming</h1>
-        <div className="flex items-center gap-2">
-          <Input
-            type="text"
-            placeholder="Search channels..."
-            value={filterText}
-            onChange={e => setFilterText(e.target.value)}
-            className="w-[200px]"
-          />
-          <FilterMenu />
-        </div>
-      </div>
-      <div className="flex-1 overflow-auto">
-        <div className="w-full p-2">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {filteredAndSortedChannels.map(channelData => (
-              <div
-                key={channelData.channel.slug}
-                className="bg-card rounded-md border shadow-sm"
-              >
-                {/* Custom header with minimal padding */}
-                <div className="flex items-center justify-between border-b px-3 py-2">
-                  {channelData.channel.icon &&
-                    channelData.channel.icon.light !== 'N/A' && (
-                      <div className="flex h-8 items-center">
-                        <img
-                          className="block max-h-full max-w-[60px] object-contain dark:hidden"
-                          src={
-                            channelData.channel.icon.light || '/placeholder.svg'
-                          }
-                          alt={decodeHtml(channelData.channel.name)}
-                        />
-                        <img
-                          className="hidden max-h-full max-w-[60px] object-contain dark:block"
-                          src={
-                            channelData.channel.icon.dark || '/placeholder.svg'
-                          }
-                          alt={decodeHtml(channelData.channel.name)}
-                        />
-                      </div>
-                    )}
-                  <div className="ml-auto text-right">
-                    <div className="text-base font-medium">
-                      {decodeHtml(channelData.channel.name)}
+    <SidebarLayout
+      title="Upcoming Sports Programming"
+      sidebar={sidebar}
+      actions={headerActions}
+      contentClassName="overflow-auto"
+    >
+      <div className="p-4 pb-4">
+        <div className="gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+          {filteredAndSortedChannels.map(channelData => (
+            <div
+              key={channelData.channel.slug}
+              className="flex flex-col bg-card shadow-sm border rounded-md h-full"
+            >
+              {/* Channel header */}
+              <div className="flex justify-between items-center px-3 py-2 border-b">
+                {channelData.channel.icon &&
+                  channelData.channel.icon.light !== 'N/A' && (
+                    <div className="flex items-center h-8">
+                      <img
+                        className="dark:hidden block max-w-[60px] max-h-full object-contain"
+                        src={
+                          channelData.channel.icon.light || '/placeholder.svg'
+                        }
+                        alt={decodeHtml(channelData.channel.name)}
+                      />
+                      <img
+                        className="hidden dark:block max-w-[60px] max-h-full object-contain"
+                        src={
+                          channelData.channel.icon.dark || '/placeholder.svg'
+                        }
+                        alt={decodeHtml(channelData.channel.name)}
+                      />
                     </div>
-                    {channelData.channel.lcn !== 'N/A' && (
-                      <div className="text-muted-foreground text-xs">
-                        Channel {channelData.channel.lcn}
-                      </div>
-                    )}
+                  )}
+                <div className="ml-auto text-right">
+                  <div className="font-medium text-base">
+                    {decodeHtml(channelData.channel.name)}
                   </div>
+                  {channelData.channel.lcn !== 'N/A' && (
+                    <div className="text-muted-foreground text-xs">
+                      Channel {channelData.channel.lcn}
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                {/* Custom content with no padding */}
-                <div className="max-h-[250px] overflow-auto">
+              {/* Programs content - fixed height with scrolling */}
+              <div className="flex-1 overflow-hidden">
+                <ScrollArea className="h-[250px]">
                   <div className="w-full">
                     {Object.entries(channelData.programs).map(
                       ([date, programs]) => (
                         <div key={date} className="border-b last:border-b-0">
                           <button
-                            className="hover:bg-muted/50 flex w-full items-center justify-between px-3 py-1 text-left text-sm font-medium"
+                            className="flex justify-between items-center hover:bg-muted/50 px-3 py-1 w-full font-medium text-sm text-left"
                             onClick={e => {
                               const content =
                                 e.currentTarget.nextElementSibling;
@@ -454,13 +636,13 @@ function SportsPageContent() {
                             <ChevronIcon className="size-4" />
                           </button>
                           <div className="hidden overflow-x-auto">
-                            <table className="w-full min-w-full table-auto border-collapse text-sm">
+                            <table className="w-full min-w-full text-sm border-collapse table-auto">
                               <thead>
                                 <tr className="border-b">
-                                  <th className="w-[100px] px-3 py-1 text-left font-medium">
+                                  <th className="px-3 py-1 w-[100px] font-medium text-left">
                                     Time
                                   </th>
-                                  <th className="px-3 py-1 text-left font-medium">
+                                  <th className="px-3 py-1 font-medium text-left">
                                     Title
                                   </th>
                                 </tr>
@@ -496,35 +678,36 @@ function SportsPageContent() {
                       ),
                     )}
                   </div>
-                </div>
-
-                {/* Custom footer with minimal padding */}
-                <div className="flex border-t px-2 py-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="mr-2 flex-1"
-                    onClick={navigateToNext24Hours}
-                  >
-                    <Clock className="mr-1 size-3" />
-                    Next 24hrs
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => navigateToFullWeek(channelData.channel.slug)}
-                  >
-                    <CalendarIcon className="mr-1 size-3" />
-                    Full Week
-                  </Button>
-                </div>
+                </ScrollArea>
               </div>
-            ))}
-          </div>
+
+              {/* Card footer */}
+              <div className="flex mt-auto px-2 py-2 border-t">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="flex-1 mr-2"
+                  onClick={navigateToNext24Hours}
+                >
+                  <Clock className="mr-1 size-3" />
+                  Next 24hrs
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => navigateToFullWeek(channelData.channel.slug)}
+                >
+                  <CalendarIcon className="mr-1 size-3" />
+                  Full Week
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
+        <div className="h-24" aria-hidden="true"></div> {/* Spacer element */}
       </div>
-    </div>
+    </SidebarLayout>
   );
 }
 
@@ -555,9 +738,47 @@ function ChevronIcon({ className }: { className?: string }) {
   );
 }
 
+function ChevronUp({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <polyline points="18 15 12 9 6 15" />
+    </svg>
+  );
+}
+
+function ChevronDown({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
 export default function SportsPage() {
   return (
-    <main className="h-[calc(100vh-4rem)] overflow-hidden">
+    <main className="h-full overflow-hidden">
       <Suspense fallback={<LoadingSpinner />}>
         <SportsPageContent />
       </Suspense>

@@ -1,24 +1,29 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   AlertCircle,
   ChevronDown,
-  ChevronUp,
   Clock,
   LayoutGrid,
   List,
-  Menu,
   MoreHorizontal,
   Plus,
   RefreshCw,
-  Search,
   Smartphone,
-  X,
 } from 'lucide-react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { FilterSection } from '@/components/filter-section';
+import {
+  SidebarContainer,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarLayout,
+  SidebarSearch,
+} from '@/components/layouts/sidebar-layout';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,7 +35,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -44,9 +48,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // ADDED
 import {
   Table,
   TableBody,
@@ -55,6 +56,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useDebounce } from '@/hooks/use-debounce';
 import { getCookie } from '@/lib/cookies';
 
 interface Program {
@@ -103,91 +105,6 @@ const decodeHtml = (html: string): string => {
   return txt.value;
 };
 
-function FilterSection({
-  title,
-  options,
-  filters,
-  onFilterChange,
-  counts,
-}: {
-  title: string;
-  options: string[];
-  filters: string[];
-  onFilterChange: (value: string) => void;
-  counts: Record<string, number>;
-}) {
-  const [isOpen, setIsOpen] = useState(true);
-
-  // Filter options to only include those with counts > 0 or those already selected
-  const availableOptions = useMemo(() => {
-    return options.filter(
-      option =>
-        filters.includes(option) || // Always show selected options
-        counts[option] > 0, // Only show options with counts > 0
-    );
-  }, [options, counts, filters]);
-
-  // Calculate total available options for display
-  const totalAvailableOptions = useMemo(() => {
-    return options.filter(
-      option => counts[option] > 0 || filters.includes(option),
-    ).length;
-  }, [options, counts, filters]);
-
-  return (
-    <div className="border-b">
-      <div
-        className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{title}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-xs">
-            {totalAvailableOptions}
-          </span>
-          {isOpen ? (
-            <ChevronUp className="text-muted-foreground size-4" />
-          ) : (
-            <ChevronDown className="text-muted-foreground size-4" />
-          )}
-        </div>
-      </div>
-      {isOpen && (
-        <div className="px-4 pb-3">
-          <div className="thin-scrollbar max-h-[200px] space-y-1 overflow-y-auto pr-1">
-            {availableOptions.length > 0 ? (
-              availableOptions.map(option => (
-                <label
-                  key={option}
-                  className="flex cursor-pointer items-center justify-between py-1"
-                >
-                  <div className="flex items-center">
-                    <Checkbox
-                      checked={filters.includes(option)}
-                      onCheckedChange={() => onFilterChange(option)}
-                      className="mr-2"
-                    />
-                    <span className="text-sm">{option}</span>
-                  </div>
-                  <span className="text-muted-foreground text-xs">
-                    {counts[option]}
-                  </span>
-                </label>
-              ))
-            ) : (
-              <div className="text-muted-foreground py-2 text-center text-sm">
-                No options available
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function ChannelGrid() {
   const [channels, setChannels] = useState<ChannelData[]>([]);
   const [filteredChannels, setFilteredChannels] = useState<ChannelData[]>([]);
@@ -195,14 +112,20 @@ function ChannelGrid() {
   const [error, setError] = useState<string | null>(null);
   const [xmltvDataSource, setXmltvDataSource] =
     useState<string>('xmlepg_FTASYD');
+
+  // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [hideNoProgramData, setHideNoProgramData] = useState(false);
+  const [groupFilterSearch, setGroupFilterSearch] = useState('');
+
+  // View states
   const [groupBy, setGroupBy] = useState<GroupBy>('none');
   const [viewMode, setViewMode] = useState<ViewMode>('card');
+
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [sidebarOpen, setSidebarOpen] = useState(false); // ADDED
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const fetchChannels = useCallback(async () => {
     setIsLoading(true);
@@ -261,14 +184,14 @@ function ChannelGrid() {
       channelData =>
         (channelData.channel.name.real
           .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-          channelData.channel.lcn.includes(searchTerm)) &&
+          .includes(debouncedSearchTerm.toLowerCase()) ||
+          channelData.channel.lcn.includes(debouncedSearchTerm)) &&
         (selectedGroups.length === 0 ||
           selectedGroups.includes(channelData.channel.group)) &&
         (!hideNoProgramData || !isChannelGreyedOut(channelData)),
     );
     setFilteredChannels(filtered);
-  }, [searchTerm, channels, selectedGroups, hideNoProgramData]);
+  }, [debouncedSearchTerm, channels, selectedGroups, hideNoProgramData]);
 
   const handleRefresh = () => {
     fetchChannels();
@@ -347,13 +270,13 @@ function ChannelGrid() {
           channelData.channel.group === group &&
           (channelData.channel.name.real
             .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-            channelData.channel.lcn.includes(searchTerm)) &&
+            .includes(debouncedSearchTerm.toLowerCase()) ||
+            channelData.channel.lcn.includes(debouncedSearchTerm)) &&
           (!hideNoProgramData || !isChannelGreyedOut(channelData)),
       ).length;
     });
     return counts;
-  }, [channels, uniqueGroups, searchTerm, hideNoProgramData]);
+  }, [channels, uniqueGroups, debouncedSearchTerm, hideNoProgramData]);
 
   function ProgramDetails({
     program,
@@ -398,8 +321,8 @@ function ChannelGrid() {
     return (
       <div className="space-y-4">
         <div className="space-y-1">
-          <h3 className="text-xl font-semibold">{program.title}</h3>
-          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+          <h3 className="font-semibold text-xl">{program.title}</h3>
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <span>
               {formatTime(program.start)} - {formatTime(program.stop)}
             </span>
@@ -422,14 +345,14 @@ function ChannelGrid() {
         </Button>
 
         {program.desc && (
-          <div className="bg-muted space-y-2 rounded-lg p-4 text-sm">
+          <div className="space-y-2 bg-muted p-4 rounded-lg text-sm">
             <p>{program.desc}</p>
             {program.category.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {program.category.map((cat, index) => (
                   <span
                     key={index}
-                    className="bg-primary/10 rounded-full px-2 py-0.5 text-xs"
+                    className="bg-primary/10 px-2 py-0.5 rounded-full text-xs"
                   >
                     {cat}
                   </span>
@@ -450,10 +373,10 @@ function ChannelGrid() {
               .map((p, index) => (
                 <div
                   key={index}
-                  className="bg-muted flex items-center justify-between rounded-lg p-3"
+                  className="flex justify-between items-center bg-muted p-3 rounded-lg"
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{p.title}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{p.title}</p>
                     <p className="text-muted-foreground text-sm">
                       {formatTime(p.start)} - {formatTime(p.stop)}
                     </p>
@@ -470,7 +393,7 @@ function ChannelGrid() {
   function ChannelDetails({ channel }: { channel: Channel }) {
     return (
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">{channel.name.real}</h3>
+        <h3 className="font-semibold text-lg">{channel.name.real}</h3>
         <p className="text-sm">
           <span className="font-medium">Clean Name:</span> {channel.name.clean}
         </p>
@@ -492,16 +415,16 @@ function ChannelGrid() {
       key={`${channelData.channel.id}-${channelData.channel.lcn}`}
       className={`bg-card flex flex-col p-0 ${isChannelGreyedOut(channelData) ? 'bg-muted grayscale' : ''}`}
     >
-      <CardHeader className="flex flex-row items-center justify-between px-4 py-1 pb-0">
+      <CardHeader className="flex flex-row justify-between items-center px-4 py-1 pb-0">
         {channelData.channel.icon.light !== 'N/A' && (
           <div>
             <img
-              className="block size-auto h-14 object-contain dark:hidden"
+              className="dark:hidden block h-14 size-auto object-contain"
               src={channelData.channel.icon.light || '/placeholder.svg'}
               alt={decodeHtml(channelData.channel.name.real)}
             />
             <img
-              className="hidden size-auto h-14 object-contain dark:block"
+              className="hidden dark:block h-14 size-auto object-contain"
               src={channelData.channel.icon.dark || '/placeholder.svg'}
               alt={decodeHtml(channelData.channel.name.real)}
             />
@@ -516,7 +439,7 @@ function ChannelGrid() {
           )}
         </div>
       </CardHeader>
-      <CardContent className="grow px-4 py-1">
+      <CardContent className="px-4 py-1 grow">
         <div className="text-sm">
           <div className="font-semibold">
             Current Program: {channelData.currentProgram?.title || 'N/A'}
@@ -528,7 +451,7 @@ function ChannelGrid() {
             ({channelData.currentProgram?.lengthstring || 'N/A'})
           </div>
           {channelData.currentProgram && (
-            <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">
+            <div className="bg-gray-200 dark:bg-gray-700 mt-1 w-full h-1">
               <div
                 className="bg-primary h-1"
                 style={{
@@ -549,7 +472,7 @@ function ChannelGrid() {
         </div>
       </CardContent>
       <CardFooter className="px-4 py-1 pt-0">
-        <div className="flex w-full gap-2">
+        <div className="flex gap-2 w-full">
           <Button
             variant="secondary"
             className="flex-1"
@@ -574,7 +497,7 @@ function ChannelGrid() {
   const CardView = () => {
     if (groupBy === 'none') {
       return (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))]">
+        <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))]">
           {filteredChannels.map(channelData => (
             <ChannelCard
               key={`${channelData.channel.id}-${channelData.channel.lcn}`}
@@ -600,10 +523,13 @@ function ChannelGrid() {
 
       return (
         <div className="space-y-8">
-          {sortedGroups.map(group => (
-            <div key={group}>
-              <h2 className="mb-4 text-2xl font-bold">{group}</h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))]">
+          {sortedGroups.map((group, index) => (
+            <div
+              key={group}
+              className={index === sortedGroups.length - 1 ? 'mb-4' : ''}
+            >
+              <h2 className="mb-4 font-bold text-2xl">{group}</h2>
+              <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))]">
                 {groupedChannels[group].map(channelData => (
                   <ChannelCard
                     key={`${channelData.channel.id}-${channelData.channel.lcn}`}
@@ -627,17 +553,17 @@ function ChannelGrid() {
         >
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost" className="size-12 p-0">
+              <Button variant="ghost" className="p-0 size-12">
                 {channelData.channel.icon.light !== 'N/A' && (
                   <img
-                    className="block size-full rounded-md object-contain dark:hidden"
+                    className="dark:hidden block rounded-md size-full object-contain"
                     src={channelData.channel.icon.light || '/placeholder.svg'}
                     alt={channelData.channel.name.real}
                   />
                 )}
                 {channelData.channel.icon.dark !== 'N/A' && (
                   <img
-                    className="hidden size-full rounded-md object-contain dark:block"
+                    className="hidden dark:block rounded-md size-full object-contain"
                     src={channelData.channel.icon.dark || '/placeholder.svg'}
                     alt={channelData.channel.name.real}
                   />
@@ -651,15 +577,15 @@ function ChannelGrid() {
               <ChannelDetails channel={channelData.channel} />
             </DialogContent>
           </Dialog>
-          <div className="grid min-w-0 flex-1 grid-cols-2 gap-4">
+          <div className="flex-1 gap-4 grid grid-cols-2 min-w-0">
             <Dialog>
               <DialogTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-auto w-full justify-start p-0 text-left"
+                  className="justify-start p-0 w-full h-auto text-left"
                 >
                   <div className="w-full">
-                    <div className="text-muted-foreground text-xs font-medium">
+                    <div className="font-medium text-muted-foreground text-xs">
                       Now
                     </div>
                     <div
@@ -680,7 +606,7 @@ function ChannelGrid() {
                       </div>
                     )}
                     {channelData.currentProgram && (
-                      <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">
+                      <div className="bg-gray-200 dark:bg-gray-700 mt-1 w-full h-1">
                         <div
                           className="bg-primary h-1"
                           style={{
@@ -711,10 +637,10 @@ function ChannelGrid() {
               <DialogTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-auto w-full justify-start p-0 text-left"
+                  className="justify-start p-0 w-full h-auto text-left"
                 >
                   <div className="w-full">
-                    <div className="text-muted-foreground text-xs font-medium">
+                    <div className="font-medium text-muted-foreground text-xs">
                       Next
                     </div>
                     <div
@@ -803,7 +729,7 @@ function ChannelGrid() {
                     : ''}
                 </p>
                 {channelData.currentProgram && (
-                  <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">
+                  <div className="bg-gray-200 dark:bg-gray-700 mt-1 w-full h-1">
                     <div
                       className="bg-primary h-1"
                       style={{
@@ -847,7 +773,7 @@ function ChannelGrid() {
 
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex justify-center items-center h-full">
         <Alert variant="destructive" className="max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>
@@ -861,275 +787,145 @@ function ChannelGrid() {
     );
   }
 
-  return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      {/* Main header */}
-      <div className="bg-background w-full border-b p-4">
-        <h1 className="text-xl font-bold">Now and Next</h1>
-      </div>
+  // Create the sidebar content using the template structure
+  const sidebar = (
+    <SidebarContainer>
+      <SidebarHeader>
+        <SidebarSearch
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Search channels..."
+        />
+      </SidebarHeader>
+      <SidebarContent>
+        {/* Options section */}
+        <FilterSection
+          title="Options"
+          options={['Hide channels with no programs']}
+          filters={hideNoProgramData ? ['Hide channels with no programs'] : []}
+          onFilterChange={() => setHideNoProgramData(!hideNoProgramData)}
+          counts={{ 'Hide channels with no programs': channels.length }}
+          showSearch={false}
+          searchValue=""
+          onSearchChange={() => {}}
+        />
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Desktop sidebar - hidden on small screens */}
-        <div className="bg-background hidden w-64 shrink-0 flex-col overflow-hidden border-r lg:flex">
-          <div className="border-b p-3">
-            <div className="relative">
-              <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
-              <Input
-                placeholder="Search channels..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="pl-8 text-sm"
-                aria-label="Search channels"
-              />
-              {searchTerm && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute top-1 right-1 h-7 w-7 p-0"
-                  onClick={() => setSearchTerm('')}
-                  aria-label="Clear search"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-hidden">
-            <ScrollArea className="thin-scrollbar h-full">
-              {/* Options section */}
-              <div className="border-b">
-                <div className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Options</span>
-                  </div>
-                </div>
-                <div className="px-4 pb-3">
-                  <label className="flex cursor-pointer items-center py-1">
-                    <div className="flex items-center">
-                      <Checkbox
-                        id="hide-no-programs"
-                        checked={hideNoProgramData}
-                        onCheckedChange={checked =>
-                          setHideNoProgramData(checked as boolean)
-                        }
-                        className="mr-2"
-                      />
-                      <span className="text-sm">
-                        Hide channels with no programs
-                      </span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <FilterSection
-                title="Channel Groups"
-                options={uniqueGroups}
-                filters={selectedGroups}
-                onFilterChange={handleGroupFilter}
-                counts={groupCounts}
-              />
-            </ScrollArea>
-          </div>
-
-          <div className="border-t p-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearFilters}
-              className="w-full text-xs"
-            >
-              Clear All Filters
-            </Button>
-            <div className="text-muted-foreground mt-2 text-center text-xs">
-              Showing {filteredChannels.length} of {channels.length} channels
-            </div>
-          </div>
+        {/* Channel Groups section */}
+        <FilterSection
+          title="Channel Groups"
+          options={uniqueGroups}
+          filters={selectedGroups}
+          onFilterChange={handleGroupFilter}
+          counts={groupCounts}
+          showSearch={true}
+          searchValue={groupFilterSearch}
+          onSearchChange={setGroupFilterSearch}
+        />
+      </SidebarContent>
+      <SidebarFooter>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearFilters}
+          className="w-full text-xs"
+        >
+          Clear All Filters
+        </Button>
+        <div className="mt-2 text-muted-foreground text-xs text-center">
+          Showing {filteredChannels.length} of {channels.length} channels
         </div>
+      </SidebarFooter>
+    </SidebarContainer>
+  );
 
-        {/* Main content */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Content header with view controls */}
-          <div className="bg-background flex items-center justify-between border-b p-2">
-            <div className="flex items-center space-x-2">
-              {/* Mobile sidebar trigger - only visible on small screens */}
-              <div className="lg:hidden">
-                <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
-                      <Menu className="h-5 w-5" />
-                      <span className="sr-only">Toggle sidebar</span>
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="w-64 p-0">
-                    {/* Mobile sidebar content */}
-                    <div className="flex h-full flex-col overflow-hidden">
-                      <div className="border-b p-3">
-                        <div className="relative">
-                          <Search className="text-muted-foreground absolute top-2.5 left-2 size-4" />
-                          <Input
-                            placeholder="Search channels..."
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                            className="pl-8 text-sm"
-                            aria-label="Search channels"
-                          />
-                          {searchTerm && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="absolute top-1 right-1 h-7 w-7 p-0"
-                              onClick={() => setSearchTerm('')}
-                              aria-label="Clear search"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+  // View controls for the header actions
+  const viewControls = (
+    <div className="flex items-center space-x-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="sm:w-auto">
+            {groupBy === 'none'
+              ? 'Group By'
+              : `Grouped by ${groupBy === 'channel_group' ? 'Channel Group' : 'Channel Type'}`}
+            <ChevronDown className="ml-2 size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onSelect={() => setGroupBy('none')}>
+            No Grouping
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setGroupBy('channel_group')}>
+            Group by Channel Group
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-                      <div className="flex-1 overflow-hidden">
-                        <ScrollArea className="thin-scrollbar h-full">
-                          {/* Options section */}
-                          <div className="border-b">
-                            <div className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium">
-                                  Options
-                                </span>
-                              </div>
-                            </div>
-                            <div className="px-4 pb-3">
-                              <label className="flex cursor-pointer items-center py-1">
-                                <div className="flex items-center">
-                                  <Checkbox
-                                    id="hide-no-programs-mobile"
-                                    checked={hideNoProgramData}
-                                    onCheckedChange={checked =>
-                                      setHideNoProgramData(checked as boolean)
-                                    }
-                                    className="mr-2"
-                                  />
-                                  <span className="text-sm">
-                                    Hide channels with no programs
-                                  </span>
-                                </div>
-                              </label>
-                            </div>
-                          </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="justify-start">
+            {viewMode === 'card' ? (
+              <LayoutGrid className="mr-2 size-4" />
+            ) : viewMode === 'table' ? (
+              <List className="mr-2 size-4" />
+            ) : (
+              <Smartphone className="mr-2 size-4" />
+            )}
+            {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setViewMode('card')}>
+            <LayoutGrid className="mr-2 size-4" />
+            Card
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setViewMode('table')}>
+            <List className="mr-2 size-4" />
+            Table
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setViewMode('mobile')}>
+            <Smartphone className="mr-2 size-4" />
+            Mobile
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-                          <FilterSection
-                            title="Channel Groups"
-                            options={uniqueGroups}
-                            filters={selectedGroups}
-                            onFilterChange={handleGroupFilter}
-                            counts={groupCounts}
-                          />
-                        </ScrollArea>
-                      </div>
-
-                      <div className="border-t p-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={clearFilters}
-                          className="w-full text-xs"
-                        >
-                          Clear All Filters
-                        </Button>
-                        <div className="text-muted-foreground mt-2 text-center text-xs">
-                          Showing {filteredChannels.length} of {channels.length}{' '}
-                          channels
-                        </div>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="sm:w-auto">
-                    {groupBy === 'none'
-                      ? 'Group By'
-                      : `Grouped by ${groupBy === 'channel_group' ? 'Channel Group' : 'Channel Type'}`}
-                    <ChevronDown className="ml-2 size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onSelect={() => setGroupBy('none')}>
-                    No Grouping
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={() => setGroupBy('channel_group')}
-                  >
-                    Group by Channel Group
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="justify-start">
-                    {viewMode === 'card' ? (
-                      <LayoutGrid className="mr-2 size-4" />
-                    ) : viewMode === 'table' ? (
-                      <List className="mr-2 size-4" />
-                    ) : (
-                      <Smartphone className="mr-2 size-4" />
-                    )}
-                    {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setViewMode('card')}>
-                    <LayoutGrid className="mr-2 size-4" />
-                    Card
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setViewMode('table')}>
-                    <List className="mr-2 size-4" />
-                    Table
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setViewMode('mobile')}>
-                    <Smartphone className="mr-2 size-4" />
-                    Mobile
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Button onClick={handleRefresh} variant="outline">
-                <RefreshCw className="size-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Content area - scrollable */}
-          <div className="flex-1 overflow-auto">
-            <div className="p-4">
-              {isLoading ? (
-                <div className="flex h-full items-center justify-center">
-                  <LoadingSpinner />
-                </div>
-              ) : viewMode === 'card' ? (
-                <CardView />
-              ) : viewMode === 'table' ? (
-                <TableView />
-              ) : (
-                <MobileView />
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <Button onClick={handleRefresh} variant="outline" size="icon">
+        <RefreshCw className="size-4" />
+      </Button>
     </div>
+  );
+
+  return (
+    <SidebarLayout
+      sidebar={sidebar}
+      title="Now and Next"
+      actions={viewControls}
+      contentClassName="overflow-auto"
+    >
+      <div className="p-4 pb-4">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <LoadingSpinner />
+          </div>
+        ) : viewMode === 'card' ? (
+          <>
+            <CardView />
+            <div className="h-24" aria-hidden="true"></div>{' '}
+            {/* Spacer element */}
+          </>
+        ) : viewMode === 'table' ? (
+          <TableView />
+        ) : (
+          <MobileView />
+        )}
+      </div>
+    </SidebarLayout>
   );
 }
 
 export default function NowNextPage() {
   return (
-    <main className="h-[calc(100vh-4rem)] overflow-hidden">
+    <main className="h-full overflow-hidden">
       <Suspense fallback={<LoadingSpinner />}>
         <ChannelGrid />
       </Suspense>

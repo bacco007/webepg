@@ -1,3 +1,5 @@
+import json
+import os
 import re
 from collections import Counter
 from datetime import datetime
@@ -5,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from lxml import etree
 
+from app.config import settings
 from app.utils.channel_name import clean_channel_name, get_channel_group
 from app.utils.file_operations import write_json
 
@@ -60,11 +63,19 @@ async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
         tree = etree.parse(save_path, parser)
         root = tree.getroot()
 
-        channels: List[Dict[str, Any]] = []
+        original_channels: List[Dict[str, Any]] = []
         programs: List[Dict[str, Any]] = []
         for child in root:
             if child.tag == "channel":
                 channel_id: str = child.get("id", "")
+                if any(
+                    channel.get("channel_id") == channel_id
+                    for channel in original_channels
+                ):
+                    print(
+                        f"Warning: Duplicate channel ID '{channel_id}' found. Skipping."
+                    )
+                    continue  # Skip to the next channel element
                 display_name: Optional[etree._Element] = child.find("display-name")
                 lcn: Optional[etree._Element] = child.find("lcn")
                 icon: Optional[etree._Element] = child.find("icon")
@@ -96,7 +107,7 @@ async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
                     channel_group = "Unknown"
                     cleaned_name_slug = "placeholder"
 
-                channels.append(
+                original_channels.append(
                     {
                         "channel_id": channel_id,
                         "channel_slug": re.sub(r"\W+", "-", channel_id),
@@ -120,18 +131,56 @@ async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
             elif child.tag == "programme":
                 programs.append(process_program(child))
 
-        # Count the number of programs for each channel
+        updated_channels: List[Dict[str, Any]] = []
+        unchanged_channels: List[Dict[str, Any]] = []
+        additional_data_file = os.path.join(
+            settings.XMLTV_DATA_DIR, f"{file_id}_additionaldata.json"
+        )
+        additional_channels_map: Dict[str, Dict[str, Any]] = {}
+
+        if os.path.exists(additional_data_file):
+            with open(additional_data_file, "r", encoding="utf-8") as f:
+                additional_channels: List[Dict[str, Any]] = json.load(f)
+                additional_channels_map = {
+                    channel.get("channel_id"): channel
+                    for channel in additional_channels
+                    if channel.get("channel_id")
+                }
+        else:
+            print(
+                f"Info: Additional channel data file '{additional_data_file}' not found."
+            )
+
+        # Process original channels: update if in additional data, otherwise keep original
+        for original_channel in original_channels:
+            channel_id = original_channel["channel_id"]
+            if channel_id in additional_channels_map:
+                updated_channels.append(additional_channels_map[channel_id])
+                # Remove processed channel_id from the map to track new channels
+                del additional_channels_map[channel_id]
+            else:
+                updated_channels.append(original_channel)
+                unchanged_channels.append(original_channel)
+
+        # Add any remaining channels from additional_channels_map (these are the new ones)
+        for new_channel_id, new_channel_data in additional_channels_map.items():
+            updated_channels.append(new_channel_data)
+
+        # Count the number of programs for each channel (using the possibly updated channel_slug)
         channel_program_counts = Counter(program["channel"] for program in programs)
 
         # Add program_count to channels
-        for channel in channels:
+        for channel in updated_channels:
             channel["program_count"] = channel_program_counts.get(
-                channel["channel_slug"], 0
+                channel.get(
+                    "channel_slug", re.sub(r"\W+", "-", channel.get("channel_id", ""))
+                ),
+                0,
             )
 
-        write_json(f'{file_id}_channels.json', channels)
+        write_json(f"{file_id}_channels.json", updated_channels)
         write_json(f'{file_id}_programs.json', programs)
+        write_json(f"{file_id}_datacheck.json", unchanged_channels)
 
     except Exception as exc:
         print(f"Error processing XML file {file_id}.xml: {str(exc)}")
-

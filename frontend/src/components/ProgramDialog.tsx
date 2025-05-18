@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CalendarIcon,
   ClockIcon,
@@ -31,34 +31,12 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 
-interface Event {
-  title: string;
-  channel: string;
-  channel_name: string;
-  image: string;
-  rating: string;
-  new: boolean;
-  premiere: boolean;
-  previouslyShown: boolean;
-  subtitle: string;
-  lengthstring: string;
-  episodeNum: string;
-  date: string;
-  country: string;
-  language: string;
-  category: string[];
-  description: string;
-  start: string;
-  end: string;
-}
+// Constants
+const NOT_AVAILABLE = 'N/A';
 
-interface ProgramDialogProperties {
-  event: Event;
-  onOpenChange: (open: boolean) => void;
-  trigger: React.ReactNode;
-}
-
+// Move these utility functions outside the component
 const decodeHtml = (html: string): string => {
+  if (typeof window === 'undefined') return html;
   const txt = document.createElement('textarea');
   txt.innerHTML = html;
   return txt.value;
@@ -85,52 +63,111 @@ const getTimeDescription = (startDate: Date, endDate: Date) => {
   return `${durationMins} minutes`;
 };
 
-export default function ProgramDialog({
+interface Event {
+  title: string;
+  channel: string;
+  channel_name: string;
+  image: string;
+  rating: string;
+  new: boolean;
+  premiere: boolean;
+  previouslyShown: boolean;
+  subtitle: string;
+  lengthstring: string;
+  episodeNum: string;
+  date: string;
+  country: string;
+  language: string;
+  category: string[];
+  description: string;
+  start: string;
+  end: string;
+}
+
+interface ProgramDialogProperties {
+  event: Event;
+  onOpenChange: (open: boolean) => void;
+  trigger: React.ReactNode;
+  defaultOpen?: boolean;
+}
+
+// Program metadata item component for consistent styling
+const MetadataItem = ({
+  icon: Icon,
+  children,
+}: {
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) => (
+  <div className="flex items-center space-x-2 text-muted-foreground">
+    <Icon className="size-4 text-primary/70" />
+    <span className="font-medium">{children}</span>
+  </div>
+);
+
+function ProgramDialog({
   event,
   onOpenChange,
   trigger,
+  defaultOpen = false,
 }: ProgramDialogProperties) {
-  const startDate = new Date(event.start);
-  const endDate = new Date(event.end);
-  const [open, setOpen] = useState(false);
+  const startDate = event.start ? new Date(event.start) : new Date();
+  const endDate = event.end ? new Date(event.end) : new Date();
+  const [open, setOpen] = useState(defaultOpen);
+  const [mounted, setMounted] = useState(false);
 
-  const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
-    onOpenChange(newOpen);
-  };
+  // Animation effect
+  useEffect(() => {
+    setMounted(true);
+
+    // Force open the dialog on mount if defaultOpen is true
+    if (defaultOpen) {
+      setOpen(true);
+    }
+  }, [defaultOpen]);
+
+  const handleOpenChange = React.useCallback(
+    (newOpen: boolean) => {
+      setOpen(newOpen);
+      onOpenChange(newOpen);
+    },
+    [onOpenChange],
+  );
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-w-3xl p-0">
+      <DialogContent
+        className={`max-w-3xl p-0 transition-all duration-300 ${mounted ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+      >
         <DialogTitle className="sr-only">
           {decodeHtml(event.title)} - Program Details
         </DialogTitle>
-        <Card className="border-none">
-          <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
-            <CardTitle className="text-2xl font-bold">
+        <Card className="shadow-lg border-none">
+          <CardHeader className="bg-primary rounded-t-lg text-primary-foreground">
+            <CardTitle className="font-bold text-2xl">
               {decodeHtml(event.title)}
             </CardTitle>
-            <CardDescription className="text-primary-foreground/80">
-              {event.subtitle &&
-                event.subtitle !== 'N/A' &&
-                decodeHtml(event.subtitle)}
-            </CardDescription>
+            {event.subtitle && event.subtitle !== NOT_AVAILABLE && (
+              <CardDescription className="text-primary-foreground/80">
+                {decodeHtml(event.subtitle)}
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent className="p-6">
-            <div className="flex flex-col gap-6 md:flex-row">
-              <div className="shrink-0 space-y-4">
+            <div className="flex md:flex-row flex-col gap-6">
+              <div className="space-y-4 shrink-0">
                 {event.image ? (
                   <Image
-                    src={event.image}
+                    src={event.image || '/placeholder.svg'}
                     alt={event.title}
                     width={250}
                     height={187}
-                    className="rounded-lg object-cover"
+                    className="shadow-sm border border-border rounded-lg object-cover"
                   />
                 ) : (
-                  <div className="bg-secondary flex h-[187px] w-[250px] items-center justify-center rounded-lg">
-                    <TvIcon className="text-secondary-foreground/30 size-16" />
+                  <div className="flex justify-center items-center bg-secondary/20 shadow-sm border border-border/50 rounded-lg w-[250px] h-[187px]">
+                    <TvIcon className="size-24 text-secondary-foreground/50" />
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2">
@@ -141,68 +178,70 @@ export default function ProgramDialog({
                   )}
                 </div>
               </div>
-              <ScrollArea className="h-[300px] grow md:h-auto">
+              <ScrollArea className="h-[300px] md:h-auto grow">
                 <div className="space-y-4">
-                  <div className="text-muted-foreground flex items-center space-x-2">
-                    <CalendarIcon className="size-4" />
-                    <span>{formatDay(startDate)}</span>
-                  </div>
-                  <div className="text-muted-foreground flex items-center space-x-2">
-                    <ClockIcon className="size-4" />
-                    <span>
-                      {formatTime(startDate)} - {formatTime(endDate)} (
-                      {getTimeDescription(startDate, endDate)})
+                  <MetadataItem icon={CalendarIcon}>
+                    {formatDay(startDate)}
+                  </MetadataItem>
+                  <MetadataItem icon={ClockIcon}>
+                    {formatTime(startDate)} - {formatTime(endDate)}
+                    <span className="font-normal text-muted-foreground/80">
+                      {' '}
+                      ({getTimeDescription(startDate, endDate)})
                     </span>
-                  </div>
+                  </MetadataItem>
                   {event.channel && (
-                    <div className="text-muted-foreground flex items-center space-x-2">
-                      <TvIcon className="size-4" />
-                      <span>{decodeHtml(event.channel_name)}</span>
-                    </div>
+                    <MetadataItem icon={TvIcon}>
+                      {decodeHtml(event.channel_name)}
+                    </MetadataItem>
                   )}
                   <Separator />
                   <div className="space-y-2">
-                    {event.rating && event.rating !== 'N/A' && (
+                    {event.rating && event.rating !== NOT_AVAILABLE && (
                       <div className="flex items-center space-x-2">
                         <StarIcon className="size-4 text-yellow-500" />
                         <span>Rating: {event.rating}</span>
                       </div>
                     )}
-                    {event.episodeNum && event.episodeNum !== 'N/A' && (
+                    {event.episodeNum && event.episodeNum !== NOT_AVAILABLE && (
                       <div className="flex items-center space-x-2">
                         <TagIcon className="size-4" />
                         <span>Episode: {event.episodeNum}</span>
                       </div>
                     )}
-                    {event.country && event.country !== 'N/A' && (
+                    {event.country && event.country !== NOT_AVAILABLE && (
                       <div className="flex items-center space-x-2">
                         <Globe2Icon className="size-4" />
                         <span>Country: {event.country}</span>
                       </div>
                     )}
-                    {event.language && event.language !== 'N/A' && (
+                    {event.language && event.language !== NOT_AVAILABLE && (
                       <div className="flex items-center space-x-2">
                         <LanguagesIcon className="size-4" />
                         <span>Language: {event.language}</span>
                       </div>
                     )}
                   </div>
-                  {event.category && event.category.length > 0 && (
+                  {event.category && event.category.length > 0 ? (
                     <>
                       <Separator />
                       <div className="flex flex-wrap gap-2">
                         {event.category.map((cat, index) => (
-                          <Badge key={index} variant="outline">
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="bg-primary/5 border-primary/20 font-medium"
+                          >
                             {decodeHtml(cat)}
                           </Badge>
                         ))}
                       </div>
                     </>
-                  )}
-                  {event.description && event.description !== 'N/A' && (
+                  ) : null}
+                  {event.description && event.description !== NOT_AVAILABLE && (
                     <>
                       <Separator />
-                      <p className="text-muted-foreground text-sm">
+                      <p className="text-foreground/80 text-sm leading-relaxed">
                         {decodeHtml(event.description)}
                       </p>
                     </>
@@ -211,8 +250,13 @@ export default function ProgramDialog({
               </ScrollArea>
             </div>
           </CardContent>
-          <CardFooter className="bg-muted/50 justify-end space-x-2 rounded-b-lg">
-            <Button variant="outline" onClick={() => handleOpenChange(false)}>
+          <CardFooter className="justify-end space-x-2 bg-muted/50 p-4 rounded-b-lg">
+            <Button
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              aria-label="Close dialog"
+              className="hover:bg-primary/10 transition-colors"
+            >
               Close
             </Button>
           </CardFooter>
@@ -221,3 +265,5 @@ export default function ProgramDialog({
     </Dialog>
   );
 }
+
+export default React.memo(ProgramDialog);

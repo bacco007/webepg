@@ -194,39 +194,6 @@
     }
   },
   {
-    "id": "test-ukskylive",
-    "group": "International",
-    "subgroup": "United Kingdom",
-    "location": "UK Sky (Rytec)",
-    "url": "http://www.xmltvepg.nl/rytecUK_SkyLive.xz",
-    "logo": {
-      "light": "logos/ukflag.png",
-      "dark": "logos/ukflag.png"
-    }
-  },
-  {
-    "id": "test-ukfreesat",
-    "group": "International",
-    "subgroup": "United Kingdom",
-    "location": "UK Freesat (Rytec)",
-    "url": "http://www.xmltvepg.nl/rytecUK_Basic.xz",
-    "logo": {
-      "light": "logos/ukflag.png",
-      "dark": "logos/ukflag.png"
-    }
-  },
-  {
-    "id": "test-uksport",
-    "group": "International",
-    "subgroup": "United Kingdom",
-    "location": "UK Sport/Movies (Rytec)",
-    "url": "http://www.xmltvepg.nl/rytecUK_SportMovies.xz",
-    "logo": {
-      "light": "logos/ukflag.png",
-      "dark": "logos/ukflag.png"
-    }
-  },
-  {
     "id": "FOXTEL",
     "group": "Testing",
     "subgroup": "Australia",
@@ -256,32 +223,48 @@
     "url": "http://170.64.142.170:8080/abc_radio_guide.xml"
   },
   {
-    "id": "foxsportsuhd",
-    "group": "Testing",
-    "subgroup": "Australia",
-    "location": "Fox Sports UHD",
-    "url": "http://170.64.142.170:8080/foxsportsuhd.xml"
-  },
-  {
     "id": "fetch-sub-test",
     "group": "Testing",
     "subgroup": "Australia",
     "location": "Fetch (Subscription)",
-    "url": "http://170.64.142.170:8080/Fetch_Subscription_Guide.xml"
+    "url": "http://170.64.142.170:8080/Fetch_Subscription_Guide.xml",
+    "logo": {
+      "light": "logos/fetch.png",
+      "dark": "logos/fetch.png"
+    }
   },
   {
     "id": "fetch-fta-test",
     "group": "Testing",
     "subgroup": "Australia",
     "location": "Fetch (FTA)",
-    "url": "http://170.64.142.170:8080/Fetch_FTA_Guide.xml"
+    "url": "http://170.64.142.170:8080/Fetch_FTA_Guide.xml",
+    "logo": {
+      "light": "logos/fetch.png",
+      "dark": "logos/fetch.png"
+    }
+  },
+  {
+    "id": "skyuk-test",
+    "group": "Testing",
+    "subgroup": "United Kingdom",
+    "location": "Sky",
+    "url": "http://170.64.142.170:8080/skyuk.xml",
+    "logo": {
+      "light": "logos/skyuk.png",
+      "dark": "logos/skyuk.png"
+    }
   },
   {
     "id": "tataplay",
     "group": "International",
     "subgroup": "India",
     "location": "TataPlay",
-    "url": "https://avkb.short.gy/tsepg.xml.gz"
+    "url": "https://avkb.short.gy/tsepg.xml.gz",
+    "logo": {
+      "light": "logos/tataplay.png",
+      "dark": "logos/tataplay.png"
+    }
   },
   {
     "id": "jiotv",
@@ -296,5 +279,33 @@
     "subgroup": "Malaysia",
     "location": "Astro",
     "url": "https://raw.githubusercontent.com/azimabid00/epg/main/astro_epg.xml"
+  },
+  {
+    "id": "mjh-flash",
+    "group": "Australia",
+    "subgroup": "Subscription",
+    "location": "Flash (MJH)",
+    "url": "https://raw.githubusercontent.com/matthuisman/i.mjh.nz/master/Flash/epg.xml"
+  },
+  {
+    "id": "mjh-foxtel",
+    "group": "Australia",
+    "subgroup": "Subscription",
+    "location": "Foxtel (MJH)",
+    "url": "https://i.mjh.nz/Foxtel/epg.xml"
+  },
+  {
+    "id": "mjh-kayo",
+    "group": "Australia",
+    "subgroup": "Subscription",
+    "location": "Kayo (MJH)",
+    "url": "https://i.mjh.nz/Kayo/epg.xml"
+  },
+  {
+    "id": "mjh-binge",
+    "group": "Australia",
+    "subgroup": "Subscription",
+    "location": "Binge (MJH)",
+    "url": "https://i.mjh.nz/Binge/epg.xml"
   }
 ]
