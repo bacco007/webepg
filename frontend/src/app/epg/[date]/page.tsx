@@ -32,6 +32,8 @@ import {
   isDateToday,
   formatDateFromYYYYMMDD,
 } from '@/lib/date-utils';
+import { compareLCN } from '@/utils/sort';
+import LoadingState from '@/components/LoadingState';
 
 interface TVGuideDatePageProps {
   params: Promise<{
@@ -130,38 +132,13 @@ export default function TVGuideDatePage({ params }: TVGuideDatePageProps) {
 
     channels = [...channels].sort((a, b) => {
       if (sortBy === 'channelNumber') {
-        // Check if both channels have valid LCNs
         const aHasLCN = hasValidLCN(a);
         const bHasLCN = hasValidLCN(b);
-
-        // If both have LCNs, sort by LCN
         if (aHasLCN && bHasLCN) {
-          // Extract the numeric part for proper numeric sorting
-          const aLCN = a.channel.lcn;
-          const bLCN = b.channel.lcn;
-
-          // Check if both LCNs are purely numeric
-          const aIsNumeric = /^\d+$/.test(aLCN);
-          const bIsNumeric = /^\d+$/.test(bLCN);
-
-          // If both are numeric, sort numerically
-          if (aIsNumeric && bIsNumeric) {
-            return Number.parseInt(aLCN) - Number.parseInt(bLCN);
-          }
-
-          // If only one is numeric, prioritize numeric values
-          if (aIsNumeric) return -1;
-          if (bIsNumeric) return 1;
-
-          // If both are non-numeric, sort alphabetically
-          return aLCN.localeCompare(bLCN);
+          return compareLCN(a.channel.lcn, b.channel.lcn);
         }
-
-        // If only one has LCN, prioritize the one with LCN
         if (aHasLCN) return -1;
         if (bHasLCN) return 1;
-
-        // If neither has LCN, sort by name
         return getChannelName(a, displayName).localeCompare(
           getChannelName(b, displayName),
         );
@@ -269,41 +246,35 @@ export default function TVGuideDatePage({ params }: TVGuideDatePageProps) {
       if (storedDataSource) {
         setXmltvDataSource(storedDataSource);
       } else {
-        await setCookie('xmltvdatasource', 'xmlepg_FTASYD', {
-          maxAge: 60 * 60 * 24 * 30,
-        });
+        await setCookie('xmltvdatasource', 'xmlepg_FTASYD', 30);
         setXmltvDataSource('xmlepg_FTASYD');
       }
 
       if (storedTimezone) {
         setClientTimezone(storedTimezone);
       } else {
-        await setCookie('userTimezone', 'Australia/Sydney', {
-          maxAge: 60 * 60 * 24 * 30,
-        });
+        await setCookie('userTimezone', 'Australia/Sydney', 30);
         setClientTimezone('Australia/Sydney');
       }
 
       if (storedSortBy) {
         setSortBy(storedSortBy);
       } else {
-        await setCookie('sortBy', 'channelNumber', {
-          maxAge: 60 * 60 * 24 * 30,
-        });
+        await setCookie('sortBy', 'channelNumber', 30);
         setSortBy('channelNumber');
       }
 
       if (storedGroupBy) {
         setGroupBy(storedGroupBy);
       } else {
-        await setCookie('groupBy', 'none', { maxAge: 60 * 60 * 24 * 30 });
+        await setCookie('groupBy', 'none', 30);
         setGroupBy('none');
       }
 
       if (storedDisplayName) {
         setDisplayName(storedDisplayName);
       } else {
-        await setCookie('displayName', 'clean', { maxAge: 60 * 60 * 24 * 30 });
+        await setCookie('displayName', 'clean', 30);
         setDisplayName('clean');
       }
 
@@ -316,17 +287,17 @@ export default function TVGuideDatePage({ params }: TVGuideDatePageProps) {
   // Handle settings changes
   const handleSortByChange = async (value: string) => {
     setSortBy(value);
-    await setCookie('sortBy', value, { maxAge: 60 * 60 * 24 * 30 });
+    await setCookie('sortBy', value, 30);
   };
 
   const handleGroupByChange = async (value: string) => {
     setGroupBy(value);
-    await setCookie('groupBy', value, { maxAge: 60 * 60 * 24 * 30 });
+    await setCookie('groupBy', value, 30);
   };
 
   const handleDisplayNameChange = async (value: string) => {
     setDisplayName(value);
-    await setCookie('displayName', value, { maxAge: 60 * 60 * 24 * 30 });
+    await setCookie('displayName', value, 30);
   };
 
   // Fetch channel data
@@ -745,11 +716,7 @@ export default function TVGuideDatePage({ params }: TVGuideDatePageProps) {
 
   // Don't render the TVGuide until cookies are loaded and we have a data source
   if (!cookiesLoaded || !xmltvDataSource) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-pulse">Loading TV Guide...</div>
-      </div>
-    );
+    return <LoadingState text="Loading TV Guide..." />;
   }
 
   return (

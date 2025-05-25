@@ -125,6 +125,11 @@ const data = {
           icon: Antenna,
         },
         {
+          title: 'Channel Map by Region - Freeview',
+          url: '/channellist/freeview-au/regionmap',
+          icon: Antenna,
+        },
+        {
           title: 'Channel List - Fetch',
           url: '/channellist/fetch',
           icon: CableIcon,

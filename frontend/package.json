@@ -2,8 +2,9 @@
   "name": "webepgv2-frontend",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.9.0",
+  "packageManager": "pnpm@10.11.0",
   "scripts": {
+    "clean": "rm -rf .next out",
     "dev": "concurrently \"pnpm run dev:frontend\" \"pnpm run dev:backend\"",
     "dev:frontend": "next dev",
     "dev:backend": "cd ../backend && . .venv/bin/activate && uvicorn main:app --reload",
@@ -16,7 +17,8 @@
     "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.js",
     "formatandlint": "pnpm run format:fix && pnpm run lint:fix",
     "postbuild": "next-sitemap",
-    "update": "pnpm add -g npm-check-updates && ncu -u && pnpm install",
+    "postinstall": "pnpm run type-check",
+    "update": "pnpm dlx npm-check-updates -u && pnpm install",
     "update-shadcn": "pnpm dlx shadcn@latest add --all --overwrite",
     "type-check": "tsc -b"
   },
@@ -52,6 +54,7 @@
     "@radix-ui/react-toggle-group": "^1.1.9",
     "@radix-ui/react-tooltip": "^1.2.6",
     "@tanstack/react-table": "^8.21.3",
+    "@tanstack/table-core": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -118,5 +121,9 @@
     "tw-animate-css": "^1.3.0",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=10.0.0"
   }
 }

@@ -44,10 +44,7 @@ export function FontSizeControl({ className }: { className?: string }) {
     const sizeValue = fontSizeValues[newSize];
     document.documentElement.style.fontSize = `${sizeValue}%`;
     localStorage.setItem('fontSize', sizeValue.toString());
-    setCookie('fontSize', sizeValue.toString(), {
-      path: '/',
-      maxAge: 31_536_000,
-    }); // 1 year
+    setCookie('fontSize', sizeValue.toString(), 31_536_000); // 1 year
   };
 
   if (!mounted) {

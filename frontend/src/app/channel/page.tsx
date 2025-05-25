@@ -58,6 +58,8 @@ import {
   SidebarLayout,
   SidebarSearch,
 } from '@/components/layouts/sidebar-layout';
+import { compareLCN } from '@/utils/sort';
+import LoadingState from '@/components/LoadingState';
 
 // Define types for better type safety
 type Channel = {
@@ -273,50 +275,9 @@ function CardView({
 }) {
   // Sort channels by channel number first, then by name
   const sortedChannels = [...filteredChannels].sort((a, b) => {
-    const aNumStr =
-      typeof a.channel_number === 'string' && a.channel_number !== 'N/A'
-        ? a.channel_number
-        : '';
-    const bNumStr =
-      typeof b.channel_number === 'string' && b.channel_number !== 'N/A'
-        ? b.channel_number
-        : '';
-
-    // Extract numeric parts and check if they're purely numeric
-    const aNumMatch = aNumStr.match(/^(\d+)/);
-    const bNumMatch = bNumStr.match(/^(\d+)/);
-
-    const aIsPureNumeric = aNumStr !== '' && /^\d+$/.test(aNumStr);
-    const bIsPureNumeric = bNumStr !== '' && /^\d+$/.test(bNumStr);
-
-    // Get the numeric values (if they exist)
-    const aNum = aNumMatch
-      ? Number.parseInt(aNumMatch[1], 10)
-      : Number.POSITIVE_INFINITY;
-    const bNum = bNumMatch
-      ? Number.parseInt(bNumMatch[1], 10)
-      : Number.POSITIVE_INFINITY;
-
-    // If numeric parts are different, sort by them
-    if (aNum !== bNum) {
-      return aNum - bNum;
-    }
-
-    // If numeric parts are the same, but one is pure numeric and one has suffix
-    if (aIsPureNumeric !== bIsPureNumeric) {
-      return aIsPureNumeric ? -1 : 1; // Pure numeric comes first
-    }
-
-    // If both have the same numeric part and both have suffixes or both don't
-    if (aNumStr !== bNumStr) {
-      return aNumStr.localeCompare(bNumStr);
-    }
-
-    // If channel numbers are identical or both don't have channel numbers
-    // Sort by channel name
-    const aName = (a.channel_names?.real || a.channel_name || '').toLowerCase();
-    const bName = (b.channel_names?.real || b.channel_name || '').toLowerCase();
-    return aName.localeCompare(bName);
+    const aNum = typeof a.channel_number === 'string' ? a.channel_number : '';
+    const bNum = typeof b.channel_number === 'string' ? b.channel_number : '';
+    return compareLCN(aNum, bNum);
   });
 
   if (groupBy === 'none') {
@@ -1352,7 +1313,7 @@ function ChannelListContent() {
         {/* Added extra padding at bottom to prevent content being cut off */}
         {loading ? (
           <div className="flex flex-col space-y-4">
-            {viewMode === 'card' ? <CardViewSkeleton /> : <TableViewSkeleton />}
+            <LoadingState text="Loading channels..." />
           </div>
         ) : (
           <div className="flex flex-col space-y-4">

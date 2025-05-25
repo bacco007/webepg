@@ -72,6 +72,7 @@
   /* Placeholder program colors */
   --placeholder-bg: 215 20% 85%;
   --placeholder-pattern: 215 15% 65%;
+  --color-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .dark {
@@ -139,6 +140,8 @@
   /* Placeholder program colors - dark mode */
   --placeholder-bg: 215 30% 25%;
   --placeholder-pattern: 215 25% 40%;
+  color-scheme: dark;
+  transition: var(--color-transition);
 }
 
 @theme inline {
@@ -371,6 +374,9 @@ body {
 .program-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   will-change: transform, box-shadow;
+  contain: content;
+  transform: translate3d(0, -2px, 0);
+  transform: translateY(-2px); /* Fallback */
 }
 
 /* Use transform: translate3d for hardware acceleration */
@@ -461,3 +467,4 @@ body {
 .dark * {
   scrollbar-color: rgba(180, 180, 180, 0.3) transparent;
 }
+

@@ -26,58 +26,39 @@ const setCookieClient = (cookieString: string): void => {
   document.cookie = cookieString;
 };
 
-export async function getCookie(name: string): Promise<string | undefined> {
-  if (typeof window === 'undefined') {
-    // Server-side
-    return getServerCookie(name);
-  } else {
-    // Client-side
-    const value = getCookieClient(name);
-    return value ? decodeURIComponent(value) : undefined;
+export function getCookie(name: string): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop()?.split(';').shift();
   }
+  return undefined;
 }
 
-export async function setCookie(
-  name: string,
-  value: string,
-  options?: CookieOptions,
-): Promise<void> {
-  if (typeof window === 'undefined') {
-    // Server-side
-    await setServerCookie(name, value, options);
-  } else {
-    // Client-side
-    const encodedValue = encodeURIComponent(value);
-    let cookieString = `${name}=${encodedValue}; path=/`;
-    if (options) {
-      if (options.maxAge) cookieString += `; max-age=${options.maxAge}`;
-      if (options.expires)
-        cookieString += `; expires=${options.expires.toUTCString()}`;
-      if (options.httpOnly) cookieString += '; HttpOnly';
-      if (options.secure) cookieString += '; Secure';
-      if (options.sameSite) cookieString += `; SameSite=${options.sameSite}`;
-    }
-    setCookieClient(cookieString);
-  }
+export function setCookie(name: string, value: string, days = 7): void {
+  if (typeof document === 'undefined') return;
+
+  const date = new Date();
+  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+  const expires = `expires=${date.toUTCString()}`;
+  document.cookie = `${name}=${value};${expires};path=/`;
 }
 
-export async function removeCookie(name: string): Promise<void> {
-  if (typeof window === 'undefined') {
-    // Server-side
-    await setServerCookie(name, '', { maxAge: 0 });
-  } else {
-    // Client-side
-    setCookieClient(`${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`);
-  }
+export function deleteCookie(name: string): void {
+  if (typeof document === 'undefined') return;
+
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
 }
 
-async function main() {
-  await setCookie('testCookie', 'testValue', { maxAge: 60 });
-  const cookieValue = await getCookie('testCookie');
-  console.log('Cookie value:', cookieValue);
-  await removeCookie('testCookie');
-  const cookieValueAfterRemove = await getCookie('testCookie');
-  console.log('Cookie value after remove:', cookieValueAfterRemove);
-}
+// async function main() {
+//   await setCookie('testCookie', 'testValue', { maxAge: 60 });
+//   const cookieValue = await getCookie('testCookie');
+//   //console.log('Cookie value:', cookieValue);
+//   await deleteCookie('testCookie');
+//   const cookieValueAfterDelete = await getCookie('testCookie');
+//   //console.log('Cookie value after delete:', cookieValueAfterDelete);
+// }
 
-main();
+// main();

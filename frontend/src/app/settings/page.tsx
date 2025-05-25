@@ -14,6 +14,7 @@ import {
 import { useTheme } from 'next-themes';
 
 import { FontSizeControl } from '@/components/FontSizeControl';
+import { Status, StatusIndicator, StatusLabel } from '@/components/status';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { TimezoneSelector } from '@/components/TimezoneSelector';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -150,20 +151,53 @@ export default function SettingsPage() {
     });
   };
 
-  const renderFileStatus = (status: FileStatus) => (
-    <div className="flex items-center space-x-2">
-      <Badge
-        variant={status.status === 'downloaded' ? 'default' : 'destructive'}
-      >
-        {status.status}
-      </Badge>
-      {status.date && (
-        <span className="text-muted-foreground text-sm">
-          {new Date(status.date).toLocaleString()}
-        </span>
-      )}
-    </div>
-  );
+  const renderFileStatus = (
+    status: FileStatus,
+    sourceId: string,
+    fileType: string,
+  ) => {
+    const getStatusType = (fileStatus: FileStatus) => {
+      // If status is missing or not_downloaded, show as offline
+      if (!fileStatus.status || fileStatus.status === 'not_downloaded') {
+        return 'offline';
+      }
+
+      // Check if file is more than 24 hours old
+      if (fileStatus.date) {
+        const fileDate = new Date(fileStatus.date);
+        const now = new Date();
+        const hoursDiff =
+          (now.getTime() - fileDate.getTime()) / (1000 * 60 * 60);
+        if (hoursDiff > 24) {
+          return 'degraded';
+        }
+      }
+
+      // Default status mapping
+      switch (fileStatus.status) {
+        case 'downloaded':
+          return 'online';
+        case 'error':
+          return 'degraded';
+        default:
+          return 'maintenance';
+      }
+    };
+
+    return (
+      <div className="flex items-center space-x-2">
+        <Status status={getStatusType(status)}>
+          <StatusIndicator />
+          <StatusLabel>{status.status || 'missing'}</StatusLabel>
+        </Status>
+        {status.date && (
+          <span className="text-muted-foreground text-sm">
+            {new Date(status.date).toLocaleString()}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   const filteredSourceStatus = useMemo(() => {
     if (!sourceStatus) return null;
@@ -227,10 +261,19 @@ export default function SettingsPage() {
   }, [sourceStatus]);
 
   return (
-    <div className="flex size-full flex-col">
-      <div className="flex items-center justify-between border-b p-2">
-        <h1 className="text-xl font-bold">Settings</h1>
+    <div className="flex flex-col size-full">
+      <div className="flex justify-between items-center bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur p-4 border-b">
+        <div>
+          <h1 className="font-bold text-2xl">Settings</h1>
+          <p className="text-muted-foreground text-sm">
+            Manage your application preferences and monitor data sources
+          </p>
+        </div>
         <div className="flex items-center space-x-2">
+          <Button variant="outline" onClick={() => router.refresh()}>
+            <RotateCcw className="mr-2 size-4" />
+            Refresh Status
+          </Button>
           <Button onClick={handleSave}>
             <Globe className="mr-2 size-4" />
             Save All Settings
@@ -240,12 +283,12 @@ export default function SettingsPage() {
       <ScrollArea className="grow">
         <div className="p-4">
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="mb-4 grid w-full grid-cols-2">
+            <TabsList className="grid grid-cols-2 mb-4 w-full">
               <TabsTrigger value="general">General Settings</TabsTrigger>
               <TabsTrigger value="source-status">Source Status</TabsTrigger>
             </TabsList>
             <TabsContent value="general">
-              <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+              <div className="gap-6 grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
                 <Card>
                   <CardHeader>
                     <CardTitle>Display Mode</CardTitle>
@@ -283,9 +326,9 @@ export default function SettingsPage() {
             </TabsContent>
             <TabsContent value="source-status">
               <div className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-wrap justify-between items-center gap-4 bg-muted/50 p-4 rounded-lg">
                   <div>
-                    <h3 className="text-lg font-medium">
+                    <h3 className="font-medium text-lg">
                       XML Datasource Status
                     </h3>
                     <p className="text-muted-foreground text-sm">
@@ -293,79 +336,94 @@ export default function SettingsPage() {
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <Select
-                      value={statusFilter}
-                      onValueChange={setStatusFilter}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statusOptions.map(option => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={groupFilter} onValueChange={setGroupFilter}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter by group" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {uniqueGroups.map(
-                          option =>
-                            option !== null && (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ),
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      value={subgroupFilter}
-                      onValueChange={setSubgroupFilter}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter by subgroup" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {uniqueSubgroups.map(
-                          option =>
-                            option !== null && (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ),
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      value={locationFilter}
-                      onValueChange={setLocationFilter}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter by location" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {uniqueLocations.map(
-                          option =>
-                            option !== null && (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ),
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">Filters:</span>
+                      <Select
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statusOptions.map(option => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">Group:</span>
+                      <Select
+                        value={groupFilter}
+                        onValueChange={setGroupFilter}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Filter by group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {uniqueGroups.map(
+                            option =>
+                              option !== null && (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">Subgroup:</span>
+                      <Select
+                        value={subgroupFilter}
+                        onValueChange={setSubgroupFilter}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Filter by subgroup" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {uniqueSubgroups.map(
+                            option =>
+                              option !== null && (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">Location:</span>
+                      <Select
+                        value={locationFilter}
+                        onValueChange={setLocationFilter}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Filter by location" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {uniqueLocations.map(
+                            option =>
+                              option !== null && (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                <div className="gap-6 grid md:grid-cols-2 2xl:grid-cols-4 xl:grid-cols-3">
                   {isLoading ? (
                     <div className="space-y-4">
-                      <Skeleton className="h-8 w-64" />
-                      <Skeleton className="h-64 w-full" />
+                      <Skeleton className="w-64 h-8" />
+                      <Skeleton className="w-full h-64" />
                     </div>
                   ) : error ? (
                     <Alert variant="destructive">
@@ -376,43 +434,66 @@ export default function SettingsPage() {
                     filteredSourceStatus &&
                     Object.entries(filteredSourceStatus).map(
                       ([sourceId, status]) => (
-                        <Card key={sourceId}>
-                          <CardHeader>
-                            <CardTitle>{sourceId}</CardTitle>
-                            <CardDescription>
-                              <div className="flex items-center space-x-2">
+                        <Card
+                          key={sourceId}
+                          className="hover:shadow-md transition-shadow"
+                        >
+                          <CardHeader className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <CardTitle className="font-semibold text-lg">
+                                {sourceId}
+                              </CardTitle>
+                              <div className="flex items-center space-x-1">
                                 {status.group && (
-                                  <span className="flex items-center">
-                                    <FolderIcon className="mr-1 size-4" />
+                                  <Badge
+                                    variant="secondary"
+                                    className="flex items-center"
+                                  >
+                                    <FolderIcon className="mr-1 size-3" />
                                     {status.group}
-                                  </span>
+                                  </Badge>
                                 )}
                                 {status.subgroup && (
-                                  <span className="flex items-center">
-                                    <FolderIcon className="mr-1 size-4" />
+                                  <Badge
+                                    variant="secondary"
+                                    className="flex items-center"
+                                  >
+                                    <FolderIcon className="mr-1 size-3" />
                                     {status.subgroup}
-                                  </span>
+                                  </Badge>
                                 )}
                                 {status.location && (
-                                  <span className="flex items-center">
-                                    <GlobeIcon className="mr-1 size-4" />
+                                  <Badge
+                                    variant="secondary"
+                                    className="flex items-center"
+                                  >
+                                    <GlobeIcon className="mr-1 size-3" />
                                     {status.location}
-                                  </span>
+                                  </Badge>
                                 )}
                               </div>
-                            </CardDescription>
+                            </div>
                           </CardHeader>
                           <CardContent>
                             <Table>
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead>File Type</TableHead>
+                                  <TableHead className="w-[200px]">
+                                    File Type
+                                  </TableHead>
                                   <TableHead>Status</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
-                                {['source_file', 'channels', 'programs'].map(
-                                  fileType => (
+                                {['source_file', 'channels', 'programs']
+                                  .filter(
+                                    fileType =>
+                                      !(
+                                        sourceId.startsWith('xmlepg_') &&
+                                        fileType === 'source_file'
+                                      ),
+                                  )
+                                  .map(fileType => (
                                     <TableRow key={fileType}>
                                       <TableCell className="font-medium">
                                         <div className="flex items-center">
@@ -429,11 +510,12 @@ export default function SettingsPage() {
                                           status[
                                             fileType as keyof SourceStatus
                                           ] as FileStatus,
+                                          sourceId,
+                                          fileType,
                                         )}
                                       </TableCell>
                                     </TableRow>
-                                  ),
-                                )}
+                                  ))}
                               </TableBody>
                             </Table>
                           </CardContent>

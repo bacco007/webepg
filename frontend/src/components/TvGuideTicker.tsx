@@ -7,6 +7,7 @@ import { Clock } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { getCookie } from '@/lib/cookies';
+import { ErrorAlert, withErrorHandling } from '@/lib/error-handling';
 
 interface ChannelData {
   channel: {
@@ -76,10 +77,10 @@ export default function TVGuideTicker() {
           channel.currentProgram.start,
       );
       setChannels(validChannels);
-      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching channel data:', error);
       setError('Error fetching channel data. Please try again later.');
+    } finally {
       setIsLoading(false);
     }
   }, []);
@@ -98,15 +99,15 @@ export default function TVGuideTicker() {
   };
 
   if (isLoading) {
-    return <div className="bg-background w-full p-4">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-20">
+        <div className="bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-16 animate-pulse" />
+      </div>
+    );
   }
 
   if (error) {
-    return (
-      <div className="bg-background w-full p-4 text-red-500">
-        Error: {error}
-      </div>
-    );
+    return <ErrorAlert message={error} />;
   }
 
   const items =
@@ -137,14 +138,14 @@ export default function TVGuideTicker() {
 
   return (
     <div className="bg-background w-full">
-      <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto px-4 py-8 container">
         <div className="relative w-full overflow-hidden">
-          <div className="from-background absolute top-0 bottom-0 left-0 z-10 w-16 bg-linear-to-r to-transparent"></div>
-          <div className="from-background absolute top-0 right-0 bottom-0 z-10 w-16 bg-linear-to-l to-transparent"></div>
+          <div className="top-0 bottom-0 left-0 z-10 absolute bg-linear-to-r from-background to-transparent w-16"></div>
+          <div className="top-0 right-0 bottom-0 z-10 absolute bg-linear-to-l from-background to-transparent w-16"></div>
           <div className="overflow-hidden">
             <div
               ref={containerRef}
-              className="ticker flex"
+              className="flex ticker"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               style={{
@@ -157,9 +158,9 @@ export default function TVGuideTicker() {
                 <Link
                   key={`${item.channel.id}-${index}`}
                   href={`/channel/${item.channel.slug}?source=${xmltvDataSource}`}
-                  className="focus:ring-primary focus:ring-2 focus:outline-hidden"
+                  className="focus:outline-hidden focus:ring-2 focus:ring-primary"
                 >
-                  <Card className="mr-3 flex h-20 w-[300px] shrink-0 flex-row items-center gap-3 p-3 shadow-md transition-shadow hover:shadow-lg">
+                  <Card className="flex flex-row items-center gap-3 shadow-md hover:shadow-lg mr-3 p-3 w-[300px] h-20 transition-shadow shrink-0">
                     <div className="shrink-0">
                       <img
                         src={item.channel.icon.light || '/placeholder.svg'}
@@ -169,9 +170,9 @@ export default function TVGuideTicker() {
                         height={40}
                       />
                     </div>
-                    <div className="grow overflow-hidden">
-                      <div className="mb-1 flex items-center justify-between">
-                        <div className="truncate text-xs font-semibold">
+                    <div className="overflow-hidden grow">
+                      <div className="flex justify-between items-center mb-1">
+                        <div className="font-semibold text-xs truncate">
                           {item.channel.name.real}
                         </div>
                         <span className="text-muted-foreground text-xs">
@@ -180,7 +181,7 @@ export default function TVGuideTicker() {
                             : ''}
                         </span>
                       </div>
-                      <h3 className="truncate text-sm font-bold">
+                      <h3 className="font-bold text-sm truncate">
                         {item.currentProgram.title}
                       </h3>
                       {item.currentProgram &&
@@ -194,13 +195,9 @@ export default function TVGuideTicker() {
                             className="mt-1 h-1"
                           />
                         )}
-                      <div className="mt-1 flex items-center text-xs">
+                      <div className="flex items-center mt-1 text-xs">
                         <Clock className="mr-1 size-3" />
-                        <span>
-                          {item.currentProgram
-                            ? item.currentProgram.lengthstring
-                            : 'N/A'}
-                        </span>
+                        <span>{item.currentProgram.lengthstring || 'N/A'}</span>
                       </div>
                     </div>
                   </Card>

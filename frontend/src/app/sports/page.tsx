@@ -47,6 +47,8 @@ import {
   SidebarLayout,
   SidebarSearch,
 } from '@/components/layouts/sidebar-layout';
+import { ErrorAlert, withErrorHandling, APIError } from '@/lib/error-handling';
+import { Component } from 'react';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -143,31 +145,31 @@ function FilterSection({
   return (
     <div className="border-b">
       <div
-        className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full cursor-pointer"
+        className="hover:bg-muted/10 flex w-full cursor-pointer items-center justify-between px-4 py-3"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-2">
-          <span className="font-medium text-sm">{title}</span>
+          <span className="text-sm font-medium">{title}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-xs">
             {totalAvailableOptions}
           </span>
           {isOpen ? (
-            <ChevronUp className="size-4 text-muted-foreground" />
+            <ChevronUp className="text-muted-foreground size-4" />
           ) : (
-            <ChevronDown className="size-4 text-muted-foreground" />
+            <ChevronDown className="text-muted-foreground size-4" />
           )}
         </div>
       </div>
       {isOpen && (
         <div className="px-4 pb-3">
-          <div className="space-y-1 pr-1 max-h-[200px] overflow-y-auto thin-scrollbar">
+          <div className="thin-scrollbar max-h-[200px] space-y-1 overflow-y-auto pr-1">
             {availableOptions.length > 0 ? (
               availableOptions.map(option => (
                 <label
                   key={option}
-                  className="flex justify-between items-center py-1 cursor-pointer"
+                  className="flex cursor-pointer items-center justify-between py-1"
                 >
                   <div className="flex items-center">
                     <Checkbox
@@ -183,7 +185,7 @@ function FilterSection({
                 </label>
               ))
             ) : (
-              <div className="py-2 text-muted-foreground text-sm text-center">
+              <div className="text-muted-foreground py-2 text-center text-sm">
                 No options available
               </div>
             )}
@@ -224,39 +226,44 @@ function SportsPageContent() {
   }, []);
 
   useEffect(() => {
-    const fetchSportsData = async () => {
-      if (!dataSource || !userTimezone) return;
+    if (dataSource) {
+      fetchSportsData();
+    }
+  }, [dataSource, days]);
 
-      setIsLoading(true);
-      setError(null);
-      setNoSportsData(false);
-      try {
-        const response = await fetch(
-          `/api/py/epg/sports/${dataSource}?days=${days}&timezone=${encodeURIComponent(userTimezone)}`,
-        );
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail || 'Failed to fetch Sports data');
-        }
-        const data: SportsData = await response.json();
-        if (data.channels.length === 0) {
-          setNoSportsData(true);
-        } else {
-          setSportsData(data);
-        }
-      } catch (error_) {
-        setError(
-          error_ instanceof Error
-            ? error_.message
-            : 'An unknown error occurred',
-        );
-      } finally {
-        setIsLoading(false);
+  const fetchSportsData = async () => {
+    setIsLoading(true);
+    setError(null);
+    setNoSportsData(false);
+    try {
+      const storedDataSource = await getCookie('xmltvdatasource');
+      if (!storedDataSource) {
+        throw new Error('No data source selected');
       }
-    };
+      setDataSource(storedDataSource);
 
-    fetchSportsData();
-  }, [days, dataSource, userTimezone]);
+      const response = await fetch(
+        `/api/py/epg/sports/${storedDataSource}?days=${days}`,
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch sports data');
+      }
+
+      const data: SportsData = await response.json();
+      if (!data.channels || data.channels.length === 0) {
+        setNoSportsData(true);
+      } else {
+        setSportsData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching sports data:', error);
+      setError(
+        error instanceof Error ? error.message : 'Failed to fetch sports data',
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const navigateToNext24Hours = () => {
     const today = new Date();
@@ -383,13 +390,13 @@ function SportsPageContent() {
         size="sm"
         className="gap-1"
       >
-        <RefreshCw className="w-4 h-4" />
+        <RefreshCw className="h-4 w-4" />
         <span className="hidden sm:inline">Refresh</span>
       </Button>
       <Popover open={isFilterMenuOpen} onOpenChange={setIsFilterMenuOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="lg:hidden gap-1">
-            <FilterIcon className="w-4 h-4" />
+          <Button variant="outline" size="sm" className="gap-1 lg:hidden">
+            <FilterIcon className="h-4 w-4" />
             <span>Filters</span>
             {(selectedGroups.length > 0 || selectedCategories.length > 0) && (
               <Badge variant="secondary" className="ml-1">
@@ -398,7 +405,7 @@ function SportsPageContent() {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[300px]" align="end">
+        <PopoverContent className="w-[300px] p-0" align="end">
           <Command>
             <CommandInput placeholder="Search filters..." />
             <CommandList>
@@ -445,7 +452,7 @@ function SportsPageContent() {
                 </ScrollArea>
               </CommandGroup>
             </CommandList>
-            <div className="p-2 border-t">
+            <div className="border-t p-2">
               <Button
                 variant="outline"
                 className="w-full"
@@ -496,7 +503,7 @@ function SportsPageContent() {
         >
           Clear All Filters
         </Button>
-        <div className="mt-2 text-muted-foreground text-xs text-center">
+        <div className="text-muted-foreground mt-2 text-center text-xs">
           Showing {filteredAndSortedChannels.length} of{' '}
           {sportsData?.channels.length || 0} channels
         </div>
@@ -506,7 +513,7 @@ function SportsPageContent() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex h-full items-center justify-center">
         <LoadingSpinner />
       </div>
     );
@@ -514,23 +521,15 @@ function SportsPageContent() {
 
   if (error) {
     return (
-      <div className="flex flex-col justify-center items-center h-full">
-        <Alert variant="destructive" className="mb-4 max-w-md">
-          <AlertCircle className="size-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-        <Button onClick={() => window.location.reload()}>
-          <RefreshCw className="mr-2 size-4" />
-          Retry
-        </Button>
+      <div className="h-full">
+        <ErrorAlert message={error} onRetry={fetchSportsData} />
       </div>
     );
   }
 
   if (noSportsData) {
     return (
-      <div className="flex flex-col justify-center items-center h-full">
+      <div className="flex h-full flex-col items-center justify-center">
         <Alert className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>No Sports Programming</AlertTitle>
@@ -549,7 +548,7 @@ function SportsPageContent() {
 
   if (!sportsData || filteredAndSortedChannels.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center h-full">
+      <div className="flex h-full flex-col items-center justify-center">
         <Alert className="mb-4 max-w-md">
           <AlertCircle className="size-4" />
           <AlertTitle>No Results</AlertTitle>
@@ -573,26 +572,26 @@ function SportsPageContent() {
       contentClassName="overflow-auto"
     >
       <div className="p-4 pb-4">
-        <div className="gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredAndSortedChannels.map(channelData => (
             <div
               key={channelData.channel.slug}
-              className="flex flex-col bg-card shadow-sm border rounded-md h-full"
+              className="bg-card flex h-full flex-col rounded-md border shadow-sm"
             >
               {/* Channel header */}
-              <div className="flex justify-between items-center px-3 py-2 border-b">
+              <div className="flex items-center justify-between border-b px-3 py-2">
                 {channelData.channel.icon &&
                   channelData.channel.icon.light !== 'N/A' && (
-                    <div className="flex items-center h-8">
+                    <div className="flex h-8 items-center">
                       <img
-                        className="dark:hidden block max-w-[60px] max-h-full object-contain"
+                        className="block max-h-full max-w-[60px] object-contain dark:hidden"
                         src={
                           channelData.channel.icon.light || '/placeholder.svg'
                         }
                         alt={decodeHtml(channelData.channel.name)}
                       />
                       <img
-                        className="hidden dark:block max-w-[60px] max-h-full object-contain"
+                        className="hidden max-h-full max-w-[60px] object-contain dark:block"
                         src={
                           channelData.channel.icon.dark || '/placeholder.svg'
                         }
@@ -601,7 +600,7 @@ function SportsPageContent() {
                     </div>
                   )}
                 <div className="ml-auto text-right">
-                  <div className="font-medium text-base">
+                  <div className="text-base font-medium">
                     {decodeHtml(channelData.channel.name)}
                   </div>
                   {channelData.channel.lcn !== 'N/A' && (
@@ -620,7 +619,7 @@ function SportsPageContent() {
                       ([date, programs]) => (
                         <div key={date} className="border-b last:border-b-0">
                           <button
-                            className="flex justify-between items-center hover:bg-muted/50 px-3 py-1 w-full font-medium text-sm text-left"
+                            className="hover:bg-muted/50 flex w-full items-center justify-between px-3 py-1 text-left text-sm font-medium"
                             onClick={e => {
                               const content =
                                 e.currentTarget.nextElementSibling;
@@ -636,13 +635,13 @@ function SportsPageContent() {
                             <ChevronIcon className="size-4" />
                           </button>
                           <div className="hidden overflow-x-auto">
-                            <table className="w-full min-w-full text-sm border-collapse table-auto">
+                            <table className="w-full min-w-full table-auto border-collapse text-sm">
                               <thead>
                                 <tr className="border-b">
-                                  <th className="px-3 py-1 w-[100px] font-medium text-left">
+                                  <th className="w-[100px] px-3 py-1 text-left font-medium">
                                     Time
                                   </th>
-                                  <th className="px-3 py-1 font-medium text-left">
+                                  <th className="px-3 py-1 text-left font-medium">
                                     Title
                                   </th>
                                 </tr>
@@ -682,11 +681,11 @@ function SportsPageContent() {
               </div>
 
               {/* Card footer */}
-              <div className="flex mt-auto px-2 py-2 border-t">
+              <div className="mt-auto flex border-t px-2 py-2">
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="flex-1 mr-2"
+                  className="mr-2 flex-1"
                   onClick={navigateToNext24Hours}
                 >
                   <Clock className="mr-1 size-3" />
@@ -776,12 +775,56 @@ function ChevronDown({ className }: { className?: string }) {
   );
 }
 
+// Create an error boundary component
+class ErrorBoundaryComponent extends Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error in component:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex h-full items-center justify-center">
+          <Alert variant="destructive" className="max-w-md">
+            <AlertCircle className="size-4" />
+            <AlertTitle>Something went wrong</AlertTitle>
+            <AlertDescription>
+              An error occurred while rendering the sports view. Please try
+              refreshing the page.
+            </AlertDescription>
+            <Button onClick={() => window.location.reload()} className="mt-4">
+              <RefreshCw className="mr-2 size-4" />
+              Refresh Page
+            </Button>
+          </Alert>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 export default function SportsPage() {
   return (
-    <main className="h-full overflow-hidden">
-      <Suspense fallback={<LoadingSpinner />}>
-        <SportsPageContent />
-      </Suspense>
-    </main>
+    <div className="h-screen w-full overflow-hidden">
+      <ErrorBoundaryComponent>
+        <Suspense fallback={<LoadingSpinner />}>
+          <SportsPageContent />
+        </Suspense>
+      </ErrorBoundaryComponent>
+    </div>
   );
 }

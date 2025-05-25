@@ -1,0 +1,7 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+- This project runs on Next.js and uses shadcn and Tailwind 4
+- unless i specficially ask, do not change the header and sidebar on pages that contain these elements

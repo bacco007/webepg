@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { CalendarDays, Film, Loader2, Tv } from 'lucide-react';
 
 import { getCookie } from '@/lib/cookies';
+import { ErrorAlert, withErrorHandling } from '@/lib/error-handling';
 
 interface EPGStats {
   days: number;
@@ -90,18 +91,14 @@ export function EPGStats() {
 
   if (isLoading) {
     return (
-      <div className="flex h-40 items-center justify-center">
-        <Loader2 className="text-primary size-8 animate-spin" />
+      <div className="flex justify-center items-center h-40">
+        <Loader2 className="size-8 text-primary animate-spin" />
       </div>
     );
   }
 
   if (error) {
-    return (
-      <div className="text-center text-red-500">
-        <p>{error}</p>
-      </div>
-    );
+    return <ErrorAlert message={error} />;
   }
 
   if (!stats) {
@@ -134,17 +131,17 @@ export function EPGStats() {
 
   return (
     <div className="fade-in-up">
-      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="gap-6 grid grid-cols-1 sm:grid-cols-3 mx-auto max-w-4xl">
         {statCards.map((stat, index) => (
-          <div key={index} className="overflow-hidden rounded-lg shadow-sm">
+          <div key={index} className="shadow-sm rounded-lg overflow-hidden">
             <div
               className={`flex items-center justify-between p-4 ${stat.color}`}
             >
               <h3 className={`font-bold ${stat.textColor}`}>{stat.title}</h3>
               <stat.icon className={`size-6 ${stat.textColor}`} />
             </div>
-            <div className="bg-white p-6 text-center dark:bg-gray-700">
-              <p className="text-4xl font-bold text-gray-900 dark:text-white">
+            <div className="bg-white dark:bg-gray-700 p-6 text-center">
+              <p className="font-bold text-gray-900 dark:text-white text-4xl">
                 <CountUpAnimation end={stat.value} />
               </p>
             </div>

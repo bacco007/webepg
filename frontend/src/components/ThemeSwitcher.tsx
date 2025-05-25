@@ -36,7 +36,7 @@ export function ThemeSwitcher({ className }: { className?: string }) {
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
-    setCookie('theme', newTheme, { path: '/', maxAge: 31_536_000 });
+    setCookie('theme', newTheme, 31_536_000);
   };
 
   if (!mounted) {

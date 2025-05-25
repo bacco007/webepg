@@ -26,6 +26,11 @@ const routeMapping: Record<string, BreadcrumbItem[]> = {
     { title: 'Channels by Service', link: '/channellist' },
     { title: 'Freeview (AU)', link: '/channellist/freeview-au' },
   ],
+  '/channellist/freeview-au/regionmap': [
+    { title: 'Channels by Service', link: '/channellist' },
+    { title: 'Freeview (AU)', link: '/channellist/freeview-au' },
+    { title: 'Region Map', link: '/channellist/freeview-au/regionmap' },
+  ],
   '/channellist/freeview-nz': [
     { title: 'Channels by Service', link: '/channellist' },
     { title: 'Freeview (NZ)', link: '/channellist/freeview-nz' },

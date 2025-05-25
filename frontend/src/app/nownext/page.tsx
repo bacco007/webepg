@@ -1,6 +1,12 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   AlertCircle,
@@ -58,6 +64,10 @@ import {
 } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { getCookie } from '@/lib/cookies';
+// @ts-ignore
+import { compareLCN } from '@/utils/sort';
+import LoadingState from '@/components/LoadingState';
+import { ErrorBoundary, ErrorAlert, withErrorHandling, APIError } from '@/lib/error-handling';
 
 interface Program {
   title: string;
@@ -131,33 +141,27 @@ function ChannelGrid() {
     setIsLoading(true);
     setError(null);
     try {
-      const storedDataSource =
-        (await getCookie('xmltvdatasource')) || 'xmlepg_FTASYD';
+      const storedDataSource = getCookie('xmltvdatasource') || 'xmlepg_FTASYD';
       setXmltvDataSource(storedDataSource);
 
       const response = await fetch(`/api/py/epg/nownext/${storedDataSource}`);
+
       if (!response.ok) {
-        throw new Error('Failed to fetch channel data');
+        throw new Error(`Failed to fetch channel data: ${response.status}`);
       }
+
       const data = await response.json();
-      const sortedChannels = data.data.sort(
-        (a: ChannelData, b: ChannelData) => {
-          const aLcn =
-            Number.parseInt(a.channel.lcn) || Number.POSITIVE_INFINITY;
-          const bLcn =
-            Number.parseInt(b.channel.lcn) || Number.POSITIVE_INFINITY;
-          if (aLcn === bLcn) {
-            return a.channel.name.real.localeCompare(b.channel.name.real);
-          }
-          return aLcn - bLcn;
-        },
+      const sortedChannels = data.data.sort((a: ChannelData, b: ChannelData) =>
+        compareLCN(a.channel.lcn, b.channel.lcn),
       );
       setChannels(sortedChannels);
       setFilteredChannels(sortedChannels);
-      setIsLoading(false);
-    } catch (error_) {
-      console.error('Error fetching channel data:', error_);
-      setError('Error fetching channel data. Please try again later.');
+    } catch (error) {
+      console.error('Error fetching channel data:', error);
+      setError(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+      );
+    } finally {
       setIsLoading(false);
     }
   }, []);
@@ -772,19 +776,7 @@ function ChannelGrid() {
   };
 
   if (error) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertCircle className="size-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-          <Button onClick={handleRefresh} className="mt-4">
-            <RefreshCw className="mr-2 size-4" />
-            Try Again
-          </Button>
-        </Alert>
-      </div>
-    );
+    return <ErrorAlert message={error} onRetry={handleRefresh} />;
   }
 
   // Create the sidebar content using the template structure
@@ -904,9 +896,7 @@ function ChannelGrid() {
     >
       <div className="p-4 pb-4">
         {isLoading ? (
-          <div className="flex justify-center items-center h-full">
-            <LoadingSpinner />
-          </div>
+          <LoadingState text="Loading Now & Next..." />
         ) : viewMode === 'card' ? (
           <>
             <CardView />
@@ -923,12 +913,58 @@ function ChannelGrid() {
   );
 }
 
+// Create an error boundary component
+class ErrorBoundaryComponent extends React.Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error in component:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+
+    return this.props.children;
+  }
+}
+
 export default function NowNextPage() {
   return (
-    <main className="h-full overflow-hidden">
-      <Suspense fallback={<LoadingSpinner />}>
-        <ChannelGrid />
-      </Suspense>
-    </main>
+    <div className="w-full h-screen overflow-hidden">
+      <ErrorBoundaryComponent
+        fallback={
+          <div className="flex justify-center items-center h-full">
+            <Alert variant="destructive" className="max-w-md">
+              <AlertCircle className="size-4" />
+              <AlertTitle>Something went wrong</AlertTitle>
+              <AlertDescription>
+                An error occurred while rendering the now/next view. Please try
+                refreshing the page.
+              </AlertDescription>
+              <Button onClick={() => window.location.reload()} className="mt-4">
+                <RefreshCw className="mr-2 size-4" />
+                Refresh Page
+              </Button>
+            </Alert>
+          </div>
+        }
+      >
+        <Suspense fallback={<LoadingSpinner />}>
+          <ChannelGrid />
+        </Suspense>
+      </ErrorBoundaryComponent>
+    </div>
   );
 }

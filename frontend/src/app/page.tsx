@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import { CalendarDays, Film, Tv } from 'lucide-react';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import {
@@ -12,14 +14,16 @@ import {
 import { EPGStats } from '@/components/EPGStats';
 import { SourcesDropdown } from '@/components/sidebar/SourcesDropdown';
 import { TimezoneDropdown } from '@/components/TimezoneDropdown';
-import TvGuideTicker from '@/components/TvGuideTicker';
+import TVGuideTicker from '@/components/TvGuideTicker';
 import { Badge } from '@/components/ui/badge';
 import { siteConfig } from '@/config/site';
+import { ErrorBoundary } from '@/lib/error-handling';
 
 export default async function Home() {
   const cookieStore = await cookies();
-  const timezone = cookieStore.get('timezone')?.value;
-  const xmltvdatasource = cookieStore.get('xmltvdatasource')?.value;
+  const timezone = cookieStore.get('userTimezone')?.value || 'UTC';
+  const xmltvdatasource =
+    cookieStore.get('xmltvdatasource')?.value || 'xmlepg_FTASYD';
 
   const cards = [
     {
@@ -67,61 +71,69 @@ export default async function Home() {
   ];
 
   return (
-    <main className="from-background to-secondary/20 min-h-screen bg-gradient-to-b">
-      <div className="container mx-auto px-4 py-16 md:px-6 lg:max-w-7xl">
+    <main className="bg-gradient-to-b from-background to-secondary/20 min-h-screen">
+      <div className="mx-auto px-4 md:px-6 py-16 lg:max-w-7xl container">
         <section className="mb-8 text-center">
-          <div className="mb-6 flex items-center justify-center">
-            <Link href="/" className="relative inline-flex items-center">
-              <span className="text-primary text-5xl font-extrabold tracking-tight sm:text-5xl md:text-5xl">
+          <div className="flex justify-center items-center mb-6">
+            <Link href="/" className="inline-flex relative items-center">
+              <span className="font-extrabold text-primary text-5xl sm:text-5xl md:text-5xl tracking-tight">
                 {siteConfig.name}
               </span>
               <Badge
                 variant="secondary"
-                className="ml-2 px-2 py-1 text-lg font-semibold"
+                className="ml-2 px-2 py-1 font-semibold text-lg"
               >
                 Beta
               </Badge>
             </Link>
           </div>
-          <h1 className="text-primary mb-5 text-4xl font-extrabold tracking-tight sm:text-4xl md:text-4xl">
+          <h1 className="mb-5 font-extrabold text-primary text-4xl sm:text-4xl md:text-4xl tracking-tight">
             Your Ultimate EPG Experience
           </h1>
-          <p className="text-muted-foreground mx-auto mb-8 max-w-3xl text-xl">
+          <p className="mx-auto mb-8 max-w-3xl text-muted-foreground text-xl">
             Discover a new way to explore TV schedules with our innovative
             Electronic Program Guide. Stay up-to-date with your favorite shows
             and never miss a moment of entertainment.
           </p>
-          <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+          <div className="flex sm:flex-row flex-col justify-center items-center sm:space-x-4 space-y-4 sm:space-y-0">
             <SourcesDropdown />
             <TimezoneDropdown />
           </div>
         </section>
 
-        <section className="mb-8">
-          <TvGuideTicker />
+        <section className="mb-12">
+          <ErrorBoundary>
+            <Suspense
+              fallback={
+                <div className="bg-gray-200 dark:bg-gray-700 rounded-lg h-20 animate-pulse" />
+              }
+            >
+              <TVGuideTicker />
+            </Suspense>
+          </ErrorBoundary>
         </section>
 
         <section className="mb-12">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="gap-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {cards.map((card, index) => (
               <Link
                 key={index}
                 href={card.link}
                 className="block focus:outline-none"
               >
-                <div className="overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md">
-                  <div className="bg-gray-200 p-2 text-center dark:bg-gray-800">
+                <div className="shadow-sm hover:shadow-md rounded-lg overflow-hidden transition-shadow">
+                  <div className="bg-gray-200 dark:bg-gray-800 p-2 text-center">
                     <card.icon className="mx-auto mb-2 size-8 text-gray-800 dark:text-gray-200" />
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-xl">
                       {card.title}
                     </h3>
                   </div>
-                  <div className="bg-white p-4 text-center dark:bg-gray-700">
-                    <p className="gray-600 mb-4 text-sm dark:text-gray-300">
+                  <div className="bg-white dark:bg-gray-700 p-4 text-center">
+                    <p className="mb-4 dark:text-gray-300 text-sm gray-600">
                       {card.description}
                     </p>
-                    <div className="flex items-center justify-center">
-                      <span className="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <div className="flex justify-center items-center">
+                      <span className="flex items-center font-medium text-gray-900 dark:text-gray-100 text-sm">
                         Explore
                         <ArrowRightIcon className="ml-2 size-4" />
                       </span>
