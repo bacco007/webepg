@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -29,7 +29,7 @@ COPY --from=deps /app/node_modules ./node_modules
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the application
 RUN --mount=type=cache,target=/app/.next/cache \
@@ -39,9 +39,9 @@ RUN --mount=type=cache,target=/app/.next/cache \
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Don't run production as root
 RUN addgroup --system --gid 1001 nodejs && \
@@ -60,9 +60,13 @@ USER nextjs
 # Expose the port the app runs on
 EXPOSE 3000
 
-ENV PORT 3000
+ENV PORT=3000
 # Ensure we listen on all network interfaces
-ENV HOSTNAME "0.0.0.0"
+ENV HOSTNAME="0.0.0.0"
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
 # Use array syntax for better signal handling
 CMD ["node", "server.js"]

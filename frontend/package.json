@@ -17,10 +17,8 @@
     "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.js",
     "formatandlint": "pnpm run format:fix && pnpm run lint:fix",
     "postbuild": "next-sitemap",
-    "postinstall": "pnpm run type-check",
     "update": "pnpm dlx npm-check-updates -u && pnpm install",
-    "update-shadcn": "pnpm dlx shadcn@latest add --all --overwrite",
-    "type-check": "tsc -b"
+    "update-shadcn": "pnpm dlx shadcn@latest add --all --overwrite"
   },
   "dependencies": {
     "@drustack/leaflet.resetview": "^1.9.2",
