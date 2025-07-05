@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import Script from "next/script";
 import { FontSizeProvider } from "@/components/font-size-provider";
 import { GlobalErrorBoundary } from "@/components/global-error-boundary";
-import Header from "@/components/header";
+import Header from "@/components/Header";
 import Sidebar from "@/components/sidebar/Sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import TopLoader from "@/components/top-loader";
