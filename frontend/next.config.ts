@@ -94,7 +94,8 @@ export default bundleAnalyzer({
     ignoreBuildErrors: false,
   },
   webpack(config) {
-    config.resolve.alias["@"] = path.resolve(__dirname);
+    config.resolve.alias["@"] = path.resolve(__dirname, 'src');
+    config.resolve.alias['~'] = path.resolve(__dirname, 'public');
     config.plugins.push(new (require("case-sensitive-paths-webpack-plugin"))());
     return config;
   },
