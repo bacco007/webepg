@@ -89,4 +89,7 @@ export default bundleAnalyzer({
   ],
   // Add this to ensure Tailwind CSS v4 is properly transpiled
   transpilePackages: ["tailwindcss"],
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 });

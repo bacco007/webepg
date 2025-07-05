@@ -730,12 +730,12 @@ function useChannelMapData() {
           colSpan={colspan}
           key={`location-${location}`}
         >
-          <div className="flex flex-col items-center justify-center gap-1">
+          <div className="flex flex-col justify-center items-center gap-1">
             {logoUrl && (
-              <div className="flex size-10 items-center justify-center rounded-md bg-muted/50">
+              <div className="flex justify-center items-center bg-muted/50 rounded-md size-10">
                 <img
                   alt=""
-                  className="max-h-full max-w-full object-contain p-1"
+                  className="p-1 max-w-full max-h-full object-contain"
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.src = "/placeholder.svg?height=32&width=32";
@@ -756,7 +756,7 @@ function useChannelMapData() {
   const renderNotAvailableCell = useCallback(
     (location: string, colspan: number) => (
       <TableCell
-        className="whitespace-normal border bg-muted/50 py-2 text-center"
+        className="bg-muted/50 py-2 border text-center whitespace-normal"
         colSpan={colspan}
         key={`location-${location}`}
       >
@@ -783,8 +783,8 @@ function useChannelMapData() {
           className="hover:bg-muted/50"
           key={`${network}-${channelNumber}`}
         >
-          <TableCell className="sticky left-0 z-10 w-[100px] min-w-[100px] border bg-background py-2 font-medium shadow-sm">
-            <div className="flex items-center justify-center">
+          <TableCell className="left-0 z-10 sticky bg-background shadow-sm py-2 border w-[100px] min-w-[100px] font-medium">
+            <div className="flex justify-center items-center">
               <div className="text-center">
                 <div className="font-medium">Ch {channelNumber}</div>
               </div>
@@ -1229,7 +1229,7 @@ const renderFlatViewLocationCell = (
   if (!channel) {
     return (
       <td
-        className="h-10 border border-border px-3 text-center text-muted-foreground text-sm"
+        className="px-3 border border-border h-10 text-muted-foreground text-sm text-center"
         key={`location-${location}`}
       >
         <span className="text-muted-foreground text-xs">Not available</span>
@@ -1267,12 +1267,12 @@ const renderFlatViewLocationCell = (
       colSpan={colspan}
       key={`location-${location}`}
     >
-      <div className="flex flex-col items-center justify-center gap-1">
+      <div className="flex flex-col justify-center items-center gap-1">
         {channel.channel_logo?.light && (
-          <div className="flex size-8 items-center justify-center rounded-md bg-muted/50">
+          <div className="flex justify-center items-center bg-muted/50 rounded-md size-8">
             <img
               alt=""
-              className="max-h-full max-w-full object-contain p-1"
+              className="p-1 max-w-full max-h-full object-contain"
               loading="lazy"
               onError={(e) => {
                 e.currentTarget.src = "/placeholder.svg?height=24&width=24";
@@ -1338,8 +1338,8 @@ const renderFlatViewRow = (
   );
 
   return (
-    <tr className="border-b hover:bg-muted/50" key={`channel-${channelNumber}`}>
-      <td className="sticky left-0 z-20 h-10 w-[100px] min-w-[100px] border border-border bg-background px-3 text-center font-medium shadow-sm">
+    <tr className="hover:bg-muted/50 border-b" key={`channel-${channelNumber}`}>
+      <td className="left-0 z-20 sticky bg-background shadow-sm px-3 border border-border w-[100px] min-w-[100px] h-10 font-medium text-center">
         Ch {channelNumber}
       </td>
 
@@ -1408,15 +1408,15 @@ const renderMobileFlatView = (
 
   return (
     <div className="relative">
-      <table className="w-full border-collapse border border-border">
-        <thead className="sticky top-0 z-10">
-          <tr className="border-b bg-muted/50">
-            <th className="h-10 w-[100px] min-w-[100px] border border-border bg-muted/50 px-3 text-center font-medium text-muted-foreground text-xs">
+      <table className="border border-border w-full border-collapse">
+        <thead className="top-0 z-10 sticky">
+          <tr className="bg-muted/50 border-b">
+            <th className="bg-muted/50 px-3 border border-border w-[100px] min-w-[100px] h-10 font-medium text-muted-foreground text-xs text-center">
               Channel
             </th>
             {visibleLocations.map((location) => (
               <th
-                className="h-10 border border-border px-3 text-center font-medium text-muted-foreground text-xs"
+                className="px-3 border border-border h-10 font-medium text-muted-foreground text-xs text-center"
                 key={location}
               >
                 {location}
@@ -1467,17 +1467,17 @@ const renderMobileNetworksView = (
       return (
         <div className="mb-6" key={network}>
           <div
-            className="mb-3 flex cursor-pointer items-center justify-between rounded-md bg-muted/50 p-3"
+            className="flex justify-between items-center bg-muted/50 mb-3 p-3 rounded-md cursor-pointer"
             onClick={() => toggleNetworkCollapse(network)}
           >
             <h3 className="font-bold">{network}</h3>
             <div className="flex items-center gap-2">
               <Badge variant="outline">{Object.keys(channels).length}</Badge>
-              <Button className="h-6 w-6 p-0" size="sm" variant="ghost">
+              <Button className="p-0 w-6 h-6" size="sm" variant="ghost">
                 {isCollapsed ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="w-4 h-4" />
                 ) : (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="w-4 h-4" />
                 )}
               </Button>
             </div>
@@ -1541,24 +1541,24 @@ const renderDesktopNetworksView = (
           return (
             <React.Fragment key={network}>
               <TableRow
-                className="cursor-pointer bg-muted/50 hover:bg-muted/70"
+                className="bg-muted/50 hover:bg-muted/70 cursor-pointer"
                 onClick={() => toggleNetworkCollapse(network)}
               >
                 <TableCell
-                  className="sticky left-0 z-10 border bg-muted/50 font-bold"
+                  className="left-0 z-10 sticky bg-muted/50 border font-bold"
                   colSpan={1 + visibleLocations.length}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex justify-between items-center">
                     <span>{network}</span>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">
                         {Object.keys(channels).length}
                       </Badge>
-                      <Button className="h-6 w-6 p-0" size="sm" variant="ghost">
+                      <Button className="p-0 w-6 h-6" size="sm" variant="ghost">
                         {isCollapsed ? (
-                          <ChevronDown className="h-4 w-4" />
+                          <ChevronDown className="w-4 h-4" />
                         ) : (
-                          <ChevronUp className="h-4 w-4" />
+                          <ChevronUp className="w-4 h-4" />
                         )}
                       </Button>
                     </div>
@@ -1568,12 +1568,12 @@ const renderDesktopNetworksView = (
               {!isCollapsed && (
                 <>
                   <TableRow>
-                    <TableHead className="sticky left-0 z-10 w-[100px] min-w-[100px] border bg-muted py-2">
+                    <TableHead className="left-0 z-10 sticky bg-muted py-2 border w-[100px] min-w-[100px]">
                       Channel
                     </TableHead>
                     {visibleLocations.map((location) => (
                       <TableHead
-                        className="w-auto whitespace-normal border py-2 text-center"
+                        className="py-2 border w-auto text-center whitespace-normal"
                         key={location}
                       >
                         {location}
@@ -1647,15 +1647,15 @@ const renderDesktopFlatView = (
 
   return (
     <div className="w-full" style={{ height: "calc(100vh - 200px)" }}>
-      <table className="w-full table-fixed border-collapse border border-border">
+      <table className="border border-border w-full border-collapse table-fixed">
         <thead>
-          <tr className="sticky top-0 z-20 bg-background shadow-sm">
-            <th className="w-[100px] min-w-[100px] border border-border bg-background py-2 text-center text-xs shadow-sm">
+          <tr className="top-0 z-20 sticky bg-background shadow-sm">
+            <th className="bg-background shadow-sm py-2 border border-border w-[100px] min-w-[100px] text-xs text-center">
               Channel
             </th>
             {visibleLocations.map((location) => (
               <th
-                className="border border-border bg-background py-2 text-center text-xs"
+                className="bg-background py-2 border border-border text-xs text-center"
                 key={location}
               >
                 {location}
@@ -1720,8 +1720,8 @@ const ChannelMapContent = ({
 }) => {
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
         <span className="ml-2 text-lg">Loading channel data...</span>
       </div>
     );
@@ -1755,7 +1755,7 @@ const ChannelMapContent = ({
                 )}
 
             {Object.keys(filteredChannelMap).length === 0 && (
-              <div className="rounded-md bg-muted/20 p-8 text-center">
+              <div className="bg-muted/20 p-8 rounded-md text-center">
                 {selectedSubgroup
                   ? "No results found. Try adjusting your filters."
                   : "Please select a region to view channels."}
@@ -1978,7 +1978,7 @@ export default function ChannelMapSourcesPage() {
         />
 
         {/* Channel Specs Legend */}
-        <div className="mt-4 rounded-md bg-muted/20 p-3">
+        <div className="bg-muted/20 mt-4 p-3 rounded-md">
           <h3 className="mb-2 font-medium text-sm">Channel Specs Legend:</h3>
           <div className="space-y-1 text-xs">
             <div className="flex items-center gap-2">
@@ -2029,7 +2029,7 @@ export default function ChannelMapSourcesPage() {
         >
           Clear All Filters
         </Button>
-        <div className="mt-2 text-center text-muted-foreground text-xs">
+        <div className="mt-2 text-muted-foreground text-xs text-center">
           Showing {filteredChannels} of {totalChannels} channels
         </div>
       </SidebarFooter>
@@ -2038,12 +2038,12 @@ export default function ChannelMapSourcesPage() {
 
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex justify-center items-center h-full">
         <Card className="p-6">
           <h2 className="mb-4 font-bold text-destructive text-xl">Error</h2>
           <p>{error}</p>
           <Button className="mt-4" onClick={fetchSources}>
-            <RotateCw className="mr-2 h-4 w-4" />
+            <RotateCw className="mr-2 w-4 h-4" />
             Retry
           </Button>
         </Card>
