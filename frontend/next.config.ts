@@ -1,3 +1,4 @@
+import path from "node:path";
 import withBundleAnalyzer from "@next/bundle-analyzer";
 
 const bundleAnalyzer = withBundleAnalyzer({
@@ -91,5 +92,10 @@ export default bundleAnalyzer({
   transpilePackages: ["tailwindcss"],
   typescript: {
     ignoreBuildErrors: false,
+  },
+  webpack(config) {
+    config.resolve.alias["@"] = path.resolve(__dirname);
+    config.plugins.push(new (require("case-sensitive-paths-webpack-plugin"))());
+    return config;
   },
 });
