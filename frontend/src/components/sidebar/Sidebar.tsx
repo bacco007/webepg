@@ -18,7 +18,7 @@ export default function Sidebar() {
   return (
     <SidebarPrimitive
       aria-label="Main navigation sidebar"
-      className="border-r-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      className="bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-r-0"
       collapsible="icon"
       variant="inset"
     >

@@ -7,7 +7,7 @@ import Script from "next/script";
 import { FontSizeProvider } from "@/components/font-size-provider";
 import { GlobalErrorBoundary } from "@/components/global-error-boundary";
 import Header from "@/components/header";
-import Sidebar from "@/components/sidebar/sidebar";
+import Sidebar from "@/components/sidebar/Sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import TopLoader from "@/components/top-loader";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
