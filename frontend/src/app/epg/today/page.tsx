@@ -1,10 +1,13 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { format } from 'date-fns-tz';
+import { format } from "date-fns-tz";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-import { getCookie } from '@/lib/cookies';
+import { getCookie } from "@/lib/cookies";
+
+// Regex to validate date format (YYYYMMDD)
+const DATE_FORMAT_REGEX = /^\d{8}$/;
 
 export default function TodayRedirect() {
   const router = useRouter();
@@ -13,32 +16,31 @@ export default function TodayRedirect() {
     const redirect = async () => {
       try {
         const now = new Date();
-        if (isNaN(now.getTime())) {
-          throw new TypeError('Invalid date');
+        if (Number.isNaN(now.getTime())) {
+          throw new TypeError("Invalid date");
         }
 
-        let userTimezone = 'UTC';
+        let userTimezone = "UTC";
         try {
-          const storedTimezone = await getCookie('userTimezone');
+          const storedTimezone = await getCookie("userTimezone");
           if (storedTimezone) {
             userTimezone = storedTimezone;
           }
-        } catch (error) {
-          console.warn('Error accessing cookies:', error);
+        } catch (_error) {
+          // Ignore timezone cookie errors, use UTC as fallback
         }
 
-        const today = format(now, 'yyyyMMdd', { timeZone: userTimezone });
+        const today = format(now, "yyyyMMdd", { timeZone: userTimezone });
 
-        if (!/^\d{8}$/.test(today)) {
-          throw new Error('Invalid date format');
+        if (!DATE_FORMAT_REGEX.test(today)) {
+          throw new Error("Invalid date format");
         }
 
         const redirectUrl = `/epg/${today}`;
 
         router.push(redirectUrl);
-      } catch (error) {
-        console.error('Error in TodayRedirect:', error);
-        router.push('/epg/error');
+      } catch (_error) {
+        router.push("/epg/error");
       }
     };
 

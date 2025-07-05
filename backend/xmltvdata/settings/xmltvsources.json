@@ -205,20 +205,9 @@
     }
   },
   {
-    "id": "FOXTEL2",
-    "group": "Testing",
-    "subgroup": "Australia",
-    "location": "Foxtel 2",
-    "url": "local",
-    "logo": {
-      "light": "logos/foxtel.png",
-      "dark": "logos/foxtel.png"
-    }
-  },
-  {
     "id": "abcradio",
-    "group": "Testing",
-    "subgroup": "Australia",
+    "group": "Australia",
+    "subgroup": "Radio",
     "location": "ABC Radio",
     "url": "http://170.64.142.170:8080/abc_radio_guide.xml"
   },
@@ -248,7 +237,7 @@
     "id": "skyuk-test",
     "group": "Testing",
     "subgroup": "United Kingdom",
-    "location": "Sky",
+    "location": "Sky (Sky UK)",
     "url": "http://170.64.142.170:8080/skyuk.xml",
     "logo": {
       "light": "logos/skyuk.png",
@@ -278,34 +267,204 @@
     "group": "International",
     "subgroup": "Malaysia",
     "location": "Astro",
-    "url": "https://raw.githubusercontent.com/azimabid00/epg/main/astro_epg.xml"
+    "url": "https://raw.githubusercontent.com/azimabid00/epg/main/astro_epg.xml",
+    "logo": {
+      "light": "logos/astro.png",
+      "dark": "logos/astro.png"
+    }
   },
   {
     "id": "mjh-flash",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Flash (MJH)",
-    "url": "https://raw.githubusercontent.com/matthuisman/i.mjh.nz/master/Flash/epg.xml"
+    "url": "https://raw.githubusercontent.com/matthuisman/i.mjh.nz/master/Flash/epg.xml",
+    "logo": {
+      "light": "logos/flash.png",
+      "dark": "logos/flash.png"
+    }
   },
   {
     "id": "mjh-foxtel",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Foxtel (MJH)",
-    "url": "https://i.mjh.nz/Foxtel/epg.xml"
+    "url": "https://i.mjh.nz/Foxtel/epg.xml",
+    "logo": {
+      "light": "logos/foxtel.png",
+      "dark": "logos/foxtel.png"
+    }
   },
   {
     "id": "mjh-kayo",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Kayo (MJH)",
-    "url": "https://i.mjh.nz/Kayo/epg.xml"
+    "url": "https://i.mjh.nz/Kayo/epg.xml",
+    "logo": {
+      "light": "logos/kayo.png",
+      "dark": "logos/kayo.png"
+    }
   },
   {
     "id": "mjh-binge",
     "group": "Australia",
     "subgroup": "Subscription",
     "location": "Binge (MJH)",
-    "url": "https://i.mjh.nz/Binge/epg.xml"
+    "url": "https://i.mjh.nz/Binge/epg.xml",
+    "logo": {
+      "light": "logos/binge.png",
+      "dark": "logos/binge.png"
+    }
+  },
+  {
+    "id": "xmltvch",
+    "group": "Testing",
+    "subgroup": "France / Switzerland",
+    "location": "XMLTV.ch",
+    "url": "https://xmltv.ch/xmltv/xmltv-complet.xml"
+  },
+  {
+    "id": "radiotimes_radio",
+    "group": "United Kingdom",
+    "subgroup": "Radio",
+    "location": "Radio",
+    "url": "http://170.64.142.170:8080/radiotimes_radio.xml",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
+  },
+  {
+    "id": "freeviewuk",
+    "group": "Testing",
+    "subgroup": "United Kingdom",
+    "location": "Freeview (Freeview)",
+    "url": "http://170.64.142.170:8080/freeview.xml",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
+  },
+  {
+    "id": "radiotimes_eetv",
+    "group": "United Kingdom",
+    "subgroup": "Subscription",
+    "location": "EE TV",
+    "url": "http://170.64.142.170:8080/radiotimes_bttv.xml",
+    "logo": {
+      "light": "logos/eetv.png",
+      "dark": "logos/eetv.png"
+    }
+  },
+  {
+    "id": "radiotimes_freesat",
+    "group": "United Kingdom",
+    "subgroup": "FTA",
+    "location": "Freesat",
+    "url": "http://170.64.142.170:8080/radiotimes_freesat.xml",
+    "logo": {
+      "light": "logos/freesat.png",
+      "dark": "logos/freesat.png"
+    }
+  },
+  {
+    "id": "radiotimes_freeview",
+    "group": "United Kingdom",
+    "subgroup": "FTA",
+    "location": "Freeview",
+    "url": "http://170.64.142.170:8080/radiotimes_freeview.xml",
+    "logo": {
+      "light": "logos/freeviewuk.png",
+      "dark": "logos/freeviewuk.png"
+    }
+  },
+  {
+    "id": "radiotimes_sky",
+    "group": "United Kingdom",
+    "subgroup": "Subscription",
+    "location": "Sky",
+    "url": "http://170.64.142.170:8080/radiotimes_sky.xml",
+    "logo": {
+      "light": "logos/skyuk.png",
+      "dark": "logos/skyuk.png"
+    }
+  },
+  {
+    "id": "radiotimes_virgin",
+    "group": "United Kingdom",
+    "subgroup": "Subscription",
+    "location": "Virgin Media",
+    "url": "http://170.64.142.170:8080/radiotimes_virgin.xml",
+    "logo": {
+      "light": "logos/virginmedia.png",
+      "dark": "logos/virginmedia.png"
+    }
+  },
+  {
+    "id": "uk_talktalk",
+    "group": "United Kingdom",
+    "subgroup": "Subscription",
+    "location": "TalkTalk",
+    "url": "http://170.64.142.170:8080/radiotimes_talktalk.xml",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
+  },
+  {
+    "id": "uk_youview",
+    "group": "United Kingdom",
+    "subgroup": "Subscription",
+    "location": "YouView",
+    "url": "http://170.64.142.170:8080/radiotimes_youview.xml",
+    "logo": {
+      "light": "logos/ukflag.png",
+      "dark": "logos/ukflag.png"
+    }
+  },
+  {
+    "id": "us_directv",
+    "group": "United States",
+    "subgroup": "Subscription",
+    "location": "DirecTV",
+    "url": "http://170.64.142.170:8080/tvtvus_directv.xml",
+    "logo": {
+      "light": "logos/usflag.png",
+      "dark": "logos/usflag.png"
+    }
+  },
+  {
+    "id": "us_dishnetwork",
+    "group": "United States",
+    "subgroup": "Subscription",
+    "location": "Dish Network",
+    "url": "http://170.64.142.170:8080/tvtvus_dishnetwork.xml",
+    "logo": {
+      "light": "logos/usflag.png",
+      "dark": "logos/usflag.png"
+    }
+  },
+  {
+    "id": "us_hulu",
+    "group": "United States",
+    "subgroup": "Streaming",
+    "location": "Hulu",
+    "url": "http://170.64.142.170:8080/tvtvus_hulu.xml",
+    "logo": {
+      "light": "logos/usflag.png",
+      "dark": "logos/usflag.png"
+    }
+  },
+  {
+    "id": "us_youtubetv",
+    "group": "United States",
+    "subgroup": "Streaming",
+    "location": "YouTube TV",
+    "url": "http://170.64.142.170:8080/tvtvus_youtubetv.xml",
+    "logo": {
+      "light": "logos/usflag.png",
+      "dark": "logos/usflag.png"
+    }
   }
 ]

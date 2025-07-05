@@ -572,8 +572,8 @@ function WeeklyEPGContent() {
     <SidebarContainer>
       <SidebarHeader>
         <SidebarSearch
-          value={searchTerm}
-          onChange={setSearchTerm}
+          searchValue={searchTerm}
+          onValueChange={setSearchTerm}
           placeholder="Search programs..."
         />
       </SidebarHeader>

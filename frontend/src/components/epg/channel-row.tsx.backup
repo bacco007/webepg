@@ -1,0 +1,118 @@
+"use client";
+
+import { isAfter, isBefore, parseISODate } from "@/lib/date-utils";
+import { ProgramItem } from "./program-item";
+import type { Channel, Program } from "./types";
+
+interface ChannelRowProps {
+  channel: Channel;
+  date: string;
+  hourWidth: number;
+  currentTime: Date;
+  rowHeight?: number;
+  showProgramDetails?: boolean;
+  onProgramSelect?: (program: Program) => void;
+}
+
+export function ChannelRow({
+  channel,
+  hourWidth,
+  currentTime,
+  rowHeight = 70,
+  showProgramDetails = true,
+  onProgramSelect,
+}: ChannelRowProps) {
+  // Create a composite key for each program to ensure uniqueness
+  const uniquePrograms = new Map<string, Program>();
+
+  // Process each program
+  for (const program of channel.programs) {
+    // If guideid is missing, generate one based on start time and title
+    const programId =
+      program.guideid || `${program.start_time}-${program.title}`;
+
+    // Only add if we haven't seen this program before
+    if (!uniquePrograms.has(programId)) {
+      uniquePrograms.set(programId, program);
+    }
+  }
+
+  // Calculate positions for each program based on start and end times
+  const programs = Array.from(uniquePrograms.values())
+    .sort(
+      (a, b) =>
+        parseISODate(a.start_time).getTime() -
+        parseISODate(b.start_time).getTime()
+    )
+    .map((program) => {
+      const startTime = parseISODate(program.start_time);
+      const endTime = parseISODate(program.end_time);
+
+      // Calculate position and width based on 24-hour timeline
+      // Ignore seconds by only using hours and minutes
+      const startHour = startTime.getHours() + startTime.getMinutes() / 60;
+      const endHour = endTime.getHours() + endTime.getMinutes() / 60;
+
+      // Handle programs that span to the next day
+      const adjustedEndHour = endHour < startHour ? endHour + 24 : endHour;
+
+      // Add a small horizontal gap by adjusting the left position and width
+      const left = startHour * hourWidth;
+      const width = Math.max((adjustedEndHour - startHour) * hourWidth, 10); // Ensure minimum width of 10px
+
+      // Check program status
+      const isPast = isAfter(currentTime, endTime);
+      const isCurrentlyAiring = !(isPast || isBefore(currentTime, startTime));
+
+      // Calculate progress percentage if currently airing
+      let progressPercentage = 0;
+      if (isCurrentlyAiring) {
+        const totalDuration = endTime.getTime() - startTime.getTime();
+        const elapsed = currentTime.getTime() - startTime.getTime();
+        // Ensure the percentage is between 0 and 100
+        progressPercentage = Math.max(
+          0,
+          Math.min(100, (elapsed / totalDuration) * 100)
+        );
+      }
+
+      return {
+        ...program,
+        isCurrentlyAiring,
+        isPast,
+        left,
+        progressPercentage,
+        width,
+      };
+    });
+
+  // Handle program selection
+  const handleProgramSelect = (program: Program) => {
+    if (onProgramSelect) {
+      onProgramSelect(program);
+    }
+  };
+
+  return (
+    <div className="relative" style={{ height: `${rowHeight + 2}px` }}>
+      {/* Removed border-b class */}
+      <div className="absolute inset-0 py-1">
+        <div className="relative h-full">
+          {[...programs].reverse().map((program) => (
+            <ProgramItem
+              isCurrentlyAiring={program.isCurrentlyAiring}
+              isPast={program.isPast}
+              key={`${program.guideid || `${channel.channel.id}-${program.start_time}`}-${channel.channel.lcn}`}
+              left={program.left}
+              onSelect={handleProgramSelect}
+              program={program}
+              progressPercentage={program.progressPercentage}
+              showDetails={showProgramDetails}
+              width={program.width}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

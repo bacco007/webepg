@@ -1,13 +1,12 @@
-'use server';
+"use server";
 
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers";
 
 export async function setTimezone(timezone: string) {
-  console.log('Setting timezone:', timezone);
-  (await cookies()).set('timezone', timezone, {
-    path: '/',
+  (await cookies()).set("timezone", timezone, {
+    path: "/",
     maxAge: 60 * 60 * 24 * 365, // 1 year
-    sameSite: 'strict',
+    sameSite: "strict",
     httpOnly: true,
   });
   return { success: true, timezone };
@@ -15,5 +14,5 @@ export async function setTimezone(timezone: string) {
 
 export async function getTimezone() {
   const cookieStore = await cookies();
-  return cookieStore.get('timezone')?.value || '';
+  return cookieStore.get("timezone")?.value || "";
 }

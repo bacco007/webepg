@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { ChannelDataTable } from '@/components/channel-data-table';
+import { ChannelDataTable } from "@/components/channel-data-table";
 
 export default function FetchChannelsPage() {
   return (
     <ChannelDataTable
-      title="Hubbl Channels"
       fetchUrl="/api/py/channels/xmlepg_HUBALL"
+      title="Hubbl Channels"
       // Optional customizations:
       // dataExtractor={(data) => data.data.channels} // Default extractor
       // initialSorting={[{ id: "channel_number", desc: false }]} // Default sorting

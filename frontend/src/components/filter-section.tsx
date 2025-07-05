@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronDown, ChevronUp, Search } from "lucide-react"
-
-import { useDebounce } from "@/hooks/use-debounce"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Input } from "@/components/ui/input"
+import { ChevronDown, ChevronUp } from "lucide-react";
+import React from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FilterSectionProps {
-  title: string
-  options: string[]
-  filters: string[]
-  onFilterChange: (value: string) => void
-  searchValue: string
-  onSearchChange: (value: string) => void
-  counts: Record<string, number>
-  showSearch?: boolean
-  badge?: string
-  getDisplayName?: (value: string) => string
+  title: string;
+  options: string[];
+  filters: string[];
+  onFilterChange: (value: string) => void;
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  counts: Record<string, number>;
+  showSearch?: boolean;
+  children?: React.ReactNode;
 }
 
 export function FilterSection({
@@ -31,82 +31,66 @@ export function FilterSection({
   onSearchChange,
   counts,
   showSearch = false,
-  badge,
-  getDisplayName = (value) => value,
+  children,
 }: FilterSectionProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const debouncedSearch = useDebounce(searchValue, 300)
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  // Filter options to only include those with counts > 0 or those already selected
-  const availableOptions = options
-    .filter((option) => filters.includes(option) || counts[option] > 0)
-    .filter((option) => {
-      const displayName = getDisplayName(option).toLowerCase()
-      return displayName.includes(debouncedSearch.toLowerCase())
-    })
-
-  // Calculate total available options for display
-  const totalAvailableOptions = options.filter((option) => counts[option] > 0 || filters.includes(option)).length
+  const filteredOptions = options.filter((option) =>
+    option.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-b">
-      <CollapsibleTrigger className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full">
+    <Collapsible className="border-b" onOpenChange={setIsOpen} open={isOpen}>
+      <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 hover:bg-muted/10">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-muted-foreground text-sm">{title}</span>
-          {badge && (
-            <Badge variant="outline" className="font-normal text-xs">
-              {badge}
-            </Badge>
-          )}
-          {filters.length > 0 && (
-            <Badge variant="secondary" className="font-normal text-xs">
-              {filters.length}
-            </Badge>
-          )}
+          <span className="font-medium text-muted-foreground text-sm">
+            {title}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-xs">{totalAvailableOptions}</span>
-          {isOpen ? (
-            <ChevronUp className="size-4 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="size-4 text-muted-foreground" />
-          )}
-        </div>
+        {isOpen ? (
+          <ChevronUp className="size-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="size-4 text-muted-foreground" />
+        )}
       </CollapsibleTrigger>
-      <CollapsibleContent className="slide-in-from-top-2 animate-in duration-200">
-        <div className="px-4 pb-3">
-          {showSearch && (
-            <div className="relative mb-2">
-              <Search className="top-2.5 left-2 absolute size-4 text-muted-foreground" />
-              <Input
-                placeholder={`Search`}
-                value={searchValue}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-8 text-sm"
-              />
-            </div>
-          )}
-          <div className="space-y-1 pr-1 max-h-[200px] overflow-y-auto">
-            {availableOptions.length > 0 ? (
-              availableOptions.map((option) => (
-                <label key={option} className="flex justify-between items-center py-1 cursor-pointer">
-                  <div className="flex items-center">
-                    <Checkbox
-                      checked={filters.includes(option)}
-                      onCheckedChange={() => onFilterChange(option)}
-                      className="mr-2"
-                    />
-                    <span className="text-sm">{getDisplayName(option)}</span>
-                  </div>
-                  <span className="text-muted-foreground text-xs">{counts[option]}</span>
-                </label>
-              ))
-            ) : (
-              <div className="py-2 text-muted-foreground text-sm text-center">No options available</div>
-            )}
+      <CollapsibleContent className="px-4 pb-3">
+        {showSearch && (
+          <div className="mb-3">
+            <Input
+              className="h-8 text-sm"
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder={`Search ${title.toLowerCase()}...`}
+              type="text"
+              value={searchValue}
+            />
           </div>
-        </div>
+        )}
+        {children ? (
+          <div>{children}</div>
+        ) : (
+          <ScrollArea className="h-[200px]">
+            <div className="space-y-1">
+              {filteredOptions.map((option) => (
+                <label
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted/10"
+                  key={option}
+                >
+                  <input
+                    checked={filters.includes(option)}
+                    className="size-4 rounded border-input"
+                    onChange={() => onFilterChange(option)}
+                    type="checkbox"
+                  />
+                  <span className="flex-1">{option}</span>
+                  <span className="text-muted-foreground text-xs">
+                    {counts[option] || 0}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
       </CollapsibleContent>
     </Collapsible>
-  )
+  );
 }

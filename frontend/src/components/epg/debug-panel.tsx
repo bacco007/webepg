@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { X, ChevronDown, ChevronUp, Bug } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import type { Channel } from "./types"
+import { Bug, ChevronDown, ChevronUp, X } from "lucide-react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import type { Channel } from "./types";
 
 interface DebugPanelProps {
-  rawChannels: Channel[]
-  processedChannels: Channel[]
-  onToggleDeduplication: (strategy: string) => void
-  currentStrategy: string
+  rawChannels: Channel[];
+  processedChannels: Channel[];
+  onToggleDeduplication: (strategy: string) => void;
+  currentStrategy: string;
 }
 
 export function DebugPanel({
@@ -22,20 +22,22 @@ export function DebugPanel({
   onToggleDeduplication,
   currentStrategy,
 }: DebugPanelProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedTab, setSelectedTab] = useState<"raw" | "processed">("raw")
-  const [expandedChannels, setExpandedChannels] = useState<Record<string, boolean>>({})
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<"raw" | "processed">("raw");
+  const [expandedChannels, setExpandedChannels] = useState<
+    Record<string, boolean>
+  >({});
 
   // Count channels with the same ID
-  const channelIdCounts: Record<string, { count: number; lcns: string[] }> = {}
-  rawChannels.forEach((channel) => {
-    const id = channel.channel.id
+  const channelIdCounts: Record<string, { count: number; lcns: string[] }> = {};
+  for (const channel of rawChannels) {
+    const id = channel.channel.id;
     if (!channelIdCounts[id]) {
-      channelIdCounts[id] = { count: 0, lcns: [] }
+      channelIdCounts[id] = { count: 0, lcns: [] };
     }
-    channelIdCounts[id].count++
-    channelIdCounts[id].lcns.push(channel.channel.lcn)
-  })
+    channelIdCounts[id].count++;
+    channelIdCounts[id].lcns.push(channel.channel.lcn);
+  }
 
   // Find duplicate channels (same ID, different LCN)
   const duplicateChannels = Object.entries(channelIdCounts)
@@ -44,29 +46,29 @@ export function DebugPanel({
       id,
       count: data.count,
       lcns: data.lcns,
-    }))
+    }));
 
   // Toggle channel expansion
   const toggleChannel = (channelKey: string) => {
     setExpandedChannels((prev) => ({
       ...prev,
       [channelKey]: !prev[channelKey],
-    }))
-  }
+    }));
+  };
 
   // Render channel details
   const renderChannelDetails = (channel: Channel) => {
-    const channelKey = `${channel.channel.id}-${channel.channel.lcn}`
-    const isDuplicate = channelIdCounts[channel.channel.id]?.count > 1
+    const channelKey = `${channel.channel.id}-${channel.channel.lcn}`;
+    const isDuplicate = channelIdCounts[channel.channel.id]?.count > 1;
 
     return (
       <div
+        className="mb-2 overflow-hidden rounded-md border"
         key={channelKey}
-        className="mb-2 border rounded-md overflow-hidden"
         style={{ borderColor: isDuplicate ? "red" : "transparent" }}
       >
         <div
-          className="flex justify-between items-center bg-muted/20 hover:bg-muted/30 p-2 cursor-pointer"
+          className="flex cursor-pointer items-center justify-between bg-muted/20 p-2 hover:bg-muted/30"
           onClick={() => toggleChannel(channelKey)}
         >
           <div className="flex items-center gap-2">
@@ -74,17 +76,23 @@ export function DebugPanel({
             <Badge variant="outline">{channel.channel.lcn}</Badge>
             <Badge variant="secondary">ID: {channel.channel.id}</Badge>
             {isDuplicate && (
-              <Badge variant="destructive">Duplicate ID ({channelIdCounts[channel.channel.id].count})</Badge>
+              <Badge variant="destructive">
+                Duplicate ID ({channelIdCounts[channel.channel.id].count})
+              </Badge>
             )}
           </div>
-          {expandedChannels[channelKey] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {expandedChannels[channelKey] ? (
+            <ChevronUp size={16} />
+          ) : (
+            <ChevronDown size={16} />
+          )}
         </div>
 
         {expandedChannels[channelKey] && (
           <div className="bg-muted/10 p-2 text-xs">
             <div className="mb-2">
               <strong>Channel Data:</strong>
-              <pre className="bg-muted/20 mt-1 p-2 rounded overflow-x-auto">
+              <pre className="mt-1 overflow-x-auto rounded bg-muted/20 p-2">
                 {JSON.stringify(
                   {
                     id: channel.channel.id,
@@ -93,14 +101,14 @@ export function DebugPanel({
                     slug: channel.channel.slug,
                   },
                   null,
-                  2,
+                  2
                 )}
               </pre>
             </div>
 
             <div>
               <strong>Programs ({channel.programs.length}):</strong>
-              <div className="bg-muted/20 mt-1 p-2 rounded max-h-40 overflow-x-auto">
+              <div className="mt-1 max-h-40 overflow-x-auto rounded bg-muted/20 p-2">
                 <table className="w-full text-left">
                   <thead>
                     <tr>
@@ -115,13 +123,17 @@ export function DebugPanel({
                       <tr key={`${program.guideid || idx}`}>
                         <td className="pr-2">{program.guideid || "N/A"}</td>
                         <td className="pr-2">{program.title}</td>
-                        <td className="pr-2">{new Date(program.start_time).toLocaleTimeString()}</td>
-                        <td>{new Date(program.end_time).toLocaleTimeString()}</td>
+                        <td className="pr-2">
+                          {new Date(program.start_time).toLocaleTimeString()}
+                        </td>
+                        <td>
+                          {new Date(program.end_time).toLocaleTimeString()}
+                        </td>
                       </tr>
                     ))}
                     {channel.programs.length > 5 && (
                       <tr>
-                        <td colSpan={4} className="text-center">
+                        <td className="text-center" colSpan={4}>
                           ... and {channel.programs.length - 5} more programs
                         </td>
                       </tr>
@@ -133,54 +145,64 @@ export function DebugPanel({
           </div>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   if (!isOpen) {
     return (
       <Button
-        variant="outline"
-        size="sm"
-        className="right-4 bottom-4 z-50 fixed flex items-center gap-1"
+        className="fixed right-4 bottom-4 z-50 flex items-center gap-1"
         onClick={() => setIsOpen(true)}
+        size="sm"
+        variant="outline"
       >
         <Bug size={16} />
         <span>Debug</span>
         {duplicateChannels.length > 0 && (
-          <Badge variant="destructive" className="ml-1">
+          <Badge className="ml-1" variant="destructive">
             {duplicateChannels.length}
           </Badge>
         )}
       </Button>
-    )
+    );
   }
 
   return (
-    <div className="z-50 fixed inset-0 flex justify-center items-center bg-black/50">
-      <div className="flex flex-col bg-background shadow-lg rounded-lg w-[90vw] max-w-4xl h-[80vh]">
-        <div className="flex justify-between items-center p-4 border-b">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="flex h-[80vh] w-[90vw] max-w-4xl flex-col rounded-lg bg-background shadow-lg">
+        <div className="flex items-center justify-between border-b p-4">
           <h2 className="font-bold text-xl">EPG Debug Panel</h2>
-          <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
+          <Button onClick={() => setIsOpen(false)} size="sm" variant="ghost">
             <X size={18} />
           </Button>
         </div>
 
-        <div className="p-4 border-b">
+        <div className="border-b p-4">
           <div className="flex flex-col gap-4">
             <div>
               <h3 className="mb-2 font-medium">Channel Statistics</h3>
               <div className="flex gap-4">
-                <div className="bg-muted/20 p-3 rounded-md">
+                <div className="rounded-md bg-muted/20 p-3">
                   <div className="font-bold text-2xl">{rawChannels.length}</div>
-                  <div className="text-muted-foreground text-sm">Raw Channels</div>
+                  <div className="text-muted-foreground text-sm">
+                    Raw Channels
+                  </div>
                 </div>
-                <div className="bg-muted/20 p-3 rounded-md">
-                  <div className="font-bold text-2xl">{processedChannels.length}</div>
-                  <div className="text-muted-foreground text-sm">Processed Channels</div>
+                <div className="rounded-md bg-muted/20 p-3">
+                  <div className="font-bold text-2xl">
+                    {processedChannels.length}
+                  </div>
+                  <div className="text-muted-foreground text-sm">
+                    Processed Channels
+                  </div>
                 </div>
-                <div className="bg-muted/20 p-3 rounded-md">
-                  <div className="font-bold text-2xl">{duplicateChannels.length}</div>
-                  <div className="text-muted-foreground text-sm">Channels with Duplicate IDs</div>
+                <div className="rounded-md bg-muted/20 p-3">
+                  <div className="font-bold text-2xl">
+                    {duplicateChannels.length}
+                  </div>
+                  <div className="text-muted-foreground text-sm">
+                    Channels with Duplicate IDs
+                  </div>
                 </div>
               </div>
             </div>
@@ -190,27 +212,31 @@ export function DebugPanel({
               <div className="flex flex-col gap-2">
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="none"
                     checked={currentStrategy === "none"}
+                    id="none"
                     onCheckedChange={() => onToggleDeduplication("none")}
                   />
                   <Label htmlFor="none">None (Show all channels)</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="id-only"
                     checked={currentStrategy === "id-only"}
+                    id="id-only"
                     onCheckedChange={() => onToggleDeduplication("id-only")}
                   />
-                  <Label htmlFor="id-only">Deduplicate by ID only (Keep first occurrence)</Label>
+                  <Label htmlFor="id-only">
+                    Deduplicate by ID only (Keep first occurrence)
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="id-lcn"
                     checked={currentStrategy === "id-lcn"}
+                    id="id-lcn"
                     onCheckedChange={() => onToggleDeduplication("id-lcn")}
                   />
-                  <Label htmlFor="id-lcn">Deduplicate by ID+LCN (Current strategy)</Label>
+                  <Label htmlFor="id-lcn">
+                    Deduplicate by ID+LCN (Current strategy)
+                  </Label>
                 </div>
               </div>
             </div>
@@ -219,14 +245,16 @@ export function DebugPanel({
 
         <div className="flex border-b">
           <button
-            className={`flex-1 py-2 px-4 text-center ${selectedTab === "raw" ? "bg-muted font-medium" : ""}`}
+            className={`flex-1 px-4 py-2 text-center ${selectedTab === "raw" ? "bg-muted font-medium" : ""}`}
             onClick={() => setSelectedTab("raw")}
+            type="button"
           >
             Raw Channels ({rawChannels.length})
           </button>
           <button
-            className={`flex-1 py-2 px-4 text-center ${selectedTab === "processed" ? "bg-muted font-medium" : ""}`}
+            className={`flex-1 px-4 py-2 text-center ${selectedTab === "processed" ? "bg-muted font-medium" : ""}`}
             onClick={() => setSelectedTab("processed")}
+            type="button"
           >
             Processed Channels ({processedChannels.length})
           </button>
@@ -237,11 +265,11 @@ export function DebugPanel({
             <>
               <h3 className="mb-2 font-medium">Raw Channels (from API)</h3>
               {duplicateChannels.length > 0 && (
-                <div className="bg-destructive/10 mb-4 p-3 border border-destructive/20 rounded-md">
+                <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3">
                   <h4 className="mb-2 font-medium">Duplicate Channel IDs</h4>
                   <div className="space-y-1">
                     {duplicateChannels.map(({ id, count, lcns }) => (
-                      <div key={id} className="flex items-center gap-2">
+                      <div className="flex items-center gap-2" key={id}>
                         <Badge variant="outline">ID: {id}</Badge>
                         <span>appears {count} times with LCNs:</span>
                         <div className="flex gap-1">
@@ -260,12 +288,14 @@ export function DebugPanel({
             </>
           ) : (
             <>
-              <h3 className="mb-2 font-medium">Processed Channels (after filtering/deduplication)</h3>
+              <h3 className="mb-2 font-medium">
+                Processed Channels (after filtering/deduplication)
+              </h3>
               {processedChannels.map(renderChannelDetails)}
             </>
           )}
         </ScrollArea>
       </div>
     </div>
-  )
+  );
 }

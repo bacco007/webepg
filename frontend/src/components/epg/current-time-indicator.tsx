@@ -1,38 +1,41 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
 interface CurrentTimeIndicatorProps {
-  hourWidth: number
+  hourWidth: number;
 }
 
 export function CurrentTimeIndicator({ hourWidth }: CurrentTimeIndicatorProps) {
-  const [position, setPosition] = useState(0)
+  const [position, setPosition] = useState(0);
 
   useEffect(() => {
     const calculatePosition = () => {
-      const now = new Date()
-      const hours = now.getHours()
-      const minutes = now.getMinutes()
-      const totalHours = hours + minutes / 60
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const totalHours = hours + minutes / 60;
 
       // Each hour is hourWidth pixels
-      return totalHours * hourWidth
-    }
+      return totalHours * hourWidth;
+    };
 
-    setPosition(calculatePosition())
+    setPosition(calculatePosition());
 
     const interval = setInterval(() => {
-      setPosition(calculatePosition())
-    }, 60000) // Update every minute
+      setPosition(calculatePosition());
+    }, 60_000); // Update every minute
 
-    return () => clearInterval(interval)
-  }, [hourWidth])
+    return () => clearInterval(interval);
+  }, [hourWidth]);
 
   return (
-    <div className="top-0 z-20 absolute h-full pointer-events-none" style={{ left: `${position}px` }}>
-      <div className="bg-[hsl(var(--time-indicator))] shadow-[0_0_8px_rgba(var(--time-indicator),0.5)] w-1 h-full"></div>
-      <div className="-top-3 absolute bg-[hsl(var(--time-indicator))] shadow-[0_0_8px_rgba(var(--time-indicator),0.5)] rounded-full w-4 h-4 -translate-x-1/2"></div>
+    <div
+      className="pointer-events-none absolute top-0 z-20 h-full"
+      style={{ left: `${position}px` }}
+    >
+      <div className="h-full w-1 bg-[hsl(var(--time-indicator))] shadow-[0_0_8px_rgba(var(--time-indicator),0.5)]" />
+      <div className="-top-3 -translate-x-1/2 absolute h-4 w-4 rounded-full bg-[hsl(var(--time-indicator))] shadow-[0_0_8px_rgba(var(--time-indicator),0.5)]" />
     </div>
-  )
+  );
 }

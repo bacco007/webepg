@@ -157,7 +157,7 @@
     "id": "xmlepg_FTACOB",
     "group": "Australia",
     "subgroup": "FTA - Regional NSW",
-    "location": "SNSW - Cobar",
+    "location": "Cobar",
     "url": "local",
     "logo": {
       "light": "logos/freeview.png",
@@ -605,17 +605,6 @@
     }
   },
   {
-    "id": "xmlepg_FTALEO",
-    "group": "Australia",
-    "subgroup": "FTA - Regional WA",
-    "location": "Leonora",
-    "url": "local",
-    "logo": {
-      "light": "logos/freeview.png",
-      "dark": "logos/freeview.png"
-    }
-  },
-  {
     "id": "xmlepg_FTAMAN",
     "group": "Australia",
     "subgroup": "FTA - Regional WA",
@@ -649,17 +638,6 @@
     }
   },
   {
-    "id": "xmlepg_FTAROE",
-    "group": "Australia",
-    "subgroup": "FTA - Regional WA",
-    "location": "Roebourne",
-    "url": "local",
-    "logo": {
-      "light": "logos/freeview.png",
-      "dark": "logos/freeview.png"
-    }
-  },
-  {
     "id": "xmlepg_VASTRN2",
     "group": "Australia",
     "subgroup": "FTA - Remote (VAST)",
@@ -685,7 +663,7 @@
     "id": "xmlepg_VASTNSW",
     "group": "Australia",
     "subgroup": "FTA - Remote (VAST)",
-    "location": "Remote New South Wales/ACT",
+    "location": "Remote NSW/ACT",
     "url": "local",
     "logo": {
       "light": "logos/vast.png",

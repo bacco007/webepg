@@ -1,23 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  async rewrites() {
+  rewrites() {
     return [
       {
-        source: '/api/:path*',
-        destination: '/api/:path*', // This will be handled by Traefik
+        source: "/api/:path*",
+        destination: "/api/:path*", // This will be handled by Traefik
       },
     ];
   },
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '**',
+        protocol: "https",
+        hostname: "**",
       },
       {
-        protocol: 'http',
-        hostname: '**',
+        protocol: "http",
+        hostname: "**",
       },
     ],
   },

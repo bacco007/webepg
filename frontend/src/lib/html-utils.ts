@@ -1,35 +1,39 @@
 const entities: { [key: string]: string } = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
   "&#39;": "'",
   "&#x2F;": "/",
-  "&#x60;": "`",
   "&#x3D;": "=",
-  "&nbsp;": "\u00A0",
-  "&rsquo;": "'",
-  "&lsquo;": "'",
-  "&rdquo;": '"',
-  "&ldquo;": '"',
-  "&ndash;": "–",
-  "&mdash;": "—",
+  "&#x60;": "`",
+  "&amp;": "&",
+  "&gt;": ">",
   "&hellip;": "…",
-}
+  "&ldquo;": '"',
+  "&lsquo;": "'",
+  "&lt;": "<",
+  "&mdash;": "—",
+  "&nbsp;": "\u00A0",
+  "&ndash;": "–",
+  "&quot;": '"',
+  "&rdquo;": '"',
+  "&rsquo;": "'",
+};
 
 export function decodeHtml(html: string): string {
-  if (!html) return ""
+  if (!html) {
+    return "";
+  }
 
   // First, handle standard HTML entities
   let decoded = html.replaceAll(/&(?:#x[\da-f]+|#\d+|[\da-z]+);/gi, (match) => {
     if (match.charAt(1) === "#") {
       const code =
-        match.charAt(2).toLowerCase() === "x" ? Number.parseInt(match.slice(3), 16) : Number.parseInt(match.slice(2))
+        match.charAt(2).toLowerCase() === "x"
+          ? Number.parseInt(match.slice(3), 16)
+          : Number.parseInt(match.slice(2), 10);
 
-      return String.fromCharCode(code)
+      return String.fromCharCode(code);
     }
-    return entities[match] || match
-  })
+    return entities[match] || match;
+  });
 
   // Handle specific problematic sequences
   decoded = decoded
@@ -45,6 +49,10 @@ export function decodeHtml(html: string): string {
     .replace(/â€/g, "€")
     .replace(/â€"/g, "—")
     .replace(/â€"/g, "–")
+    // Fix escaped single quotes
+    .replace(/\\'/g, "'")
+    // Fix escaped double quotes
+    .replace(/\\"/g, '"');
 
-  return decoded
+  return decoded;
 }

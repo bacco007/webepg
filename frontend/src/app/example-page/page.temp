@@ -1,0 +1,143 @@
+"use client"
+
+import { useState } from "react"
+
+import { FilterSection } from "@/components/filter-section"
+import {
+  SidebarContainer,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarLayout,
+  SidebarSearch,
+} from "@/components/layouts/sidebar-layout"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { useDebounce } from "@/hooks/use-debounce"
+
+// Sample data
+const data = {
+  categories: ["Sports", "News", "Entertainment", "Documentary", "Kids", "Movies", "Music"],
+  providers: ["ABC", "SBS", "Seven", "Nine", "Ten", "Foxtel", "Stan", "Netflix", "Disney+"],
+  regions: ["Sydney", "Melbourne", "Brisbane", "Adelaide", "Perth", "Hobart", "Darwin", "Canberra"],
+}
+
+export default function ExamplePage() {
+  const [globalSearch, setGlobalSearch] = useState("")
+  const [categorySearch, setCategorySearch] = useState("")
+  const [providerSearch, setProviderSearch] = useState("")
+  const [regionSearch, setRegionSearch] = useState("")
+
+  const [categoryFilters, setCategoryFilters] = useState<string[]>([])
+  const [providerFilters, setProviderFilters] = useState<string[]>([])
+  const [regionFilters, setRegionFilters] = useState<string[]>([])
+
+  const debouncedGlobalSearch = useDebounce(globalSearch, 300)
+
+  // Mock counts for demonstration
+  const categoryCounts = Object.fromEntries(data.categories.map((cat) => [cat, Math.floor(Math.random() * 50) + 1]))
+  const providerCounts = Object.fromEntries(data.providers.map((prov) => [prov, Math.floor(Math.random() * 30) + 1]))
+  const regionCounts = Object.fromEntries(data.regions.map((reg) => [reg, Math.floor(Math.random() * 20) + 1]))
+
+  const handleFilterChange = (filterType: "category" | "provider" | "region", value: string) => {
+    switch (filterType) {
+      case "category":
+        setCategoryFilters((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]))
+        break
+      case "provider":
+        setProviderFilters((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]))
+        break
+      case "region":
+        setRegionFilters((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]))
+        break
+    }
+  }
+
+  const clearAllFilters = () => {
+    setCategoryFilters([])
+    setProviderFilters([])
+    setRegionFilters([])
+    setGlobalSearch("")
+    setCategorySearch("")
+    setProviderSearch("")
+    setRegionSearch("")
+  }
+
+  // Total items and filtered items count (mock data)
+  const totalItems = 250
+  const filteredItems = 120
+
+  const sidebar = (
+    <SidebarContainer>
+      <SidebarHeader>
+        <SidebarSearch searchValue={globalSearch} onValueChange={setGlobalSearch} placeholder="Search content..." />
+      </SidebarHeader>
+      <SidebarContent>
+        <FilterSection
+          title="Categories"
+          options={data.categories}
+          filters={categoryFilters}
+          onFilterChange={(value) => handleFilterChange("category", value)}
+          searchValue={categorySearch}
+          onSearchChange={setCategorySearch}
+          counts={categoryCounts}
+          showSearch={true}
+          badge="Content Type"
+        />
+        <FilterSection
+          title="Providers"
+          options={data.providers}
+          filters={providerFilters}
+          onFilterChange={(value) => handleFilterChange("provider", value)}
+          searchValue={providerSearch}
+          onSearchChange={setProviderSearch}
+          counts={providerCounts}
+          showSearch={true}
+        />
+        <FilterSection
+          title="Regions"
+          options={data.regions}
+          filters={regionFilters}
+          onFilterChange={(value) => handleFilterChange("region", value)}
+          searchValue={regionSearch}
+          onSearchChange={setRegionSearch}
+          counts={regionCounts}
+          showSearch={true}
+        />
+      </SidebarContent>
+      <SidebarFooter>
+        <Button variant="outline" size="sm" onClick={clearAllFilters} className="w-full text-xs">
+          Clear All Filters
+        </Button>
+        <div className="mt-2 text-muted-foreground text-xs text-center">
+          Showing {filteredItems} of {totalItems} items
+        </div>
+      </SidebarFooter>
+    </SidebarContainer>
+  )
+
+  return (
+    <SidebarLayout sidebar={sidebar} title="Content Library">
+      <div className="p-4">
+        <div className="gap-4 grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {/* Content items would go here */}
+          {Array.from({ length: 12 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="flex justify-center items-center bg-muted rounded-md aspect-video">
+                  <span className="text-muted-foreground">Content Item {i + 1}</span>
+                </div>
+                <div className="mt-2">
+                  <div className="font-medium">{data.categories[i % data.categories.length]}</div>
+                  <div className="text-muted-foreground text-sm">
+                    {data.providers[i % data.providers.length]} • {data.regions[i % data.regions.length]}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </SidebarLayout>
+  )
+}

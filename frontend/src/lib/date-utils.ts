@@ -6,29 +6,29 @@
  */
 
 import {
+  differenceInMinutes as dateFnsDifferenceInMinutes,
   format as dateFnsFormat,
-  parseISO as dateFnsParseISO,
-  isToday as dateFnsIsToday,
   isAfter as dateFnsIsAfter,
   isBefore as dateFnsIsBefore,
-  differenceInMinutes as dateFnsDifferenceInMinutes,
-} from "date-fns"
+  isToday as dateFnsIsToday,
+  parseISO as dateFnsParseISO,
+} from "date-fns";
 
 // In v0, these imports will be ignored but won't cause errors
 // In production, they will be used if USE_DAYJS is true
-import dayjs from "dayjs"
-import dayjsIsToday from "dayjs/plugin/isToday"
-import dayjsCustomParseFormat from "dayjs/plugin/customParseFormat"
-import dayjsAdvancedFormat from "dayjs/plugin/advancedFormat"
+import dayjs from "dayjs";
+import dayjsAdvancedFormat from "dayjs/plugin/advancedFormat";
+import dayjsCustomParseFormat from "dayjs/plugin/customParseFormat";
+import dayjsIsToday from "dayjs/plugin/isToday";
 
 // Configuration flag - set to false for v0, true for production with dayjs
-const USE_DAYJS = true
+const USE_DAYJS = true;
 
 // Initialize dayjs plugins if we're using dayjs
 if (typeof dayjs === "function") {
-  dayjs.extend(dayjsIsToday)
-  dayjs.extend(dayjsCustomParseFormat)
-  dayjs.extend(dayjsAdvancedFormat)
+  dayjs.extend(dayjsIsToday);
+  dayjs.extend(dayjsCustomParseFormat);
+  dayjs.extend(dayjsAdvancedFormat);
 }
 
 /**
@@ -36,11 +36,10 @@ if (typeof dayjs === "function") {
  */
 export function formatDate(date: Date | string, formatStr: string): string {
   if (USE_DAYJS && typeof dayjs === "function") {
-    return dayjs(date).format(convertFormatToDayjs(formatStr))
-  } else {
-    const dateObj = typeof date === "string" ? dateFnsParseISO(date) : date
-    return dateFnsFormat(dateObj, formatStr)
+    return dayjs(date).format(convertFormatToDayjs(formatStr));
   }
+  const dateObj = typeof date === "string" ? dateFnsParseISO(date) : date;
+  return dateFnsFormat(dateObj, formatStr);
 }
 
 /**
@@ -48,10 +47,9 @@ export function formatDate(date: Date | string, formatStr: string): string {
  */
 export function parseISODate(dateStr: string): Date {
   if (USE_DAYJS && typeof dayjs === "function") {
-    return dayjs(dateStr).toDate()
-  } else {
-    return dateFnsParseISO(dateStr)
+    return dayjs(dateStr).toDate();
   }
+  return dateFnsParseISO(dateStr);
 }
 
 /**
@@ -59,27 +57,30 @@ export function parseISODate(dateStr: string): Date {
  */
 export function isDateToday(date: Date | string): boolean {
   if (USE_DAYJS && typeof dayjs === "function") {
-    return dayjs(date).isToday()
-  } else {
-    const dateObj = typeof date === "string" ? dateFnsParseISO(date) : date
-    return dateFnsIsToday(dateObj)
+    return dayjs(date).isToday();
   }
+  const dateObj = typeof date === "string" ? dateFnsParseISO(date) : date;
+  return dateFnsIsToday(dateObj);
 }
 
 /**
  * Format a date from YYYYMMDD string format
  */
-export function formatDateFromYYYYMMDD(dateStr: string, formatStr: string): string {
-  if (!dateStr) return ""
+export function formatDateFromYYYYMMDD(
+  dateStr: string,
+  formatStr: string
+): string {
+  if (!dateStr) {
+    return "";
+  }
 
-  const formattedDateStr = `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`
+  const formattedDateStr = `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
 
   if (USE_DAYJS && typeof dayjs === "function") {
-    return dayjs(formattedDateStr).format(convertFormatToDayjs(formatStr))
-  } else {
-    const dateObj = dateFnsParseISO(formattedDateStr)
-    return dateFnsFormat(dateObj, formatStr)
+    return dayjs(formattedDateStr).format(convertFormatToDayjs(formatStr));
   }
+  const dateObj = dateFnsParseISO(formattedDateStr);
+  return dateFnsFormat(dateObj, formatStr);
 }
 
 /**
@@ -87,12 +88,11 @@ export function formatDateFromYYYYMMDD(dateStr: string, formatStr: string): stri
  */
 export function isAfter(date1: Date | string, date2: Date | string): boolean {
   if (USE_DAYJS && typeof dayjs === "function") {
-    return dayjs(date1).isAfter(dayjs(date2))
-  } else {
-    const dateObj1 = typeof date1 === "string" ? dateFnsParseISO(date1) : date1
-    const dateObj2 = typeof date2 === "string" ? dateFnsParseISO(date2) : date2
-    return dateFnsIsAfter(dateObj1, dateObj2)
+    return dayjs(date1).isAfter(dayjs(date2));
   }
+  const dateObj1 = typeof date1 === "string" ? dateFnsParseISO(date1) : date1;
+  const dateObj2 = typeof date2 === "string" ? dateFnsParseISO(date2) : date2;
+  return dateFnsIsAfter(dateObj1, dateObj2);
 }
 
 /**
@@ -100,32 +100,33 @@ export function isAfter(date1: Date | string, date2: Date | string): boolean {
  */
 export function isBefore(date1: Date | string, date2: Date | string): boolean {
   if (USE_DAYJS && typeof dayjs === "function") {
-    return dayjs(date1).isBefore(dayjs(date2))
-  } else {
-    const dateObj1 = typeof date1 === "string" ? dateFnsParseISO(date1) : date1
-    const dateObj2 = typeof date2 === "string" ? dateFnsParseISO(date2) : date2
-    return dateFnsIsBefore(dateObj1, dateObj2)
+    return dayjs(date1).isBefore(dayjs(date2));
   }
+  const dateObj1 = typeof date1 === "string" ? dateFnsParseISO(date1) : date1;
+  const dateObj2 = typeof date2 === "string" ? dateFnsParseISO(date2) : date2;
+  return dateFnsIsBefore(dateObj1, dateObj2);
 }
 
 /**
  * Calculate the difference between two dates in minutes
  */
-export function differenceInMinutes(date1: Date | string, date2: Date | string): number {
+export function differenceInMinutes(
+  date1: Date | string,
+  date2: Date | string
+): number {
   if (USE_DAYJS && typeof dayjs === "function") {
-    return dayjs(date1).diff(dayjs(date2), "minute")
-  } else {
-    const dateObj1 = typeof date1 === "string" ? dateFnsParseISO(date1) : date1
-    const dateObj2 = typeof date2 === "string" ? dateFnsParseISO(date2) : date2
-    return dateFnsDifferenceInMinutes(dateObj1, dateObj2)
+    return dayjs(date1).diff(dayjs(date2), "minute");
   }
+  const dateObj1 = typeof date1 === "string" ? dateFnsParseISO(date1) : date1;
+  const dateObj2 = typeof date2 === "string" ? dateFnsParseISO(date2) : date2;
+  return dateFnsDifferenceInMinutes(dateObj1, dateObj2);
 }
 
 /**
  * Helper function to convert date-fns format strings to dayjs format strings
  * This is a simplified conversion and may need to be expanded for more complex formats
  */
-function convertFormatToDayjs(dateFnsFormat: string): string {
+function convertFormatToDayjs(dateFnsFormatStr: string): string {
   const formatMap: Record<string, string> = {
     // Day of month
     d: "D", // Day of month, no leading zero
@@ -168,20 +169,20 @@ function convertFormatToDayjs(dateFnsFormat: string): string {
     // Timezone
     z: "z", // Timezone abbreviation
     zzz: "z", // Timezone abbreviation
-  }
+  };
 
   // Replace tokens in the format string
-  let dayjsFormat = dateFnsFormat
+  let dayjsFormat = dateFnsFormatStr;
 
   // Sort keys by length (descending) to avoid partial replacements
   // For example, replace 'MMMM' before 'MMM' to avoid 'MMMM' becoming 'MMMm'
-  const sortedKeys = Object.keys(formatMap).sort((a, b) => b.length - a.length)
+  const sortedKeys = Object.keys(formatMap).sort((a, b) => b.length - a.length);
 
   for (const token of sortedKeys) {
     // Use a regex with word boundaries to avoid partial replacements
-    const regex = new RegExp(`\\b${token}\\b`, "g")
-    dayjsFormat = dayjsFormat.replace(regex, formatMap[token])
+    const regex = new RegExp(`\\b${token}\\b`, "g");
+    dayjsFormat = dayjsFormat.replace(regex, formatMap[token]);
   }
 
-  return dayjsFormat
+  return dayjsFormat;
 }

@@ -7,7 +7,10 @@ class Settings(BaseSettings):
     XMLTV_DATA_DIR: str = "xmltvdata/remote"
     XMLTV_SOURCES: str = "xmltvdata/settings/xmltvsources.json"
     XMLTV_SOURCES_LOCAL: str = "xmltvdata/settings/local.json"
-    TRANSMITTER_DATA: str = "xmltvdata/transmitters/transmitters.json"
+    RADIO_AM_TRANSMITTER_DATA: str = "xmltvdata/transmitters/radio_am.json"
+    RADIO_FM_TRANSMITTER_DATA: str = "xmltvdata/transmitters/radio_fm.json"
+    RADIO_DAB_TRANSMITTER_DATA: str = "xmltvdata/transmitters/radio_dab.json"
+    TV_TRANSMITTER_DATA: str = "xmltvdata/transmitters/television.json"
 
     # MySQL settings
     MYSQL_HOST: str = "localhost"

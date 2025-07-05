@@ -1,38 +1,48 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronDown } from "lucide-react"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SidebarSettingsProps {
-  sortBy: string
-  onSortByChange: (value: string) => void
-  groupBy: string
-  onGroupByChange: (value: string) => void
-  displayName: string
-  onDisplayNameChange: (value: string) => void
+  sortBy: string;
+  onSortByChange: (value: string) => void;
+  groupBy: string;
+  onGroupByChange: (value: string) => void;
+  displayName: string;
+  onDisplayNameChange: (value: string) => void;
 }
 
 const SORT_OPTIONS = [
   { value: "channelNumber", label: "Channel Number" },
   { value: "channelName", label: "Channel Name" },
   { value: "networkName", label: "Network Name" },
-]
+];
 
 const GROUP_OPTIONS = [
   { value: "none", label: "None" },
   { value: "network", label: "Network" },
   { value: "category", label: "Category" },
-]
+];
 
 const DISPLAY_NAME_OPTIONS = [
   { value: "clean", label: "Clean" },
   { value: "real", label: "Real" },
   { value: "location", label: "Location" },
-]
+];
 
 export function SidebarSettings({
   sortBy,
@@ -42,20 +52,22 @@ export function SidebarSettings({
   displayName,
   onDisplayNameChange,
 }: SidebarSettingsProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-b">
-      <CollapsibleTrigger className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full">
+    <Collapsible className="border-b" onOpenChange={setIsOpen} open={isOpen}>
+      <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 hover:bg-muted/10">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-muted-foreground text-sm">Display Settings</span>
-          <Badge variant="outline" className="font-normal text-xs">
+          <span className="font-medium text-muted-foreground text-sm">
+            Display Settings
+          </span>
+          <Badge className="font-normal text-xs" variant="outline">
             View
           </Badge>
         </div>
         <div className="flex items-center">
           {isOpen ? (
-            <ChevronDown className="size-4 text-muted-foreground rotate-180 transition-transform" />
+            <ChevronDown className="size-4 rotate-180 text-muted-foreground transition-transform" />
           ) : (
             <ChevronDown className="size-4 text-muted-foreground transition-transform" />
           )}
@@ -65,11 +77,11 @@ export function SidebarSettings({
         <div className="space-y-4 px-4 pb-3">
           {/* Sort by */}
           <div className="space-y-2">
-            <Label htmlFor="sort-by" className="text-sm">
+            <Label className="text-sm" htmlFor="sort-by">
               Sort by
             </Label>
-            <Select value={sortBy} onValueChange={onSortByChange}>
-              <SelectTrigger id="sort-by" className="w-full">
+            <Select onValueChange={onSortByChange} value={sortBy}>
+              <SelectTrigger className="w-full" id="sort-by">
                 <SelectValue placeholder="Select sort order" />
               </SelectTrigger>
               <SelectContent>
@@ -84,11 +96,11 @@ export function SidebarSettings({
 
           {/* Group by */}
           <div className="space-y-2">
-            <Label htmlFor="group-by" className="text-sm">
+            <Label className="text-sm" htmlFor="group-by">
               Group by
             </Label>
-            <Select value={groupBy} onValueChange={onGroupByChange}>
-              <SelectTrigger id="group-by" className="w-full">
+            <Select onValueChange={onGroupByChange} value={groupBy}>
+              <SelectTrigger className="w-full" id="group-by">
                 <SelectValue placeholder="Select grouping" />
               </SelectTrigger>
               <SelectContent>
@@ -103,11 +115,11 @@ export function SidebarSettings({
 
           {/* Display Name */}
           <div className="space-y-2">
-            <Label htmlFor="display-name" className="text-sm">
+            <Label className="text-sm" htmlFor="display-name">
               Display Name
             </Label>
-            <Select value={displayName} onValueChange={onDisplayNameChange}>
-              <SelectTrigger id="display-name" className="w-full">
+            <Select onValueChange={onDisplayNameChange} value={displayName}>
+              <SelectTrigger className="w-full" id="display-name">
                 <SelectValue placeholder="Select name format" />
               </SelectTrigger>
               <SelectContent>
@@ -122,5 +134,5 @@ export function SidebarSettings({
         </div>
       </CollapsibleContent>
     </Collapsible>
-  )
+  );
 }

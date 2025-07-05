@@ -1,100 +1,151 @@
-import './globals.css';
+import "./globals.css";
 
-import localFont from 'next/font/local';
-import { cookies } from 'next/headers';
-import Script from 'next/script';
-import type { Metadata, Viewport } from 'next';
+import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans } from "next/font/google";
+import { cookies } from "next/headers";
+import Script from "next/script";
+import { FontSizeProvider } from "@/components/font-size-provider";
+import { GlobalErrorBoundary } from "@/components/global-error-boundary";
+import Header from "@/components/header";
+import Sidebar from "@/components/sidebar/sidebar";
+import { ThemeProvider } from "@/components/theme-provider";
+import TopLoader from "@/components/top-loader";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-import Header from '@/components/Header';
-import Sidebar from '@/components/sidebar/Sidebar';
-import { ThemeProvider } from '@/components/ThemeProvider';
-import TopLoader from '@/components/TopLoader';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { getCookie } from '@/lib/cookies';
-import { GlobalErrorBoundary } from '@/components/GlobalErrorBoundary';
-
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
-  display: 'swap',
-  preload: true,
-});
-
-const geistMono = localFont({
-  src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
-  display: 'swap',
-  preload: true,
+const ibmPlexSans = IBM_Plex_Sans({
+  display: "swap",
+  subsets: ["latin"],
+  variable: "--font-ibm-plex-sans",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: 'webEPG',
-    template: '%s | webEPG',
+  // verification: {
+  //   google: 'your-google-site-verification',
+  // },
+  alternates: {
+    canonical: "https://www.webepg.xyz",
   },
-  metadataBase: new URL('https://www.webepg.xyz'),
-  description: 'Your comprehensive Electronic Program Guide',
-  keywords: [
-    'EPG',
-    'Television',
-    'TV Guide',
-    'Program Guide',
-    'Streaming',
-    'Broadcast',
-  ],
-  authors: [{ name: 'webEPG', url: 'https://www.webepg.xyz' }],
-  creator: 'webEPG',
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://www.webepg.xyz',
-    title: 'webEPG - Electronic Program Guide',
-    description: 'Your comprehensive Electronic Program Guide',
-    siteName: 'webEPG',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'webEPG - Electronic Program Guide',
-    description: 'Your comprehensive Electronic Program Guide',
-    creator: '@webepg',
-  },
-  robots: {
-    index: true,
-    follow: true,
-    nocache: true,
-    googleBot: {
-      index: true,
-      follow: false,
-      noimageindex: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+  authors: [{ name: "webEPG", url: "https://www.webepg.xyz" }],
+  creator: "webEPG",
+  description:
+    "Free and open-source Electronic Program Guide for TV and Radio channels. Get comprehensive program listings, schedules, and more.",
+  formatDetection: {
+    address: false,
+    email: false,
+    telephone: false,
   },
   icons: {
-    icon: '/favicon/favicon.ico',
-    shortcut: '/favicon/favicon-16x16.png',
-    apple: '/favicon/apple-touch-icon.png',
+    apple: "/favicon/apple-touch-icon.png",
+    icon: [
+      { url: "/favicon/favicon.ico" },
+      { sizes: "16x16", type: "image/png", url: "/favicon/favicon-16x16.png" },
+      { sizes: "32x32", type: "image/png", url: "/favicon/favicon-32x32.png" },
+    ],
+    other: [
+      {
+        rel: "android-chrome-192x192",
+        url: "/favicon/android-chrome-192x192.png",
+      },
+      {
+        rel: "android-chrome-512x512",
+        url: "/favicon/android-chrome-512x512.png",
+      },
+    ],
+    shortcut: "/favicon/favicon-16x16.png",
   },
-  manifest: '/manifest.json',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
+  keywords: [
+    "EPG",
+    "Electronic Program Guide",
+    "Television",
+    "TV Guide",
+    "Program Guide",
+    "Streaming",
+    "Broadcast",
+    "TV Schedule",
+    "Radio Schedule",
+    "Free EPG",
+  ],
+  metadataBase: new URL("https://www.webepg.xyz"),
+  openGraph: {
+    description:
+      "Free and open-source Electronic Program Guide for TV and Radio channels",
+    images: [
+      {
+        alt: "webEPG Logo",
+        height: 512,
+        url: "/favicon/android-chrome-512x512.png",
+        width: 512,
+      },
+    ],
+    locale: "en_US",
+    siteName: "webEPG",
+    title: "webEPG - Electronic Program Guide",
+    type: "website",
+    url: "https://www.webepg.xyz",
+  },
+  other: {
+    "application/ld+json": JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      applicationCategory: "EntertainmentApplication",
+      author: {
+        "@type": "Organization",
+        name: "webEPG",
+        url: "https://www.webepg.xyz",
+      },
+      description:
+        "Free and open-source Electronic Program Guide for TV and Radio channels",
+      name: "webEPG",
+      operatingSystem: "Web Browser",
+      url: "https://www.webepg.xyz",
+    }),
+    preconnect: [
+      "https://fonts.googleapis.com",
+      "https://fonts.gstatic.com",
+      "https://scripts.simpleanalyticscdn.com",
+    ],
+  },
+  publisher: "webEPG",
+  robots: {
+    follow: true,
+    googleBot: {
+      follow: true,
+      index: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+      noimageindex: false,
+    },
+    index: true,
+    nocache: true,
+  },
+  title: {
+    default: "webEPG - Electronic Program Guide",
+    template: "%s | webEPG",
+  },
+  twitter: {
+    card: "summary_large_image",
+    creator: "@webepg",
+    description:
+      "Free and open-source Electronic Program Guide for TV and Radio channels",
+    images: ["/favicon/android-chrome-512x512.png"],
+    title: "webEPG - Electronic Program Guide",
   },
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  colorScheme: "light dark",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  minimumScale: 0.5,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { color: "#ffffff", media: "(prefers-color-scheme: light)" },
+    { color: "#0f172a", media: "(prefers-color-scheme: dark)" },
   ],
+  userScalable: true,
+  viewportFit: "cover",
+  width: "device-width",
 };
 
 export default async function RootLayout({
@@ -103,54 +154,55 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get('sidebar:state')?.value === 'true';
-  const fontSize = (await getCookie('fontSize')) || '100';
+  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>{/* Remove duplicate viewport meta tag */}</head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ fontSize: `${fontSize}%` }}
-      >
+      <body className={`${ibmPlexSans.variable} antialiased`}>
         <TopLoader />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
-          enableSystem
           disableTransitionOnChange
           enableColorScheme
+          enableSystem
         >
-          <GlobalErrorBoundary>
-            <SidebarProvider defaultOpen={defaultOpen}>
-              <div
-                className="flex w-full h-screen overflow-hidden"
-                style={
-                  {
-                    '--sidebar-width': 'calc(var(--spacing) * 72)',
-                  } as React.CSSProperties
-                }
-              >
-                <Sidebar />
-                <SidebarInset>
-                  <div className="lg:p-2 w-full h-svh overflow-hidden">
-                    <div className="flex flex-col justify-start bg-container lg:border lg:rounded-md w-full h-full overflow-hidden">
-                      <Header />
-                      <main
-                        className="flex flex-col h-[calc(100svh-40px)] lg:h-[calc(100svh-56px)] size-full overflow-auto"
-                        style={{ width: 'calc(100svw - 100px)' }}
-                      >
-                        {children}
-                      </main>
+          <FontSizeProvider>
+            <GlobalErrorBoundary>
+              <SidebarProvider defaultOpen={defaultOpen}>
+                <div
+                  className="flex h-screen w-full overflow-hidden"
+                  style={
+                    {
+                      "--sidebar-width": "calc(var(--spacing) * 72)",
+                    } as React.CSSProperties
+                  }
+                >
+                  <Sidebar />
+                  <SidebarInset>
+                    <div className="h-svh w-full overflow-hidden lg:p-2">
+                      <div className="flex h-full w-full flex-col justify-start overflow-hidden bg-container lg:rounded-md lg:border">
+                        <Header />
+                        <main
+                          className="flex size-full h-[calc(100svh-40px)] flex-col overflow-auto lg:h-[calc(100svh-56px)]"
+                          style={{ width: "calc(100svw - 100px)" }}
+                        >
+                          {children}
+                        </main>
+                      </div>
                     </div>
-                  </div>
-                </SidebarInset>
-              </div>
-            </SidebarProvider>
-          </GlobalErrorBoundary>
+                  </SidebarInset>
+                </div>
+              </SidebarProvider>
+            </GlobalErrorBoundary>
+          </FontSizeProvider>
         </ThemeProvider>
       </body>
-      <Script src="https://scripts.simpleanalyticscdn.com/latest.js" />
+      <Script
+        defer
+        src="https://scripts.simpleanalyticscdn.com/latest.js"
+        strategy="afterInteractive"
+      />
     </html>
   );
 }

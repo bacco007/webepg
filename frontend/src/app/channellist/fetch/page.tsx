@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { ChannelDataTable } from '@/components/channel-data-table';
+import { ChannelDataTable } from "@/components/channel-data-table";
 
 export default function FetchChannelsPage() {
   return (
     <ChannelDataTable
-      title="Fetch TV Channels"
       fetchUrl="/api/py/channels/xmlepg_FETALL"
+      title="Fetch TV Channels"
       // Optional customizations:
       // dataExtractor={(data) => data.data.channels} // Default extractor
       // initialSorting={[{ id: "channel_number", desc: false }]} // Default sorting

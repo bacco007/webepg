@@ -1,21 +1,32 @@
-"use client"
-import { type ReactNode, useState, useEffect } from "react"
-import { Menu, PanelLeftCloseIcon, PanelLeftOpenIcon, Search, X } from "lucide-react"
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+"use client";
+import {
+  Menu,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
+  Search,
+  X,
+} from "lucide-react";
+import { type ReactNode, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 interface SidebarLayoutProps {
-  children: ReactNode
-  sidebar: ReactNode
-  title: string
-  className?: string
-  sidebarClassName?: string
-  contentClassName?: string
-  actions?: ReactNode // This allows passing any React elements as actions
+  children: ReactNode;
+  sidebar: ReactNode;
+  title: string;
+  className?: string;
+  sidebarClassName?: string;
+  contentClassName?: string;
+  actions?: ReactNode;
 }
 
 export function SidebarLayout({
@@ -27,138 +38,222 @@ export function SidebarLayout({
   contentClassName,
   actions,
 }: SidebarLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
 
-  // Toggle sidebar function
   const toggleSidebar = () => {
-    setDesktopSidebarCollapsed(!desktopSidebarCollapsed)
-  }
+    setDesktopSidebarCollapsed(!desktopSidebarCollapsed);
+  };
 
-  // Save sidebar state to localStorage
   useEffect(() => {
-    const savedState = localStorage.getItem("sidebarCollapsed")
+    const savedState = localStorage.getItem("sidebarCollapsed");
     if (savedState) {
-      setDesktopSidebarCollapsed(savedState === "true")
+      setDesktopSidebarCollapsed(savedState === "true");
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem("sidebarCollapsed", desktopSidebarCollapsed.toString())
-  }, [desktopSidebarCollapsed])
+    localStorage.setItem(
+      "sidebarCollapsed",
+      desktopSidebarCollapsed.toString()
+    );
+  }, [desktopSidebarCollapsed]);
 
   return (
-    <div className={cn("flex h-screen w-full flex-col overflow-hidden", className)}>
-      {/* Simple header bar */}
-      <div className="flex justify-between items-center bg-background px-4 border-b h-12">
+    <div
+      className={cn(
+        "flex h-screen w-full flex-col overflow-hidden bg-background",
+        className
+      )}
+    >
+      {/* Header bar with improved styling */}
+      <div className="sticky top-0 z-50 flex h-12 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center gap-2">
-          {/* Menu icon for mobile */}
-          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          {/* Mobile menu with improved trigger */}
+          <Sheet onOpenChange={setSidebarOpen} open={sidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden">
-                <Menu className="w-5 h-5" />
+              <Button
+                className="hover:bg-muted/50 lg:hidden"
+                size="icon"
+                variant="ghost"
+              >
+                <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle sidebar</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64">
+            <SheetContent
+              className="w-64 border-r bg-background/95 p-0 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+              side="left"
+            >
               {sidebar}
             </SheetContent>
           </Sheet>
 
-          {/* App icon placeholder */}
-          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="hidden lg:flex">
-            {desktopSidebarCollapsed ? (
-              <PanelLeftOpenIcon className="w-5 h-5" />
-            ) : (
-              <PanelLeftCloseIcon className="w-5 h-5" />
-            )}
-            <span className="sr-only">{desktopSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}</span>
-          </Button>
+          {/* Desktop sidebar toggle with tooltip */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className="hidden hover:bg-muted/50 lg:flex"
+                  onClick={toggleSidebar}
+                  size="icon"
+                  variant="ghost"
+                >
+                  {desktopSidebarCollapsed ? (
+                    <PanelLeftOpenIcon className="h-5 w-5" />
+                  ) : (
+                    <PanelLeftCloseIcon className="h-5 w-5" />
+                  )}
+                  <span className="sr-only">
+                    {desktopSidebarCollapsed
+                      ? "Expand sidebar"
+                      : "Collapse sidebar"}
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {desktopSidebarCollapsed
+                  ? "Expand sidebar"
+                  : "Collapse sidebar"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
-          <span className="font-medium">{title}</span>
+          <span className="font-medium text-lg">{title}</span>
         </div>
 
-        {/* Action buttons - now using the actions prop */}
-        {actions}
+        {/* Action buttons with improved spacing */}
+        <div className="flex items-center gap-2">{actions}</div>
       </div>
 
-      {/* Main content area with sidebar */}
+      {/* Main content area with improved transitions */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Desktop sidebar - hidden on small screens */}
+        {/* Desktop sidebar with improved transitions */}
         <div
           className={cn(
-            "bg-card hidden w-64 shrink-0 border-r lg:block transition-all duration-300 ease-in-out",
-            desktopSidebarCollapsed && "lg:w-0 lg:opacity-0",
-            sidebarClassName,
+            "hidden w-64 shrink-0 border-r bg-card transition-all duration-300 ease-in-out lg:block",
+            desktopSidebarCollapsed && "lg:w-0 lg:border-r-0 lg:opacity-0",
+            sidebarClassName
           )}
         >
           {sidebar}
         </div>
 
-        {/* Main content */}
+        {/* Main content with improved scrolling */}
         <div className={cn("flex h-full flex-1 flex-col", contentClassName)}>
-          {/* Content area - ensure it takes full height and has proper overflow */}
-          <div className="flex-1 h-full overflow-auto">{children}</div>
+          <div className="h-full flex-1 overflow-auto scroll-smooth">
+            {children}
+          </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export function SidebarContainer({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("flex h-full flex-col", className)}>{children}</div>
+export function SidebarContainer({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex h-full flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
-export function SidebarHeader({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("border-b p-3", className)}>{children}</div>
+export function SidebarHeader({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "border-b bg-background/95 p-3 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
-export function SidebarContent({ children, className }: { children: ReactNode; className?: string }) {
+export function SidebarContent({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <ScrollArea className={cn("flex-1", className)}>
-      <div className="divide-y">{children}</div>
+      <div className="divide-y divide-border/40">{children}</div>
     </ScrollArea>
-  )
+  );
 }
 
-export function SidebarFooter({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("border-t p-3", className)}>{children}</div>
+export function SidebarFooter({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "border-t bg-background/95 p-3 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function SidebarSearch({
-  value,
-  onChange,
+  searchValue,
+  onValueChange,
   placeholder = "Search...",
   className,
 }: {
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-  className?: string
+  searchValue: string;
+  onValueChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
 }) {
   return (
-    <div className={cn("relative", className)}>
-      <Search className="top-2.5 left-2 absolute w-4 h-4 text-muted-foreground" />
+    <div className={cn("relative p-2", className)}>
+      <Search className="-translate-y-1/2 absolute top-1/2 left-4 h-4 w-4 text-muted-foreground" />
       <Input
+        className="h-9 bg-background/50 pl-9 text-sm backdrop-blur supports-[backdrop-filter]:bg-background/30"
+        onChange={(e) => onValueChange(e.target.value)}
         placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="pl-8 text-sm"
+        value={searchValue}
       />
-      {value && (
+      {searchValue && (
         <Button
-          variant="ghost"
-          size="sm"
-          className="top-1 right-1 absolute p-0 w-7 h-7"
-          onClick={() => onChange("")}
           aria-label="Clear search"
+          className="-translate-y-1/2 absolute top-1/2 right-2 h-7 w-7 p-0 hover:bg-muted/50"
+          onClick={() => onValueChange("")}
+          size="sm"
+          variant="ghost"
         >
-          <X className="w-4 h-4" />
+          <X className="h-4 w-4" />
         </Button>
       )}
     </div>
-  )
+  );
 }
 
-export default SidebarLayout
+export default SidebarLayout;

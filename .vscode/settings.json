@@ -1,218 +1,183 @@
 {
-  "workbench.colorTheme": "One Dark Pro Darker",
-  "window.zoomLevel": 0,
-  "workbench.tree.indent": 20,
-  "editor.minimap.renderCharacters": false,
-  "editor.minimap.size": "fill",
-  "files.autoSave": "afterDelay",
-  "files.autoSaveDelay": 1000,
-  "editor.cursorBlinking": "smooth",
-  // General settings
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": [
-    "source.addMissingImports",
-    "source.fixAll.eslint"
-  ],
-  "files.trimTrailingWhitespace": true,
-  "files.insertFinalNewline": true,
-  "editor.rulers": [
-    88,
-    120
-  ],
-  "editor.tabSize": 2,
-  "editor.detectIndentation": false,
-  // Python settings
-  "python.testing.pytestEnabled": true,
-  "python.testing.unittestEnabled": false,
-  "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv",
-  "[python]": {
-    "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.tabSize": 4,
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
-      "source.organizeImports": "explicit"
-    },
-  },
-  "ruff.lint.run": "onType",
-  "ruff.organizeImports": true,
-  "ruff.fixAll": true,
-  // JavaScript/TypeScript settings
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always",
-  "javascript.suggest.autoImports": true,
-  "typescript.suggest.autoImports": true,
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
-      // "source.organizeImports": "explicit"
-    }
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
-      // "source.organizeImports": "explicit"
-    }
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
-      // "source.organizeImports": "explicit"
-    }
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
-      // "source.organizeImports": "explicit"
-    }
-  },
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  // ESLint settings
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescript",
-    "vue",
-    "html",
-    "markdown",
-    "json",
-    "jsonc",
-    "yaml",
-    "toml",
-    "xml",
-    "gql",
-    "graphql",
-    "astro",
-    "css",
-    "less",
-    "scss",
-    "pcss",
-    "postcss",
-    "github-actions-workflow"
-  ],
-  "eslint.workingDirectories": [
-    "./frontend"
-  ],
-  "eslint.format.enable": true,
-  "eslint.run": "onSave",
-  "eslint.ignoreUntitled": true,
-  // Prettier settings
-  "prettier.enable": true,
-  "prettier.singleQuote": true,
-  "prettier.trailingComma": "es5",
-  // React settings
-  "emmet.includeLanguages": {
-    "javascript": "javascriptreact",
-    "typescript": "typescriptreact"
-  },
-  "emmet.triggerExpansionOnTab": true,
-  // Tailwind CSS settings
-  "css.validate": false,
-  "tailwindCSS.emmetCompletions": true,
-  "tailwindCSS.includeLanguages": {
-    "typescript": "javascript",
-    "typescriptreact": "javascript"
-  },
-  // Git settings
-  "git.enableSmartCommit": true,
-  "git.confirmSync": false,
-  // File associations
-  "files.associations": {
-    "*.js": "javascriptreact",
-    "*.ts": "typescript",
-    "*.tsx": "typescriptreact"
-  },
-  // Exclude directories from search
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/bower_components": true,
-    "**/env": true,
-    "**/venv": true,
-    "**/.venv": true,
-    "**/dist": true,
-    "**/build": true,
-    "**/.next": true,
-    "package-lock.json": true,
-    "**/__pycache__": true
-  },
-  // Terminal settings
-  "terminal.integrated.defaultProfile.windows": "PowerShell",
-  "terminal.integrated.defaultProfile.linux": "bash",
-  "terminal.integrated.defaultProfile.osx": "zsh",
-  // Better Comments
-  "better-comments.multilineComments": true,
-  "better-comments.highlightPlainText": true,
-  "better-comments.tags": [
-    {
-      "tag": "!",
-      "color": "#FF2D00",
-      "strikethrough": false,
-      "underline": false,
-      "backgroundColor": "transparent",
-      "bold": false,
-      "italic": false
-    },
-    {
-      "tag": "?",
-      "color": "#3498DB",
-      "strikethrough": false,
-      "underline": false,
-      "backgroundColor": "transparent",
-      "bold": false,
-      "italic": false
-    },
-    {
-      "tag": "//",
-      "color": "#474747",
-      "strikethrough": true,
-      "underline": false,
-      "backgroundColor": "transparent",
-      "bold": false,
-      "italic": false
-    },
-    {
-      "tag": "todo",
-      "color": "#FF8C00",
-      "strikethrough": false,
-      "underline": false,
-      "backgroundColor": "transparent",
-      "bold": false,
-      "italic": false
-    },
-    {
-      "tag": "*",
-      "color": "#98C379",
-      "strikethrough": false,
-      "underline": false,
-      "backgroundColor": "transparent",
-      "bold": false,
-      "italic": false
-    }
-  ],
-  "python.analysis.typeCheckingMode": "off",
-  "cSpell.words": [
-    "xmltvdatasource",
-    "xmltvnet"
-  ],
-  "tailwindCSS.classAttributes": [
-    "class",
-    "className",
-    "classNames",
-    "containerClassName"
-  ],
-  "workbench.editor.customLabels.patterns": {
-    "**/app/**/page.tsx": "${dirname} <page>",
-    "**/app/**/layout.tsx": "${dirname} <layout>",
-    "**/app/**/route.ts": "${dirname} <route>",
-    "**/index.tsx": "${filename} <${dirname}>",
-    "**/app/**/error.tsx": "${dirname} <error>",
-    "**/app/**/not-found.tsx": "${dirname} <not-found>",
-    "**/app/**/loading.tsx": "${dirname} <loading>"
-  },
+	"workbench.colorTheme": "One Dark Pro Darker",
+	"window.zoomLevel": 0,
+	"workbench.tree.indent": 20,
+	"editor.minimap.renderCharacters": false,
+	"editor.minimap.size": "fill",
+	"files.autoSave": "afterDelay",
+	"files.autoSaveDelay": 1000,
+	"editor.cursorBlinking": "smooth",
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "explicit",
+		"source.organizeImports.biome": "explicit"
+	},
+	"files.trimTrailingWhitespace": true,
+	"files.insertFinalNewline": true,
+	"editor.rulers": [88, 120],
+	"editor.tabSize": 2,
+	"editor.detectIndentation": false,
+	"python.testing.pytestEnabled": true,
+	"python.testing.unittestEnabled": false,
+	"python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv",
+	"[python]": {
+		"editor.defaultFormatter": "charliermarsh.ruff",
+		"editor.tabSize": 4,
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "explicit",
+			"source.organizeImports": "explicit"
+		}
+	},
+	"ruff.lint.run": "onType",
+	"ruff.organizeImports": true,
+	"ruff.fixAll": true,
+	"javascript.updateImportsOnFileMove.enabled": "always",
+	"typescript.updateImportsOnFileMove.enabled": "always",
+	"javascript.suggest.autoImports": true,
+	"typescript.suggest.autoImports": true,
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.biome": "explicit",
+			"source.organizeImports.biome": "explicit"
+		}
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.biome": "explicit",
+			"source.organizeImports.biome": "explicit"
+		}
+	},
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.biome": "explicit",
+			"source.organizeImports.biome": "explicit"
+		}
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.biome": "explicit",
+			"source.organizeImports.biome": "explicit"
+		}
+	},
+	"[css]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[jsonc]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[markdown]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"biome.lintOnSave": true,
+	"biome.formatOnSave": true,
+	"biome.requireConfiguration": true,
+	"biome.enableCodeActions": true,
+	"biome.run": "onSave",
+	"biome.configurationPath": "frontend/biome.jsonc",
+	"emmet.includeLanguages": {
+		"javascript": "javascriptreact",
+		"typescript": "typescriptreact"
+	},
+	"emmet.triggerExpansionOnTab": true,
+	"css.validate": false,
+	"tailwindCSS.emmetCompletions": true,
+	"tailwindCSS.includeLanguages": {
+		"typescript": "javascript",
+		"typescriptreact": "javascript"
+	},
+	"git.enableSmartCommit": true,
+	"git.confirmSync": false,
+	"files.associations": {
+		"*.js": "javascriptreact",
+		"*.ts": "typescript",
+		"*.tsx": "typescriptreact"
+	},
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/bower_components": true,
+		"**/env": true,
+		"**/venv": true,
+		"**/.venv": true,
+		"**/dist": true,
+		"**/build": true,
+		"**/.next": true,
+		"package-lock.json": true,
+		"**/__pycache__": true
+	},
+	"terminal.integrated.defaultProfile.windows": "PowerShell",
+	"terminal.integrated.defaultProfile.linux": "bash",
+	"terminal.integrated.defaultProfile.osx": "zsh",
+	"better-comments.multilineComments": true,
+	"better-comments.highlightPlainText": true,
+	"better-comments.tags": [
+		{
+			"tag": "!",
+			"color": "#FF2D00",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "?",
+			"color": "#3498DB",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "//",
+			"color": "#474747",
+			"strikethrough": true,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "todo",
+			"color": "#FF8C00",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "*",
+			"color": "#98C379",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		}
+	],
+	"python.analysis.typeCheckingMode": "off",
+	"cSpell.words": ["xmltvdatasource", "xmltvnet"],
+	"tailwindCSS.classAttributes": [
+		"class",
+		"className",
+		"classNames",
+		"containerClassName"
+	],
+	"workbench.editor.customLabels.patterns": {
+		"**/app/**/page.tsx": "${dirname} <page>",
+		"**/app/**/layout.tsx": "${dirname} <layout>",
+		"**/app/**/route.ts": "${dirname} <route>",
+		"**/index.tsx": "${filename} <${dirname}>",
+		"**/app/**/error.tsx": "${dirname} <error>",
+		"**/app/**/not-found.tsx": "${dirname} <not-found>",
+		"**/app/**/loading.tsx": "${dirname} <loading>"
+	}
 }

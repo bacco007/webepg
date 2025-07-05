@@ -1,63 +1,61 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useState, useEffect, useMemo } from 'react';
 import {
+  ChevronDown,
+  ChevronUp,
   Loader2,
   RefreshCw,
   RotateCw,
-  ChevronDown,
-  ChevronUp,
-  Rows,
-  RowsIcon,
-  Filter,
-  Layers,
-  Table2,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+} from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { FilterSection } from "@/components/filter-section";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from '@/components/ui/table';
+  ChannelCard,
+  LocationSelector,
+  ViewModeToggle,
+} from "@/components/freeview-channel-map";
 import {
   SidebarContainer,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarSearch,
   SidebarLayout,
-} from '@/components/layouts/sidebar-layout';
-import { FilterSection } from '@/components/filter-section';
-import { useDebounce } from '@/hooks/use-debounce';
+  SidebarSearch,
+} from "@/components/layouts/sidebar-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { useIsMobile } from '@/hooks/use-mobile';
+} from "@/components/ui/select";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@/components/ui/table";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { abbreviateText, stateAbbreviations } from "@/lib/abbreviation-utils";
+import { deslugifyRegion, slugifyRegion } from "@/lib/slugify";
 
+// CSS Variables for channel spec colors
+const channelSpecColors = {
+  hdMpeg2: "bg-green-100/50 dark:bg-green-900/30",
+  hdMpeg4: "bg-green-100/50 dark:bg-green-900/30",
+  notAvailable: "bg-muted/80",
+  radio: "bg-purple-100/50 dark:bg-purple-900/30",
+  sdMpeg2: "bg-orange-100/50 dark:bg-orange-900/30",
+  sdMpeg4: "bg-yellow-100/50 dark:bg-yellow-900/30",
+};
+
+// Define the ChannelData interface that matches the API response structure
 interface ChannelData {
   channel_id: string;
   channel_slug: string;
@@ -77,7 +75,7 @@ interface ChannelData {
     channel_type?: string;
     channel_specs?: string;
   };
-  channel_network?: string; // Add this line
+  channel_network?: string;
 }
 
 interface ApiResponse {
@@ -101,177 +99,179 @@ interface SourceData {
   };
 }
 
-interface ZoneConfig {
-  name: string;
-  states: {
-    code: string;
-    name: string;
-  }[];
-  color: string;
-}
-
 interface MergedCell {
   startIndex: number;
   endIndex: number;
   channel: ChannelData | null; // Allow null for empty cells
 }
 
-interface EmptyStreak {
-  startIndex: number;
-  endIndex: number;
-}
+// Custom hook to manage all the state and logic
+function useChannelMapData() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-const ZONES: ZoneConfig[] = [
-  {
-    name: 'South Zone',
-    states: [
-      { code: 'NSW', name: 'NSW/ACT' },
-      { code: 'VIC', name: 'Victoria' },
-      { code: 'TAS', name: 'Tasmania' },
-      { code: 'SA', name: 'South Australia' },
-    ],
-    color: 'bg-blue-100 dark:bg-blue-950/30',
-  },
-  {
-    name: 'North Zone',
-    states: [
-      { code: 'QLD', name: 'Queensland' },
-      { code: 'NT', name: 'Northern Territory' },
-    ],
-    color: 'bg-green-100 dark:bg-green-950/30',
-  },
-  {
-    name: 'West Zone',
-    states: [{ code: 'WA', name: 'Western Australia' }],
-    color: 'bg-amber-100 dark:bg-amber-950/30',
-  },
-];
-
-// Flatten all states into a single array for easier indexing
-const ALL_STATES = ZONES.flatMap(zone => zone.states);
-
-export default function ChannelMapSourcesPage() {
   const [sources, setSources] = useState<SourceData[]>([]);
+  const [allSources, setAllSources] = useState<SourceData[]>([]);
   const [channelData, setChannelData] = useState<Record<string, ChannelData[]>>(
-    {},
+    {}
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [networkGroups, setNetworkGroups] = useState<string[]>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
+  const [globalFilter, setGlobalFilter] = useState("");
   const [selectedNetworks, setSelectedNetworks] = useState<string[]>([]);
   const [selectedChannelTypes, setSelectedChannelTypes] = useState<string[]>(
-    [],
+    []
   );
   const [selectedChannelSpecs, setSelectedChannelSpecs] = useState<string[]>(
-    [],
+    []
   );
-  const [networkSearch, setNetworkSearch] = useState('');
-  const [typeSearch, setTypeSearch] = useState('');
-  const [specsSearch, setSpecsSearch] = useState('');
+  const [networkSearch, setNetworkSearch] = useState("");
+  const [typeSearch, setTypeSearch] = useState("");
+  const [specsSearch, setSpecsSearch] = useState("");
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
   const [collapsedNetworks, setCollapsedNetworks] = useState<
     Record<string, boolean>
   >({});
-  const [selectedSubgroup, setSelectedSubgroup] = useState<string>('');
+  const [selectedSubgroup, setSelectedSubgroup] = useState<string>("");
   const [visibleLocations, setVisibleLocations] = useState<string[]>([]);
-  const [density, setDensity] = useState<'comfortable' | 'compact'>(
-    'comfortable',
-  );
   const [expandedChannels, setExpandedChannels] = useState<
     Record<string, boolean>
   >({});
-  const [viewMode, setViewMode] = useState<'networks' | 'flat'>('networks');
+  const [viewMode, setViewMode] = useState<"networks" | "flat">("networks");
 
   const isMobile = useIsMobile();
   const debouncedGlobalSearch = useDebounce(globalFilter, 300);
 
-  // Toggle network collapse state
-  const toggleNetworkCollapse = (network: string) => {
-    setCollapsedNetworks(prev => ({
-      ...prev,
-      [network]: !prev[network],
-    }));
-  };
-
-  // Toggle channel expansion for mobile view
-  const toggleChannelExpansion = (channelKey: string) => {
-    setExpandedChannels(prev => ({
-      ...prev,
-      [channelKey]: !prev[channelKey],
-    }));
-  };
-
-  // Toggle collapse all networks
-  const toggleAllNetworks = (collapse: boolean) => {
-    const newState: Record<string, boolean> = {};
-    Object.keys(filteredChannelMap).forEach(network => {
-      newState[network] = collapse;
-    });
-    setCollapsedNetworks(newState);
-  };
-
-  // Save sidebar state to localStorage
-  useEffect(() => {
-    const savedState = localStorage.getItem('sidebarCollapsed');
-    if (savedState) {
-      setDesktopSidebarCollapsed(savedState === 'true');
+  // Helper function to get background color based on channel specs
+  const getChannelColor = useCallback((specs?: string): string => {
+    if (!specs) {
+      return "bg-background";
     }
+
+    const spec = specs.toLowerCase();
+    if (spec.includes("hd") && spec.includes("mpeg-4")) {
+      return channelSpecColors.hdMpeg4;
+    }
+    if (spec.includes("hd") && spec.includes("mpeg-2")) {
+      return channelSpecColors.hdMpeg2;
+    }
+    if (spec.includes("sd") && spec.includes("mpeg-4")) {
+      return channelSpecColors.sdMpeg4;
+    }
+    if (spec.includes("sd") && spec.includes("mpeg-2")) {
+      return channelSpecColors.sdMpeg2;
+    }
+    if (spec.includes("radio")) {
+      return channelSpecColors.radio;
+    }
+
+    return "bg-background";
   }, []);
 
+  // Helper function to abbreviate state names
+  const abbreviateStateName = useCallback((channelName: string): string => {
+    return abbreviateText(channelName, stateAbbreviations);
+  }, []);
+
+  // Function to update URL parameters
+  const updateUrlParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === null || value === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      }
+
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      router.replace(newUrl, { scroll: false });
+    },
+    [router, searchParams]
+  );
+
+  // Function to set selected subgroup with URL update
+  const setSelectedSubgroupWithUrl = useCallback(
+    (subgroup: string) => {
+      setSelectedSubgroup(subgroup);
+      updateUrlParams({ region: slugifyRegion(subgroup) });
+    },
+    [updateUrlParams]
+  );
+
+  // Function to set view mode with URL update
+  const setViewModeWithUrl = useCallback(
+    (mode: "networks" | "flat") => {
+      setViewMode(mode);
+      updateUrlParams({ layout: mode });
+    },
+    [updateUrlParams]
+  );
+
+  // Get unique subgroups from sources
+  const getUniqueSubgroups = useCallback(
+    (sourceList: SourceData[]): string[] => {
+      const subgroups = new Set<string>();
+      for (const source of sourceList) {
+        subgroups.add(source.subgroup);
+      }
+      return Array.from(subgroups).sort();
+    },
+    []
+  );
+
+  // Read URL parameters on mount (after getUniqueSubgroups is defined)
   useEffect(() => {
-    localStorage.setItem(
-      'sidebarCollapsed',
-      desktopSidebarCollapsed.toString(),
-    );
-  }, [desktopSidebarCollapsed]);
+    const urlRegion = searchParams.get("region");
+    const urlLayout = searchParams.get("layout") as "networks" | "flat" | null;
+
+    if (urlRegion) {
+      // Convert slug back to region name and find matching subgroup
+      const deslugifiedRegion = deslugifyRegion(urlRegion);
+      const subgroups = getUniqueSubgroups(sources);
+      const matchingSubgroup = subgroups.find(
+        (subgroup) =>
+          slugifyRegion(subgroup) === urlRegion ||
+          subgroup === deslugifiedRegion
+      );
+
+      if (matchingSubgroup) {
+        setSelectedSubgroup(matchingSubgroup);
+      }
+    }
+
+    if (urlLayout && (urlLayout === "networks" || urlLayout === "flat")) {
+      setViewMode(urlLayout);
+    }
+  }, [searchParams, sources, getUniqueSubgroups]);
 
   // Fetch sources on initial load
-  useEffect(() => {
-    fetchSources();
-  }, []);
-
-  // Fetch channel data when subgroup changes
-  useEffect(() => {
-    if (selectedSubgroup) {
-      fetchChannelDataForSubgroup(selectedSubgroup);
-    }
-  }, [selectedSubgroup]);
-
-  // Update visible locations when locations change
-  const locationsForSubgroup = useMemo(() => {
-    return sources
-      .filter(source => source.subgroup === selectedSubgroup)
-      .map(source => source.location)
-      .sort((a, b) => a.localeCompare(b));
-  }, [sources, selectedSubgroup]);
-
-  useEffect(() => {
-    setVisibleLocations(locationsForSubgroup);
-  }, [locationsForSubgroup]);
-
-  const fetchSources = async () => {
+  const fetchSources = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/py/sources');
+      const response = await fetch("/api/py/sources");
       if (!response.ok) {
         throw new Error(`Failed to fetch sources: ${response.status}`);
       }
 
-      const allSources: SourceData[] = await response.json();
+      const allSourcesData: SourceData[] = await response.json();
+      setAllSources(allSourcesData);
 
       // Filter sources based on criteria
-      const filteredSources = allSources.filter(
-        source =>
-          source.group === 'Australia' &&
-          source.subgroup.includes('FTA') &&
-          !source.subgroup.includes('Streaming') &&
-          !source.subgroup.includes('All Regions') &&
-          !source.subgroup.includes('by Network') &&
-          !source.location.includes('Regional News') &&
-          !source.location.includes('ABC/SBS - All States'),
+      const filteredSources = allSourcesData.filter(
+        (source) =>
+          source.group === "Australia" &&
+          source.subgroup.includes("FTA") &&
+          !source.subgroup.includes("Streaming") &&
+          !source.subgroup.includes("All Regions") &&
+          !source.subgroup.includes("by Network") &&
+          !source.location.includes("Regional News") &&
+          !source.location.includes("ABC/SBS - All States")
       );
 
       setSources(filteredSources);
@@ -282,86 +282,183 @@ export default function ChannelMapSourcesPage() {
         setSelectedSubgroup(subgroups[0]);
       }
     } catch (err) {
-      console.error('Error fetching sources:', err);
       setError(
-        err instanceof Error ? err.message : 'An unknown error occurred',
+        err instanceof Error ? err.message : "An unknown error occurred"
       );
     } finally {
       setLoading(false);
     }
-  };
+  }, [getUniqueSubgroups]);
 
-  const fetchChannelDataForSubgroup = async (subgroup: string) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const fetchChannelDataForSubgroup = useCallback(
+    async (subgroup: string) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      // Get all sources for this subgroup
-      const subgroupSources = sources.filter(
-        source => source.subgroup === subgroup,
-      );
+        // Get all sources for this subgroup
+        const subgroupSources = sources.filter(
+          (source) => source.subgroup === subgroup
+        );
 
-      // Reset channel data
-      setChannelData({});
+        // Add VAST source if this is a regional subgroup
+        const vastSources: SourceData[] = [];
+        const stateVastMapping: Record<string, string> = {
+          "FTA - Regional ACT": "xmlepg_VASTACT",
+          "FTA - Regional NSW": "xmlepg_VASTNSW",
+          "FTA - Regional NT": "xmlepg_VASTNT",
+          "FTA - Regional QLD": "xmlepg_VASTQLD",
+          "FTA - Regional SA": "xmlepg_VASTSA",
+          "FTA - Regional TAS": "xmlepg_VASTTAS",
+          "FTA - Regional VIC": "xmlepg_VASTVIC",
+          "FTA - Regional WA": "xmlepg_VASTWA",
+        };
 
-      // Fetch channel data for each source
-      const channelDataMap: Record<string, ChannelData[]> = {};
-      const allNetworks = new Set<string>();
-
-      for (const source of subgroupSources) {
-        const response = await fetch(`/api/py/channels/${source.id}`);
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch data for ${source.location}: ${response.status}`,
+        const vastSourceId = stateVastMapping[subgroup];
+        if (vastSourceId) {
+          const vastSource = allSources.find(
+            (source) => source.id === vastSourceId
           );
+          if (vastSource) {
+            vastSources.push({
+              ...vastSource,
+              location: "VAST",
+              subgroup: vastSource.subgroup,
+            });
+          }
         }
 
-        const data: ApiResponse = await response.json();
+        // Combine subgroup sources with VAST sources
+        const allSourcesToFetch = [...subgroupSources, ...vastSources];
 
-        // Use location as the key instead of state code
-        channelDataMap[source.location] = data.data.channels;
+        // Reset channel data
+        setChannelData({});
 
-        // Collect all network groups
-        data.data.channels.forEach(channel => {
-          if (channel.channel_group) {
-            allNetworks.add(channel.channel_group);
+        // Fetch channel data for each source using Promise.all for concurrent requests
+        const channelDataMap: Record<string, ChannelData[]> = {};
+        const allNetworks = new Set<string>();
+
+        const fetchPromises = allSourcesToFetch.map(async (source) => {
+          const response = await fetch(`/api/py/channels/${source.id}`);
+          if (!response.ok) {
+            throw new Error(
+              `Failed to fetch data for ${source.location}: ${response.status}`
+            );
           }
+
+          const data: ApiResponse = await response.json();
+
+          // Use location as the key instead of state code
+          channelDataMap[source.location] = data.data.channels;
+
+          // Collect all network groups
+          for (const channel of data.data.channels) {
+            if (channel.channel_group) {
+              allNetworks.add(channel.channel_group);
+            }
+          }
+
+          return { data, source };
         });
+
+        await Promise.all(fetchPromises);
+
+        setChannelData(channelDataMap);
+        setNetworkGroups(Array.from(allNetworks).sort());
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
+      } finally {
+        setLoading(false);
       }
+    },
+    [sources, allSources]
+  );
 
-      setChannelData(channelDataMap);
-      setNetworkGroups(Array.from(allNetworks).sort());
-    } catch (err) {
-      console.error('Error fetching channel data:', err);
-      setError(
-        err instanceof Error ? err.message : 'An unknown error occurred',
-      );
-    } finally {
-      setLoading(false);
+  // Toggle network collapse state
+  const toggleNetworkCollapse = (network: string) => {
+    setCollapsedNetworks((prev) => ({
+      ...prev,
+      [network]: !prev[network],
+    }));
+  };
+
+  // Toggle channel expansion for mobile view
+  const toggleChannelExpansion = (channelKey: string) => {
+    setExpandedChannels((prev) => ({
+      ...prev,
+      [channelKey]: !prev[channelKey],
+    }));
+  };
+
+  // Toggle collapse all networks
+  const toggleAllNetworks = (collapse: boolean) => {
+    const newState: Record<string, boolean> = {};
+    for (const network of Object.keys(filteredChannelMap)) {
+      newState[network] = collapse;
     }
+    setCollapsedNetworks(newState);
   };
 
-  // Get unique subgroups from sources
-  const getUniqueSubgroups = (sourceList: SourceData[]): string[] => {
-    const subgroups = new Set<string>();
-    sourceList.forEach(source => {
-      subgroups.add(source.subgroup);
-    });
-    return Array.from(subgroups).sort();
-  };
+  // Save sidebar state to localStorage
+  useEffect(() => {
+    const savedState = localStorage.getItem("sidebarCollapsed");
+    if (savedState) {
+      setDesktopSidebarCollapsed(savedState === "true");
+    }
+  }, []);
 
-  // Group channels by network and channel number
-  const getChannelMap = () => {
-    const channelMap: Record<
-      string,
-      Record<string, Record<string, ChannelData>>
-    > = {};
+  useEffect(() => {
+    localStorage.setItem(
+      "sidebarCollapsed",
+      desktopSidebarCollapsed.toString()
+    );
+  }, [desktopSidebarCollapsed]);
+
+  // Fetch sources on initial load
+  useEffect(() => {
+    fetchSources();
+  }, [fetchSources]);
+
+  // Fetch channel data when subgroup changes
+  useEffect(() => {
+    if (selectedSubgroup) {
+      fetchChannelDataForSubgroup(selectedSubgroup);
+    }
+  }, [selectedSubgroup, fetchChannelDataForSubgroup]);
+
+  // Update visible locations when locations change
+  const locationsForSubgroup = useMemo(() => {
+    // Get locations from sources
+    const sourceLocations = sources
+      .filter((source) => source.subgroup === selectedSubgroup)
+      .map((source) => source.location);
+
+    // Get locations from channel data (includes VAST)
+    const channelDataLocations = Object.keys(channelData).map((location) =>
+      location === "VAST" ? location : location
+    );
+
+    // Combine and deduplicate locations
+    const allLocations = [
+      ...new Set([...sourceLocations, ...channelDataLocations]),
+    ];
+
+    return allLocations.sort((a, b) => a.localeCompare(b));
+  }, [sources, selectedSubgroup, channelData]);
+
+  useEffect(() => {
+    setVisibleLocations(locationsForSubgroup);
+  }, [locationsForSubgroup]);
+
+  // Helper function to collect all unique channel numbers by network
+  const collectNetworksAndChannelNumbers = useCallback(() => {
     const networks: Record<string, Set<string>> = {};
 
-    // First pass: collect all unique channel numbers by network
-    Object.entries(channelData).forEach(([location, channels]) => {
-      channels.forEach(channel => {
-        const network = channel.channel_group || 'Other';
+    for (const [_location, channels] of Object.entries(channelData)) {
+      for (const channel of channels) {
+        const network = channel.channel_group || "Other";
         if (!networks[network]) {
           networks[network] = new Set();
         }
@@ -370,482 +467,564 @@ export default function ChannelMapSourcesPage() {
         if (channel.channel_number) {
           networks[network].add(channel.channel_number);
         }
-      });
-    });
-
-    // Second pass: organize channels by network, channel number, and location
-    Object.entries(networks).forEach(([network, channelNumbers]) => {
-      channelMap[network] = {};
-
-      channelNumbers.forEach(channelNumber => {
-        channelMap[network][channelNumber] = {};
-
-        // Find this channel number in each location
-        Object.entries(channelData).forEach(([location, channels]) => {
-          // Find channels with matching number and network
-          const matchingChannels = channels.filter(
-            c =>
-              c.channel_number === channelNumber && c.channel_group === network,
-          );
-
-          // If multiple channels match, use the first one
-          if (matchingChannels.length > 0) {
-            channelMap[network][channelNumber][location] = matchingChannels[0];
-          }
-        });
-      });
-    });
-
-    // Sort networks alphabetically
-    const sortedChannelMap: Record<
-      string,
-      Record<string, Record<string, ChannelData>>
-    > = {};
-    Object.keys(channelMap)
-      .sort((a, b) => a.localeCompare(b))
-      .forEach(network => {
-        sortedChannelMap[network] = channelMap[network];
-      });
-
-    return sortedChannelMap;
-  };
-
-  // Get a representative channel name for display in the first column
-  const getChannelDisplayName = (
-    locationChannels: Record<string, ChannelData>,
-  ): string => {
-    // Get the first available channel
-    const firstChannel = Object.values(locationChannels)[0];
-    if (!firstChannel) return 'Unknown Channel';
-
-    // Use the clean name as it's usually the most generic
-    return firstChannel.channel_names.clean;
-  };
-
-  // Function to determine which cells can be merged
-  const getMergedCells = (
-    locationChannels: Record<string, ChannelData>,
-    filteredLocations: string[],
-  ): MergedCell[] => {
-    const mergedCells: MergedCell[] = [];
-    const locationsWithChannels = new Set(Object.keys(locationChannels));
-
-    let currentMergeStart = -1;
-    let currentChannelName: string | null = null;
-
-    for (let i = 0; i < filteredLocations.length; i++) {
-      const location = filteredLocations[i];
-      const hasChannel = locationsWithChannels.has(location);
-
-      if (hasChannel) {
-        const channel = locationChannels[location];
-        const channelName =
-          channel.channel_names.location || channel.channel_name;
-
-        // If we're not in a merge or the channel name is different, start a new merge
-        if (currentMergeStart === -1 || channelName !== currentChannelName) {
-          // If we were in a merge, end it
-          if (currentMergeStart !== -1) {
-            mergedCells.push({
-              startIndex: currentMergeStart,
-              endIndex: i - 1,
-              channel: currentChannelName
-                ? {
-                    channel_names: {
-                      location: currentChannelName,
-                      clean: currentChannelName,
-                      real: currentChannelName,
-                    },
-                    // Add other required properties with placeholder values
-                    channel_id: '',
-                    channel_slug: '',
-                    channel_name: currentChannelName,
-                    channel_number: '',
-                    channel_group: '',
-                    channel_logo: { light: '', dark: '' },
-                  }
-                : null,
-            });
-          }
-
-          // Start a new merge
-          currentMergeStart = i;
-          currentChannelName = channelName;
-        }
-        // If the channel name is the same, continue the current merge
-      } else {
-        // This location doesn't have a channel
-
-        // If we're in a merge, check if we should end it
-        if (currentMergeStart !== -1) {
-          // End the current merge
-          mergedCells.push({
-            startIndex: currentMergeStart,
-            endIndex: i - 1,
-            channel: currentChannelName
-              ? {
-                  channel_names: {
-                    location: currentChannelName,
-                    clean: currentChannelName,
-                    real: currentChannelName,
-                  },
-                  // Add other required properties with placeholder values
-                  channel_id: '',
-                  channel_slug: '',
-                  channel_name: currentChannelName,
-                  channel_number: '',
-                  channel_group: '',
-                  channel_logo: { light: '', dark: '' },
-                }
-              : null,
-          });
-
-          // Start a new "Not available" merge
-          currentMergeStart = i;
-          currentChannelName = null;
-        } else if (currentMergeStart === -1) {
-          // Start a new "Not available" merge
-          currentMergeStart = i;
-          currentChannelName = null;
-        }
       }
     }
 
-    // Add the last merge if there is one
-    if (currentMergeStart !== -1) {
-      mergedCells.push({
-        startIndex: currentMergeStart,
-        endIndex: filteredLocations.length - 1,
-        channel: currentChannelName
-          ? {
-              channel_names: {
-                location: currentChannelName,
-                clean: currentChannelName,
-                real: currentChannelName,
-              },
-              // Add other required properties with placeholder values
-              channel_id: '',
-              channel_slug: '',
-              channel_name: currentChannelName,
-              channel_number: '',
-              channel_group: '',
-              channel_logo: { light: '', dark: '' },
+    return networks;
+  }, [channelData]);
+
+  // Helper function to organize channels by network, channel number, and location
+  const organizeChannelsByNetwork = useCallback(
+    (networks: Record<string, Set<string>>) => {
+      const channelMap: Record<
+        string,
+        Record<string, Record<string, ChannelData>>
+      > = {};
+
+      for (const [network, channelNumbers] of Object.entries(networks)) {
+        channelMap[network] = {};
+
+        for (const channelNumber of channelNumbers) {
+          channelMap[network][channelNumber] = {};
+
+          // Find this channel number in each location
+          for (const [location, channels] of Object.entries(channelData)) {
+            // Find channels with matching number and network
+            const matchingChannels = channels.filter(
+              (c) =>
+                c.channel_number === channelNumber &&
+                c.channel_group === network
+            );
+
+            // If multiple channels match, use the first one
+            if (matchingChannels.length > 0) {
+              channelMap[network][channelNumber][location] =
+                matchingChannels[0];
             }
-          : null,
-      });
-    }
-
-    return mergedCells;
-  };
-
-  // Render a row with merged cells
-  const renderChannelRow = (
-    network: string,
-    channelNumber: string,
-    locationChannels: Record<string, ChannelData>,
-  ) => {
-    const filteredLocations = locationsForSubgroup.filter(loc =>
-      visibleLocations.includes(loc),
-    );
-    const mergedCells = getMergedCells(locationChannels, filteredLocations);
-
-    return (
-      <TableRow
-        key={`${network}-${channelNumber}`}
-        className="hover:bg-muted/50"
-      >
-        <TableCell
-          className={`bg-background sticky left-0 z-10 w-[100px] min-w-[100px] border font-medium shadow-sm ${
-            density === 'compact' ? 'py-1' : ''
-          }`}
-        >
-          <div className="flex justify-center items-center">
-            <div className="text-center">
-              <div className="font-medium">Ch {channelNumber}</div>
-            </div>
-          </div>
-        </TableCell>
-
-        {/* Render each location column */}
-        {filteredLocations.map((location, locationIndex) => {
-          // Find the merged cell that contains this location index
-          const mergedCell = mergedCells.find(
-            cell =>
-              locationIndex >= cell.startIndex &&
-              locationIndex <= cell.endIndex,
-          );
-
-          // If we found a merged cell and this is the first location in the merged range,
-          // render it with the appropriate colspan
-          if (mergedCell && locationIndex === mergedCell.startIndex) {
-            const colspan = mergedCell.endIndex - mergedCell.startIndex + 1;
-
-            if (mergedCell.channel) {
-              // This is a channel cell - find the actual channel data for logo
-              const actualChannel =
-                locationChannels[filteredLocations[locationIndex]];
-              const logoUrl = actualChannel?.channel_logo?.light || '';
-
-              // This is a channel cell
-              return (
-                <TableCell
-                  key={`location-${location}`}
-                  colSpan={colspan}
-                  className={`border text-center whitespace-normal ${density === 'compact' ? 'py-1 text-sm' : ''}`}
-                >
-                  <div className="flex flex-col justify-center items-center gap-1">
-                    {logoUrl && (
-                      <div className="flex justify-center items-center bg-muted/50 rounded-md size-10">
-                        <img
-                          src={logoUrl || '/placeholder.svg'}
-                          alt=""
-                          className="p-1 max-w-full max-h-full object-contain"
-                          loading="lazy"
-                          onError={e => {
-                            e.currentTarget.src =
-                              '/placeholder.svg?height=32&width=32';
-                          }}
-                        />
-                      </div>
-                    )}
-                    <div className="font-medium text-sm">
-                      {mergedCell.channel.channel_names.location ||
-                        mergedCell.channel.channel_name}
-                    </div>
-                  </div>
-                </TableCell>
-              );
-            } else {
-              // This is a "Not available" cell
-              return (
-                <TableCell
-                  key={`location-${location}`}
-                  colSpan={colspan}
-                  className={`border text-center whitespace-normal ${density === 'compact' ? 'py-1' : ''}`}
-                >
-                  <span className="text-muted-foreground text-xs">
-                    Not available
-                  </span>
-                </TableCell>
-              );
-            }
-          } else if (!mergedCell || locationIndex !== mergedCell.startIndex) {
-            // Skip this cell as it's part of a colspan
-            return null;
           }
+        }
+      }
 
-          // Fallback - should not reach here
-          return (
-            <TableCell
-              key={`location-${location}`}
-              className="border text-center"
-            >
-              <span className="text-muted-foreground text-xs">Error</span>
-            </TableCell>
+      return channelMap;
+    },
+    [channelData]
+  );
+
+  // Helper function to sort networks alphabetically
+  const sortNetworksAlphabetically = useCallback(
+    (
+      channelMap: Record<string, Record<string, Record<string, ChannelData>>>
+    ) => {
+      const sortedChannelMap: Record<
+        string,
+        Record<string, Record<string, ChannelData>>
+      > = {};
+
+      for (const network of Object.keys(channelMap).sort((a, b) =>
+        a.localeCompare(b)
+      )) {
+        sortedChannelMap[network] = channelMap[network];
+      }
+
+      return sortedChannelMap;
+    },
+    []
+  );
+
+  // Group channels by network and channel number
+  const getChannelMap = useCallback(() => {
+    const networks = collectNetworksAndChannelNumbers();
+    const channelMap = organizeChannelsByNetwork(networks);
+    return sortNetworksAlphabetically(channelMap);
+  }, [
+    collectNetworksAndChannelNumbers,
+    organizeChannelsByNetwork,
+    sortNetworksAlphabetically,
+  ]);
+
+  // Helper function to create a placeholder channel object
+  const createPlaceholderChannel = useCallback(
+    (channelName: string): ChannelData => ({
+      channel_group: "",
+      channel_id: "",
+      channel_logo: { dark: "", light: "" },
+      channel_name: channelName,
+      channel_names: {
+        clean: channelName,
+        location: channelName,
+        real: channelName,
+      },
+      channel_number: "",
+      channel_slug: "",
+    }),
+    []
+  );
+
+  // Helper function to end a current merge and add it to mergedCells
+  const endCurrentMerge = useCallback(
+    (
+      mergedCells: MergedCell[],
+      currentMergeStart: number,
+      endIndex: number,
+      currentChannelName: string | null
+    ): void => {
+      if (currentMergeStart !== -1) {
+        mergedCells.push({
+          channel: currentChannelName
+            ? createPlaceholderChannel(currentChannelName)
+            : null,
+          endIndex,
+          startIndex: currentMergeStart,
+        });
+      }
+    },
+    [createPlaceholderChannel]
+  );
+
+  // Helper function to handle a location that has a channel
+  const handleLocationWithChannel = useCallback(
+    (
+      location: string,
+      locationChannels: Record<string, ChannelData>,
+      i: number,
+      currentMergeStart: number,
+      currentChannelName: string | null,
+      mergedCells: MergedCell[]
+    ): { newMergeStart: number; newChannelName: string | null } => {
+      const channel = locationChannels[location];
+      const channelName =
+        channel.channel_names.location || channel.channel_name;
+
+      // If we're not in a merge or the channel name is different, start a new merge
+      if (currentMergeStart === -1 || channelName !== currentChannelName) {
+        // If we were in a merge, end it
+        endCurrentMerge(
+          mergedCells,
+          currentMergeStart,
+          i - 1,
+          currentChannelName
+        );
+
+        // Start a new merge
+        return { newChannelName: channelName, newMergeStart: i };
+      }
+
+      // If the channel name is the same, continue the current merge
+      return {
+        newChannelName: currentChannelName,
+        newMergeStart: currentMergeStart,
+      };
+    },
+    [endCurrentMerge]
+  );
+
+  // Helper function to handle a location that doesn't have a channel
+  const handleLocationWithoutChannel = useCallback(
+    (
+      i: number,
+      currentMergeStart: number,
+      currentChannelName: string | null,
+      mergedCells: MergedCell[]
+    ): { newMergeStart: number; newChannelName: string | null } => {
+      // If we're in a merge, check if we should end it
+      if (currentMergeStart !== -1) {
+        // End the current merge
+        endCurrentMerge(
+          mergedCells,
+          currentMergeStart,
+          i - 1,
+          currentChannelName
+        );
+
+        // Start a new "Not available" merge
+        return { newChannelName: null, newMergeStart: i };
+      }
+
+      // Start a new "Not available" merge
+      return { newChannelName: null, newMergeStart: i };
+    },
+    [endCurrentMerge]
+  );
+
+  // Function to determine which cells can be merged
+  const getMergedCells = useCallback(
+    (
+      locationChannels: Record<string, ChannelData>,
+      filteredLocations: string[]
+    ): MergedCell[] => {
+      const mergedCells: MergedCell[] = [];
+      const locationsWithChannels = new Set(Object.keys(locationChannels));
+
+      let currentMergeStart = -1;
+      let currentChannelName: string | null = null;
+
+      for (let i = 0; i < filteredLocations.length; i++) {
+        const location = filteredLocations[i];
+        const hasChannel = locationsWithChannels.has(location);
+
+        if (hasChannel) {
+          const result = handleLocationWithChannel(
+            location,
+            locationChannels,
+            i,
+            currentMergeStart,
+            currentChannelName,
+            mergedCells
           );
-        })}
-      </TableRow>
-    );
-  };
+          currentMergeStart = result.newMergeStart;
+          currentChannelName = result.newChannelName;
+        } else {
+          const result = handleLocationWithoutChannel(
+            i,
+            currentMergeStart,
+            currentChannelName,
+            mergedCells
+          );
+          currentMergeStart = result.newMergeStart;
+          currentChannelName = result.newChannelName;
+        }
+      }
 
-  // Render a channel card for mobile view
-  const renderChannelCard = (
-    network: string,
-    channelNumber: string,
-    locationChannels: Record<string, ChannelData>,
-  ) => {
-    const channelKey = `${network}-${channelNumber}`;
-    const isExpanded = expandedChannels[channelKey] || false;
+      // Add the last merge if there is one
+      endCurrentMerge(
+        mergedCells,
+        currentMergeStart,
+        filteredLocations.length - 1,
+        currentChannelName
+      );
 
-    return (
-      <Card key={channelKey} className="mb-3">
-        <CardHeader className="p-3 pb-2">
-          <div className="flex items-center gap-2">
-            {/* Show channel logo if available */}
-            {Object.values(locationChannels)[0]?.channel_logo?.light && (
-              <div className="flex justify-center items-center bg-muted/50 rounded-md size-10">
+      return mergedCells;
+    },
+    [handleLocationWithChannel, handleLocationWithoutChannel, endCurrentMerge]
+  );
+
+  // Helper function to render a channel cell
+  const renderChannelCell = useCallback(
+    (
+      mergedCell: MergedCell,
+      locationChannels: Record<string, ChannelData>,
+      filteredLocations: string[],
+      locationIndex: number,
+      location: string,
+      colspan: number
+    ) => {
+      // This is a channel cell - find the actual channel data for logo
+      const actualChannel = locationChannels[filteredLocations[locationIndex]];
+      const logoUrl = actualChannel?.channel_logo?.light || "";
+
+      // Get the channel name and apply abbreviation
+      const channelName =
+        mergedCell.channel?.channel_names.location ||
+        mergedCell.channel?.channel_name ||
+        "";
+      const abbreviatedChannelName = abbreviateStateName(channelName);
+
+      // Get background color based on channel specs
+      const backgroundColor = getChannelColor(
+        actualChannel?.other_data?.channel_specs
+      );
+
+      return (
+        <TableCell
+          className={`whitespace-normal border py-2 text-center ${backgroundColor}`}
+          colSpan={colspan}
+          key={`location-${location}`}
+        >
+          <div className="flex flex-col items-center justify-center gap-1">
+            {logoUrl && (
+              <div className="flex size-10 items-center justify-center rounded-md bg-muted/50">
                 <img
-                  src={
-                    Object.values(locationChannels)[0].channel_logo.light ||
-                    '/placeholder.svg'
-                  }
                   alt=""
-                  className="p-1 max-w-full max-h-full object-contain"
+                  className="max-h-full max-w-full object-contain p-1"
                   loading="lazy"
-                  onError={e => {
-                    e.currentTarget.src = '/placeholder.svg?height=40&width=40';
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.svg?height=32&width=32";
                   }}
+                  src={logoUrl || "/placeholder.svg"}
                 />
               </div>
             )}
-            <div className="flex-1">
-              <div className="font-medium">
-                {getChannelDisplayName(locationChannels)}
-              </div>
-              <div className="text-muted-foreground text-xs">
-                Ch {channelNumber} • {network}
-              </div>
-            </div>
+            <div className="font-medium text-xs">{abbreviatedChannelName}</div>
           </div>
-        </CardHeader>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => toggleChannelExpansion(channelKey)}
-          className="justify-between w-full"
+        </TableCell>
+      );
+    },
+    [abbreviateStateName, getChannelColor]
+  );
+
+  // Helper function to render a "not available" cell
+  const renderNotAvailableCell = useCallback(
+    (location: string, colspan: number) => (
+      <TableCell
+        className="whitespace-normal border bg-muted/50 py-2 text-center"
+        colSpan={colspan}
+        key={`location-${location}`}
+      >
+        <span className="text-muted-foreground text-xs">Not available</span>
+      </TableCell>
+    ),
+    []
+  );
+
+  // Render a row with merged cells
+  const renderChannelRow = useCallback(
+    (
+      network: string,
+      channelNumber: string,
+      locationChannels: Record<string, ChannelData>
+    ) => {
+      const filteredLocations = locationsForSubgroup.filter((loc) =>
+        visibleLocations.includes(loc)
+      );
+      const mergedCells = getMergedCells(locationChannels, filteredLocations);
+
+      return (
+        <TableRow
+          className="hover:bg-muted/50"
+          key={`${network}-${channelNumber}`}
         >
-          <span>View Locations</span>
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          )}
-        </Button>
-        {isExpanded && (
-          <CardContent className="p-0">
-            <div className="divide-y">
-              {locationsForSubgroup
-                .filter(loc => visibleLocations.includes(loc))
-                .map(location => {
-                  const channel = locationChannels[location];
-                  return (
-                    <div key={location} className="px-3 py-2">
-                      <div className="font-medium text-sm">{location}</div>
-                      {channel ? (
-                        <div className="font-light text-sm">
-                          {channel.channel_names.location ||
-                            channel.channel_name}
-                        </div>
-                      ) : (
-                        <div className="text-muted-foreground text-xs">
-                          Not available
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+          <TableCell className="sticky left-0 z-10 w-[100px] min-w-[100px] border bg-background py-2 font-medium shadow-sm">
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <div className="font-medium">Ch {channelNumber}</div>
+              </div>
             </div>
-          </CardContent>
-        )}
-      </Card>
-    );
-  };
+          </TableCell>
+
+          {/* Render each location column */}
+          {filteredLocations.map((location, locationIndex) => {
+            // Find the merged cell that contains this location index
+            const mergedCell = mergedCells.find(
+              (cell) =>
+                locationIndex >= cell.startIndex &&
+                locationIndex <= cell.endIndex
+            );
+
+            // If we found a merged cell and this is the first location in the merged range,
+            // render it with the appropriate colspan
+            if (mergedCell && locationIndex === mergedCell.startIndex) {
+              const colspan = mergedCell.endIndex - mergedCell.startIndex + 1;
+
+              if (mergedCell.channel) {
+                return renderChannelCell(
+                  mergedCell,
+                  locationChannels,
+                  filteredLocations,
+                  locationIndex,
+                  location,
+                  colspan
+                );
+              }
+
+              return renderNotAvailableCell(location, colspan);
+            }
+
+            if (!mergedCell || locationIndex !== mergedCell.startIndex) {
+              // Skip this cell as it's part of a colspan
+              return null;
+            }
+
+            // Fallback - should not reach here
+            return (
+              <TableCell
+                className="border text-center"
+                key={`location-${location}`}
+              >
+                <span className="text-muted-foreground text-xs">Error</span>
+              </TableCell>
+            );
+          })}
+        </TableRow>
+      );
+    },
+    [
+      locationsForSubgroup,
+      visibleLocations,
+      getMergedCells,
+      renderChannelCell,
+      renderNotAvailableCell,
+    ]
+  );
 
   // Get all unique channel types and specs
   const channelTypes = useMemo(() => {
     const types = new Set<string>();
-    Object.values(channelData).forEach(channels => {
-      channels.forEach(channel => {
+    for (const channels of Object.values(channelData)) {
+      for (const channel of channels) {
         if (channel.other_data?.channel_type) {
           types.add(channel.other_data.channel_type);
         }
-      });
-    });
+      }
+    }
     return Array.from(types).sort();
   }, [channelData]);
 
   const channelSpecs = useMemo(() => {
     const specs = new Set<string>();
-    Object.values(channelData).forEach(channels => {
-      channels.forEach(channel => {
+    for (const channels of Object.values(channelData)) {
+      for (const channel of channels) {
         if (channel.other_data?.channel_specs) {
           specs.add(channel.other_data.channel_specs);
         }
-      });
-    });
+      }
+    }
     return Array.from(specs).sort();
   }, [channelData]);
+
+  // Helper function to check if a channel matches the current filters
+  const channelMatchesFilters = useCallback(
+    (channel: ChannelData): boolean => {
+      // Filter by channel type
+      if (
+        selectedChannelTypes.length > 0 &&
+        !(
+          channel.other_data?.channel_type &&
+          selectedChannelTypes.includes(channel.other_data.channel_type)
+        )
+      ) {
+        return false;
+      }
+
+      // Filter by channel specs
+      if (
+        selectedChannelSpecs.length > 0 &&
+        !(
+          channel.other_data?.channel_specs &&
+          selectedChannelSpecs.includes(channel.other_data.channel_specs)
+        )
+      ) {
+        return false;
+      }
+
+      // Filter by search term
+      if (debouncedGlobalSearch) {
+        const searchTerm = debouncedGlobalSearch.toLowerCase();
+        return (
+          channel.channel_name.toLowerCase().includes(searchTerm) ||
+          channel.channel_names.real.toLowerCase().includes(searchTerm) ||
+          channel.channel_number.toLowerCase().includes(searchTerm) ||
+          channel.channel_group.toLowerCase().includes(searchTerm) ||
+          (channel.other_data?.channel_type || "")
+            .toLowerCase()
+            .includes(searchTerm) ||
+          (channel.other_data?.channel_specs || "")
+            .toLowerCase()
+            .includes(searchTerm)
+        );
+      }
+
+      return true;
+    },
+    [selectedChannelTypes, selectedChannelSpecs, debouncedGlobalSearch]
+  );
+
+  // Helper function to check if any filters are active
+  const hasActiveFilters = useCallback(
+    (
+      searchFilter: string,
+      networksFilter: string[],
+      typesFilter: string[],
+      specsFilter: string[]
+    ) => {
+      return !(
+        !searchFilter &&
+        networksFilter.length === 0 &&
+        typesFilter.length === 0 &&
+        specsFilter.length === 0
+      );
+    },
+    []
+  );
+
+  // Helper function to filter channels by network
+  const filterByNetwork = useCallback(
+    (network: string, networksFilter: string[]) => {
+      return networksFilter.length === 0 || networksFilter.includes(network);
+    },
+    []
+  );
+
+  // Helper function to filter channels by matching criteria
+  const filterChannelsByCriteria = useCallback(
+    (
+      locationChannels: Record<string, ChannelData>,
+      matchesFilters: (channel: ChannelData) => boolean
+    ) => {
+      return Object.values(locationChannels).some(matchesFilters);
+    },
+    []
+  );
+
+  // Helper function to apply filters to the channel map
+  const applyFiltersToChannelMap = useCallback(
+    (
+      channelMap: Record<string, Record<string, Record<string, ChannelData>>>,
+      networksFilter: string[],
+      typesFilter: string[],
+      specsFilter: string[],
+      searchFilter: string,
+      matchesFilters: (channel: ChannelData) => boolean
+    ) => {
+      if (
+        !hasActiveFilters(
+          searchFilter,
+          networksFilter,
+          typesFilter,
+          specsFilter
+        )
+      ) {
+        return channelMap;
+      }
+
+      const filteredMap: Record<
+        string,
+        Record<string, Record<string, ChannelData>>
+      > = {};
+
+      for (const [network, channels] of Object.entries(channelMap)) {
+        if (!filterByNetwork(network, networksFilter)) {
+          continue;
+        }
+
+        filteredMap[network] = {};
+
+        for (const [channelNumber, locationChannels] of Object.entries(
+          channels
+        )) {
+          if (filterChannelsByCriteria(locationChannels, matchesFilters)) {
+            filteredMap[network][channelNumber] = locationChannels;
+          }
+        }
+
+        if (Object.keys(filteredMap[network]).length === 0) {
+          delete filteredMap[network];
+        }
+      }
+
+      return filteredMap;
+    },
+    [hasActiveFilters, filterByNetwork, filterChannelsByCriteria]
+  );
 
   // Apply filters to the channel map
   const filteredChannelMap = useMemo(() => {
     const channelMap = getChannelMap();
-
-    if (
-      !debouncedGlobalSearch &&
-      selectedNetworks.length === 0 &&
-      selectedChannelTypes.length === 0 &&
-      selectedChannelSpecs.length === 0
-    ) {
-      return channelMap;
-    }
-
-    const filteredMap: Record<
-      string,
-      Record<string, Record<string, ChannelData>>
-    > = {};
-
-    Object.entries(channelMap).forEach(([network, channels]) => {
-      // Filter by network
-      if (selectedNetworks.length > 0 && !selectedNetworks.includes(network)) {
-        return;
-      }
-
-      // Add network to filtered map
-      filteredMap[network] = {};
-
-      Object.entries(channels).forEach(([channelNumber, locationChannels]) => {
-        // Check if any location's channel matches the filters
-        const anyLocationMatches = Object.values(locationChannels).some(
-          channel => {
-            // Filter by channel type
-            if (
-              selectedChannelTypes.length > 0 &&
-              (!channel.other_data?.channel_type ||
-                !selectedChannelTypes.includes(channel.other_data.channel_type))
-            ) {
-              return false;
-            }
-
-            // Filter by channel specs
-            if (
-              selectedChannelSpecs.length > 0 &&
-              (!channel.other_data?.channel_specs ||
-                !selectedChannelSpecs.includes(
-                  channel.other_data.channel_specs,
-                ))
-            ) {
-              return false;
-            }
-
-            // Filter by search term
-            if (debouncedGlobalSearch) {
-              const searchTerm = debouncedGlobalSearch.toLowerCase();
-              return (
-                channel.channel_name.toLowerCase().includes(searchTerm) ||
-                channel.channel_names.real.toLowerCase().includes(searchTerm) ||
-                channel.channel_number.toLowerCase().includes(searchTerm) ||
-                channel.channel_group.toLowerCase().includes(searchTerm) ||
-                (channel.other_data?.channel_type || '')
-                  .toLowerCase()
-                  .includes(searchTerm) ||
-                (channel.other_data?.channel_specs || '')
-                  .toLowerCase()
-                  .includes(searchTerm)
-              );
-            }
-
-            return true;
-          },
-        );
-
-        if (anyLocationMatches) {
-          filteredMap[network][channelNumber] = locationChannels;
-        }
-      });
-
-      // Remove empty networks
-      if (Object.keys(filteredMap[network]).length === 0) {
-        delete filteredMap[network];
-      }
-    });
-
-    return filteredMap;
+    return applyFiltersToChannelMap(
+      channelMap,
+      selectedNetworks,
+      selectedChannelTypes,
+      selectedChannelSpecs,
+      debouncedGlobalSearch,
+      channelMatchesFilters
+    );
   }, [
-    channelData,
-    debouncedGlobalSearch,
+    getChannelMap,
+    applyFiltersToChannelMap,
     selectedNetworks,
     selectedChannelTypes,
     selectedChannelSpecs,
+    debouncedGlobalSearch,
+    channelMatchesFilters,
   ]);
 
   // Calculate counts for filter options
@@ -853,30 +1032,30 @@ export default function ChannelMapSourcesPage() {
     const counts: Record<string, number> = {};
     const channelMap = getChannelMap();
 
-    Object.entries(channelMap).forEach(([network, channels]) => {
+    for (const [network, channels] of Object.entries(channelMap)) {
       counts[network] = Object.keys(channels).length;
-    });
+    }
 
     return counts;
-  }, [channelData]);
+  }, [getChannelMap]);
 
   const typeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
-    channelTypes.forEach(type => {
+    for (const type of channelTypes) {
       // Count channels that match this type
       let count = 0;
 
-      Object.values(channelData).forEach(channels => {
-        channels.forEach(channel => {
+      for (const channels of Object.values(channelData)) {
+        for (const channel of channels) {
           if (channel.other_data?.channel_type === type) {
             count++;
           }
-        });
-      });
+        }
+      }
 
       counts[type] = count;
-    });
+    }
 
     return counts;
   }, [channelData, channelTypes]);
@@ -884,309 +1063,836 @@ export default function ChannelMapSourcesPage() {
   const specsCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
-    channelSpecs.forEach(spec => {
+    for (const spec of channelSpecs) {
       // Count channels that match this spec
       let count = 0;
 
-      Object.values(channelData).forEach(channels => {
-        channels.forEach(channel => {
+      for (const channels of Object.values(channelData)) {
+        for (const channel of channels) {
           if (channel.other_data?.channel_specs === spec) {
             count++;
           }
-        });
-      });
+        }
+      }
 
       counts[spec] = count;
-    });
+    }
 
     return counts;
   }, [channelData, channelSpecs]);
 
   // Clear all filters
-  const clearFilters = () => {
-    setGlobalFilter('');
+  const clearFilters = useCallback(() => {
+    setGlobalFilter("");
     setSelectedNetworks([]);
     setSelectedChannelTypes([]);
     setSelectedChannelSpecs([]);
-    setNetworkSearch('');
-    setTypeSearch('');
-    setSpecsSearch('');
-  };
+    setNetworkSearch("");
+    setTypeSearch("");
+    setSpecsSearch("");
+  }, []);
 
   // Count total channels and filtered channels
   const totalChannels = useMemo(() => {
     let count = 0;
-    Object.values(getChannelMap()).forEach(network => {
+    for (const network of Object.values(getChannelMap())) {
       count += Object.keys(network).length;
-    });
+    }
     return count;
-  }, [channelData]);
+  }, [getChannelMap]);
 
   const filteredChannels = useMemo(() => {
     let count = 0;
-    Object.values(filteredChannelMap).forEach(network => {
+    for (const network of Object.values(filteredChannelMap)) {
       count += Object.keys(network).length;
-    });
+    }
     return count;
   }, [filteredChannelMap]);
 
   // Get unique subgroups for the select dropdown
   const subgroups = useMemo(() => {
     return getUniqueSubgroups(sources);
-  }, [sources]);
+  }, [sources, getUniqueSubgroups]);
 
-  // Toggle all locations
-  const toggleAllLocations = (checked: boolean) => {
-    if (checked) {
-      setVisibleLocations([...locationsForSubgroup]);
+  return {
+    abbreviateStateName,
+    channelSpecs,
+    channelTypes,
+    clearFilters,
+    collapsedNetworks,
+    error,
+    expandedChannels,
+    fetchSources,
+    filteredChannelMap,
+    filteredChannels,
+    getChannelColor,
+    globalFilter,
+    isMobile,
+    // State
+    loading,
+    locationsForSubgroup,
+    networkCounts,
+    networkGroups,
+    networkSearch,
+    renderChannelRow,
+    selectedChannelSpecs,
+    selectedChannelTypes,
+    selectedNetworks,
+    selectedSubgroup,
+
+    // Actions
+    setGlobalFilter,
+    setNetworkSearch,
+    setSelectedChannelSpecs,
+    setSelectedChannelTypes,
+    setSelectedNetworks,
+    setSelectedSubgroup: setSelectedSubgroupWithUrl,
+    setSpecsSearch,
+    setTypeSearch,
+    setViewMode: setViewModeWithUrl,
+    setVisibleLocations,
+    specsCounts,
+    specsSearch,
+    subgroups,
+    toggleAllNetworks,
+    toggleChannelExpansion,
+    toggleNetworkCollapse,
+    totalChannels,
+    typeCounts,
+    typeSearch,
+    viewMode,
+    visibleLocations,
+  };
+}
+
+// Helper function to calculate colspan for consecutive same channels
+const calculateColspan = (
+  locationIndex: number,
+  flatViewFilteredLocations: string[],
+  mergedLocationChannels: Record<string, ChannelData>
+): number => {
+  let colspan = 1;
+  let j = locationIndex + 1;
+  while (j < flatViewFilteredLocations.length) {
+    const nextLocation = flatViewFilteredLocations[j];
+    const nextChannel = mergedLocationChannels[nextLocation];
+
+    // Check if next location has the same channel
+    if (
+      nextChannel &&
+      nextChannel.channel_names.location ===
+        mergedLocationChannels[flatViewFilteredLocations[locationIndex]]
+          .channel_names.location
+    ) {
+      colspan++;
+      j++;
     } else {
-      setVisibleLocations([]);
+      break;
     }
-  };
+  }
+  return colspan;
+};
 
-  // Location selector component
-  const LocationSelector = () => {
+// Helper function to check if cell should be skipped due to colspan
+const shouldSkipCell = (
+  locationIndex: number,
+  flatViewFilteredLocations: string[],
+  mergedLocationChannels: Record<string, ChannelData>
+): boolean => {
+  if (locationIndex === 0) {
+    return false;
+  }
+
+  const prevLocation = flatViewFilteredLocations[locationIndex - 1];
+  const prevChannel = mergedLocationChannels[prevLocation];
+  const currentLocation = flatViewFilteredLocations[locationIndex];
+  const currentChannel = mergedLocationChannels[currentLocation];
+
+  return (
+    prevChannel &&
+    currentChannel &&
+    prevChannel.channel_names.location === currentChannel.channel_names.location
+  );
+};
+
+// Helper function to render a single location cell in flat view
+const renderFlatViewLocationCell = (
+  location: string,
+  locationIndex: number,
+  flatViewFilteredLocations: string[],
+  mergedLocationChannels: Record<string, ChannelData>,
+  abbreviateStateName: (channelName: string) => string,
+  getChannelColor: (channelSpecs?: string) => string
+): React.ReactElement | null => {
+  const channel = mergedLocationChannels[location];
+
+  if (!channel) {
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-1">
-            <Filter className="w-4 h-4" />
-            <span>Locations</span>
-            {visibleLocations.length !== locationsForSubgroup.length && (
-              <Badge variant="secondary" className="ml-1 text-xs">
-                {visibleLocations.length}
-              </Badge>
-            )}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>Select Locations</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <div className="max-h-[300px] overflow-y-auto">
-            <DropdownMenuCheckboxItem
-              checked={visibleLocations.length === locationsForSubgroup.length}
-              onCheckedChange={toggleAllLocations}
-            >
-              All Locations
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuSeparator />
-            {locationsForSubgroup.map(location => (
-              <DropdownMenuCheckboxItem
-                key={location}
-                checked={visibleLocations.includes(location)}
-                onCheckedChange={checked => {
-                  setVisibleLocations(
-                    checked
-                      ? [...visibleLocations, location]
-                      : visibleLocations.filter(l => l !== location),
-                  );
-                }}
-              >
-                {location}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <td
+        className="h-10 border border-border px-3 text-center text-muted-foreground text-sm"
+        key={`location-${location}`}
+      >
+        <span className="text-muted-foreground text-xs">Not available</span>
+      </td>
     );
-  };
+  }
 
-  // Density toggle component
-  const DensityToggle = () => {
-    return (
-      <div className="flex items-center gap-2">
-        <TooltipProvider>
-          <ToggleGroup
-            type="single"
-            value={density}
-            onValueChange={value =>
-              value && setDensity(value as 'comfortable' | 'compact')
-            }
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <ToggleGroupItem
-                  value="comfortable"
-                  aria-label="Comfortable view"
-                >
-                  <RowsIcon className="w-4 h-4" />
-                </ToggleGroupItem>
-              </TooltipTrigger>
-              <TooltipContent>Comfortable view</TooltipContent>
-            </Tooltip>
+  // Skip cells that are part of a colspan
+  if (
+    shouldSkipCell(
+      locationIndex,
+      flatViewFilteredLocations,
+      mergedLocationChannels
+    )
+  ) {
+    return null;
+  }
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <ToggleGroupItem value="compact" aria-label="Compact view">
-                  <Rows className="w-4 h-4" />
-                </ToggleGroupItem>
-              </TooltipTrigger>
-              <TooltipContent>Compact view</TooltipContent>
-            </Tooltip>
-          </ToggleGroup>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <ToggleGroup
-            type="single"
-            value={viewMode}
-            onValueChange={value =>
-              value && setViewMode(value as 'networks' | 'flat')
-            }
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <ToggleGroupItem
-                  value="networks"
-                  aria-label="Group by networks"
-                >
-                  <Layers className="w-4 h-4" />
-                </ToggleGroupItem>
-              </TooltipTrigger>
-              <TooltipContent>Group by networks</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <ToggleGroupItem value="flat" aria-label="Single table">
-                  <Table2 className="w-4 h-4" />
-                </ToggleGroupItem>
-              </TooltipTrigger>
-              <TooltipContent>Single table</TooltipContent>
-            </Tooltip>
-          </ToggleGroup>
-        </TooltipProvider>
-      </div>
-    );
-  };
-
-  // Prepare sidebar content
-  const sidebar = (
-    <SidebarContainer>
-      <SidebarHeader>
-        <div className="space-y-2">
-          <Select value={selectedSubgroup} onValueChange={setSelectedSubgroup}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a region" />
-            </SelectTrigger>
-            <SelectContent>
-              {subgroups.map(subgroup => (
-                <SelectItem key={subgroup} value={subgroup}>
-                  {subgroup}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <SidebarSearch
-            value={globalFilter}
-            onChange={setGlobalFilter}
-            placeholder="Search channels..."
-          />
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <FilterSection
-          title="Network"
-          options={networkGroups}
-          filters={selectedNetworks}
-          onFilterChange={value => {
-            setSelectedNetworks(prev =>
-              prev.includes(value)
-                ? prev.filter(v => v !== value)
-                : [...prev, value],
-            );
-          }}
-          searchValue={networkSearch}
-          onSearchChange={setNetworkSearch}
-          counts={networkCounts}
-          showSearch={networkGroups.length > 10}
-        />
-        <FilterSection
-          title="Channel Type"
-          options={channelTypes}
-          filters={selectedChannelTypes}
-          onFilterChange={value => {
-            setSelectedChannelTypes(prev =>
-              prev.includes(value)
-                ? prev.filter(v => v !== value)
-                : [...prev, value],
-            );
-          }}
-          searchValue={typeSearch}
-          onSearchChange={setTypeSearch}
-          counts={typeCounts}
-          showSearch={channelTypes.length > 10}
-        />
-        <FilterSection
-          title="Channel Specs"
-          options={channelSpecs}
-          filters={selectedChannelSpecs}
-          onFilterChange={value => {
-            setSelectedChannelSpecs(prev =>
-              prev.includes(value)
-                ? prev.filter(v => v !== value)
-                : [...prev, value],
-            );
-          }}
-          searchValue={specsSearch}
-          onSearchChange={setSpecsSearch}
-          counts={specsCounts}
-          showSearch={channelSpecs.length > 10}
-        />
-      </SidebarContent>
-      <SidebarFooter>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={clearFilters}
-          className="w-full text-xs"
-        >
-          Clear All Filters
-        </Button>
-        <div className="mt-2 text-muted-foreground text-xs text-center">
-          Showing {filteredChannels} of {totalChannels} channels
-        </div>
-      </SidebarFooter>
-    </SidebarContainer>
+  const colspan = calculateColspan(
+    locationIndex,
+    flatViewFilteredLocations,
+    mergedLocationChannels
   );
 
-  // Define header actions
+  // Get the channel name and apply abbreviation
+  const channelName = channel.channel_names.location || channel.channel_name;
+  const abbreviatedChannelName = abbreviateStateName(channelName);
+
+  // Get background color based on channel specs
+  const backgroundColor = getChannelColor(channel.other_data?.channel_specs);
+
+  return (
+    <td
+      className={`h-10 border border-border px-3 text-center ${backgroundColor}`}
+      colSpan={colspan}
+      key={`location-${location}`}
+    >
+      <div className="flex flex-col items-center justify-center gap-1">
+        {channel.channel_logo?.light && (
+          <div className="flex size-8 items-center justify-center rounded-md bg-muted/50">
+            <img
+              alt=""
+              className="max-h-full max-w-full object-contain p-1"
+              loading="lazy"
+              onError={(e) => {
+                e.currentTarget.src = "/placeholder.svg?height=24&width=24";
+              }}
+              src={channel.channel_logo.light || "/placeholder.svg"}
+            />
+          </div>
+        )}
+        <div className="font-medium text-xs">{abbreviatedChannelName}</div>
+        {channel.channel_network && (
+          <div className="text-muted-foreground text-xs">
+            {channel.channel_network}
+          </div>
+        )}
+      </div>
+    </td>
+  );
+};
+
+// Helper function to create merged location channels for flat view
+const createMergedLocationChannels = (
+  channelsWithSameNumber: Array<{
+    network: string;
+    channelNumber: string;
+    locationChannels: Record<string, ChannelData>;
+  }>,
+  flatViewFilteredLocations: string[]
+): Record<string, ChannelData> => {
+  const mergedLocationChannels: Record<string, ChannelData> = {};
+
+  // For each location, find any channel with this number
+  for (const location of flatViewFilteredLocations) {
+    // Check all networks for this channel number in this location
+    for (const { network, locationChannels } of channelsWithSameNumber) {
+      if (locationChannels[location]) {
+        // If we find a channel, add it to our merged view
+        mergedLocationChannels[location] = locationChannels[location];
+        // Add network info to the channel for display
+        mergedLocationChannels[location].channel_network = network;
+        break;
+      }
+    }
+  }
+
+  return mergedLocationChannels;
+};
+
+// Helper function to render a single flat view row
+const renderFlatViewRow = (
+  channelNumber: string,
+  channelsWithSameNumber: Array<{
+    network: string;
+    channelNumber: string;
+    locationChannels: Record<string, ChannelData>;
+  }>,
+  flatViewFilteredLocations: string[],
+  abbreviateStateName: (channelName: string) => string,
+  getChannelColor: (channelSpecs?: string) => string
+): React.ReactElement => {
+  const mergedLocationChannels = createMergedLocationChannels(
+    channelsWithSameNumber,
+    flatViewFilteredLocations
+  );
+
+  return (
+    <tr className="border-b hover:bg-muted/50" key={`channel-${channelNumber}`}>
+      <td className="sticky left-0 z-20 h-10 w-[100px] min-w-[100px] border border-border bg-background px-3 text-center font-medium shadow-sm">
+        Ch {channelNumber}
+      </td>
+
+      {/* Render each location column */}
+      {flatViewFilteredLocations.map((location, locationIndex) =>
+        renderFlatViewLocationCell(
+          location,
+          locationIndex,
+          flatViewFilteredLocations,
+          mergedLocationChannels,
+          abbreviateStateName,
+          getChannelColor
+        )
+      )}
+    </tr>
+  );
+};
+
+// Helper function to render mobile flat view
+const renderMobileFlatView = (
+  filteredChannelMap: Record<
+    string,
+    Record<string, Record<string, ChannelData>>
+  >,
+  locationsForSubgroup: string[],
+  visibleLocations: string[],
+  abbreviateStateName: (channelName: string) => string,
+  getChannelColor: (channelSpecs?: string) => string
+) => {
+  // Flatten all channels from all networks into a single array
+  const allChannels = Object.entries(filteredChannelMap).flatMap(
+    ([network, channels]) => {
+      return Object.entries(channels).map(
+        ([channelNumber, locationChannels]) => ({
+          channelNumber,
+          locationChannels,
+          network,
+        })
+      );
+    }
+  );
+
+  // Group channels by channel number only
+  const channelsByNumber: Record<
+    string,
+    Array<{
+      network: string;
+      channelNumber: string;
+      locationChannels: Record<string, ChannelData>;
+    }>
+  > = {};
+
+  for (const channel of allChannels) {
+    if (!channelsByNumber[channel.channelNumber]) {
+      channelsByNumber[channel.channelNumber] = [];
+    }
+    channelsByNumber[channel.channelNumber].push(channel);
+  }
+
+  // Sort channel numbers numerically
+  const sortedChannelNumbers = Object.keys(channelsByNumber).sort((a, b) => {
+    const numA = Number.parseInt(a, 10) || 0;
+    const numB = Number.parseInt(b, 10) || 0;
+    return numA - numB;
+  });
+
+  return (
+    <div className="relative">
+      <table className="w-full border-collapse border border-border">
+        <thead className="sticky top-0 z-10">
+          <tr className="border-b bg-muted/50">
+            <th className="h-10 w-[100px] min-w-[100px] border border-border bg-muted/50 px-3 text-center font-medium text-muted-foreground text-xs">
+              Channel
+            </th>
+            {visibleLocations.map((location) => (
+              <th
+                className="h-10 border border-border px-3 text-center font-medium text-muted-foreground text-xs"
+                key={location}
+              >
+                {location}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {sortedChannelNumbers.map((channelNumber) =>
+            renderFlatViewRow(
+              channelNumber,
+              channelsByNumber[channelNumber],
+              locationsForSubgroup,
+              abbreviateStateName,
+              getChannelColor
+            )
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+// Helper function to render mobile networks view
+const renderMobileNetworksView = (
+  filteredChannelMap: Record<
+    string,
+    Record<string, Record<string, ChannelData>>
+  >,
+  collapsedNetworks: Record<string, boolean>,
+  toggleNetworkCollapse: (network: string) => void,
+  expandedChannels: Record<string, boolean>,
+  toggleChannelExpansion: (channelKey: string) => void,
+  locationsForSubgroup: string[],
+  visibleLocations: string[],
+  abbreviateStateName: (channelName: string) => string
+) => (
+  <div className="space-y-4">
+    {Object.entries(filteredChannelMap).map(([network, channels]) => {
+      const sortedChannels = Object.entries(channels).sort(
+        ([numA, _], [numB, __]) => {
+          return Number.parseInt(numA, 10) - Number.parseInt(numB, 10);
+        }
+      );
+
+      const isCollapsed = collapsedNetworks[network];
+
+      return (
+        <div className="mb-6" key={network}>
+          <div
+            className="mb-3 flex cursor-pointer items-center justify-between rounded-md bg-muted/50 p-3"
+            onClick={() => toggleNetworkCollapse(network)}
+          >
+            <h3 className="font-bold">{network}</h3>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">{Object.keys(channels).length}</Badge>
+              <Button className="h-6 w-6 p-0" size="sm" variant="ghost">
+                {isCollapsed ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {!isCollapsed && (
+            <div className="space-y-2">
+              {sortedChannels.map(([channelNumber, locationChannels]) => {
+                const channelKey = `${network}-${channelNumber}`;
+
+                return (
+                  <ChannelCard
+                    abbreviateStateName={abbreviateStateName}
+                    channelNumber={channelNumber}
+                    channelsWithSameNumber={[
+                      { channelNumber, locationChannels, network },
+                    ]}
+                    expandedChannels={expandedChannels}
+                    key={channelKey}
+                    locationsForSubgroup={locationsForSubgroup}
+                    toggleChannelExpansion={toggleChannelExpansion}
+                    visibleLocations={visibleLocations}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+);
+
+// Helper function to render desktop networks view
+const renderDesktopNetworksView = (
+  filteredChannelMap: Record<
+    string,
+    Record<string, Record<string, ChannelData>>
+  >,
+  collapsedNetworks: Record<string, boolean>,
+  toggleNetworkCollapse: (network: string) => void,
+  visibleLocations: string[],
+  renderChannelRow: (
+    network: string,
+    channelNumber: string,
+    locationChannels: Record<string, ChannelData>
+  ) => React.ReactElement
+) => (
+  <div className="w-full overflow-x-auto">
+    <Table className="w-full table-fixed">
+      <TableBody>
+        {Object.entries(filteredChannelMap).map(([network, channels]) => {
+          const sortedChannels = Object.entries(channels).sort(
+            ([numA, _], [numB, __]) => {
+              return Number.parseInt(numA, 10) - Number.parseInt(numB, 10);
+            }
+          );
+
+          const isCollapsed = collapsedNetworks[network];
+
+          return (
+            <React.Fragment key={network}>
+              <TableRow
+                className="cursor-pointer bg-muted/50 hover:bg-muted/70"
+                onClick={() => toggleNetworkCollapse(network)}
+              >
+                <TableCell
+                  className="sticky left-0 z-10 border bg-muted/50 font-bold"
+                  colSpan={1 + visibleLocations.length}
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{network}</span>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">
+                        {Object.keys(channels).length}
+                      </Badge>
+                      <Button className="h-6 w-6 p-0" size="sm" variant="ghost">
+                        {isCollapsed ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronUp className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+              {!isCollapsed && (
+                <>
+                  <TableRow>
+                    <TableHead className="sticky left-0 z-10 w-[100px] min-w-[100px] border bg-muted py-2">
+                      Channel
+                    </TableHead>
+                    {visibleLocations.map((location) => (
+                      <TableHead
+                        className="w-auto whitespace-normal border py-2 text-center"
+                        key={location}
+                      >
+                        {location}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                  {sortedChannels.map(([channelNumber, locationChannels]) =>
+                    renderChannelRow(network, channelNumber, locationChannels)
+                  )}
+                </>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </TableBody>
+    </Table>
+  </div>
+);
+
+// Helper function to render desktop flat view
+const renderDesktopFlatView = (
+  filteredChannelMap: Record<
+    string,
+    Record<string, Record<string, ChannelData>>
+  >,
+  locationsForSubgroup: string[],
+  visibleLocations: string[],
+  abbreviateStateName: (channelName: string) => string,
+  getChannelColor: (channelSpecs?: string) => string
+) => {
+  const flatViewFilteredLocations = locationsForSubgroup.filter((loc) =>
+    visibleLocations.includes(loc)
+  );
+
+  // Flatten all channels from all networks into a single array
+  const allChannels = Object.entries(filteredChannelMap).flatMap(
+    ([network, channels]) => {
+      return Object.entries(channels).map(
+        ([channelNumber, locationChannels]) => ({
+          channelNumber,
+          locationChannels,
+          network,
+        })
+      );
+    }
+  );
+
+  // Group channels by channel number only
+  const channelsByNumber: Record<
+    string,
+    Array<{
+      network: string;
+      channelNumber: string;
+      locationChannels: Record<string, ChannelData>;
+    }>
+  > = {};
+
+  for (const channel of allChannels) {
+    if (!channelsByNumber[channel.channelNumber]) {
+      channelsByNumber[channel.channelNumber] = [];
+    }
+    channelsByNumber[channel.channelNumber].push(channel);
+  }
+
+  // Sort channel numbers numerically
+  const sortedChannelNumbers = Object.keys(channelsByNumber).sort((a, b) => {
+    const numA = Number.parseInt(a, 10) || 0;
+    const numB = Number.parseInt(b, 10) || 0;
+    return numA - numB;
+  });
+
+  return (
+    <div className="w-full" style={{ height: "calc(100vh - 200px)" }}>
+      <table className="w-full table-fixed border-collapse border border-border">
+        <thead>
+          <tr className="sticky top-0 z-20 bg-background shadow-sm">
+            <th className="w-[100px] min-w-[100px] border border-border bg-background py-2 text-center text-xs shadow-sm">
+              Channel
+            </th>
+            {visibleLocations.map((location) => (
+              <th
+                className="border border-border bg-background py-2 text-center text-xs"
+                key={location}
+              >
+                {location}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {sortedChannelNumbers.map((channelNumber) =>
+            renderFlatViewRow(
+              channelNumber,
+              channelsByNumber[channelNumber],
+              flatViewFilteredLocations,
+              abbreviateStateName,
+              getChannelColor
+            )
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+// Component for the main content area
+const ChannelMapContent = ({
+  loading,
+  selectedSubgroup,
+  visibleLocations,
+  locationsForSubgroup,
+  filteredChannelMap,
+  isMobile,
+  viewMode,
+  collapsedNetworks,
+  toggleNetworkCollapse,
+  expandedChannels,
+  toggleChannelExpansion,
+  renderChannelRow,
+  abbreviateStateName,
+  getChannelColor,
+}: {
+  loading: boolean;
+  selectedSubgroup: string;
+  visibleLocations: string[];
+  locationsForSubgroup: string[];
+  filteredChannelMap: Record<
+    string,
+    Record<string, Record<string, ChannelData>>
+  >;
+  isMobile: boolean;
+  viewMode: "networks" | "flat";
+  collapsedNetworks: Record<string, boolean>;
+  toggleNetworkCollapse: (network: string) => void;
+  expandedChannels: Record<string, boolean>;
+  toggleChannelExpansion: (channelKey: string) => void;
+  renderChannelRow: (
+    network: string,
+    channelNumber: string,
+    locationChannels: Record<string, ChannelData>
+  ) => React.ReactElement;
+  abbreviateStateName: (channelName: string) => string;
+  getChannelColor: (channelSpecs?: string) => string;
+}) => {
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <span className="ml-2 text-lg">Loading channel data...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full">
+      {visibleLocations.length > 0 &&
+        (isMobile ? (
+          // Mobile card view
+          <div className="space-y-4">
+            {viewMode === "networks"
+              ? // Networks view - grouped by network
+                renderMobileNetworksView(
+                  filteredChannelMap,
+                  collapsedNetworks,
+                  toggleNetworkCollapse,
+                  expandedChannels,
+                  toggleChannelExpansion,
+                  locationsForSubgroup,
+                  visibleLocations,
+                  abbreviateStateName
+                )
+              : // Flat view - all channels in a single list
+                renderMobileFlatView(
+                  filteredChannelMap,
+                  locationsForSubgroup,
+                  visibleLocations,
+                  abbreviateStateName,
+                  getChannelColor
+                )}
+
+            {Object.keys(filteredChannelMap).length === 0 && (
+              <div className="rounded-md bg-muted/20 p-8 text-center">
+                {selectedSubgroup
+                  ? "No results found. Try adjusting your filters."
+                  : "Please select a region to view channels."}
+              </div>
+            )}
+          </div>
+        ) : (
+          // Desktop table view
+          <div className="w-full overflow-x-auto">
+            {viewMode === "networks"
+              ? // Networks view - grouped by network
+                renderDesktopNetworksView(
+                  filteredChannelMap,
+                  collapsedNetworks,
+                  toggleNetworkCollapse,
+                  visibleLocations,
+                  renderChannelRow
+                )
+              : // Flat view - all channels in a single table
+                renderDesktopFlatView(
+                  filteredChannelMap,
+                  locationsForSubgroup,
+                  visibleLocations,
+                  abbreviateStateName,
+                  getChannelColor
+                )}
+            {Object.keys(filteredChannelMap).length === 0 && (
+              <TableRow>
+                <TableCell
+                  className="h-24 text-center"
+                  colSpan={1 + visibleLocations.length}
+                >
+                  {selectedSubgroup
+                    ? "No results found. Try adjusting your filters."
+                    : "Please select a region to view channels."}
+                </TableCell>
+              </TableRow>
+            )}
+          </div>
+        ))}
+      {/* <div aria-hidden="true" className="h-24" /> Spacer element */}
+    </div>
+  );
+};
+
+export default function ChannelMapSourcesPage() {
+  const {
+    // State
+    loading,
+    error,
+    networkGroups,
+    globalFilter,
+    selectedNetworks,
+    selectedChannelTypes,
+    selectedChannelSpecs,
+    networkSearch,
+    typeSearch,
+    specsSearch,
+    collapsedNetworks,
+    selectedSubgroup,
+    visibleLocations,
+    expandedChannels,
+    viewMode,
+    isMobile,
+    locationsForSubgroup,
+    channelTypes,
+    channelSpecs,
+    filteredChannelMap,
+    networkCounts,
+    typeCounts,
+    specsCounts,
+    totalChannels,
+    filteredChannels,
+    subgroups,
+
+    // Actions
+    setGlobalFilter,
+    setSelectedNetworks,
+    setSelectedChannelTypes,
+    setSelectedChannelSpecs,
+    setNetworkSearch,
+    setTypeSearch,
+    setSpecsSearch,
+    setSelectedSubgroup: setSelectedSubgroupWithUrl,
+    setVisibleLocations,
+    setViewMode: setViewModeWithUrl,
+    toggleNetworkCollapse,
+    toggleChannelExpansion,
+    toggleAllNetworks,
+    clearFilters,
+    fetchSources,
+    renderChannelRow,
+    abbreviateStateName,
+    getChannelColor,
+  } = useChannelMapData();
+
+  // Restore headerActions and sidebar definitions above the return statement
   const headerActions = (
     <div className="flex items-center gap-2">
       <Button
-        onClick={fetchSources}
-        variant="outline"
-        size="sm"
         className="gap-1"
         disabled={loading}
+        onClick={fetchSources}
+        size="sm"
+        variant="outline"
       >
-        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+        <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         <span className="hidden sm:inline">Refresh</span>
       </Button>
-
       {!isMobile && (
         <>
-          <LocationSelector />
-          <DensityToggle />
+          <LocationSelector
+            locations={locationsForSubgroup}
+            setVisibleLocations={setVisibleLocations}
+            visibleLocations={visibleLocations}
+          />
+          <ViewModeToggle
+            setViewMode={setViewModeWithUrl}
+            viewMode={viewMode}
+          />
         </>
       )}
-
       {!isMobile && (
         <div className="flex gap-1">
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => toggleAllNetworks(true)}
             disabled={loading || Object.keys(filteredChannelMap).length === 0}
+            onClick={() => toggleAllNetworks(true)}
+            size="sm"
+            variant="outline"
           >
             Collapse All
           </Button>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => toggleAllNetworks(false)}
             disabled={loading || Object.keys(filteredChannelMap).length === 0}
+            onClick={() => toggleAllNetworks(false)}
+            size="sm"
+            variant="outline"
           >
             Expand All
           </Button>
@@ -1195,26 +1901,149 @@ export default function ChannelMapSourcesPage() {
     </div>
   );
 
-  // Mobile view controls
-  const MobileControls = () => {
-    if (!isMobile) return null;
+  const sidebar = (
+    <SidebarContainer>
+      <SidebarHeader>
+        <div className="space-y-2">
+          <Select
+            onValueChange={setSelectedSubgroupWithUrl}
+            value={selectedSubgroup}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a region" />
+            </SelectTrigger>
+            <SelectContent>
+              {subgroups.map((subgroup) => (
+                <SelectItem key={subgroup} value={subgroup}>
+                  {subgroup}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <SidebarSearch
+            onValueChange={setGlobalFilter}
+            placeholder="Search channels..."
+            searchValue={globalFilter}
+          />
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        <FilterSection
+          counts={networkCounts}
+          filters={selectedNetworks}
+          onFilterChange={(value) => {
+            setSelectedNetworks((prev) =>
+              prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value]
+            );
+          }}
+          onSearchChange={setNetworkSearch}
+          options={networkGroups}
+          searchValue={networkSearch}
+          showSearch={networkGroups.length > 10}
+          title="Network"
+        />
+        <FilterSection
+          counts={typeCounts}
+          filters={selectedChannelTypes}
+          onFilterChange={(value) => {
+            setSelectedChannelTypes((prev) =>
+              prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value]
+            );
+          }}
+          onSearchChange={setTypeSearch}
+          options={channelTypes}
+          searchValue={typeSearch}
+          showSearch={channelTypes.length > 10}
+          title="Channel Type"
+        />
+        <FilterSection
+          counts={specsCounts}
+          filters={selectedChannelSpecs}
+          onFilterChange={(value) => {
+            setSelectedChannelSpecs((prev) =>
+              prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value]
+            );
+          }}
+          onSearchChange={setSpecsSearch}
+          options={channelSpecs}
+          searchValue={specsSearch}
+          showSearch={channelSpecs.length > 10}
+          title="Channel Specs"
+        />
 
-    return (
-      <div className="flex justify-between items-center gap-2 mb-4">
-        <LocationSelector />
-        <DensityToggle />
-      </div>
-    );
-  };
+        {/* Channel Specs Legend */}
+        <div className="mt-4 rounded-md bg-muted/20 p-3">
+          <h3 className="mb-2 font-medium text-sm">Channel Specs Legend:</h3>
+          <div className="space-y-1 text-xs">
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-3 w-3 rounded border ${channelSpecColors.hdMpeg4}`}
+              />
+              <span>HD MPEG-4</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-3 w-3 rounded border ${channelSpecColors.hdMpeg2}`}
+              />
+              <span>HD MPEG-2</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-3 w-3 rounded border ${channelSpecColors.sdMpeg4}`}
+              />
+              <span>SD MPEG-4</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-3 w-3 rounded border ${channelSpecColors.sdMpeg2}`}
+              />
+              <span>SD MPEG-2</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-3 w-3 rounded border ${channelSpecColors.radio}`}
+              />
+              <span>Radio</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-3 w-3 rounded border ${channelSpecColors.notAvailable}`}
+              />
+              <span>Not Available</span>
+            </div>
+          </div>
+        </div>
+      </SidebarContent>
+      <SidebarFooter>
+        <Button
+          className="w-full text-xs"
+          onClick={clearFilters}
+          size="sm"
+          variant="outline"
+        >
+          Clear All Filters
+        </Button>
+        <div className="mt-2 text-center text-muted-foreground text-xs">
+          Showing {filteredChannels} of {totalChannels} channels
+        </div>
+      </SidebarFooter>
+    </SidebarContainer>
+  );
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex h-full items-center justify-center">
         <Card className="p-6">
           <h2 className="mb-4 font-bold text-destructive text-xl">Error</h2>
           <p>{error}</p>
-          <Button onClick={fetchSources} className="mt-4">
-            <RotateCw className="mr-2 w-4 h-4" />
+          <Button className="mt-4" onClick={fetchSources}>
+            <RotateCw className="mr-2 h-4 w-4" />
             Retry
           </Button>
         </Card>
@@ -1224,646 +2053,26 @@ export default function ChannelMapSourcesPage() {
 
   return (
     <SidebarLayout
+      actions={headerActions}
       sidebar={sidebar}
       title="Channel Map by Region"
-      actions={headerActions}
     >
-      {loading ? (
-        <div className="flex justify-center items-center h-full">
-          <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
-          <span className="ml-2 text-lg">Loading channel data...</span>
-        </div>
-      ) : (
-        <div className="p-4 h-full overflow-auto">
-          {selectedSubgroup && (
-            <div className="bg-muted/20 mb-4 p-4 rounded-md">
-              <h2 className="font-medium text-lg">{selectedSubgroup}</h2>
-              <p className="text-muted-foreground text-sm">
-                Showing channels across {visibleLocations.length} of{' '}
-                {locationsForSubgroup.length} locations
-              </p>
-
-              <MobileControls />
-
-              {visibleLocations.length === 0 && (
-                <div className="bg-yellow-100 dark:bg-yellow-900/30 mt-2 p-2 rounded text-yellow-800 dark:text-yellow-200 text-sm">
-                  Please select at least one location to display channels.
-                </div>
-              )}
-            </div>
-          )}
-          {visibleLocations.length > 0 &&
-            (isMobile ? (
-              // Mobile card view
-              <div className="space-y-4">
-                {viewMode === 'networks'
-                  ? // Networks view - grouped by network
-                    Object.entries(filteredChannelMap).map(
-                      ([network, channels]) => {
-                        const sortedChannels = Object.entries(channels).sort(
-                          ([numA, _], [numB, __]) => {
-                            return (
-                              Number.parseInt(numA) - Number.parseInt(numB)
-                            );
-                          },
-                        );
-
-                        const isCollapsed = collapsedNetworks[network];
-
-                        return (
-                          <div key={network} className="mb-6">
-                            <div
-                              className="flex justify-between items-center bg-muted/50 mb-3 p-3 rounded-md cursor-pointer"
-                              onClick={() => toggleNetworkCollapse(network)}
-                            >
-                              <h3 className="font-bold">{network}</h3>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline">
-                                  {Object.keys(channels).length}
-                                </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="p-0 w-6 h-6"
-                                >
-                                  {isCollapsed ? (
-                                    <ChevronDown className="w-4 h-4" />
-                                  ) : (
-                                    <ChevronUp className="w-4 h-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </div>
-
-                            {!isCollapsed && (
-                              <div className="space-y-2">
-                                {sortedChannels.map(
-                                  ([channelNumber, locationChannels]) =>
-                                    renderChannelCard(
-                                      network,
-                                      channelNumber,
-                                      locationChannels,
-                                    ),
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      },
-                    )
-                  : // Flat view - all channels in a single list
-                    (() => {
-                      // Flatten all channels from all networks into a single array
-                      const allChannels = Object.entries(
-                        filteredChannelMap,
-                      ).flatMap(([network, channels]) => {
-                        return Object.entries(channels).map(
-                          ([channelNumber, locationChannels]) => ({
-                            network,
-                            channelNumber,
-                            locationChannels,
-                          }),
-                        );
-                      });
-
-                      // Group channels by channel number only
-                      const channelsByNumber: Record<
-                        string,
-                        Array<{
-                          network: string;
-                          channelNumber: string;
-                          locationChannels: Record<string, ChannelData>;
-                        }>
-                      > = {};
-
-                      allChannels.forEach(channel => {
-                        if (!channelsByNumber[channel.channelNumber]) {
-                          channelsByNumber[channel.channelNumber] = [];
-                        }
-                        channelsByNumber[channel.channelNumber].push(channel);
-                      });
-
-                      // Sort channel numbers numerically
-                      const sortedChannelNumbers = Object.keys(
-                        channelsByNumber,
-                      ).sort((a, b) => {
-                        const numA = Number.parseInt(a) || 0;
-                        const numB = Number.parseInt(b) || 0;
-                        return numA - numB;
-                      });
-
-                      // Render each channel number group
-                      return (
-                        <div className="space-y-2">
-                          {sortedChannelNumbers.map(channelNumber => {
-                            const channelsWithSameNumber =
-                              channelsByNumber[channelNumber];
-                            const channelKey = `channel-${channelNumber}`;
-                            const isExpanded =
-                              expandedChannels[channelKey] || false;
-
-                            // Get a representative channel for display in the header
-                            // Prefer the first channel from the first network
-                            const firstChannelInfo = channelsWithSameNumber[0];
-                            const firstChannel = Object.values(
-                              firstChannelInfo.locationChannels,
-                            )[0];
-
-                            // Create a merged view of all channels with this number
-                            const mergedLocationChannels: Record<
-                              string,
-                              ChannelData
-                            > = {};
-
-                            // For each location, find any channel with this number
-                            locationsForSubgroup
-                              .filter(loc => visibleLocations.includes(loc))
-                              .forEach(location => {
-                                // Check all networks for this channel number in this location
-                                for (const {
-                                  network,
-                                  locationChannels,
-                                } of channelsWithSameNumber) {
-                                  if (locationChannels[location]) {
-                                    // If we find a channel, add it to our merged view
-                                    mergedLocationChannels[location] =
-                                      locationChannels[location];
-                                    // Add network info to the channel for display
-                                    mergedLocationChannels[
-                                      location
-                                    ].channel_network = network;
-                                    break;
-                                  }
-                                }
-                              });
-
-                            // Get all networks that have this channel number
-                            const networks = [
-                              ...new Set(
-                                channelsWithSameNumber.map(c => c.network),
-                              ),
-                            ].sort();
-
-                            return (
-                              <Card key={channelKey} className="mb-3">
-                                <CardHeader className="p-3 pb-2">
-                                  <div className="flex items-center gap-2">
-                                    {/* Show channel logo if available */}
-                                    {firstChannel?.channel_logo?.light && (
-                                      <div className="flex justify-center items-center bg-muted/50 rounded-md size-10">
-                                        <img
-                                          src={
-                                            firstChannel.channel_logo.light ||
-                                            '/placeholder.svg'
-                                          }
-                                          alt=""
-                                          className="p-1 max-w-full max-h-full object-contain"
-                                          loading="lazy"
-                                          onError={e => {
-                                            e.currentTarget.src =
-                                              '/placeholder.svg?height=40&width=40';
-                                          }}
-                                        />
-                                      </div>
-                                    )}
-                                    <div className="flex-1">
-                                      <div className="font-medium">
-                                        {firstChannel?.channel_names.clean ||
-                                          `Channel ${channelNumber}`}
-                                      </div>
-                                      <div className="text-muted-foreground text-xs">
-                                        Ch {channelNumber}
-                                        {networks.length > 0 &&
-                                          ` • ${networks.join(', ')}`}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </CardHeader>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() =>
-                                    toggleChannelExpansion(channelKey)
-                                  }
-                                  className="justify-between w-full"
-                                >
-                                  <span>View Locations</span>
-                                  {isExpanded ? (
-                                    <ChevronUp className="w-4 h-4" />
-                                  ) : (
-                                    <ChevronDown className="w-4 h-4" />
-                                  )}
-                                </Button>
-                                {isExpanded && (
-                                  <CardContent className="p-0">
-                                    <div className="divide-y">
-                                      {locationsForSubgroup
-                                        .filter(loc =>
-                                          visibleLocations.includes(loc),
-                                        )
-                                        .map(location => {
-                                          const channel =
-                                            mergedLocationChannels[location];
-                                          return (
-                                            <div
-                                              key={location}
-                                              className="px-3 py-2"
-                                            >
-                                              <div className="font-medium text-sm">
-                                                {location}
-                                              </div>
-                                              {channel ? (
-                                                <div className="font-light text-sm">
-                                                  {channel.channel_names
-                                                    .location ||
-                                                    channel.channel_name}
-                                                  {channel.channel_network && (
-                                                    <span className="ml-1 text-muted-foreground text-xs">
-                                                      ({channel.channel_network}
-                                                      )
-                                                    </span>
-                                                  )}
-                                                </div>
-                                              ) : (
-                                                <div className="text-muted-foreground text-xs">
-                                                  Not available
-                                                </div>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
-                                    </div>
-                                  </CardContent>
-                                )}
-                              </Card>
-                            );
-                          })}
-                        </div>
-                      );
-                    })()}
-
-                {Object.keys(filteredChannelMap).length === 0 && (
-                  <div className="bg-muted/20 p-8 rounded-md text-center">
-                    {selectedSubgroup ? (
-                      <>No results found. Try adjusting your filters.</>
-                    ) : (
-                      <>Please select a region to view channels.</>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              // Desktop table view
-              <div className="w-full overflow-x-auto">
-                <Table className="w-full table-fixed">
-                  <TableBody>
-                    {viewMode === 'networks' ? (
-                      // Networks view - grouped by network
-                      Object.entries(filteredChannelMap).map(
-                        ([network, channels]) => {
-                          const sortedChannels = Object.entries(channels).sort(
-                            ([numA, _], [numB, __]) => {
-                              // Sort by channel number numerically
-                              return (
-                                Number.parseInt(numA) - Number.parseInt(numB)
-                              );
-                            },
-                          );
-
-                          const isCollapsed = collapsedNetworks[network];
-
-                          return (
-                            <React.Fragment key={network}>
-                              <TableRow
-                                className="bg-muted/50 hover:bg-muted/70 cursor-pointer"
-                                onClick={() => toggleNetworkCollapse(network)}
-                              >
-                                <TableCell
-                                  colSpan={1 + visibleLocations.length}
-                                  className="left-0 z-10 sticky bg-muted/50 border font-bold"
-                                >
-                                  <div className="flex justify-between items-center">
-                                    <span>{network}</span>
-                                    <div className="flex items-center gap-2">
-                                      <Badge variant="outline">
-                                        {Object.keys(channels).length}
-                                      </Badge>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="p-0 w-6 h-6"
-                                      >
-                                        {isCollapsed ? (
-                                          <ChevronDown className="w-4 h-4" />
-                                        ) : (
-                                          <ChevronUp className="w-4 h-4" />
-                                        )}
-                                      </Button>
-                                    </div>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                              {!isCollapsed && (
-                                <>
-                                  <TableRow>
-                                    <TableHead
-                                      className={`bg-muted sticky left-0 z-10 w-[100px] min-w-[100px] border ${
-                                        density === 'compact' ? 'py-1' : ''
-                                      }`}
-                                    >
-                                      Channel
-                                    </TableHead>
-                                    {visibleLocations.map(location => (
-                                      <TableHead
-                                        key={location}
-                                        className={`w-auto border text-center whitespace-normal ${
-                                          density === 'compact'
-                                            ? 'py-1 text-xs'
-                                            : ''
-                                        }`}
-                                      >
-                                        {location}
-                                      </TableHead>
-                                    ))}
-                                  </TableRow>
-                                  {sortedChannels.map(
-                                    ([channelNumber, locationChannels]) =>
-                                      renderChannelRow(
-                                        network,
-                                        channelNumber,
-                                        locationChannels,
-                                      ),
-                                  )}
-                                </>
-                              )}
-                            </React.Fragment>
-                          );
-                        },
-                      )
-                    ) : (
-                      // Flat view - all channels in a single table
-                      <>
-                        <TableRow>
-                          <TableHead
-                            className={`bg-muted sticky left-0 z-10 w-[100px] min-w-[100px] border ${
-                              density === 'compact' ? 'py-1' : ''
-                            }`}
-                          >
-                            Channel
-                          </TableHead>
-                          {visibleLocations.map(location => (
-                            <TableHead
-                              key={location}
-                              className={`w-auto border text-center whitespace-normal ${
-                                density === 'compact' ? 'py-1 text-xs' : ''
-                              }`}
-                            >
-                              {location}
-                            </TableHead>
-                          ))}
-                        </TableRow>
-                        {(() => {
-                          // Define filteredLocations here for the flat view
-                          const filteredLocations = locationsForSubgroup.filter(
-                            loc => visibleLocations.includes(loc),
-                          );
-
-                          // Flatten all channels from all networks into a single array
-                          const allChannels = Object.entries(
-                            filteredChannelMap,
-                          ).flatMap(([network, channels]) => {
-                            return Object.entries(channels).map(
-                              ([channelNumber, locationChannels]) => ({
-                                network,
-                                channelNumber,
-                                locationChannels,
-                              }),
-                            );
-                          });
-
-                          // Group channels by channel number only
-                          const channelsByNumber: Record<
-                            string,
-                            Array<{
-                              network: string;
-                              channelNumber: string;
-                              locationChannels: Record<string, ChannelData>;
-                            }>
-                          > = {};
-
-                          allChannels.forEach(channel => {
-                            if (!channelsByNumber[channel.channelNumber]) {
-                              channelsByNumber[channel.channelNumber] = [];
-                            }
-                            channelsByNumber[channel.channelNumber].push(
-                              channel,
-                            );
-                          });
-
-                          // Sort channel numbers numerically
-                          const sortedChannelNumbers = Object.keys(
-                            channelsByNumber,
-                          ).sort((a, b) => {
-                            const numA = Number.parseInt(a) || 0;
-                            const numB = Number.parseInt(b) || 0;
-                            return numA - numB;
-                          });
-
-                          // Render each channel number as a single row
-                          return sortedChannelNumbers.map(channelNumber => {
-                            const channelsWithSameNumber =
-                              channelsByNumber[channelNumber];
-
-                            // Create a merged view of all channels with this number
-                            const mergedLocationChannels: Record<
-                              string,
-                              ChannelData & { networks?: string[] }
-                            > = {};
-
-                            // For each location, find all channels with this number
-                            filteredLocations.forEach(location => {
-                              // Check all networks for this channel number in this location
-                              const networksForLocation: string[] = [];
-                              let channelForLocation: ChannelData | null = null;
-
-                              for (const {
-                                network,
-                                locationChannels,
-                              } of channelsWithSameNumber) {
-                                if (locationChannels[location]) {
-                                  // If we find a channel, add its network to our list
-                                  networksForLocation.push(network);
-                                  // If this is the first channel we've found, use it as our display channel
-                                  if (!channelForLocation) {
-                                    channelForLocation =
-                                      locationChannels[location];
-                                  }
-                                }
-                              }
-
-                              // If we found any channels, add them to our merged view
-                              if (channelForLocation) {
-                                mergedLocationChannels[location] = {
-                                  ...channelForLocation,
-                                  networks: networksForLocation,
-                                };
-                              }
-                            });
-
-                            // Render the row with the merged channel data
-                            return (
-                              <TableRow
-                                key={`channel-${channelNumber}`}
-                                className="hover:bg-muted/50"
-                              >
-                                <TableCell
-                                  className={`bg-background sticky left-0 z-10 w-[100px] min-w-[100px] border font-medium shadow-sm ${
-                                    density === 'compact' ? 'py-1' : ''
-                                  }`}
-                                >
-                                  <div className="flex justify-center items-center">
-                                    <div className="text-center">
-                                      <div className="font-medium">
-                                        Ch {channelNumber}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </TableCell>
-
-                                {/* Render each location column */}
-                                {filteredLocations.map(
-                                  (location, locationIndex) => {
-                                    const channel =
-                                      mergedLocationChannels[location];
-
-                                    if (!channel) {
-                                      return (
-                                        <TableCell
-                                          key={`location-${location}`}
-                                          className={`border text-center whitespace-normal ${
-                                            density === 'compact' ? 'py-1' : ''
-                                          }`}
-                                        >
-                                          <span className="text-muted-foreground text-xs">
-                                            Not available
-                                          </span>
-                                        </TableCell>
-                                      );
-                                    }
-
-                                    // Get all networks that provide this channel in this location
-                                    const networks = channel.networks || [];
-
-                                    // Find consecutive locations with the same channel and networks
-                                    let colspan = 1;
-                                    let j = locationIndex + 1;
-                                    while (j < filteredLocations.length) {
-                                      const nextLocation = filteredLocations[j];
-                                      const nextChannel =
-                                        mergedLocationChannels[nextLocation];
-
-                                      // Check if next location has the same channel with same networks
-                                      if (
-                                        nextChannel &&
-                                        nextChannel.channel_names.location ===
-                                          channel.channel_names.location &&
-                                        JSON.stringify(nextChannel.networks) ===
-                                          JSON.stringify(networks)
-                                      ) {
-                                        colspan++;
-                                        j++;
-                                      } else {
-                                        break;
-                                      }
-                                    }
-
-                                    // Skip cells that are part of a colspan
-                                    if (locationIndex > 0) {
-                                      const prevLocation =
-                                        filteredLocations[locationIndex - 1];
-                                      const prevChannel =
-                                        mergedLocationChannels[prevLocation];
-
-                                      if (
-                                        prevChannel &&
-                                        prevChannel.channel_names.location ===
-                                          channel.channel_names.location &&
-                                        JSON.stringify(prevChannel.networks) ===
-                                          JSON.stringify(networks)
-                                      ) {
-                                        return null;
-                                      }
-                                    }
-
-                                    return (
-                                      <TableCell
-                                        key={`location-${location}`}
-                                        colSpan={colspan}
-                                        className={`border text-center whitespace-normal ${
-                                          density === 'compact'
-                                            ? 'py-1 text-sm'
-                                            : ''
-                                        }`}
-                                      >
-                                        <div className="flex flex-col justify-center items-center gap-1">
-                                          {channel.channel_logo?.light && (
-                                            <div className="flex justify-center items-center bg-muted/50 rounded-md size-10">
-                                              <img
-                                                src={
-                                                  channel.channel_logo.light ||
-                                                  '/placeholder.svg'
-                                                }
-                                                alt=""
-                                                className="p-1 max-w-full max-h-full object-contain"
-                                                loading="lazy"
-                                                onError={e => {
-                                                  e.currentTarget.src =
-                                                    '/placeholder.svg?height=32&width=32';
-                                                }}
-                                              />
-                                            </div>
-                                          )}
-                                          <div className="font-medium text-sm">
-                                            {channel.channel_names.location ||
-                                              channel.channel_name}
-                                          </div>
-                                          {/* {networks.length > 0 && (
-                                            <div className="text-muted-foreground text-xs">
-                                              {networks.join(', ')}
-                                            </div>
-                                          )} */}
-                                        </div>
-                                      </TableCell>
-                                    );
-                                  },
-                                )}
-                              </TableRow>
-                            );
-                          });
-                        })()}
-                      </>
-                    )}
-                    {Object.keys(filteredChannelMap).length === 0 && (
-                      <TableRow>
-                        <TableCell
-                          colSpan={1 + visibleLocations.length}
-                          className="h-24 text-center"
-                        >
-                          {selectedSubgroup ? (
-                            <>No results found. Try adjusting your filters.</>
-                          ) : (
-                            <>Please select a region to view channels.</>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            ))}
-          <div className="h-24" aria-hidden="true"></div> {/* Spacer element */}
-        </div>
-      )}
+      <ChannelMapContent
+        abbreviateStateName={abbreviateStateName}
+        collapsedNetworks={collapsedNetworks}
+        expandedChannels={expandedChannels}
+        filteredChannelMap={filteredChannelMap}
+        getChannelColor={getChannelColor}
+        isMobile={isMobile}
+        loading={loading}
+        locationsForSubgroup={locationsForSubgroup}
+        renderChannelRow={renderChannelRow}
+        selectedSubgroup={selectedSubgroup}
+        toggleChannelExpansion={toggleChannelExpansion}
+        toggleNetworkCollapse={toggleNetworkCollapse}
+        viewMode={viewMode}
+        visibleLocations={visibleLocations}
+      />
     </SidebarLayout>
   );
 }
