@@ -31,6 +31,10 @@ COPY --from=deps /app/node_modules ./node_modules
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
+RUN echo "📁 Verifying files..." && \
+    ls -al src/components/sidebar && \
+    cat src/components/sidebar/sidebar.tsx | head -n 10
+
 # Build the application
 RUN --mount=type=cache,target=/app/.next/cache \
     pnpm run build

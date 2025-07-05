@@ -1,6 +1,6 @@
 import path from "node:path";
 import withBundleAnalyzer from "@next/bundle-analyzer";
-
+console.log("✅ next.config.js loaded in Docker");
 const bundleAnalyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
