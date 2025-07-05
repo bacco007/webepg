@@ -1,8 +1,8 @@
 {
   "name": "webepgv2-frontend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "packageManager": "pnpm@10.12.1",
+  "packageManager": "pnpm@10.12.4+sha512.5ea8b0deed94ed68691c9bad4c955492705c5eeb8a87ef86bc62c74a26b037b08ff9570f108b2e4dbd1dd1a9186fea925e527f141c648e85af45631074680184",
   "scripts": {
     "analyze": "ANALYZE=true pnpm build",
     "clean": "rm -rf .next out",
