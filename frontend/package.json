@@ -62,7 +62,7 @@
     "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^12.23.0",
+    "framer-motion": "^12.23.5",
     "input-otp": "^1.4.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.525.0",
