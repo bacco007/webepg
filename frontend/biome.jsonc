@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -10,15 +10,15 @@
     "ignoreUnknown": false,
     "includes": [
       "**",
-      "!node_modules/**",
-      "!.next/**",
-      "!out/**",
-      "!dist/**",
-      "!build/**",
+      "!node_modules",
+      "!.next",
+      "!out",
+      "!dist",
+      "!build",
       "!*.min.js",
       "!*.min.css",
-      "!src/components/ui/**/*",
-      "!zbackup/**"
+      "!src/components/ui",
+      "!zbackup"
     ]
   },
   "assist": {
@@ -79,7 +79,8 @@
         "useValidAutocomplete": "error",
         "useValidLang": "error",
         "noAutofocus": "off",
-        "useGenericFontNames": "error"
+        "useGenericFontNames": "error",
+        "noNoninteractiveElementInteractions": "off"
       },
       "complexity": {
         "noAdjacentSpacesInRegex": "error",
@@ -125,7 +126,9 @@
         "useRegexLiterals": "error",
         "useSimpleNumberKeys": "error",
         "useSimplifiedLogicExpression": "error",
-        "useWhile": "error"
+        "useWhile": "error",
+        "useIndexOf": "error",
+        "noImportantStyles": "off"
       },
       "correctness": {
         "noChildrenProp": "error",
@@ -181,65 +184,37 @@
         "noUnknownPseudoElement": "error",
         "noUnknownTypeSelector": "error",
         "noUnknownUnit": "error",
-        "noUnmatchableAnbSelector": "error"
-      },
-      "nursery": {
-        "noAwaitInLoop": "error",
-        "noBitwiseOperators": "error",
-        "noConstantBinaryExpression": "error",
+        "noUnmatchableAnbSelector": "error",
         "noGlobalDirnameFilename": "error",
         "noNestedComponentDefinitions": "error",
-        "noNoninteractiveElementInteractions": "off",
-        "noReactPropAssign": "error",
+        "noReactPropAssignments": "error",
         "noRestrictedElements": "error",
-        "noShadow": "error",
-        "noTsIgnore": "error",
-        "noUnwantedPolyfillio": "error",
-        "noUselessBackrefInRegex": "error",
-        "noUselessEscapeInString": "error",
-        "noUselessUndefined": "error",
-        "useAdjacentGetterSetter": "error",
-        "useConsistentObjectDefinition": "error",
-        "useConsistentResponse": "error",
-        "useExhaustiveSwitchCases": "error",
-        "useGoogleFontPreconnect": "error",
-        "useIndexOf": "error",
-        "useIterableCallbackReturn": "error",
-        "useJsonImportAttribute": "error",
-        "useNumericSeparators": "error",
-        "useObjectSpread": "error",
+        "useJsonImportAttributes": "error",
         "useParseIntRadix": "error",
         "useSingleJsDocAsterisk": "error",
-        "useSymbolDescription": "error",
-        "noDestructuredProps": "off",
+        "noSolidDestructuredProps": "off",
         "noProcessGlobal": "off",
+        "useUniqueElementIds": "off"
+      },
+      "nursery": {
+        "noShadow": "error",
+        "noUselessUndefined": "error",
+        "useExhaustiveSwitchCases": "error",
         "noSecrets": "off",
         "useExplicitType": "off",
-        "useExportsLast": "off",
-        "useForComponent": "off",
         "useSortedClasses": {
           "fix": "safe",
           "level": "error",
           "options": {
-            "attributes": [
-              "className"
-            ],
-            "functions": [
-              "clsx",
-              "cva",
-              "tw",
-              "twMerge",
-              "cn",
-              "twJoin"
-            ]
+            "attributes": ["className"],
+            "functions": ["clsx", "cva", "tw", "twMerge", "cn", "twJoin"]
           }
         },
-        "useUniqueElementIds": "off",
         "noFloatingPromises": "off",
         "noUnresolvedImports": "off",
         "noImportCycles": "off",
-        "noImportantStyles": "off",
-        "noUnknownAtRule": "off"
+        "useImageSize": "off",
+        "useMaxParams": "off"
       },
       "performance": {
         "noAccumulatingSpread": "error",
@@ -249,7 +224,10 @@
         "noNamespaceImport": "error",
         "useTopLevelRegex": "error",
         "noBarrelFile": "off",
-        "noReExportAll": "off"
+        "noReExportAll": "off",
+        "noUnwantedPolyfillio": "error",
+        "useGoogleFontPreconnect": "error",
+        "useSolidForComponent": "off"
       },
       "security": {
         "noBlankTarget": "error",
@@ -293,12 +271,10 @@
         "useExponentiationOperator": "error",
         "useExportType": "error",
         "useFilenamingConvention": {
-          "level": "error",
+          "level": "off",
           "options": {
             "requireAscii": true,
-            "filenameCases": [
-              "kebab-case"
-            ],
+            "filenameCases": ["kebab-case"],
             "match": "[-?%]?(.+?)[.](.+)"
           }
         },
@@ -326,7 +302,14 @@
         "useNamingConvention": "off",
         "useSingleVarDeclarator": "off",
         "noDescendingSpecificity": "error",
-        "noValueAtRule": "error"
+        "noValueAtRule": "error",
+        "useGroupedAccessorPairs": "error",
+        "useConsistentObjectDefinitions": "error",
+        "useNumericSeparators": "error",
+        "useObjectSpread": "error",
+        "useSymbolDescription": "error",
+        "useExportsLast": "off",
+        "noMagicNumbers": "off"
       },
       "suspicious": {
         "noApproximativeNumericConstant": "error",
@@ -408,7 +391,14 @@
         "noDuplicateSelectorsKeyframeBlock": "error",
         "noEmptyBlock": "error",
         "noImportantInKeyframe": "error",
-        "noShorthandPropertyOverrides": "error"
+        "noShorthandPropertyOverrides": "error",
+        "noBitwiseOperators": "error",
+        "noConstantBinaryExpressions": "error",
+        "noTsIgnore": "error",
+        "noUselessEscapeInString": "error",
+        "useStaticResponseMethods": "error",
+        "useIterableCallbackReturn": "error",
+        "noUnknownAtRules": "off"
       }
     }
   },
@@ -451,7 +441,5 @@
       "allowTrailingCommas": false
     }
   },
-  "extends": [
-    "ultracite"
-  ]
+  "extends": ["ultracite"]
 }

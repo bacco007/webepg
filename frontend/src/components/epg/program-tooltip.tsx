@@ -14,14 +14,14 @@ import type { Program } from "./types";
 
 export type ProgramStatus = "now-playing" | "upcoming" | "ended";
 
-interface ProgramTooltipProps {
+type ProgramTooltipProps = {
   program: Program;
   status: ProgramStatus;
   progressPercentage?: number;
   side?: "top" | "right" | "bottom" | "left";
   sideOffset?: number;
   className?: string;
-}
+};
 
 export function ProgramTooltip({
   program,

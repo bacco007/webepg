@@ -12,8 +12,8 @@ export function formatTime(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleTimeString("en-US", {
     hour: "2-digit",
-    minute: "2-digit",
     hour12: false,
+    minute: "2-digit",
   });
 }
 
@@ -38,14 +38,11 @@ export function calculateProgress(start: string, end: string): number {
  * @returns True if both current and next programs are invalid/missing
  */
 export function isChannelGreyedOut(channelData: ChannelData): boolean {
-  const isProgramInvalid = (program: Program | null): boolean => {
-    return (
-      !program?.title ||
-      program.title === "N/A" ||
-      program.title === "No Data Available" ||
-      program.title.trim() === ""
-    );
-  };
+  const isProgramInvalid = (program: Program | null): boolean =>
+    !program?.title ||
+    program.title === "N/A" ||
+    program.title === "No Data Available" ||
+    program.title.trim() === "";
 
   return (
     isProgramInvalid(channelData.currentProgram) &&

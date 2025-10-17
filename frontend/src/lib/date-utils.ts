@@ -128,6 +128,9 @@ export function differenceInMinutes(
  */
 function convertFormatToDayjs(dateFnsFormatStr: string): string {
   const formatMap: Record<string, string> = {
+    // AM/PM
+    a: "A", // AM/PM
+    aa: "A", // AM/PM
     // Day of month
     d: "D", // Day of month, no leading zero
     dd: "DD", // Day of month, leading zero
@@ -140,21 +143,17 @@ function convertFormatToDayjs(dateFnsFormatStr: string): string {
     EEEE: "dddd", // Full day name
     EEEEE: "dd", // Narrow day name
 
-    // Month
-    M: "M", // Month number, no leading zero
-    MM: "MM", // Month number, leading zero
-    MMM: "MMM", // Abbreviated month name
-    MMMM: "MMMM", // Full month name
-
-    // Year
-    yy: "YY", // 2-digit year
-    yyyy: "YYYY", // 4-digit year
-
     // Hour
     H: "H", // 24-hour, no leading zero
     HH: "HH", // 24-hour, leading zero
     h: "h", // 12-hour, no leading zero
     hh: "hh", // 12-hour, leading zero
+
+    // Month
+    M: "M", // Month number, no leading zero
+    MM: "MM", // Month number, leading zero
+    MMM: "MMM", // Abbreviated month name
+    MMMM: "MMMM", // Full month name
 
     // Minute, Second
     m: "m", // Minute, no leading zero
@@ -162,9 +161,9 @@ function convertFormatToDayjs(dateFnsFormatStr: string): string {
     s: "s", // Second, no leading zero
     ss: "ss", // Second, leading zero
 
-    // AM/PM
-    a: "A", // AM/PM
-    aa: "A", // AM/PM
+    // Year
+    yy: "YY", // 2-digit year
+    yyyy: "YYYY", // 4-digit year
 
     // Timezone
     z: "z", // Timezone abbreviation

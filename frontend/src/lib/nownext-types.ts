@@ -1,4 +1,4 @@
-export interface Program {
+export type Program = {
   title: string;
   subtitle: string;
   episode: string | null;
@@ -8,9 +8,9 @@ export interface Program {
   category: string[];
   rating: string;
   lengthstring: string;
-}
+};
 
-export interface Channel {
+export type Channel = {
   nextProgram: Program | null;
   afterNextProgram: Program | null;
   id: string;
@@ -26,14 +26,14 @@ export interface Channel {
   slug: string;
   lcn: string;
   group: string;
-}
+};
 
-export interface ChannelData {
+export type ChannelData = {
   channel: Channel;
   currentProgram: Program | null;
   nextProgram: Program | null;
   afterNextProgram: Program | null;
-}
+};
 
 export type GroupBy = "none" | "channel_group" | "channel_type";
 export type ViewMode = "card" | "table" | "mobile";

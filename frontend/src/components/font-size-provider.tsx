@@ -19,9 +19,5 @@ export function FontSizeProvider({ children }: { children: React.ReactNode }) {
     setFontSize(`${validatedFontSize}%`);
   }, []);
 
-  return (
-    <div style={{ fontSize }}>
-      {children}
-    </div>
-  );
-} 
+  return <div style={{ fontSize }}>{children}</div>;
+}

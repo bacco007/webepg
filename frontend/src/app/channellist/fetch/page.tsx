@@ -1,20 +1,12 @@
-"use client";
+import type { Metadata } from "next";
+import FetchClient from "./fetch-client";
 
-import { ChannelDataTable } from "@/components/channel-data-table";
+export const metadata: Metadata = {
+  description:
+    "Browse weekly Electronic Program Guide schedules and TV listings.",
+  title: "Fetch TV Channel Lineup",
+};
 
-export default function FetchChannelsPage() {
-  return (
-    <ChannelDataTable
-      fetchUrl="/api/py/channels/xmlepg_FETALL"
-      title="Fetch TV Channels"
-      // Optional customizations:
-      // dataExtractor={(data) => data.data.channels} // Default extractor
-      // initialSorting={[{ id: "channel_number", desc: false }]} // Default sorting
-      // defaultColumnVisibility={{}} // Default column visibility
-      // showChannelTypeFilter={true} // Show/hide specific filters
-      // showChannelGroupFilter={true}
-      // showChannelSpecsFilter={true}
-      // renderCustomActions={() => <Button>Custom Action</Button>} // Add custom actions
-    />
-  );
+export default function FetchPage() {
+  return <FetchClient />;
 }

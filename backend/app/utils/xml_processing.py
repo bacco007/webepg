@@ -124,7 +124,7 @@ async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
                         "channel_group": channel_group,
                         "channel_url": channel_url,
                         "channel_logo": {"light": chlogo, "dark": chlogo},
-                        "other_data": {"channel_type": "N/A", "channel_specs": "N/A"},
+                        "other_data": {"channel_type": "N/A", "channel_specs": "N/A", "channel_availability": "N/A", "channel_packages": "N/A"},
                     }
                 )
 

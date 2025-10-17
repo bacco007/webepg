@@ -2,7 +2,7 @@ import { ChevronDown, ChevronUp, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-interface Source {
+type Source = {
   id: string;
   group: string;
   subgroup: string;
@@ -12,19 +12,19 @@ interface Source {
     light: string;
     dark: string;
   };
-}
+};
 
-interface GroupedSources {
+type GroupedSources = {
   [key: string]: Source[];
-}
+};
 
-interface FilterSectionProps {
+type FilterSectionProps = {
   title: string;
   children: React.ReactNode;
   isOpen: boolean;
   onToggle: () => void;
   count: number;
-}
+};
 
 function FilterSection({
   title,
@@ -36,7 +36,7 @@ function FilterSection({
   return (
     <div className="border-b">
       <div
-        className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full cursor-pointer"
+        className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/10"
         onClick={onToggle}
       >
         <div className="flex items-center gap-2">
@@ -53,7 +53,7 @@ function FilterSection({
       </div>
       {isOpen && (
         <div className="px-4 pb-3">
-          <div className="space-y-1 pr-1 max-h-[300px] overflow-y-auto thin-scrollbar">
+          <div className="thin-scrollbar max-h-[300px] space-y-1 overflow-y-auto pr-1">
             {children}
           </div>
         </div>
@@ -62,10 +62,10 @@ function FilterSection({
   );
 }
 
-interface SourceSearchProps {
+type SourceSearchProps = {
   searchTerm: string;
   onSearchChange: (term: string) => void;
-}
+};
 
 export function SourceSearch({
   searchTerm,
@@ -77,7 +77,7 @@ export function SourceSearch({
 
   return (
     <div className="relative">
-      <Search className="top-2.5 left-2 absolute size-4 text-muted-foreground" />
+      <Search className="absolute top-2.5 left-2 size-4 text-muted-foreground" />
       <Input
         aria-label="Search locations"
         className="pl-8 text-sm"
@@ -88,25 +88,25 @@ export function SourceSearch({
       {searchTerm && (
         <Button
           aria-label="Clear search"
-          className="top-1 right-1 absolute p-0 w-7 h-7"
+          className="absolute top-1 right-1 h-7 w-7 p-0"
           onClick={clearSearch}
           size="sm"
           variant="ghost"
         >
-          <X className="w-4 h-4" />
+          <X className="h-4 w-4" />
         </Button>
       )}
     </div>
   );
 }
 
-interface SourceListProps {
+type SourceListProps = {
   sources: Source[];
   selectedSource: string;
   onSourceSelect: (source: Source) => void;
   openGroups: { [key: string]: boolean };
   onToggleGroup: (group: string) => void;
-}
+};
 
 export function SourceList({
   sources,
@@ -136,12 +136,12 @@ export function SourceList({
         >
           {sourcesInGroup.map((source) => (
             <Button
-              className="justify-start mb-1 px-2 py-1.5 w-full text-sm"
+              className="mb-1 w-full justify-start px-2 py-1.5 text-sm"
               key={source.id}
               onClick={() => onSourceSelect(source)}
               variant={selectedSource === source.id ? "secondary" : "ghost"}
             >
-              <span className="text-left truncate whitespace-normal">
+              <span className="truncate whitespace-normal text-left">
                 {source.location}
               </span>
             </Button>
@@ -152,7 +152,7 @@ export function SourceList({
   );
 }
 
-interface SourceSelectorProps {
+type SourceSelectorProps = {
   sources: Source[];
   selectedSource: string;
   onSourceSelect: (source: Source) => void;
@@ -160,7 +160,7 @@ interface SourceSelectorProps {
   onSearchChange: (term: string) => void;
   openGroups: { [key: string]: boolean };
   onToggleGroup: (group: string) => void;
-}
+};
 
 export function SourceSelector({
   sources,
@@ -181,7 +181,7 @@ export function SourceSelector({
         selectedSource={selectedSource}
         sources={sources}
       />
-      <div className="text-muted-foreground text-xs text-center">
+      <div className="text-center text-muted-foreground text-xs">
         {sources.length} locations available
       </div>
     </>

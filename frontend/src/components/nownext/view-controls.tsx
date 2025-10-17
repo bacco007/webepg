@@ -14,14 +14,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { GroupBy, ViewMode } from "@/lib/nownext-types";
 
-interface ViewControlsProps {
+type ViewControlsProps = {
   groupBy: GroupBy;
   viewMode: ViewMode;
   onGroupByChange: (groupBy: GroupBy) => void;
   onViewModeChange: (viewMode: ViewMode) => void;
   onRefresh: () => void;
   isLoading?: boolean;
-}
+};
 
 export function ViewControls({
   groupBy,

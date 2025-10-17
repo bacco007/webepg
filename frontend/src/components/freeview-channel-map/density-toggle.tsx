@@ -10,10 +10,10 @@ import {
 
 export type ViewMode = "networks" | "flat";
 
-interface ViewModeToggleProps {
+type ViewModeToggleProps = {
   viewMode: ViewMode;
   setViewMode: (viewMode: ViewMode) => void;
-}
+};
 
 export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
   viewMode,

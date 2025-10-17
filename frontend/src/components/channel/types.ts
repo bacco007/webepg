@@ -18,6 +18,8 @@ export type Channel = {
   other_data: {
     channel_type: string;
     channel_specs: string;
+    channel_availability?: string;
+    channel_packages?: string;
     channel_name_group?: string;
   };
   program_count: number;

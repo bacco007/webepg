@@ -170,7 +170,7 @@ if (typeof document !== "undefined") {
   document.head.appendChild(style);
 }
 
-interface Transmitter {
+type Transmitter = {
   AreaServed: string;
   CallSignChannel: string;
   CallSign: string;
@@ -190,9 +190,9 @@ interface Transmitter {
   LicenceArea: string;
   LicenceNo: string;
   OnAirDate: string;
-}
+};
 
-interface GeoJsonData {
+type GeoJsonData = {
   type: "FeatureCollection";
   features: Array<{
     type: "Feature";
@@ -206,7 +206,7 @@ interface GeoJsonData {
       coordinates: number[][][];
     };
   }>;
-}
+};
 
 function MapControls({
   bounds,
@@ -607,8 +607,8 @@ export default function TVTransmitterMap() {
   };
 
   const filterTransmitters = useCallback(
-    (transmitters: Transmitter[]) => {
-      return transmitters.filter(
+    (transmitters: Transmitter[]) =>
+      transmitters.filter(
         (transmitter) =>
           (callSignFilters.length === 0 ||
             callSignFilters.includes(transmitter.CallSign)) &&
@@ -638,8 +638,7 @@ export default function TVTransmitterMap() {
             transmitter.Network.toLowerCase().includes(
               debouncedGlobalSearch.toLowerCase()
             ))
-      );
-    },
+      ),
     [
       callSignFilters,
       areaServedFilters,
@@ -943,9 +942,10 @@ export default function TVTransmitterMap() {
     debouncedGlobalSearch,
   ]);
 
-  const filteredTransmitters = useMemo(() => {
-    return filterTransmitters(transmittersData);
-  }, [transmittersData, filterTransmitters]);
+  const filteredTransmitters = useMemo(
+    () => filterTransmitters(transmittersData),
+    [transmittersData, filterTransmitters]
+  );
 
   const bounds = useMemo(() => {
     if (filteredTransmitters.length === 0) {

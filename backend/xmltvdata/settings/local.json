@@ -112,8 +112,8 @@
   {
     "id": "xmlepg_FTACAN",
     "group": "Australia",
-    "subgroup": "FTA - Regional NSW",
-    "location": "SNSW - Canberra/ACT",
+    "subgroup": "FTA - Regional NSW/ACT",
+    "location": "Canberra",
     "url": "local",
     "logo": {
       "light": "logos/freeview.png",
@@ -168,7 +168,7 @@
     "id": "xmlepg_FTACOF",
     "group": "Australia",
     "subgroup": "FTA - Regional NSW",
-    "location": "NNSW - Coffs Harbour (Northern Rivers)",
+    "location": "NNSW - Coffs Harbour (North Coast)",
     "url": "local",
     "logo": {
       "light": "logos/freeview.png",
@@ -267,7 +267,7 @@
     "id": "xmlepg_FTAWOL",
     "group": "Australia",
     "subgroup": "FTA - Regional NSW",
-    "location": "SNSW - Wollongong (Illawarra)",
+    "location": "SNSW - Wollongong (Illawarra / South Coast)",
     "url": "local",
     "logo": {
       "light": "logos/freeview.png",
@@ -366,7 +366,7 @@
     "id": "xmlepg_FTAMTI",
     "group": "Australia",
     "subgroup": "FTA - Regional QLD",
-    "location": "Mt. Isa",
+    "location": "Mount Isa",
     "url": "local",
     "logo": {
       "light": "logos/freeview.png",
@@ -421,7 +421,7 @@
     "id": "xmlepg_FTAWID",
     "group": "Australia",
     "subgroup": "FTA - Regional QLD",
-    "location": "Wide Bay",
+    "location": "Hervey Bay (Wide Bay)",
     "url": "local",
     "logo": {
       "light": "logos/freeview.png",
@@ -443,7 +443,7 @@
     "id": "xmlepg_FTALOX",
     "group": "Australia",
     "subgroup": "FTA - Regional SA",
-    "location": "Loxton",
+    "location": "Loxton (Riverland)",
     "url": "local",
     "logo": {
       "light": "logos/freeview.png",
@@ -454,7 +454,7 @@
     "id": "xmlepg_FTAMTG",
     "group": "Australia",
     "subgroup": "FTA - Regional SA",
-    "location": "Mt Gambier",
+    "location": "Mount Gambier (South East)",
     "url": "local",
     "logo": {
       "light": "logos/freeview.png",
@@ -553,7 +553,7 @@
     "id": "xmlepg_FTAMIL",
     "group": "Australia",
     "subgroup": "FTA - Regional VIC",
-    "location": "Mildura",
+    "location": "Mildura / Sunraysia",
     "url": "local",
     "logo": {
       "light": "logos/freeview.png",
@@ -663,7 +663,7 @@
     "id": "xmlepg_VASTNSW",
     "group": "Australia",
     "subgroup": "FTA - Remote (VAST)",
-    "location": "Remote NSW/ACT",
+    "location": "South - Remote NSW/ACT/Norfolk Is.",
     "url": "local",
     "logo": {
       "light": "logos/vast.png",
@@ -674,7 +674,7 @@
     "id": "xmlepg_VASTNT",
     "group": "Australia",
     "subgroup": "FTA - Remote (VAST)",
-    "location": "Remote Northern Territory",
+    "location": "North - Remote Northern Territory",
     "url": "local",
     "logo": {
       "light": "logos/vast.png",
@@ -685,7 +685,7 @@
     "id": "xmlepg_VASTQLD",
     "group": "Australia",
     "subgroup": "FTA - Remote (VAST)",
-    "location": "Remote Queensland",
+    "location": "North - Remote Queensland",
     "url": "local",
     "logo": {
       "light": "logos/vast.png",
@@ -696,7 +696,7 @@
     "id": "xmlepg_VASTSA",
     "group": "Australia",
     "subgroup": "FTA - Remote (VAST)",
-    "location": "Remote South Australia",
+    "location": "South - Remote South Australia",
     "url": "local",
     "logo": {
       "light": "logos/vast.png",
@@ -707,7 +707,7 @@
     "id": "xmlepg_VASTTAS",
     "group": "Australia",
     "subgroup": "FTA - Remote (VAST)",
-    "location": "Remote Tasmania",
+    "location": "South - Remote Tasmania",
     "url": "local",
     "logo": {
       "light": "logos/vast.png",
@@ -718,7 +718,7 @@
     "id": "xmlepg_VASTVIC",
     "group": "Australia",
     "subgroup": "FTA - Remote (VAST)",
-    "location": "Remote Victoria",
+    "location": "South - Remote Victoria",
     "url": "local",
     "logo": {
       "light": "logos/vast.png",
@@ -729,7 +729,7 @@
     "id": "xmlepg_VASTWA",
     "group": "Australia",
     "subgroup": "FTA - Remote (VAST)",
-    "location": "Remote Western Australia",
+    "location": "West - Remote Western Australia",
     "url": "local",
     "logo": {
       "light": "logos/vast.png",

@@ -22,10 +22,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface SidebarFooterContentProps {
+type SidebarFooterContentProps = {
   timezone?: string;
   xmltvdatasource?: string;
-}
+};
 
 export function SidebarFooterContent({
   timezone,

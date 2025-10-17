@@ -26,7 +26,7 @@ import {
 } from "./utils";
 
 // Program content component
-interface ProgramContentProps {
+type ProgramContentProps = {
   program: Program;
   isVeryNarrow: boolean;
   isHovered: boolean;
@@ -44,7 +44,7 @@ interface ProgramContentProps {
   timeRef: React.RefObject<HTMLDivElement | null>;
   closeMobileTooltip: (e: React.MouseEvent) => void;
   left?: number;
-}
+};
 
 const ProgramContent = ({
   program,
@@ -150,7 +150,7 @@ const ProgramContent = ({
   );
 };
 
-interface ProgramItemProps {
+type ProgramItemProps = {
   program: Program & {
     left: number;
     width: number;
@@ -166,7 +166,7 @@ interface ProgramItemProps {
   showDetails?: boolean;
   onSelect?: (program: Program) => void;
   isSelected?: boolean;
-}
+};
 
 // Helper function to handle program click
 const handleProgramClickHelper = (
@@ -200,9 +200,7 @@ const shouldUseTooltipHelper = (
   isMobile: boolean,
   showDetails: boolean,
   isPlaceholder: boolean
-) => {
-  return !isMobile && showDetails && !isPlaceholder;
-};
+) => !isMobile && showDetails && !isPlaceholder;
 
 // Helper function to render mobile tooltip
 const renderMobileTooltipHelper = (

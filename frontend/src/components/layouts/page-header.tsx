@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-interface PageHeaderProps {
+type PageHeaderProps = {
   title: string;
   actions?: ReactNode;
   className?: string;
   sidebarToggle?: ReactNode;
-}
+};
 
 export function PageHeader({
   title,

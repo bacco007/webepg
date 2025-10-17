@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-interface CurrentTimeIndicatorProps {
+type CurrentTimeIndicatorProps = {
   hourWidth: number;
-}
+};
 
 export function CurrentTimeIndicator({ hourWidth }: CurrentTimeIndicatorProps) {
   const [position, setPosition] = useState(0);

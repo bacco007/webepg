@@ -9,12 +9,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import type { Channel } from "./types";
 
-interface DebugPanelProps {
+type DebugPanelProps = {
   rawChannels: Channel[];
   processedChannels: Channel[];
   onToggleDeduplication: (strategy: string) => void;
   currentStrategy: string;
-}
+};
 
 export function DebugPanel({
   rawChannels,
@@ -43,8 +43,8 @@ export function DebugPanel({
   const duplicateChannels = Object.entries(channelIdCounts)
     .filter(([_, data]) => data.count > 1)
     .map(([id, data]) => ({
-      id,
       count: data.count,
+      id,
       lcns: data.lcns,
     }));
 

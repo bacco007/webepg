@@ -1,30 +1,12 @@
-"use client";
+import type { Metadata } from "next";
+import ChannelSlugClient from "./channel-slug-client";
 
-import { RefreshCw } from "lucide-react";
-import { useParams, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import { ChannelWeeklyView } from "@/components/epg/channel-weekly-view";
+export const metadata: Metadata = {
+  description:
+    "View detailed weekly program guide for a specific channel with comprehensive TV listings.",
+  title: "Channel Guide",
+};
 
-export default function ChannelPage() {
-  const params = useParams();
-  const searchParams = useSearchParams();
-  const channelSlug = params.channelslug as string;
-  const dataSource = searchParams.get("source") || undefined;
-
-  return (
-    <main className="flex size-full flex-col">
-      <Suspense
-        fallback={
-          <div className="flex h-full items-center justify-center">
-            <div className="mr-2 animate-spin">
-              <RefreshCw className="h-5 w-5" />
-            </div>
-            <span>Loading channel data...</span>
-          </div>
-        }
-      >
-        <ChannelWeeklyView channelSlug={channelSlug} dataSource={dataSource} />
-      </Suspense>
-    </main>
-  );
+export default function ChannelSlugPage() {
+  return <ChannelSlugClient />;
 }

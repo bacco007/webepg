@@ -18,28 +18,28 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-interface Props {
+type Props = {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
-}
+};
 
-interface State {
+type State = {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
   errorId: string | null;
   retryCount: number;
-}
+};
 
 // Error categorization for better user experience
-interface ErrorCategory {
+type ErrorCategory = {
   type: "network" | "runtime" | "component" | "unknown";
   title: string;
   message: string;
   suggestions: string[];
   severity: "low" | "medium" | "high";
-}
+};
 
 function categorizeError(error: Error): ErrorCategory {
   const errorMessage = error.message.toLowerCase();
@@ -53,15 +53,15 @@ function categorizeError(error: Error): ErrorCategory {
     errorMessage.includes("connection")
   ) {
     return {
-      type: "network",
-      title: "Connection Error",
       message: "There was a problem connecting to our servers.",
+      severity: "medium",
       suggestions: [
         "Check your internet connection",
         "Try refreshing the page",
         "Wait a few minutes and try again",
       ],
-      severity: "medium",
+      title: "Connection Error",
+      type: "network",
     };
   }
 
@@ -73,44 +73,44 @@ function categorizeError(error: Error): ErrorCategory {
     errorStack.includes("react")
   ) {
     return {
-      type: "runtime",
-      title: "Application Error",
       message: "Something went wrong with the application.",
+      severity: "high",
       suggestions: [
         "Refresh the page to reload the application",
         "Clear your browser cache",
         "Try using a different browser",
       ],
-      severity: "high",
+      title: "Application Error",
+      type: "runtime",
     };
   }
 
   // Component errors
   if (errorStack.includes("component") || errorMessage.includes("render")) {
     return {
-      type: "component",
-      title: "Display Error",
       message: "There was a problem displaying this content.",
+      severity: "medium",
       suggestions: [
         "Refresh the page",
         "Navigate to a different section",
         "Contact support if the problem persists",
       ],
-      severity: "medium",
+      title: "Display Error",
+      type: "component",
     };
   }
 
   // Default unknown error
   return {
-    type: "unknown",
-    title: "Unexpected Error",
     message: "An unexpected error occurred.",
+    severity: "medium",
     suggestions: [
       "Refresh the page",
       "Try again later",
       "Contact support if the problem continues",
     ],
-    severity: "medium",
+    title: "Unexpected Error",
+    type: "unknown",
   };
 }
 
@@ -132,12 +132,12 @@ function logErrorToConsole(
     try {
       // Store error data in sessionStorage for development debugging
       const debugData = {
-        errorId,
-        timestamp: new Date().toISOString(),
-        errorMessage: error.message,
-        errorStack: error.stack,
         componentStack: errorInfo.componentStack,
         errorData,
+        errorId,
+        errorMessage: error.message,
+        errorStack: error.stack,
+        timestamp: new Date().toISOString(),
       };
 
       sessionStorage.setItem(
@@ -153,14 +153,14 @@ function logErrorToConsole(
 // Error logging utility (can be extended to send to external services)
 function logError(error: Error, errorInfo: ErrorInfo, errorId: string): void {
   const errorData = {
+    category: categorizeError(error),
+    componentStack: errorInfo.componentStack,
     id: errorId,
-    timestamp: new Date().toISOString(),
     message: error.message,
     stack: error.stack,
-    componentStack: errorInfo.componentStack,
-    userAgent: navigator.userAgent,
+    timestamp: new Date().toISOString(),
     url: window.location.href,
-    category: categorizeError(error),
+    userAgent: navigator.userAgent,
   };
 
   // Log to console in development only
@@ -172,10 +172,10 @@ function logError(error: Error, errorInfo: ErrorInfo, errorId: string): void {
       sessionStorage.getItem("errorHistory") || "[]"
     );
     errorHistory.push({
-      id: errorId,
-      timestamp: errorData.timestamp,
-      message: error.message,
       category: errorData.category.type,
+      id: errorId,
+      message: error.message,
+      timestamp: errorData.timestamp,
     });
     // Keep only last 5 errors
     if (errorHistory.length > 5) {
@@ -189,18 +189,18 @@ function logError(error: Error, errorInfo: ErrorInfo, errorId: string): void {
 
 export class GlobalErrorBoundary extends Component<Props, State> {
   state: State = {
-    hasError: false,
     error: null,
-    errorInfo: null,
     errorId: null,
+    errorInfo: null,
+    hasError: false,
     retryCount: 0,
   };
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     return {
-      hasError: true,
       error,
       errorId: generateErrorId(),
+      hasError: true,
     };
   }
 
@@ -212,8 +212,8 @@ export class GlobalErrorBoundary extends Component<Props, State> {
 
     // Update state with error info
     this.setState({
-      errorInfo,
       errorId,
+      errorInfo,
     });
 
     // Call custom error handler if provided
@@ -228,10 +228,10 @@ export class GlobalErrorBoundary extends Component<Props, State> {
 
     if (retryCount < maxRetries) {
       this.setState((prevState) => ({
-        hasError: false,
         error: null,
-        errorInfo: null,
         errorId: null,
+        errorInfo: null,
+        hasError: false,
         retryCount: prevState.retryCount + 1,
       }));
     } else {

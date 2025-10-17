@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface Channel {
+type Channel = {
   id: string;
   name: string;
   icon: {
@@ -17,9 +17,9 @@ interface Channel {
   slug: string;
   lcn: string;
   group: string;
-}
+};
 
-interface Program {
+type Program = {
   title: string;
   start: string;
   end: string;
@@ -29,20 +29,20 @@ interface Program {
   episode: string;
   original_air_date: string;
   rating: string;
-}
+};
 
-interface ChannelPrograms {
+type ChannelPrograms = {
   channel: Channel;
   programs: {
     [date: string]: Program[];
   };
-}
+};
 
-interface ChannelCardProps {
+type ChannelCardProps = {
   channelData: ChannelPrograms;
   onNavigate: () => void;
   onNavigateToFullWeek: (channelSlug: string) => void;
-}
+};
 
 const decodeHtml = (html: string): string => {
   const txt = document.createElement("textarea");

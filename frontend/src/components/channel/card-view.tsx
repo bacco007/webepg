@@ -2,11 +2,11 @@ import { ChannelCard } from "./channel-card";
 import type { Channel, GroupBy } from "./types";
 import { groupChannels, sortChannels } from "./utils";
 
-interface CardViewProps {
+type CardViewProps = {
   filteredChannels: Channel[];
   groupBy: GroupBy;
   xmltvDataSource: string;
-}
+};
 
 export function CardView({
   filteredChannels,

@@ -3,12 +3,12 @@ import { getCookie } from "@/lib/cookies";
 import type { ChannelData } from "@/lib/nownext-types";
 import { sortChannelsByLCN } from "@/utils/nownext";
 
-interface UseNowNextDataReturn {
+type UseNowNextDataReturn = {
   channels: ChannelData[];
   isLoading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
-}
+};
 
 export function useNowNextData(): UseNowNextDataReturn {
   const [channels, setChannels] = useState<ChannelData[]>([]);
@@ -47,8 +47,8 @@ export function useNowNextData(): UseNowNextDataReturn {
 
   return {
     channels,
-    isLoading,
     error,
+    isLoading,
     refresh: fetchChannels,
   };
 }

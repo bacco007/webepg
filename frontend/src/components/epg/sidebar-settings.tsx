@@ -17,31 +17,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface SidebarSettingsProps {
+type SidebarSettingsProps = {
   sortBy: string;
   onSortByChange: (value: string) => void;
   groupBy: string;
   onGroupByChange: (value: string) => void;
   displayName: string;
   onDisplayNameChange: (value: string) => void;
-}
+};
 
 const SORT_OPTIONS = [
-  { value: "channelNumber", label: "Channel Number" },
-  { value: "channelName", label: "Channel Name" },
-  { value: "networkName", label: "Network Name" },
+  { label: "Channel Number", value: "channelNumber" },
+  { label: "Channel Name", value: "channelName" },
+  { label: "Network Name", value: "networkName" },
 ];
 
 const GROUP_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "network", label: "Network" },
-  { value: "category", label: "Category" },
+  { label: "None", value: "none" },
+  { label: "Network", value: "network" },
+  { label: "Category", value: "category" },
 ];
 
 const DISPLAY_NAME_OPTIONS = [
-  { value: "clean", label: "Clean" },
-  { value: "real", label: "Real" },
-  { value: "location", label: "Location" },
+  { label: "Clean", value: "clean" },
+  { label: "Real", value: "real" },
+  { label: "Location", value: "location" },
 ];
 
 export function SidebarSettings({

@@ -1,32 +1,5 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: "http://webepg.xyz",
-  changefreq: "daily",
-  priority: 0.7,
-  generateRobotsTxt: true,
-  robotsTxtOptions: {
-    policies: [
-      { userAgent: "*", allow: "/" },
-      { userAgent: "*", disallow: ["/api/*", "/_next/*", "/static/*"] },
-    ],
-    additionalSitemaps: ["http://webepg.xyz/server-sitemap.xml"],
-  },
-  exclude: ["/api/*", "/_next/*", "/static/*"],
-  // Default transformation function
-  transform: (config, path) => {
-    return {
-      loc: path, // => this will be exported as http(s)://<config.siteUrl>/<path>
-      changefreq: config.changefreq,
-      priority: config.priority,
-      lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
-      alternateRefs: [
-        {
-          href: "http://webepg.xyz",
-          hreflang: "en",
-        },
-      ],
-    };
-  },
   // Generate additional dynamic routes
   additionalPaths: (_config) => {
     const result = [];
@@ -37,21 +10,48 @@ module.exports = {
       date.setDate(date.getDate() + i);
       const dateStr = date.toISOString().split("T")[0].replace(/-/g, "");
       result.push({
-        loc: `/epg/${dateStr}`,
         changefreq: "daily",
-        priority: 0.8,
         lastmod: new Date().toISOString(),
+        loc: `/epg/${dateStr}`,
+        priority: 0.8,
       });
     }
 
     // Add now/next page
     result.push({
-      loc: "/nownext",
       changefreq: "hourly",
-      priority: 0.9,
       lastmod: new Date().toISOString(),
+      loc: "/nownext",
+      priority: 0.9,
     });
 
     return result;
+  },
+  changefreq: "daily",
+  exclude: ["/api/*", "/_next/*", "/static/*"],
+  generateRobotsTxt: true,
+  priority: 0.7,
+  robotsTxtOptions: {
+    additionalSitemaps: ["http://webepg.xyz/server-sitemap.xml"],
+    policies: [
+      { allow: "/", userAgent: "*" },
+      { disallow: ["/api/*", "/_next/*", "/static/*"], userAgent: "*" },
+    ],
+  },
+  siteUrl: "http://webepg.xyz",
+  // Default transformation function
+  transform: (config, path) => {
+    return {
+      alternateRefs: [
+        {
+          href: "http://webepg.xyz",
+          hreflang: "en",
+        },
+      ],
+      changefreq: config.changefreq,
+      lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
+      loc: path, // => this will be exported as http(s)://<config.siteUrl>/<path>
+      priority: config.priority,
+    };
   },
 };

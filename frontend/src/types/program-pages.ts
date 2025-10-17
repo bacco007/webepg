@@ -1,4 +1,4 @@
-export interface Channel {
+export type Channel = {
   id: string;
   name: string;
   icon: {
@@ -8,9 +8,9 @@ export interface Channel {
   slug: string;
   lcn: string;
   group: string;
-}
+};
 
-export interface Program {
+export type Program = {
   title: string;
   start: string;
   end: string;
@@ -20,16 +20,16 @@ export interface Program {
   episode: string;
   original_air_date: string;
   rating: string;
-}
+};
 
-export interface ChannelPrograms {
+export type ChannelPrograms = {
   channel: Channel;
   programs: {
     [date: string]: Program[];
   };
-}
+};
 
-export interface ProgramPageData {
+export type ProgramPageData = {
   date_pulled: string;
   query: string;
   source: string;
@@ -37,10 +37,10 @@ export interface ProgramPageData {
   end_date: string;
   timezone: string;
   channels: ChannelPrograms[];
-}
+};
 
-export interface ChannelCardProps {
+export type ChannelCardProps = {
   channelData: ChannelPrograms;
   onNavigate: () => void;
   onNavigateToFullWeek: (channelSlug: string) => void;
-}
+};

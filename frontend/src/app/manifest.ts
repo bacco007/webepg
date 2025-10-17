@@ -2,51 +2,51 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "webEPG - Electronic Program Guide",
-    short_name: "webEPG",
+    background_color: "#ffffff",
+    categories: ["entertainment", "tv", "radio"],
     description:
       "Free and open-source Electronic Program Guide for TV and Radio channels",
-    start_url: "/",
-    display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#0f172a",
-    orientation: "portrait",
-    scope: "/",
-    lang: "en",
     dir: "ltr",
-    categories: ["entertainment", "tv", "radio"],
+    display: "standalone",
     icons: [
       {
-        src: "/favicon/favicon-16x16.png",
+        purpose: "any",
         sizes: "16x16",
+        src: "/favicon/favicon-16x16.png",
         type: "image/png",
-        purpose: "any",
       },
       {
-        src: "/favicon/favicon-32x32.png",
+        purpose: "any",
         sizes: "32x32",
+        src: "/favicon/favicon-32x32.png",
         type: "image/png",
-        purpose: "any",
       },
       {
-        src: "/favicon/android-chrome-192x192.png",
+        purpose: "any",
         sizes: "192x192",
+        src: "/favicon/android-chrome-192x192.png",
         type: "image/png",
-        purpose: "any",
       },
       {
-        src: "/favicon/android-chrome-512x512.png",
+        purpose: "any",
         sizes: "512x512",
+        src: "/favicon/android-chrome-512x512.png",
         type: "image/png",
-        purpose: "any",
       },
       {
-        src: "/favicon/apple-touch-icon.png",
-        sizes: "180x180",
-        type: "image/png",
         purpose: "any",
+        sizes: "180x180",
+        src: "/favicon/apple-touch-icon.png",
+        type: "image/png",
       },
     ],
+    lang: "en",
+    name: "webEPG - Electronic Program Guide",
+    orientation: "portrait",
+    prefer_related_applications: false,
+    related_applications: [],
+    scope: "/",
+    short_name: "webEPG",
     // screenshots: [
     //   {
     //     src: '/screenshots/home.png',
@@ -65,25 +65,25 @@ export default function manifest(): MetadataRoute.Manifest {
     // ],
     shortcuts: [
       {
+        description: "View TV program guide",
+        icons: [
+          { sizes: "192x192", src: "/favicon/android-chrome-192x192.png" },
+        ],
         name: "TV Guide",
         short_name: "TV",
-        description: "View TV program guide",
         url: "/tv",
-        icons: [
-          { src: "/favicon/android-chrome-192x192.png", sizes: "192x192" },
-        ],
       },
       {
+        description: "View radio program guide",
+        icons: [
+          { sizes: "192x192", src: "/favicon/android-chrome-192x192.png" },
+        ],
         name: "Radio Guide",
         short_name: "Radio",
-        description: "View radio program guide",
         url: "/radio",
-        icons: [
-          { src: "/favicon/android-chrome-192x192.png", sizes: "192x192" },
-        ],
       },
     ],
-    related_applications: [],
-    prefer_related_applications: false,
+    start_url: "/",
+    theme_color: "#0f172a",
   };
 }

@@ -24,24 +24,24 @@ const categoryIconMap: Record<
   string,
   React.ComponentType<{ className?: string }>
 > = {
-  music: Music,
-  movie: Film,
-  film: Film,
-  series: Tv,
-  show: Tv,
-  news: Newspaper,
   award: Award,
   ceremony: Award,
-  reality: Users,
-  "game show": Users,
-  game: Gamepad2,
-  sport: Gamepad2,
   cooking: Utensils,
-  food: Utensils,
-  fashion: Shirt,
-  lifestyle: Shirt,
   documentary: Landmark,
+  fashion: Shirt,
+  film: Film,
+  food: Utensils,
+  game: Gamepad2,
+  "game show": Users,
   history: Landmark,
+  lifestyle: Shirt,
+  movie: Film,
+  music: Music,
+  news: Newspaper,
+  reality: Users,
+  series: Tv,
+  show: Tv,
+  sport: Gamepad2,
 };
 
 export function getProgramCategoryIcon(categories?: string[]) {
@@ -87,8 +87,8 @@ export function getProgramStatusWithDetails(program: Program, now: Date) {
   const isUpNext = now < start;
 
   return {
-    isLive,
     hasEnded,
+    isLive,
     isUpNext,
     status: getProgramStatus(isLive, hasEnded),
   };
@@ -302,7 +302,7 @@ export function getProgramColors(
     hoverBgColor = "hover:bg-[hsl(var(--program-current))]";
   }
 
-  return { bgColor, textColor, hoverBgColor };
+  return { bgColor, hoverBgColor, textColor };
 }
 
 export function getMobileProgramStyling(
@@ -406,7 +406,7 @@ export function getProgramIndicators(program: Program) {
     program.new ||
     program.categories?.some((cat) => cat.toLowerCase().includes("new"));
 
-  return { isPremiere, isNew };
+  return { isNew, isPremiere };
 }
 
 // ============================================================================

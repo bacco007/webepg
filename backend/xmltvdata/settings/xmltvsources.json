@@ -183,17 +183,6 @@
     }
   },
   {
-    "id": "OPTSPT",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Optus Sport",
-    "url": "http://170.64.142.170:8080/OPTSPT_guide.xml",
-    "logo": {
-      "light": "https://i.imgur.com/fKAgFp0.png",
-      "dark": "https://i.imgur.com/fKAgFp0.png"
-    }
-  },
-  {
     "id": "FOXTEL",
     "group": "Testing",
     "subgroup": "Australia",

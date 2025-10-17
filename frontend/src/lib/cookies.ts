@@ -95,4 +95,4 @@ export function setCookieWithOptions(
   }
 
   setCookieSafely(name, value, options);
-} 
+}

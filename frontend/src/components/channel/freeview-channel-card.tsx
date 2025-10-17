@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 
-interface FreeviewChannelCardProps {
+type FreeviewChannelCardProps = {
   channel: {
     channel_id: string;
     channel_slug: string;
@@ -23,7 +23,7 @@ interface FreeviewChannelCardProps {
     isGrouped: boolean;
   };
   className?: string;
-}
+};
 
 export function FreeviewChannelCard({
   channel,

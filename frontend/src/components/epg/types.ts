@@ -1,4 +1,4 @@
-export interface Program {
+export type Program = {
   guideid: string;
   start_time: string;
   end_time: string;
@@ -12,9 +12,9 @@ export interface Program {
   new?: boolean;
   premiere?: boolean;
   channel?: string;
-}
+};
 
-export interface Channel {
+export type Channel = {
   channel: {
     id: string;
     name: {
@@ -31,25 +31,25 @@ export interface Channel {
   };
   programs: Program[];
   channel_group?: string;
-}
+};
 
-export interface TVGuideData {
+export type TVGuideData = {
   date_pulled: string;
   query: string;
   source: string;
   date: string;
   channels: Channel[];
-}
+};
 
-export interface DateData {
+export type DateData = {
   date: string;
   query: string;
   source: string;
   data: string[];
-}
+};
 
 // Add channel data types based on the API response
-export interface ChannelData {
+export type ChannelData = {
   guidelink: string;
   channel_id: string;
   channel_slug: string;
@@ -72,13 +72,13 @@ export interface ChannelData {
     channel_type: string;
     channel_specs: string;
   };
-}
+};
 
-export interface ChannelsResponse {
+export type ChannelsResponse = {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: ChannelData[];
   };
-}
+};

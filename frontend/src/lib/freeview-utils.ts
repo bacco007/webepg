@@ -1,7 +1,7 @@
 // Regex for channel number parsing - defined at top level for performance
 const CHANNEL_NUMBER_REGEX = /^(\d+)([a-zA-Z]*)$/;
 
-interface Channel {
+type Channel = {
   guidelink: string;
   channel_id: string;
   channel_slug: string;
@@ -24,14 +24,14 @@ interface Channel {
     channel_type: string;
     channel_specs: string;
   };
-}
+};
 
-interface UniqueChannel extends Omit<Channel, "channel_number"> {
+type UniqueChannel = Omit<Channel, "channel_number"> & {
   channel_numbers: string[];
   isGrouped: boolean;
-}
+};
 
-interface Source {
+type Source = {
   id: string;
   group: string;
   subgroup: string;
@@ -41,7 +41,7 @@ interface Source {
     light: string;
     dark: string;
   };
-}
+};
 
 /**
  * Sorts channel numbers properly, handling numeric and alphabetic parts

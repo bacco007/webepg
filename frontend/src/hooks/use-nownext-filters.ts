@@ -3,7 +3,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import type { ChannelData } from "@/lib/nownext-types";
 import { isChannelGreyedOut } from "@/utils/nownext";
 
-interface UseNowNextFiltersReturn {
+type UseNowNextFiltersReturn = {
   // State
   searchTerm: string;
   selectedGroups: string[];
@@ -24,7 +24,7 @@ interface UseNowNextFiltersReturn {
   // Actions
   handleGroupFilter: (group: string) => void;
   clearFilters: () => void;
-}
+};
 
 export function useNowNextFilters(
   channels: ChannelData[]
@@ -37,25 +37,29 @@ export function useNowNextFilters(
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Get unique groups
-  const uniqueGroups = useMemo(() => {
-    return [
-      ...new Set(channels.map((channelData) => channelData.channel.group)),
-    ].sort();
-  }, [channels]);
+  const uniqueGroups = useMemo(
+    () =>
+      [
+        ...new Set(channels.map((channelData) => channelData.channel.group)),
+      ].sort(),
+    [channels]
+  );
 
   // Filter channels based on all criteria
-  const filteredChannels = useMemo(() => {
-    return channels.filter(
-      (channelData) =>
-        (channelData.channel.name.real
-          .toLowerCase()
-          .includes(debouncedSearchTerm.toLowerCase()) ||
-          channelData.channel.lcn.includes(debouncedSearchTerm)) &&
-        (selectedGroups.length === 0 ||
-          selectedGroups.includes(channelData.channel.group)) &&
-        !(hideNoProgramData && isChannelGreyedOut(channelData))
-    );
-  }, [channels, debouncedSearchTerm, selectedGroups, hideNoProgramData]);
+  const filteredChannels = useMemo(
+    () =>
+      channels.filter(
+        (channelData) =>
+          (channelData.channel.name.real
+            .toLowerCase()
+            .includes(debouncedSearchTerm.toLowerCase()) ||
+            channelData.channel.lcn.includes(debouncedSearchTerm)) &&
+          (selectedGroups.length === 0 ||
+            selectedGroups.includes(channelData.channel.group)) &&
+          !(hideNoProgramData && isChannelGreyedOut(channelData))
+      ),
+    [channels, debouncedSearchTerm, selectedGroups, hideNoProgramData]
+  );
 
   // Calculate counts for filter options
   const groupCounts = useMemo(() => {
@@ -90,25 +94,25 @@ export function useNowNextFilters(
   };
 
   return {
+    clearFilters,
+
+    // Computed values
+    filteredChannels,
+    groupCounts,
+    groupFilterSearch,
+
+    // Actions
+    handleGroupFilter,
+    hideNoProgramData,
     // State
     searchTerm,
     selectedGroups,
-    hideNoProgramData,
-    groupFilterSearch,
+    setGroupFilterSearch,
+    setHideNoProgramData,
 
     // Setters
     setSearchTerm,
     setSelectedGroups,
-    setHideNoProgramData,
-    setGroupFilterSearch,
-
-    // Computed values
-    filteredChannels,
     uniqueGroups,
-    groupCounts,
-
-    // Actions
-    handleGroupFilter,
-    clearFilters,
   };
 }

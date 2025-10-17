@@ -3,39 +3,30 @@ import { sortChannelsByNumber } from "@/lib/channel-utils";
 import { decodeHtml } from "@/lib/html-utils";
 import type { Channel } from "./types";
 
-export const getChannelDisplayName = (channel: Channel): string => {
-  return decodeHtml(
-    channel.channel_names?.location || channel.channel_name || ""
-  );
-};
+export const getChannelDisplayName = (channel: Channel): string =>
+  decodeHtml(channel.channel_names?.location || channel.channel_name || "");
 
-export const getChannelDisplayNameWithAbbreviations = (channel: Channel): string => {
+export const getChannelDisplayNameWithAbbreviations = (
+  channel: Channel
+): string => {
   const displayName = getChannelDisplayName(channel);
   return abbreviateText(displayName, stateAbbreviations);
 };
 
 // Example of how to use different abbreviation lists
 export const getChannelDisplayNameWithCustomAbbreviations = (
-  channel: Channel, 
+  channel: Channel,
   abbreviations: Record<string, string>
 ): string => {
   const displayName = getChannelDisplayName(channel);
   return abbreviateText(displayName, abbreviations);
 };
 
-export const getChannelNumber = (channel: Channel): string => {
-  return typeof channel.channel_number === "string"
-    ? channel.channel_number
-    : "";
-};
+export const getChannelNumber = (channel: Channel): string =>
+  typeof channel.channel_number === "string" ? channel.channel_number : "";
 
-export const sortChannels = (channels: Channel[]): Channel[] => {
-  return sortChannelsByNumber(
-    channels,
-    getChannelNumber,
-    getChannelDisplayName
-  );
-};
+export const sortChannels = (channels: Channel[]): Channel[] =>
+  sortChannelsByNumber(channels, getChannelNumber, getChannelDisplayName);
 
 export const getGroupKey = (channel: Channel, groupBy: string): string => {
   switch (groupBy) {

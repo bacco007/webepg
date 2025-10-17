@@ -1,6 +1,6 @@
-// Channel Map specific types and interfaces
+// Channel Map specific types
 
-export interface ChannelData {
+export type ChannelData = {
   channel_id: string;
   channel_slug: string;
   channel_name: string;
@@ -20,18 +20,18 @@ export interface ChannelData {
     channel_specs?: string;
   };
   channel_network?: string;
-}
+};
 
-export interface ApiResponse {
+export type ApiResponse = {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: ChannelData[];
   };
-}
+};
 
-export interface SourceData {
+export type SourceData = {
   id: string;
   group: string;
   subgroup: string;
@@ -41,19 +41,19 @@ export interface SourceData {
     light: string;
     dark: string;
   };
-}
+};
 
-export interface MergedCell {
+export type MergedCell = {
   startIndex: number;
   endIndex: number;
   channel: ChannelData | null; // Allow null for empty cells
-}
+};
 
-export interface ChannelWithNetworks {
+export type ChannelWithNetworks = {
   network: string;
   channelNumber: string;
   locationChannels: Record<string, ChannelData>;
-}
+};
 
 export type Density = "comfortable" | "compact";
 export type ViewMode = "networks" | "flat";

@@ -8,15 +8,15 @@ import { setCookie } from "@/lib/cookies";
 import { cn } from "@/lib/utils";
 
 const fontSizeOptions = [
-  { key: "small", icon: Minus, label: "Decrease font size" },
-  { key: "normal", icon: Text, label: "Normal font size" },
-  { key: "large", icon: Plus, label: "Increase font size" },
+  { icon: Minus, key: "small", label: "Decrease font size" },
+  { icon: Text, key: "normal", label: "Normal font size" },
+  { icon: Plus, key: "large", label: "Increase font size" },
 ];
 
 const fontSizeValues = {
-  small: 90,
-  normal: 100,
   large: 110,
+  normal: 100,
+  small: 90,
 };
 
 export function FontSizeControl({ className }: { className?: string }) {
@@ -73,7 +73,7 @@ export function FontSizeControl({ className }: { className?: string }) {
               <motion.div
                 className="absolute inset-0 rounded-full bg-secondary"
                 layoutId="activeFontSize"
-                transition={{ type: "spring", duration: 0.5 }}
+                transition={{ duration: 0.5, type: "spring" }}
               />
             )}
             <Icon

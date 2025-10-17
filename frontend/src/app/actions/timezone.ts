@@ -4,10 +4,10 @@ import { cookies } from "next/headers";
 
 export async function setTimezone(timezone: string) {
   (await cookies()).set("timezone", timezone, {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365, // 1 year
-    sameSite: "strict",
     httpOnly: true,
+    maxAge: 60 * 60 * 24 * 365, // 1 year
+    path: "/",
+    sameSite: "strict",
   });
   return { success: true, timezone };
 }

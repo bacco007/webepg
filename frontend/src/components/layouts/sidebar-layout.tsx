@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-interface SidebarLayoutProps {
+type SidebarLayoutProps = {
   children: ReactNode;
   sidebar: ReactNode;
   title: string;
@@ -27,7 +27,7 @@ interface SidebarLayoutProps {
   sidebarClassName?: string;
   contentClassName?: string;
   actions?: ReactNode;
-}
+};
 
 export function SidebarLayout({
   children,

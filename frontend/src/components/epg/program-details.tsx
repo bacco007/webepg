@@ -10,9 +10,9 @@ import {
 } from "@/lib/date-utils";
 import type { Program } from "./types";
 
-interface ProgramDetailsProps {
+type ProgramDetailsProps = {
   program: Program;
-}
+};
 
 export function ProgramDetails({ program }: ProgramDetailsProps) {
   // Parse times

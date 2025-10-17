@@ -210,9 +210,9 @@ export function getFilteredChannelMap(
       const anyStateMatches = Object.values(stateChannels).some((channel) =>
         channelMatchesFilters(channel, {
           globalFilter,
-          selectedNetworks,
-          selectedChannelTypes,
           selectedChannelSpecs,
+          selectedChannelTypes,
+          selectedNetworks,
         })
       );
 

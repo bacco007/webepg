@@ -16,11 +16,11 @@ import {
   isChannelGreyedOut,
 } from "@/utils/nownext";
 
-interface TableViewProps {
+type TableViewProps = {
   filteredChannels: ChannelData[];
   onNavigateToNext24Hours: () => void;
   onNavigateToFullWeek: (channelSlug: string) => void;
-}
+};
 
 export function TableView({
   filteredChannels,

@@ -1,20 +1,11 @@
-"use client";
+import type { Metadata } from "next";
+import SkyNzClient from "./skynz-client";
 
-import { ChannelDataTable } from "@/components/channel-data-table";
+export const metadata: Metadata = {
+  description: "Browse Sky New Zealand channel listings and details.",
+  title: "Sky New Zealand Channels",
+};
 
-export default function FetchChannelsPage() {
-  return (
-    <ChannelDataTable
-      fetchUrl="/api/py/channels/nzxmltv_sky"
-      title="Sky (NZ) Channels"
-      // Optional customizations:
-      // dataExtractor={(data) => data.data.channels} // Default extractor
-      // initialSorting={[{ id: "channel_number", desc: false }]} // Default sorting
-      // defaultColumnVisibility={{}} // Default column visibility
-      // showChannelTypeFilter={true} // Show/hide specific filters
-      // showChannelGroupFilter={true}
-      // showChannelSpecsFilter={true}
-      // renderCustomActions={() => <Button>Custom Action</Button>} // Add custom actions
-    />
-  );
+export default function SkyNzPage() {
+  return <SkyNzClient />;
 }

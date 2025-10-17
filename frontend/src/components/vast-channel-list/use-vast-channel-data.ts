@@ -28,7 +28,7 @@ export function useVastChannelData() {
             );
           }
           const data: ApiResponse = await response.json();
-          return { stateCode: state.code, channels: data.data.channels };
+          return { channels: data.data.channels, stateCode: state.code };
         })
       );
 
@@ -63,9 +63,9 @@ export function useVastChannelData() {
 
   return {
     channelData,
-    loading,
     error,
-    networkGroups,
     fetchAllChannelData,
+    loading,
+    networkGroups,
   };
 }

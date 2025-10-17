@@ -11,22 +11,22 @@ import { cn } from "@/lib/utils";
 
 const themeOptions = [
   {
-    key: "light",
-    icon: Sun,
-    label: "Light Mode",
     description: "Use light theme",
+    icon: Sun,
+    key: "light",
+    label: "Light Mode",
   },
   {
-    key: "dark",
-    icon: Moon,
-    label: "Dark Mode",
     description: "Use dark theme",
+    icon: Moon,
+    key: "dark",
+    label: "Dark Mode",
   },
   {
-    key: "system",
-    icon: Monitor,
-    label: "System",
     description: "Use system preferences",
+    icon: Monitor,
+    key: "system",
+    label: "System",
   },
 ];
 

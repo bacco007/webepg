@@ -9,24 +9,24 @@ import { cn } from "@/lib/utils";
 
 const fontSizeOptions = [
   {
-    key: "small",
-    icon: Minus,
-    label: "Small",
     description: "90% of normal size",
+    icon: Minus,
+    key: "small",
+    label: "Small",
   },
-  { key: "normal", icon: Text, label: "Normal", description: "Default size" },
+  { description: "Default size", icon: Text, key: "normal", label: "Normal" },
   {
-    key: "large",
-    icon: Plus,
-    label: "Large",
     description: "110% of normal size",
+    icon: Plus,
+    key: "large",
+    label: "Large",
   },
 ];
 
 const fontSizeValues = {
-  small: 90,
-  normal: 100,
   large: 110,
+  normal: 100,
+  small: 90,
 };
 
 export function FontSizeSettings() {

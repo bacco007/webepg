@@ -2,22 +2,22 @@ import { useCallback, useState } from "react";
 import { ZONES } from "@/components/vast-channel-list/types";
 import type { ChannelData } from "@/types/channel";
 
-interface ApiResponse {
+type ApiResponse = {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: ChannelData[];
   };
-}
+};
 
-interface UseVastChannelDataReturn {
+type UseVastChannelDataReturn = {
   channelData: Record<string, ChannelData[]>;
   networkGroups: string[];
   loading: boolean;
   error: string | null;
   fetchAllChannelData: () => Promise<void>;
-}
+};
 
 const processChannels = (channels: ChannelData[]) => {
   const allNetworks = new Set<string>();
@@ -39,7 +39,7 @@ const fetchStateData = async (stateCode: string) => {
     );
   }
   const data: ApiResponse = await response.json();
-  return { stateCode, channels: data.data.channels };
+  return { channels: data.data.channels, stateCode };
 };
 
 export function useVastChannelData(): UseVastChannelDataReturn {
@@ -86,9 +86,9 @@ export function useVastChannelData(): UseVastChannelDataReturn {
 
   return {
     channelData,
-    networkGroups,
-    loading,
     error,
     fetchAllChannelData,
+    loading,
+    networkGroups,
   };
 }

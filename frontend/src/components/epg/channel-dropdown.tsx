@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 // Regex for checking if a string contains only digits
 const NUMERIC_REGEX = /^\d+$/;
 
-interface Channel {
+type Channel = {
   channel_id: string;
   channel_slug: string;
   channel_name: string;
@@ -37,11 +37,11 @@ interface Channel {
     light: string;
     dark: string;
   };
-}
+};
 
-interface ChannelDropdownProps {
+type ChannelDropdownProps = {
   channelSlug: string;
-}
+};
 
 export function ChannelDropdown({ channelSlug }: ChannelDropdownProps) {
   const router = useRouter();
@@ -209,8 +209,8 @@ export function ChannelDropdown({ channelSlug }: ChannelDropdownProps) {
                     onSelect={() => {
                       // Include channel number in the URL to ensure we navigate to the specific channel instance
                       const queryParams = new URLSearchParams({
-                        source: dataSource,
                         lcn: channel.channel_number || "",
+                        source: dataSource,
                       }).toString();
 
                       router.push(

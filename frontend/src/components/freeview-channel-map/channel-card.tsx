@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { ChannelData } from "@/types/channel-map";
 import { ChannelLogo } from "./channel-logo";
 
-interface ChannelCardProps {
+type ChannelCardProps = {
   channelNumber: string;
   channelsWithSameNumber: Array<{
     network: string;
@@ -16,7 +16,7 @@ interface ChannelCardProps {
   locationsForSubgroup: string[];
   visibleLocations: string[];
   abbreviateStateName: (channelName: string) => string;
-}
+};
 
 export function ChannelCard({
   channelNumber,

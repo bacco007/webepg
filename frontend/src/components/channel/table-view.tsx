@@ -38,11 +38,11 @@ import {
 const CHANNEL_NUMBER_PATTERN = /^(\d+)/;
 const PURE_NUMERIC_PATTERN = /^\d+$/;
 
-interface TableViewProps {
+type TableViewProps = {
   filteredChannels: Channel[];
   xmltvDataSource: string;
   hasNameGroups: boolean;
-}
+};
 
 // Define table columns using TanStack Table
 function getColumns(
@@ -140,16 +140,16 @@ function getColumns(
 
         return (
           <div>
-                          <img
-                alt={getChannelDisplayNameWithAbbreviations(channel)}
-                className="block size-12 max-h-full object-contain dark:hidden"
-                src={channel.channel_logo.light || "/placeholder.svg"}
-              />
-              <img
-                alt={getChannelDisplayNameWithAbbreviations(channel)}
-                className="hidden size-12 max-h-full object-contain dark:block"
-                src={channel.channel_logo.dark || "/placeholder.svg"}
-              />
+            <img
+              alt={getChannelDisplayNameWithAbbreviations(channel)}
+              className="block size-12 max-h-full object-contain dark:hidden"
+              src={channel.channel_logo.light || "/placeholder.svg"}
+            />
+            <img
+              alt={getChannelDisplayNameWithAbbreviations(channel)}
+              className="hidden size-12 max-h-full object-contain dark:block"
+              src={channel.channel_logo.dark || "/placeholder.svg"}
+            />
           </div>
         );
       },

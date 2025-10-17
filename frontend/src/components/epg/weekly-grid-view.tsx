@@ -55,7 +55,7 @@ const softCategoryColors: { [key: string]: string } = {
 };
 
 // ProgramItem component to reduce complexity
-interface ProgramItemProps {
+type ProgramItemProps = {
   program: Program;
   programColor: string;
   density: DensityOption;
@@ -66,7 +66,7 @@ interface ProgramItemProps {
     isUpNext: boolean;
   };
   isPlaceholder: boolean;
-}
+};
 
 // Helper function to determine program color
 const getProgramColorForDisplay = (
@@ -261,7 +261,7 @@ const ProgramItem = ({
   );
 };
 
-interface WeeklyGridViewProps {
+type WeeklyGridViewProps = {
   days: Date[];
   programs: Program[];
   startDayIndex: number;
@@ -279,7 +279,7 @@ interface WeeklyGridViewProps {
     isUpNext: boolean;
   };
   gridRef: React.RefObject<HTMLDivElement | null>;
-}
+};
 
 export function WeeklyGridView({
   days,
@@ -419,25 +419,23 @@ export function WeeklyGridView({
                 </div>
 
                 {/* Grid cells */}
-                {Array.from({ length: visibleDays }).map((_, dayIndex) => {
-                  return (
-                    <div
-                      className={cn(
-                        "relative border-t",
-                        getGridCellBorderStyle(
-                          dayIndex,
-                          visibleDays,
-                          slotIndex,
-                          timeSlots.length
-                        )
-                      )}
-                      key={`timeslot-${dayIndex}-${minutes}`}
-                      style={{
-                        height: `${timeSlotHeight}px`,
-                      }}
-                    />
-                  );
-                })}
+                {Array.from({ length: visibleDays }).map((_, dayIndex) => (
+                  <div
+                    className={cn(
+                      "relative border-t",
+                      getGridCellBorderStyle(
+                        dayIndex,
+                        visibleDays,
+                        slotIndex,
+                        timeSlots.length
+                      )
+                    )}
+                    key={`timeslot-${dayIndex}-${minutes}`}
+                    style={{
+                      height: `${timeSlotHeight}px`,
+                    }}
+                  />
+                ))}
               </React.Fragment>
             ))}
 

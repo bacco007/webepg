@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
-interface SidebarTimeNavigationProps {
+type SidebarTimeNavigationProps = {
   onJumpToTime: (hour: number) => void;
-}
+};
 
 export function SidebarTimeNavigation({
   onJumpToTime,
@@ -21,12 +21,12 @@ export function SidebarTimeNavigation({
   const [isOpen, setIsOpen] = useState(true);
 
   const timeSlots = [
-    { label: "Now", hour: new Date().getHours() },
-    { label: "06:00", hour: 6 },
-    { label: "12:00", hour: 12 },
-    { label: "15:00", hour: 15 },
-    { label: "18:00", hour: 18 },
-    { label: "21:00", hour: 21 },
+    { hour: new Date().getHours(), label: "Now" },
+    { hour: 6, label: "06:00" },
+    { hour: 12, label: "12:00" },
+    { hour: 15, label: "15:00" },
+    { hour: 18, label: "18:00" },
+    { hour: 21, label: "21:00" },
   ];
 
   return (

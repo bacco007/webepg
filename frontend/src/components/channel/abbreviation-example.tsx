@@ -2,9 +2,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { abbreviateText, stateAbbreviations } from "@/lib/abbreviation-utils";
 
-interface AbbreviationExampleProps {
+type AbbreviationExampleProps = {
   text: string;
-}
+};
 
 export const AbbreviationExample = ({ text }: AbbreviationExampleProps) => {
   const stateAbbreviated = abbreviateText(text, stateAbbreviations);

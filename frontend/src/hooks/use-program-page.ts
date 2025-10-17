@@ -11,10 +11,10 @@ import {
 } from "@/lib/program-page-utils";
 import type { ProgramPageData } from "@/types/program-pages";
 
-interface UseProgramPageOptions {
+type UseProgramPageOptions = {
   endpoint: string;
   pageName: string;
-}
+};
 
 export function useProgramPage({ endpoint, pageName }: UseProgramPageOptions) {
   const [data, setData] = useState<ProgramPageData | null>(null);
@@ -204,32 +204,32 @@ export function useProgramPage({ endpoint, pageName }: UseProgramPageOptions) {
   }, []);
 
   return {
+    categoryCounts,
+    clearFilters,
     // State
     data,
-    isLoading,
-    error,
-    noData,
-    filterText,
-    selectedGroups,
-    selectedCategories,
-    isFilterMenuOpen,
     days,
+    error,
+    fetchData,
 
     // Computed values
     filteredAndSortedChannels,
-    uniqueGroups,
-    uniqueCategories,
+    filterText,
     groupCounts,
-    categoryCounts,
+    handleCategoryFilter,
+    handleGroupFilter,
+    isFilterMenuOpen,
+    isLoading,
+    navigateToFullWeek,
+    navigateToNext24Hours,
+    noData,
+    selectedCategories,
+    selectedGroups,
 
     // Actions
     setFilterText,
     setIsFilterMenuOpen,
-    fetchData,
-    navigateToNext24Hours,
-    navigateToFullWeek,
-    handleGroupFilter,
-    handleCategoryFilter,
-    clearFilters,
+    uniqueCategories,
+    uniqueGroups,
   };
 }

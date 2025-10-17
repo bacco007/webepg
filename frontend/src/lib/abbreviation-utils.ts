@@ -3,15 +3,15 @@ export const stateAbbreviations: Record<string, string> = {
   "Australian Capital Territory": "ACT",
   "New South Wales": "NSW",
   "Northern Territory": "NT",
-  "Queensland": "QLD",
+  Queensland: "QLD",
   "South Australia": "SA",
-  "Tasmania": "TAS",
-  "Victoria": "VIC",
+  Tasmania: "TAS",
+  Victoria: "VIC",
   "Western Australia": "WA",
 };
 
 // Example usage:
-// abbreviateText("New South Wales Television", stateAbbreviations) 
+// abbreviateText("New South Wales Television", stateAbbreviations)
 // returns "NSW Television"
 
 export const abbreviateText = (

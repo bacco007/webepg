@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import type { Channel, Program } from "@/lib/nownext-types";
 import { formatTime, getTimeDisplay } from "@/utils/nownext";
 
-interface ProgramDetailsProps {
+type ProgramDetailsProps = {
   program: Program | null;
   channel: Channel;
-}
+};
 
 function ProgramActions() {
   return (

@@ -8,7 +8,7 @@ alwaysApply: true
 - Add appropriate TypeScript types and interfaces
 - Reuse functions already in src/lib and src/utils before writing new ones
 - Types should be recorded in src/types
-- Components should be recorded in src/components and may be grouped into subfolders, but commonly used components should sit in src/compnents and not a subfolder
+- Components should be recorded in src/components and may be grouped into subfolders, but commonly used components should sit in src/components and not a subfolder
 - Use biome of ESlint and Prettier unless otherwise noted
 - Confirm your interpretation of the objective.
 - Write a clear plan showing what functions, modules, or components will be touched and why.
@@ -18,9 +18,11 @@ alwaysApply: true
 - No speculative changes or “while we’re here” edits.
 - Keep function complexity below 15
 - use the latest version of all libraries
-- unless i specficially ask, do not change the header and sidebar on pages that contain these elements
+- unless i specifically ask, do not change the header and sidebar on pages that contain these elements
 - If you are proposing significant changes you need to create a backup first, I will tell you when to remove the backup
 - Summarize what was changed and why.
 - List every file modified and what was done in each.
 - If there are any assumptions or risks, flag them for review.
 - skip linter issues relating to css ordering, I'll fix that
+- Dont try to start the server, assume its running on port 3000 already
+- Don't run tests yourself, you stop the server when you do this

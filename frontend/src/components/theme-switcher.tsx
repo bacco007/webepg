@@ -10,18 +10,18 @@ import { cn } from "@/lib/utils";
 
 const themes = [
   {
-    key: "system",
     icon: Monitor,
+    key: "system",
     label: "System theme",
   },
   {
-    key: "light",
     icon: Sun,
+    key: "light",
     label: "Light theme",
   },
   {
-    key: "dark",
     icon: Moon,
+    key: "dark",
     label: "Dark theme",
   },
 ];
@@ -65,7 +65,7 @@ export function ThemeSwitcher({ className }: { className?: string }) {
               <motion.div
                 className="absolute inset-0 rounded-full bg-secondary"
                 layoutId="activeTheme"
-                transition={{ type: "spring", duration: 0.5 }}
+                transition={{ duration: 0.5, type: "spring" }}
               />
             )}
             <Icon

@@ -34,25 +34,25 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { getCookie, setCookie } from "@/lib/cookies";
 import { cn } from "@/lib/utils";
 
-interface Source {
+type Source = {
   id: string;
   group: string;
   subgroup: string;
   location: string;
   url: string;
-}
+};
 
-interface GroupedSources {
+type GroupedSources = {
   group: string;
   subgroups: {
     name: string;
     sources: Source[];
   }[];
-}
+};
 
-interface SourcesDropdownProps {
+type SourcesDropdownProps = {
   onSourceSelect?: (source: Source) => void;
-}
+};
 
 const getDisplayText = (
   selectedSource: Source | null,

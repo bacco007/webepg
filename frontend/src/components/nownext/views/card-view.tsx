@@ -1,12 +1,12 @@
 import type { ChannelData, GroupBy } from "@/lib/nownext-types";
 import { ChannelCard } from "../channel-card";
 
-interface CardViewProps {
+type CardViewProps = {
   filteredChannels: ChannelData[];
   groupBy: GroupBy;
   onNavigateToNext24Hours: () => void;
   onNavigateToFullWeek: (channelSlug: string) => void;
-}
+};
 
 export function CardView({
   filteredChannels,

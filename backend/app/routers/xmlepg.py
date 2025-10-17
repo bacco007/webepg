@@ -639,6 +639,8 @@ async def create_provider_program_files(  # noqa: C901
                 "channel_specs": " ".join(
                     filter(None, [channel.get("chantype"), channel.get("chancomp")])
                 ).strip(),
+                "channel_availability": "N/A",
+                "channel_packages": "N/A",
             }
 
             # Cleanup
@@ -994,7 +996,7 @@ async def process_group_data(group_config: Dict[str, List[str]]) -> None:  # noq
                 "channel_specs": " ".join(
                     filter(None, [channel.get("chantype"), channel.get("chancomp")])
                 ).strip(),
-                "channel_name_group": channel.get("channel_name", ""),
+                "channel_name_group": channel.get("channel_name", ""), "channel_availability": "N/A", "channel_packages": "N/A"
             }
 
             updated_channel["channel_name"] = channel.get("channel_name_location")
@@ -1278,27 +1280,29 @@ async def process_epg() -> Dict[str, Any]:
                 "Nine Entertainment Co. (NBN)",
                 "Imparja Television",
                 "Mildura Digital Television (9)",
-                "Southern Cross Austereo (Nine)",
                 "West Digital Television (9)",
                 "WIN Network",
+                "Seven West Media (SCA 9)",
+                "Tasmania Digital Television (9)",
             ],
             "sbs": ["Special Broadcasting Service"],
             "seven": [
                 "Seven West Media",
-                "Seven West Media (Prime)",
-                "Southern Cross Austereo (Seven)",
+                "Seven West Media (Regional)",
+                "Seven West Media (SCA 7)",
                 "TVSN",
                 "WIN Network (Seven)",
             ],
             "ten": [
                 "10 Network",
+                "10 Network (Regional)",
                 "Central Digital Television",
                 "Darwin Digital Television",
                 "Mildura Digital Television",
-                "Southern Cross Austereo",
                 "Tasmania Digital Television",
                 "West Digital Television",
                 "WIN Network (10)",
+                "Seven West Media (SCA 10)",
             ],
         }
         await process_group_data(group_config)

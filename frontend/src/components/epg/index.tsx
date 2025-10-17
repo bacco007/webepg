@@ -350,7 +350,7 @@ const formatDateLabel = (dateStr: string, isLong = false) => {
     : formatDate(dateObj, "EEE");
 };
 
-interface TVGuideProps {
+type TVGuideProps = {
   initialDate?: string;
   initialViewMode?: "grid" | "list";
   channelFilters?: string[];
@@ -367,7 +367,7 @@ interface TVGuideProps {
   sortBy?: string;
   groupBy?: string;
   debug?: boolean;
-}
+};
 
 // Main TV Guide Component
 export function TVGuide({
@@ -704,10 +704,8 @@ export function TVGuide({
       const groupedChannels: Channel[] = [];
       for (const network of Object.keys(networkGroups).sort()) {
         // Sort channels within each network group
-        const sortedNetworkChannels = [...networkGroups[network]].sort(
-          (a, b) => {
-            return sortChannelsWithinNetwork(a, b, displayNameType);
-          }
+        const sortedNetworkChannels = [...networkGroups[network]].sort((a, b) =>
+          sortChannelsWithinNetwork(a, b, displayNameType)
         );
 
         groupedChannels.push(...sortedNetworkChannels);

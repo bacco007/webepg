@@ -1,14 +1,76 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[javascript][typescript][javascriptreact][typescriptreact][json][jsonc][css][graphql]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
   "typescript.tsdk": "node_modules/typescript/lib",
+  "biome.lspBin": "node_modules/@biomejs/biome/bin/biome",
+  "editor.defaultFormatter": "biomejs.biome",
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "emmet.showExpandedAbbreviation": "never",
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
-  }
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "cSpell.words": [
+    "ACMA",
+    "Albury",
+    "channellist",
+    "channelslug",
+    "chlogo",
+    "deslugified",
+    "deslugify",
+    "drustack",
+    "FETALL",
+    "FOXHD",
+    "Foxtel",
+    "Freeview",
+    "FTAALB",
+    "FTABRO",
+    "FTACAN",
+    "FTAGOL",
+    "guideid",
+    "guidelink",
+    "HUBALL",
+    "Hubbl",
+    "IPTV",
+    "lcns",
+    "lengthstring",
+    "licence",
+    "Narrowcasting",
+    "NNSW",
+    "NOEPG",
+    "nownext",
+    "regionmap",
+    "resetview",
+    "skynz",
+    "SNSW",
+    "sonner",
+    "timeblocks",
+    "timeslot",
+    "VASTACT",
+    "VASTNSW",
+    "VASTNT",
+    "VASTQLD",
+    "VASTSA",
+    "VASTTAS",
+    "VASTVIC",
+    "VASTWA",
+    "Wodonga",
+    "xmlepg",
+    "xmlepg_FTASYD",
+    "xmltvdatasource"
+  ]
 }

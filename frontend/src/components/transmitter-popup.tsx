@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-interface BaseTransmitter {
+type BaseTransmitter = {
   LicenceNo: string;
   CallSign: string;
   AreaServed: string;
@@ -36,24 +36,24 @@ interface BaseTransmitter {
   FreqBlock?: string;
   BSL?: string;
   "Licence Area"?: string;
-}
+};
 
-interface TVTransmitter extends BaseTransmitter {
+type TVTransmitter = BaseTransmitter & {
   CallSignChannel: string;
   Operator: string;
   Network: string;
   Channel: string;
-}
+};
 
-interface RadioTransmitter extends BaseTransmitter {
+type RadioTransmitter = BaseTransmitter & {
   Type?: "FM" | "AM" | "DAB";
-}
+};
 
 type Transmitter = TVTransmitter | RadioTransmitter;
 
-interface TransmitterPopupProps {
+type TransmitterPopupProps = {
   transmitter: Transmitter;
-}
+};
 
 export function TransmitterPopup({ transmitter }: TransmitterPopupProps) {
   const isRadio = "Type" in transmitter;

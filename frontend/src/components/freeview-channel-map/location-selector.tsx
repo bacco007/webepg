@@ -10,11 +10,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface LocationSelectorProps {
+type LocationSelectorProps = {
   locations: string[];
   visibleLocations: string[];
   setVisibleLocations: (locations: string[]) => void;
-}
+};
 
 export const LocationSelector: React.FC<LocationSelectorProps> = ({
   locations,

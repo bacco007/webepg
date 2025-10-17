@@ -7,12 +7,12 @@ import { parseISODate } from "@/lib/date-utils";
 
 type DensityOption = "compact" | "normal" | "detailed";
 
-interface UseChannelWeeklyDataProps {
+type UseChannelWeeklyDataProps = {
   channelSlug: string;
   dataSource?: string;
-}
+};
 
-interface UseChannelWeeklyDataReturn {
+type UseChannelWeeklyDataReturn = {
   // Data
   allPrograms: Program[];
   channelData: Channel | null;
@@ -64,10 +64,10 @@ interface UseChannelWeeklyDataReturn {
   calculateProgress: (start: string, end: string) => number;
   handlePreviousDay: () => void;
   handleNextDay: () => void;
-}
+};
 
 // API response types
-interface ApiProgram {
+type ApiProgram = {
   start_time: string;
   end_time: string;
   title: string;
@@ -75,9 +75,9 @@ interface ApiProgram {
   description?: string;
   categories?: string[];
   rating?: string;
-}
+};
 
-interface ApiChannel {
+type ApiChannel = {
   channel_id: string;
   channel_names: {
     clean: string;
@@ -91,12 +91,12 @@ interface ApiChannel {
   channel_slug: string;
   channel_number: string;
   channel_name: string;
-}
+};
 
-interface ApiResponse {
+type ApiResponse = {
   channel: ApiChannel;
   programs: Record<string, ApiProgram[]>;
-}
+};
 
 export function useChannelWeeklyData({
   channelSlug,
@@ -186,27 +186,23 @@ export function useChannelWeeklyData({
       programs: [],
     });
 
-    const programs = dates.flatMap((date, dayIndex) => {
-      return data.programs[date].map(
-        (program: ApiProgram, programIndex: number) => {
-          return {
-            categories: program.categories,
-            channel: data.channel.channel_name,
-            description: program.description,
-            end: program.end_time,
-            end_time: program.end_time,
-            guideid: `${dayIndex}-${programIndex}`,
-            new: false,
-            premiere: false,
-            rating: program.rating,
-            start: program.start_time,
-            start_time: program.start_time,
-            subtitle: program.subtitle,
-            title: program.title,
-          };
-        }
-      );
-    });
+    const programs = dates.flatMap((date, dayIndex) =>
+      data.programs[date].map((program: ApiProgram, programIndex: number) => ({
+        categories: program.categories,
+        channel: data.channel.channel_name,
+        description: program.description,
+        end: program.end_time,
+        end_time: program.end_time,
+        guideid: `${dayIndex}-${programIndex}`,
+        new: false,
+        premiere: false,
+        rating: program.rating,
+        start: program.start_time,
+        start_time: program.start_time,
+        subtitle: program.subtitle,
+        title: program.title,
+      }))
+    );
 
     setAllPrograms(programs);
     setError(null);
@@ -258,7 +254,9 @@ export function useChannelWeeklyData({
 
       // Try all channels with the same guidelink
       const responses = await Promise.all(
-        channelsWithSameGuidelink.map((ch: ChannelData) => tryFetchEPGData(ch.channel_slug))
+        channelsWithSameGuidelink.map((ch: ChannelData) =>
+          tryFetchEPGData(ch.channel_slug)
+        )
       );
 
       // Find the first successful response

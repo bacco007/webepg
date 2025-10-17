@@ -1,4 +1,4 @@
-export interface ChannelData {
+export type ChannelData = {
   channel_id: string;
   channel_slug: string;
   channel_name: string;
@@ -17,34 +17,35 @@ export interface ChannelData {
     channel_type?: string;
     channel_specs?: string;
   };
-}
+};
 
-export interface ApiResponse {
+export type ApiResponse = {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: ChannelData[];
   };
-}
+};
 
-export interface ZoneConfig {
+export type ZoneConfig = {
   name: string;
   states: {
     code: string;
     name: string;
   }[];
   color: string;
-}
+};
 
-export interface MergedCell {
+export type MergedCell = {
   startIndex: number;
   endIndex: number;
   channel: ChannelData | null; // Allow null for empty cells
-}
+};
 
 export const ZONES: ZoneConfig[] = [
   {
+    color: "bg-blue-100 dark:bg-blue-950/30",
     name: "South Zone",
     states: [
       { code: "NSW", name: "NSW" },
@@ -52,35 +53,34 @@ export const ZONES: ZoneConfig[] = [
       { code: "TAS", name: "TAS" },
       { code: "SA", name: "SA" },
     ],
-    color: "bg-blue-100 dark:bg-blue-950/30",
   },
   {
+    color: "bg-green-100 dark:bg-green-950/30",
     name: "North Zone",
     states: [
       { code: "QLD", name: "QLD" },
       { code: "NT", name: "NT" },
     ],
-    color: "bg-green-100 dark:bg-green-950/30",
   },
   {
+    color: "bg-amber-100 dark:bg-amber-950/30",
     name: "West Zone",
     states: [{ code: "WA", name: "WA" }],
-    color: "bg-amber-100 dark:bg-amber-950/30",
   },
 ];
 
 // Flatten all states into a single array for easier indexing
 export const ALL_STATES = ZONES.flatMap((zone) => zone.states);
 
-export interface ChannelMap {
+export type ChannelMap = {
   [network: string]: {
     [channelNumber: string]: {
       [stateCode: string]: ChannelData;
     };
   };
-}
+};
 
-export interface FilterState {
+export type FilterState = {
   globalFilter: string;
   selectedNetworks: string[];
   selectedChannelTypes: string[];
@@ -88,4 +88,4 @@ export interface FilterState {
   networkSearch: string;
   typeSearch: string;
   specsSearch: string;
-}
+};

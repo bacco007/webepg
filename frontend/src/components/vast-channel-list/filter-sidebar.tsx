@@ -17,7 +17,7 @@ import {
 } from "./channel-map-utils";
 import type { ChannelData } from "./types";
 
-interface FilterSidebarProps {
+type FilterSidebarProps = {
   channelData: Record<string, ChannelData[]>;
   networkGroups: string[];
   globalFilter: string;
@@ -37,7 +37,7 @@ interface FilterSidebarProps {
   onClearFilters: () => void;
   totalChannels: number;
   filteredChannels: number;
-}
+};
 
 export function FilterSidebar({
   channelData,
@@ -66,20 +66,20 @@ export function FilterSidebar({
 
   const networkCounts = getNetworkCounts(channelMap, {
     globalFilter,
-    selectedChannelTypes,
     selectedChannelSpecs,
+    selectedChannelTypes,
   });
 
   const typeCounts = getTypeCounts(channelData, channelTypes, {
     globalFilter,
-    selectedNetworks,
     selectedChannelSpecs,
+    selectedNetworks,
   });
 
   const specsCounts = getSpecsCounts(channelData, channelSpecs, {
     globalFilter,
-    selectedNetworks,
     selectedChannelTypes,
+    selectedNetworks,
   });
 
   return (

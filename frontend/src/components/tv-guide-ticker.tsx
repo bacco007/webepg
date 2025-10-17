@@ -23,9 +23,7 @@ const calculateProgress = (start: string, stop: string): number => {
 };
 
 // Memoized progress calculation hook
-const useProgressCalculation = () => {
-  return useCallback(calculateProgress, []);
-};
+const useProgressCalculation = () => useCallback(calculateProgress, []);
 
 export default function TVGuideTicker() {
   const [isHovered, setIsHovered] = useState(false);

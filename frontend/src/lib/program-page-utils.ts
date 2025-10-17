@@ -1,8 +1,8 @@
 import type { ChannelPrograms } from "@/types/program-pages";
 import { compareLCN } from "@/utils/sort";
 
-export const sortChannels = (channels: ChannelPrograms[]) => {
-  return channels.sort((a, b) => {
+export const sortChannels = (channels: ChannelPrograms[]) =>
+  channels.sort((a, b) => {
     const lcnA = a.channel.lcn;
     const lcnB = b.channel.lcn;
     const lcnCompare = compareLCN(lcnA, lcnB);
@@ -11,7 +11,6 @@ export const sortChannels = (channels: ChannelPrograms[]) => {
     }
     return a.channel.name.localeCompare(b.channel.name);
   });
-};
 
 export const decodeHtml = (html: string): string => {
   const txt = document.createElement("textarea");
@@ -33,6 +32,5 @@ export const collectCategories = (channels: ChannelPrograms[]) => {
   return [...categories].sort();
 };
 
-export const getUniqueGroups = (channels: ChannelPrograms[]) => {
-  return [...new Set(channels.map((ch) => ch.channel.group))].sort();
-};
+export const getUniqueGroups = (channels: ChannelPrograms[]) =>
+  [...new Set(channels.map((ch) => ch.channel.group))].sort();

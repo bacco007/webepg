@@ -1,25 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        hostname: "**",
+        protocol: "https",
+      },
+      {
+        hostname: "**",
+        protocol: "http",
+      },
+    ],
+  },
   reactStrictMode: true,
   rewrites() {
     return [
       {
-        source: "/api/:path*",
         destination: "/api/:path*", // This will be handled by Traefik
+        source: "/api/:path*",
       },
     ];
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-      {
-        protocol: "http",
-        hostname: "**",
-      },
-    ],
   },
 };
 

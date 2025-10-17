@@ -4,13 +4,13 @@ import { Clock, RefreshCw } from "lucide-react";
 import { ChannelDropdown } from "@/components/epg/channel-dropdown";
 import { Button } from "@/components/ui/button";
 
-interface HeaderActionsProps {
+type HeaderActionsProps = {
   channelSlug: string;
   viewMode: "grid" | "list";
   isLoading: boolean;
   onRefresh: () => void;
   onScrollToCurrentTime: () => void;
-}
+};
 
 export function HeaderActions({
   channelSlug,

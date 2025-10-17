@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { TICKER_CONSTANTS } from "@/lib/ticker-constants";
 import type { ChannelData } from "@/types/channel";
 
-interface ChannelCardProps {
+type ChannelCardProps = {
   item: ChannelData;
   xmltvDataSource: string;
   calculateProgress: (start: string, stop: string) => number;

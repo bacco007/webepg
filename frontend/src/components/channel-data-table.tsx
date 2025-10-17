@@ -132,7 +132,7 @@ function getSortingIcon(isSorted: false | "asc" | "desc") {
 }
 
 // Define the Channel interface that all pages will use
-export interface Channel {
+export type Channel = {
   channel_number: string;
   channel_name: string;
   channel_names: {
@@ -148,10 +148,10 @@ export interface Channel {
     channel_specs: string;
   };
   channel_slug: string;
-}
+};
 
 // Define the props for the ChannelDataTable component
-interface ChannelDataTableProps {
+type ChannelDataTableProps = {
   title: string;
   fetchUrl: string;
   dataExtractor?: (data: unknown) => Channel[];
@@ -161,12 +161,17 @@ interface ChannelDataTableProps {
   showChannelTypeFilter?: boolean;
   showChannelGroupFilter?: boolean;
   showChannelSpecsFilter?: boolean;
-}
+};
 
 // Default column definitions that will be used across all tables
 const defaultColumns: ColumnDef<Channel>[] = [
   {
     accessorKey: "channel_number",
+    cell: ({ row }) => (
+      <div className="text-center font-medium">
+        {row.getValue("channel_number")}
+      </div>
+    ),
     header: ({ column }) => (
       <Button
         className="flex w-full items-center justify-center gap-1 p-0 font-medium"
@@ -177,11 +182,6 @@ const defaultColumns: ColumnDef<Channel>[] = [
         {getSortingIcon(column.getIsSorted())}
       </Button>
     ),
-    cell: ({ row }) => (
-      <div className="text-center font-medium">
-        {row.getValue("channel_number")}
-      </div>
-    ),
     sortingFn: (a, b) =>
       sortChannelNumbers(
         a.getValue("channel_number"),
@@ -190,6 +190,9 @@ const defaultColumns: ColumnDef<Channel>[] = [
   },
   {
     accessorKey: "channel_names.real",
+    cell: ({ row }) => (
+      <div className="text-center">{row.original.channel_names.real}</div>
+    ),
     header: ({ column }) => (
       <div className="text-center">
         <Button
@@ -202,13 +205,9 @@ const defaultColumns: ColumnDef<Channel>[] = [
         </Button>
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="text-center">{row.original.channel_names.real}</div>
-    ),
   },
   {
     accessorKey: "channel_logo",
-    header: () => <div className="text-center">Logo</div>,
     cell: ({ row }) => (
       <div className="mx-auto flex size-12 items-center justify-center rounded-md bg-muted/50 p-1">
         {row.original.channel_logo.light ? (
@@ -228,9 +227,17 @@ const defaultColumns: ColumnDef<Channel>[] = [
         )}
       </div>
     ),
+    header: () => <div className="text-center">Logo</div>,
   },
   {
     accessorKey: "channel_name",
+    cell: ({ row }) => (
+      <div className="text-center font-bold hover:text-primary hover:underline">
+        <Link href={`/channel/${row.original.channel_slug}`}>
+          {row.getValue("channel_name")}
+        </Link>
+      </div>
+    ),
     header: ({ column }) => (
       <div className="text-center">
         <Button
@@ -243,16 +250,12 @@ const defaultColumns: ColumnDef<Channel>[] = [
         </Button>
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="text-center font-bold hover:text-primary hover:underline">
-        <Link href={`/channel/${row.original.channel_slug}`}>
-          {row.getValue("channel_name")}
-        </Link>
-      </div>
-    ),
   },
   {
     accessorKey: "channel_group",
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("channel_group")}</div>
+    ),
     header: ({ column }) => (
       <div className="text-center">
         <Button
@@ -265,12 +268,16 @@ const defaultColumns: ColumnDef<Channel>[] = [
         </Button>
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("channel_group")}</div>
-    ),
   },
   {
     accessorKey: "other_data.channel_type",
+    cell: ({ row }) => (
+      <div className="text-center">
+        <Badge className="font-normal" variant="outline">
+          {row.original.other_data.channel_type}
+        </Badge>
+      </div>
+    ),
     header: ({ column }) => (
       <div className="text-center">
         <Button
@@ -283,16 +290,16 @@ const defaultColumns: ColumnDef<Channel>[] = [
         </Button>
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="text-center">
-        <Badge className="font-normal" variant="outline">
-          {row.original.other_data.channel_type}
-        </Badge>
-      </div>
-    ),
   },
   {
     accessorKey: "other_data.channel_specs",
+    cell: ({ row }) => (
+      <div className="text-center">
+        <Badge variant="secondary">
+          {row.original.other_data.channel_specs}
+        </Badge>
+      </div>
+    ),
     header: ({ column }) => (
       <div className="text-center">
         <Button
@@ -305,25 +312,18 @@ const defaultColumns: ColumnDef<Channel>[] = [
         </Button>
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="text-center">
-        <Badge variant="secondary">
-          {row.original.other_data.channel_specs}
-        </Badge>
-      </div>
-    ),
   },
 ];
 
 // Column display names mapping
 const columnDisplayNames = {
-  channel_number: "Ch No",
-  "channel_names.real": "EPG Name",
+  channel_group: "Channel Operator",
   channel_logo: "Logo",
   channel_name: "Channel Name",
-  channel_group: "Channel Operator",
-  "other_data.channel_type": "Channel Type",
+  "channel_names.real": "EPG Name",
+  channel_number: "Ch No",
   "other_data.channel_specs": "Specs",
+  "other_data.channel_type": "Channel Type",
 };
 
 export function ChannelDataTable({
@@ -331,7 +331,7 @@ export function ChannelDataTable({
   fetchUrl,
   dataExtractor = (data: unknown) =>
     (data as { data: { channels: Channel[] } }).data.channels,
-  initialSorting = [{ id: "channel_number", desc: false }],
+  initialSorting = [{ desc: false, id: "channel_number" }],
   defaultColumnVisibility = {},
   renderCustomActions,
   showChannelTypeFilter = true,
@@ -619,21 +619,21 @@ export function ChannelDataTable({
 
   // Create table instance
   const table = useReactTable({
-    data: filteredData,
     columns: defaultColumns,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      globalFilter: debouncedGlobalSearch,
-    },
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    onGlobalFilterChange: setGlobalFilter,
+    data: filteredData,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    state: {
+      columnFilters,
+      columnVisibility,
+      globalFilter: debouncedGlobalSearch,
+      sorting,
+    },
   });
 
   // Handle filter changes
@@ -686,8 +686,8 @@ export function ChannelDataTable({
   }, []);
 
   // Render loading skeleton rows
-  const renderLoadingRows = () => {
-    return Array.from({ length: 10 }).map(() => (
+  const renderLoadingRows = () =>
+    Array.from({ length: 10 }).map(() => (
       <tr key={`skeleton-${crypto.randomUUID()}`}>
         {defaultColumns.map((column, columnIndex) => (
           <td className="p-2" key={`skeleton-cell-${column.id || columnIndex}`}>
@@ -698,7 +698,6 @@ export function ChannelDataTable({
         ))}
       </tr>
     ));
-  };
 
   // Render data rows
   const renderDataRows = () => {
@@ -737,43 +736,38 @@ export function ChannelDataTable({
   };
 
   // Command menu items
-  const commandItems = useMemo(() => {
-    return [
+  const commandItems = useMemo(
+    () => [
       {
         heading: "Quick Actions",
         items: [
           {
-            name: "Refresh Data",
-            icon: RefreshCw,
             action: fetchChannels,
+            icon: RefreshCw,
+            name: "Refresh Data",
           },
           {
-            name: "Clear Filters",
-            icon: X,
             action: clearFilters,
+            icon: X,
+            name: "Clear Filters",
           },
           {
-            name: showFilters ? "Hide Filters" : "Show Filters",
-            icon: showFilters ? ChevronUp : ChevronDown,
             action: () => setShowFilters(!showFilters),
+            icon: showFilters ? ChevronUp : ChevronDown,
+            name: showFilters ? "Hide Filters" : "Show Filters",
           },
         ],
       },
       {
         heading: "Filter by Type",
         items: channelTypes.map((type) => ({
-          name: type,
           action: () => handleFilterChange("type", type),
+          name: type,
         })),
       },
-    ];
-  }, [
-    channelTypes,
-    showFilters,
-    fetchChannels,
-    clearFilters,
-    handleFilterChange,
-  ]);
+    ],
+    [channelTypes, showFilters, fetchChannels, clearFilters, handleFilterChange]
+  );
 
   // Define header actions
   const headerActions = (

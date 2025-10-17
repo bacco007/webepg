@@ -13,55 +13,55 @@ const EPG_ROUTE_REGEX = /^\/epg\/(.*)$/;
 const CHANNEL_ROUTE_REGEX = /^\/channel(\/.*)?$/;
 
 const routeMapping: Record<string, BreadcrumbItem[]> = {
-  "/sources": [{ title: "Data Sources", link: "/sources" }],
-  "/movies": [{ title: "Upcoming Movies", link: "/movies" }],
-  "/sports": [{ title: "Upcoming Sports Programming", link: "/sports" }],
-  "/epg": [{ title: "Daily EPG", link: "/epg" }],
-  "/channellist": [{ title: "Channels by Service", link: "/channellist" }],
+  "/channellist": [{ link: "/channellist", title: "Channels by Service" }],
   "/channellist/fetch": [
-    { title: "Channels by Service", link: "/channellist" },
-    { title: "Fetch TV", link: "/channellist/fetch" },
+    { link: "/channellist", title: "Channels by Service" },
+    { link: "/channellist/fetch", title: "Fetch TV" },
   ],
   "/channellist/foxtel": [
-    { title: "Channels by Service", link: "/channellist" },
-    { title: "Foxtel", link: "/channellist/foxtel" },
+    { link: "/channellist", title: "Channels by Service" },
+    { link: "/channellist/foxtel", title: "Foxtel" },
   ],
   "/channellist/freeview-au": [
-    { title: "Channels by Service", link: "/channellist" },
-    { title: "Freeview (AU)", link: "/channellist/freeview-au" },
+    { link: "/channellist", title: "Channels by Service" },
+    { link: "/channellist/freeview-au", title: "Freeview (AU)" },
   ],
   "/channellist/freeview-au/regionmap": [
-    { title: "Channels by Service", link: "/channellist" },
-    { title: "Freeview (AU)", link: "/channellist/freeview-au" },
-    { title: "Region Map", link: "/channellist/freeview-au/regionmap" },
+    { link: "/channellist", title: "Channels by Service" },
+    { link: "/channellist/freeview-au", title: "Freeview (AU)" },
+    { link: "/channellist/freeview-au/regionmap", title: "Region Map" },
   ],
   "/channellist/freeview-nz": [
-    { title: "Channels by Service", link: "/channellist" },
-    { title: "Freeview (NZ)", link: "/channellist/freeview-nz" },
+    { link: "/channellist", title: "Channels by Service" },
+    { link: "/channellist/freeview-nz", title: "Freeview (NZ)" },
   ],
   "/channellist/hubbl": [
-    { title: "Channels by Service", link: "/channellist" },
-    { title: "Hubbl", link: "/channellist/hubbl" },
-  ],
-  "/channellist/vast": [
-    { title: "Channels by Service", link: "/channellist" },
-    { title: "VAST", link: "/channellist/vast" },
+    { link: "/channellist", title: "Channels by Service" },
+    { link: "/channellist/hubbl", title: "Hubbl" },
   ],
   "/channellist/skynz": [
-    { title: "Channels by Service", link: "/channellist" },
-    { title: "Sky (NZ)", link: "/channellist/skynz" },
+    { link: "/channellist", title: "Channels by Service" },
+    { link: "/channellist/skynz", title: "Sky (NZ)" },
   ],
-  "/nownext": [{ title: "Now & Next", link: "/nownext" }],
+  "/channellist/vast": [
+    { link: "/channellist", title: "Channels by Service" },
+    { link: "/channellist/vast", title: "VAST" },
+  ],
+  "/epg": [{ link: "/epg", title: "Daily EPG" }],
+  "/movies": [{ link: "/movies", title: "Upcoming Movies" }],
+  "/nownext": [{ link: "/nownext", title: "Now & Next" }],
+  "/sources": [{ link: "/sources", title: "Data Sources" }],
+  "/sports": [{ link: "/sports", title: "Upcoming Sports Programming" }],
   "/transmitters": [
-    { title: "Transmitter Site Locations", link: "/transmitters" },
+    { link: "/transmitters", title: "Transmitter Site Locations" },
   ],
   "/transmitters/radio": [
-    { title: "Transmitter Site Locations", link: "/transmitters" },
-    { title: "Radio", link: "/transmitters/radio" },
+    { link: "/transmitters", title: "Transmitter Site Locations" },
+    { link: "/transmitters/radio", title: "Radio" },
   ],
   "/transmitters/tv": [
-    { title: "Transmitter Site Locations", link: "/transmitters" },
-    { title: "Television", link: "/transmitters/tv" },
+    { link: "/transmitters", title: "Transmitter Site Locations" },
+    { link: "/transmitters/tv", title: "Television" },
   ],
 };
 
@@ -81,15 +81,15 @@ export function useBreadcrumbs() {
     if (epgMatch) {
       const date = epgMatch[1];
       return [
-        { title: "Daily EPG", link: "/epg" },
-        { title: formatDate(date), link: pathname },
+        { link: "/epg", title: "Daily EPG" },
+        { link: pathname, title: formatDate(date) },
       ];
     }
 
     // Check for channel route with date
     const channelMatch = pathname.match(CHANNEL_ROUTE_REGEX);
     if (channelMatch) {
-      return [{ title: "Weekly EPG", link: "/channel" }];
+      return [{ link: "/channel", title: "Weekly EPG" }];
     }
 
     // Check if we have a custom mapping for this exact path
@@ -102,8 +102,8 @@ export function useBreadcrumbs() {
     return segments.map((segment, index) => {
       const path = `/${segments.slice(0, index + 1).join("/")}`;
       return {
-        title: segment.charAt(0).toUpperCase() + segment.slice(1),
         link: path,
+        title: segment.charAt(0).toUpperCase() + segment.slice(1),
       };
     });
   }, [pathname]);

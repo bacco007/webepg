@@ -9,7 +9,7 @@ import {
   sortNetworks,
 } from "@/lib/freeview-utils";
 
-interface Source {
+type Source = {
   id: string;
   group: string;
   subgroup: string;
@@ -19,9 +19,9 @@ interface Source {
     light: string;
     dark: string;
   };
-}
+};
 
-interface Channel {
+type Channel = {
   guidelink: string;
   channel_id: string;
   channel_slug: string;
@@ -44,21 +44,21 @@ interface Channel {
     channel_type: string;
     channel_specs: string;
   };
-}
+};
 
-interface UniqueChannel extends Omit<Channel, "channel_number"> {
+type UniqueChannel = Omit<Channel, "channel_number"> & {
   channel_numbers: string[];
   isGrouped: boolean;
-}
+};
 
-interface APIResponse {
+type APIResponse = {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: Channel[];
   };
-}
+};
 
 export function useFreeviewData() {
   const [channels, setChannels] = useState<UniqueChannel[]>([]);
@@ -184,20 +184,20 @@ export function useFreeviewData() {
   );
 
   return {
-    channels,
     allSources,
-    filteredSources,
-    selectedSource,
-    loading,
+    channelGroups,
+    channels,
+    clearSearch,
     error,
+    filteredSources,
+    loading,
     openGroups,
     searchTerm,
-    channelGroups,
-    sortedNetworks,
+    selectedSource,
     selectedSourceDetails,
-    toggleGroup,
     selectSource,
     setSearchTerm,
-    clearSearch,
+    sortedNetworks,
+    toggleGroup,
   };
 }

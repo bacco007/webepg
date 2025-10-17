@@ -2,7 +2,7 @@ import L from "leaflet";
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 
-interface GeoJSONFeature {
+type GeoJSONFeature = {
   type: "Feature";
   properties: {
     NAME: string;
@@ -12,17 +12,17 @@ interface GeoJSONFeature {
     type: string;
     coordinates: number[][][] | number[][];
   };
-}
+};
 
-interface GeoJSONData {
+type GeoJSONData = {
   type: "FeatureCollection";
   features: GeoJSONFeature[];
-}
+};
 
-interface TVLicenceAreasLayerProps {
+type TVLicenceAreasLayerProps = {
   geoJsonData: GeoJSONData | null;
   onSelectArea: (areaName: string) => void;
-}
+};
 
 export default function TVLicenceAreasLayer({
   geoJsonData,
@@ -36,40 +36,40 @@ export default function TVLicenceAreasLayer({
     }
 
     const geoJsonLayer = L.geoJSON(geoJsonData, {
-      style: () => ({
-        fillColor: "#3388ff",
-        weight: 2,
-        opacity: 1,
-        color: "white",
-        dashArray: "3",
-        fillOpacity: 0.2,
-      }),
       onEachFeature: (feature, layer) => {
         const areaName = feature.properties?.NAME as string;
         layer.on({
-          mouseover: (e) => {
-            const targetLayer = e.target as L.GeoJSON;
-            targetLayer.setStyle({
-              fillColor: "#ff7800",
-              weight: 5,
-              color: "#666",
-              dashArray: "",
-              fillOpacity: 0.4,
-            });
-            targetLayer.bringToFront();
-          },
-          mouseout: (e) => {
-            geoJsonLayer.resetStyle(e.target);
-          },
           click: () => {
             onSelectArea(areaName);
             if (layer instanceof L.Polygon) {
               map.fitBounds(layer.getBounds());
             }
           },
+          mouseout: (e) => {
+            geoJsonLayer.resetStyle(e.target);
+          },
+          mouseover: (e) => {
+            const targetLayer = e.target as L.GeoJSON;
+            targetLayer.setStyle({
+              color: "#666",
+              dashArray: "",
+              fillColor: "#ff7800",
+              fillOpacity: 0.4,
+              weight: 5,
+            });
+            targetLayer.bringToFront();
+          },
         });
-        layer.bindTooltip(areaName, { permanent: false, direction: "center" });
+        layer.bindTooltip(areaName, { direction: "center", permanent: false });
       },
+      style: () => ({
+        color: "white",
+        dashArray: "3",
+        fillColor: "#3388ff",
+        fillOpacity: 0.2,
+        opacity: 1,
+        weight: 2,
+      }),
     }).addTo(map);
 
     return () => {

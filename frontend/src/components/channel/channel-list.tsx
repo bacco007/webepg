@@ -201,13 +201,13 @@ export function ChannelList() {
       <SidebarContent>
         {/* Options section */}
         <div className="border-b">
-          <div className="flex justify-between items-center hover:bg-muted/10 px-4 py-3 w-full cursor-pointer">
+          <div className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/10">
             <div className="flex items-center gap-2">
               <span className="font-medium text-sm">Options</span>
             </div>
           </div>
           <div className="px-4 pb-3">
-            <label className="flex items-center py-1 cursor-pointer">
+            <label className="flex cursor-pointer items-center py-1">
               <div className="flex items-center">
                 <Checkbox
                   checked={hideNoPrograms}
@@ -228,7 +228,7 @@ export function ChannelList() {
           filters={selectedGroups}
           onFilterChange={handleGroupFilter}
           options={uniqueGroups}
-          title="Channel Groups"
+          title="Channel Owner/Operator"
         />
 
         <FilterSection
@@ -236,7 +236,7 @@ export function ChannelList() {
           filters={selectedTypes}
           onFilterChange={handleTypeFilter}
           options={uniqueTypes}
-          title="Channel Types"
+          title="Channel Type"
         />
 
         <FilterSection
@@ -266,7 +266,7 @@ export function ChannelList() {
         >
           Clear All Filters
         </Button>
-        <div className="mt-2 text-muted-foreground text-xs text-center">
+        <div className="mt-2 text-center text-muted-foreground text-xs">
           Showing {filteredChannels.length} of {channels.length} channels
         </div>
       </SidebarFooter>
@@ -275,7 +275,7 @@ export function ChannelList() {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex h-full items-center justify-center">
         <Alert className="max-w-md" variant="destructive">
           <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>

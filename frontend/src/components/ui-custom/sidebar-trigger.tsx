@@ -1,22 +1,27 @@
 "use client";
 
 import { PanelLeft } from "lucide-react";
-import { forwardRef, useMemo } from "react";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-interface SidebarTriggerProps
-  extends React.ComponentPropsWithoutRef<typeof Button> {
+type SidebarTriggerProps = React.ComponentPropsWithoutRef<typeof Button> & {
   icon?: React.ReactNode;
   openIcon?: React.ReactNode;
   closedIcon?: React.ReactNode;
-}
+  ref?: React.Ref<HTMLButtonElement>;
+};
 
-const SidebarTrigger = forwardRef<
-  React.ComponentRef<typeof Button>,
-  SidebarTriggerProps
->(({ className, onClick, icon, openIcon, closedIcon, ...props }, ref) => {
+function SidebarTrigger({
+  className,
+  onClick,
+  icon,
+  openIcon,
+  closedIcon,
+  ref,
+  ...props
+}: SidebarTriggerProps) {
   const { toggleSidebar, state } = useSidebar();
   const isOpen = state === "expanded";
 
@@ -54,7 +59,7 @@ const SidebarTrigger = forwardRef<
       </span>
     </Button>
   );
-});
+}
 SidebarTrigger.displayName = "SidebarTrigger";
 
 export { SidebarTrigger };

@@ -3,11 +3,11 @@ import { getChannelDisplayName } from "./channel-map-utils";
 import { getMergedCells } from "./merged-cells-utils";
 import { ALL_STATES, type ChannelData } from "./types";
 
-interface ChannelRowProps {
+type ChannelRowProps = {
   network: string;
   channelNumber: string;
   stateChannels: Record<string, ChannelData>;
-}
+};
 
 export function ChannelRow({
   network,

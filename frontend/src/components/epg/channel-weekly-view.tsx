@@ -34,14 +34,14 @@ const categoryColors: { [key: string]: string } = {
     "text-white from-emerald-600/90 to-emerald-500/80 hover:from-emerald-500/95 hover:to-emerald-400/85",
 };
 
-interface ChannelWeeklyViewProps {
+type ChannelWeeklyViewProps = {
   channelSlug: string;
   dataSource?: string;
   onNoProgrammingData?: (
     channelSlug: string,
     dataSource: string
   ) => React.ReactNode;
-}
+};
 
 export function ChannelWeeklyView({
   channelSlug,
@@ -131,9 +131,9 @@ export function ChannelWeeklyView({
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex h-full items-center justify-center">
         <div className="mr-2 animate-spin">
-          <RefreshCw className="w-5 h-5" />
+          <RefreshCw className="h-5 w-5" />
         </div>
         <span>Loading channel data...</span>
       </div>
@@ -157,12 +157,12 @@ export function ChannelWeeklyView({
     }
 
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex h-full items-center justify-center">
         <Alert className="max-w-md" variant="destructive">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
           <Button className="mt-4" onClick={fetchData}>
-            <RefreshCw className="mr-2 w-4 h-4" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Try Again
           </Button>
         </Alert>
@@ -211,7 +211,7 @@ export function ChannelWeeklyView({
       }
       title={`Weekly EPG - ${channelTitle}`}
     >
-      <div className="flex flex-col h-full">
+      <div className="flex h-full flex-col">
         <NavigationControls
           days={days}
           daysLength={daysLength}

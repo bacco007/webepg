@@ -3,18 +3,18 @@ import { ALL_STATES, type ChannelData, type MergedCell } from "./types";
 // Helper function to create a placeholder channel for merged cells
 function createPlaceholderChannel(channelName: string): ChannelData {
   return {
-    channel_names: {
-      location: channelName,
-      clean: channelName,
-      real: channelName,
-    },
+    channel_group: "",
     // Add other required properties with placeholder values
     channel_id: "",
-    channel_slug: "",
+    channel_logo: { dark: "", light: "" },
     channel_name: channelName,
+    channel_names: {
+      clean: channelName,
+      location: channelName,
+      real: channelName,
+    },
     channel_number: "",
-    channel_group: "",
-    channel_logo: { light: "", dark: "" },
+    channel_slug: "",
   };
 }
 
@@ -27,11 +27,11 @@ function endCurrentMerge(
 ): void {
   if (currentMergeStart !== -1) {
     mergedCells.push({
-      startIndex: currentMergeStart,
-      endIndex,
       channel: currentChannelName
         ? createPlaceholderChannel(currentChannelName)
         : null,
+      endIndex,
+      startIndex: currentMergeStart,
     });
   }
 }
@@ -54,13 +54,13 @@ function processStateWithChannel(
     endCurrentMerge(mergedCells, currentMergeStart, i - 1, currentChannelName);
 
     // Start a new merge
-    return { newMergeStart: i, newChannelName: channelName };
+    return { newChannelName: channelName, newMergeStart: i };
   }
 
   // If the channel name is the same, continue the current merge
   return {
-    newMergeStart: currentMergeStart,
     newChannelName: currentChannelName,
+    newMergeStart: currentMergeStart,
   };
 }
 
@@ -77,11 +77,11 @@ function processStateWithoutChannel(
     endCurrentMerge(mergedCells, currentMergeStart, i - 1, currentChannelName);
 
     // Start a new "Not available" merge
-    return { newMergeStart: i, newChannelName: null };
+    return { newChannelName: null, newMergeStart: i };
   }
 
   // Start a new "Not available" merge
-  return { newMergeStart: i, newChannelName: null };
+  return { newChannelName: null, newMergeStart: i };
 }
 
 // Get merged cells for the table display

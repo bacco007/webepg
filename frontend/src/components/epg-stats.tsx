@@ -1,65 +1,80 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarDays, Film, Loader2, Tv } from "lucide-react";
+import { CalendarDays, Film, Globe, Loader2, Tv } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Channel } from "@/components/channel/types";
+import { Card } from "@/components/ui/card";
 import { getCookie } from "@/lib/cookies";
 import { ErrorAlert } from "@/lib/error-handling";
-import { cn } from "@/lib/utils";
 
 // Constants for better maintainability
 const ANIMATION_DURATION = 2000;
-const DEFAULT_DATA_SOURCE = "xmlepg_FTATAM";
+const DEFAULT_DATA_SOURCE = "xmlepg_FTASYD";
 const DEFAULT_TIMEZONE = "UTC";
 const STAT_CARDS_CONFIG = [
   {
     delay: 0,
-    gradient: "from-blue-300 to-blue-600",
-    icon: CalendarDays,
-    title: "Days Covered",
+    icon: Globe,
+    title: "Total Sources Available",
   },
   {
     delay: 0.1,
-    gradient: "from-green-300 to-green-600",
-    icon: Tv,
-    title: "Channels",
+    icon: CalendarDays,
+    title: "Selected Source: Days",
   },
   {
     delay: 0.2,
-    gradient: "from-purple-300 to-purple-600",
+    icon: Tv,
+    title: "Selected Source: Channels",
+  },
+  {
+    delay: 0.3,
     icon: Film,
-    title: "Programs",
+    title: "Selected Source: Programs",
   },
 ] as const;
 
-interface EPGStats {
+type EPGStats = {
   days: number;
   channels: number;
   programs: number;
-}
+  sources: number;
+};
 
-interface CountUpAnimationProps {
+type CountUpAnimationProps = {
   end: number;
   duration?: number;
   className?: string;
-}
+};
 
-interface ApiResponse {
+type ApiResponse = {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: Channel[];
   };
-}
+};
 
-interface DatesResponse {
+type DatesResponse = {
   date: string;
   query: string;
   source: string;
   data: string[];
-}
+};
+
+type Source = {
+  id: string;
+  group: string;
+  subgroup: string;
+  location: string;
+  url: string;
+  logo?: {
+    light: string;
+    dark: string;
+  };
+};
 
 function CountUpAnimation({
   end,
@@ -117,7 +132,8 @@ function CountUpAnimation({
 // Helper function to validate API response
 function validateApiResponse(
   channelsData: unknown,
-  datesData: unknown
+  datesData: unknown,
+  sourcesData: unknown
 ): boolean {
   // Check channels data structure: { date_pulled, query, source, data: { channels: Channel[] } }
   const isValidChannelsData = Boolean(
@@ -138,16 +154,20 @@ function validateApiResponse(
       Array.isArray(datesData.data)
   );
 
-  return isValidChannelsData && isValidDatesData;
+  // Check sources data structure: Source[]
+  const isValidSourcesData = Boolean(sourcesData && Array.isArray(sourcesData));
+
+  return isValidChannelsData && isValidDatesData && isValidSourcesData;
 }
 
 // Helper function to fetch and validate API responses
 async function fetchApiData(xmltvdatasource: string, timezone: string) {
-  const [channelsResponse, datesResponse] = await Promise.all([
+  const [channelsResponse, datesResponse, sourcesResponse] = await Promise.all([
     fetch(`/api/py/channels/${xmltvdatasource}`),
     fetch(
       `/api/py/dates/${xmltvdatasource}?timezone=${encodeURIComponent(timezone)}`
     ),
+    fetch("/api/py/sources"),
   ]);
 
   if (!channelsResponse.ok) {
@@ -158,22 +178,28 @@ async function fetchApiData(xmltvdatasource: string, timezone: string) {
     throw new Error(`Failed to fetch dates: ${datesResponse.status}`);
   }
 
-  const [channelsData, datesData] = await Promise.all([
+  if (!sourcesResponse.ok) {
+    throw new Error(`Failed to fetch sources: ${sourcesResponse.status}`);
+  }
+
+  const [channelsData, datesData, sourcesData] = await Promise.all([
     channelsResponse.json(),
     datesResponse.json(),
+    sourcesResponse.json(),
   ]);
 
-  if (!validateApiResponse(channelsData, datesData)) {
+  if (!validateApiResponse(channelsData, datesData, sourcesData)) {
     throw new Error("Invalid data structure received from API");
   }
 
-  return { channelsData, datesData };
+  return { channelsData, datesData, sourcesData };
 }
 
 // Helper function to calculate stats from API data
 function calculateStats(
   channelsData: ApiResponse,
-  datesData: DatesResponse
+  datesData: DatesResponse,
+  sourcesData: Source[]
 ): EPGStats {
   const days = datesData.data.length;
   const channels = channelsData.data.channels.length;
@@ -181,8 +207,9 @@ function calculateStats(
     (total: number, channel: Channel) => total + channel.program_count,
     0
   );
+  const sources = sourcesData.length;
 
-  return { channels, days, programs };
+  return { channels, days, programs, sources };
 }
 
 export function EPGStats() {
@@ -197,13 +224,14 @@ export function EPGStats() {
           (await getCookie("xmltvdatasource")) || DEFAULT_DATA_SOURCE;
         const timezone = (await getCookie("userTimezone")) || DEFAULT_TIMEZONE;
 
-        const { channelsData, datesData } = await fetchApiData(
+        const { channelsData, datesData, sourcesData } = await fetchApiData(
           xmltvdatasource,
           timezone
         );
         const calculatedStats = calculateStats(
           channelsData as ApiResponse,
-          datesData as DatesResponse
+          datesData as DatesResponse,
+          sourcesData as Source[]
         );
         setStats(calculatedStats);
       } catch (fetchError) {
@@ -238,7 +266,7 @@ export function EPGStats() {
 
   const statCards = STAT_CARDS_CONFIG.map((config, index) => ({
     ...config,
-    value: [stats.days, stats.channels, stats.programs][index],
+    value: [stats.sources, stats.days, stats.channels, stats.programs][index],
   }));
 
   return (
@@ -249,7 +277,7 @@ export function EPGStats() {
       initial={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (
           <motion.article
             animate={{ opacity: 1, y: 0 }}
@@ -258,40 +286,19 @@ export function EPGStats() {
             key={stat.title}
             transition={{ delay: stat.delay, duration: 0.5 }}
           >
-            <div className="hover:-translate-y-1 relative h-full overflow-hidden rounded-xl border border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-              {/* Gradient Background */}
-              <div
-                className={cn(
-                  "absolute inset-0 bg-gradient-to-br opacity-90",
-                  stat.gradient
-                )}
-              />
-
-              {/* Content */}
-              <div className="relative p-6">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="font-semibold text-lg text-white">
-                    {stat.title}
-                  </h3>
-                  <stat.icon
-                    aria-hidden="true"
-                    className="size-6 text-white/90"
-                  />
-                </div>
-
-                <div className="text-center">
-                  <p className="font-bold text-4xl text-white">
-                    <CountUpAnimation
-                      className="inline-block"
-                      end={stat.value}
-                    />
+            <Card className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg text-muted-foreground">{stat.title}</p>
+                  <p className="font-bold text-2xl">
+                    <CountUpAnimation end={stat.value} />
                   </p>
                 </div>
+                <div className="w-fit rounded-full bg-primary/10 p-3">
+                  <stat.icon className="h-8 w-8 text-primary" />
+                </div>
               </div>
-
-              {/* Hover Effect */}
-              <div className="absolute inset-0 bg-white/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            </div>
+            </Card>
           </motion.article>
         ))}
       </div>

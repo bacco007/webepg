@@ -106,10 +106,10 @@ export function ErrorBoundary({ children }: { children: React.ReactNode }) {
 }
 
 // Error alert component
-interface ErrorAlertProps {
+type ErrorAlertProps = {
   message: string;
   onRetry?: () => void;
-}
+};
 
 export function ErrorAlert({ message, onRetry }: ErrorAlertProps) {
   return (

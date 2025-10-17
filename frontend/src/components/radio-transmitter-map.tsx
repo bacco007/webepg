@@ -113,7 +113,7 @@ if (typeof document !== "undefined") {
 }
 
 // Types
-interface RadioTransmitter {
+type RadioTransmitter = {
   LicenceNo: string;
   CallSign: string;
   AreaServed: string;
@@ -134,19 +134,19 @@ interface RadioTransmitter {
   BSL?: string;
   "Licence Area"?: string;
   uniqueKey: string;
-}
+};
 
-interface RadioType {
+type RadioType = {
   name: string;
   color: string;
-}
+};
 
 const radioTypes: RadioType[] = [
-  { name: "AM", color: "#FF6B6B" },
-  { name: "FM", color: "#4ECDC4" },
-  { name: "DAB", color: "#45B7D1" },
-  { name: "DRM", color: "#96CEB4" },
-  { name: "Other", color: "#FFEEAD" },
+  { color: "#FF6B6B", name: "AM" },
+  { color: "#4ECDC4", name: "FM" },
+  { color: "#45B7D1", name: "DAB" },
+  { color: "#96CEB4", name: "DRM" },
+  { color: "#FFEEAD", name: "Other" },
 ];
 
 // Create cluster icon function
@@ -159,8 +159,8 @@ const createClusterIcon = (cluster: { getChildCount: () => number }) => {
     size = "medium";
   }
   return L.divIcon({
-    html: `<div class="cluster-icon ${size}">${count}</div>`,
     className: "custom-marker-cluster",
+    html: `<div class="cluster-icon ${size}">${count}</div>`,
     iconSize: L.point(40, 40, true),
   });
 };
@@ -212,22 +212,22 @@ function MapControls({
 const getFrequencyRange = (type: "FM" | "AM" | "DAB") => {
   switch (type) {
     case "FM":
-      return { min: 87.5, max: 108 };
+      return { max: 108, min: 87.5 };
     case "AM":
-      return { min: 531, max: 1602 };
+      return { max: 1602, min: 531 };
     case "DAB":
-      return { min: 174, max: 240 };
+      return { max: 240, min: 174 };
     default:
-      return { min: 87.5, max: 108 };
+      return { max: 108, min: 87.5 };
   }
 };
 
 // Map Legend Component
 function MapLegend() {
   const legendRadioTypes = [
-    { name: "FM", color: "#ff0000" },
-    { name: "AM", color: "#0000ff" },
-    { name: "DAB", color: "#00ff00" },
+    { color: "#ff0000", name: "FM" },
+    { color: "#0000ff", name: "AM" },
+    { color: "#00ff00", name: "DAB" },
   ];
 
   return (
@@ -266,16 +266,16 @@ const MinimapControl = () => {
   useEffect(() => {
     if (minimapRef.current && !minimapInstance.current) {
       minimapInstance.current = L.map(minimapRef.current, {
+        attributionControl: false,
+        boxZoom: false,
         center: map.getCenter(),
+        doubleClickZoom: false,
+        dragging: false,
+        keyboard: false,
+        scrollWheelZoom: false,
+        touchZoom: false,
         zoom: map.getZoom() - 4,
         zoomControl: false,
-        attributionControl: false,
-        dragging: false,
-        touchZoom: false,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        keyboard: false,
       });
 
       L.tileLayer(
@@ -389,8 +389,8 @@ export default function RadioTransmitterMap() {
       setTransmittersData(typedData);
     } catch (_err) {
       toast({
-        title: "Error",
         description: "Failed to load transmitters",
+        title: "Error",
         variant: "destructive",
       });
     } finally {
@@ -863,18 +863,18 @@ export default function RadioTransmitterMap() {
 
     // Create a new marker cluster group
     const clusterGroup = markerClusterGroup({
-      chunkedLoading: true,
-      maxClusterRadius: 60,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      zoomToBoundsOnClick: true,
-      removeOutsideVisibleBounds: true,
       animate: true,
       animateAddingMarkers: true,
-      disableClusteringAtZoom: 15,
-      chunkInterval: 100,
       chunkDelay: 50,
+      chunkedLoading: true,
+      chunkInterval: 100,
+      disableClusteringAtZoom: 15,
       iconCreateFunction: createClusterIcon,
+      maxClusterRadius: 60,
+      removeOutsideVisibleBounds: true,
+      showCoverageOnHover: false,
+      spiderfyOnMaxZoom: true,
+      zoomToBoundsOnClick: true,
     });
 
     // Add markers imperatively

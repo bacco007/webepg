@@ -40,8 +40,8 @@ export default function Header() {
   }
 
   return (
-    <header className="flex items-center gap-2 border-b h-(--header-height) group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) transition-[width,height] ease-linear shrink-0">
-      <div className="flex items-center gap-1 lg:gap-2 px-4 lg:px-6 w-full">
+    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+      <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger
           aria-controls="main-sidebar"
           aria-expanded={isSidebarOpen}
@@ -93,7 +93,7 @@ export default function Header() {
                   </BreadcrumbSeparator>
                 )}
                 {index === items.length - 1 && (
-                  <BreadcrumbPage className="hidden md:block font-bold">
+                  <BreadcrumbPage className="hidden font-bold md:block">
                     {item.title}
                   </BreadcrumbPage>
                 )}
@@ -103,7 +103,7 @@ export default function Header() {
         </Breadcrumb>
       </div>
       <div className="flex items-center gap-2 px-4">
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden items-center gap-2 md:flex">
           <FontSizeControl />
           <ThemeSwitcher />
         </div>
@@ -117,7 +117,7 @@ export default function Header() {
           <SheetContent className="w-[300px] sm:w-[400px]" side="right">
             <nav className="flex flex-col gap-4">
               <Button
-                className="top-4 right-4 absolute"
+                className="absolute top-4 right-4"
                 onClick={() => setIsMenuOpen(false)}
                 size="icon"
                 variant="ghost"
@@ -135,7 +135,7 @@ export default function Header() {
                   {item.title}
                 </BreadcrumbLink>
               ))}
-              <div className="flex items-center gap-4 mt-4">
+              <div className="mt-4 flex items-center gap-4">
                 <FontSizeControl />
                 <ThemeSwitcher />
               </div>

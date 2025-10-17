@@ -3,14 +3,14 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
-export interface NestedFilterSectionProps {
+export type NestedFilterSectionProps = {
   data: Record<string, { count: number; subgroups: Record<string, number> }>;
   selectedGroups: string[];
   selectedSubgroups: string[];
   onGroupToggle: (group: string) => void;
   onSubgroupToggle: (group: string, subgroup: string) => void;
   title: string;
-}
+};
 
 export function NestedFilterSection({
   data,

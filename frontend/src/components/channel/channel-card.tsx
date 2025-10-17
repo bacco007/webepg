@@ -1,12 +1,27 @@
+import {
+  BadgeCheckIcon,
+  BlocksIcon,
+  Building2Icon,
+  GroupIcon,
+  RadioIcon,
+} from "lucide-react";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { Channel } from "./types";
 import { getChannelDisplayNameWithAbbreviations } from "./utils";
 
-interface ChannelCardProps {
+type ChannelCardProps = {
   channel: Channel;
   xmltvDataSource: string;
-}
+};
 
 export function ChannelCard({ channel, xmltvDataSource }: ChannelCardProps) {
   return (
@@ -16,47 +31,103 @@ export function ChannelCard({ channel, xmltvDataSource }: ChannelCardProps) {
       passHref
     >
       <Card
-        className={`flex h-full flex-col rounded-lg border p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg ${
+        className={`flex flex-col gap-2 bg-card p-0 ${
           channel.program_count === 0 ? "bg-muted grayscale" : "bg-card"
         }`}
       >
-        <div className="flex items-center space-x-4">
-          <div className="flex size-16 shrink-0 items-center justify-center">
-            <img
-              alt={getChannelDisplayNameWithAbbreviations(channel)}
-              className="max-h-full max-w-full object-contain"
-              height="100"
-              src={channel.channel_logo.light || "/placeholder.svg"}
-              width="100"
-            />
-          </div>
-          <div className="flex flex-1 flex-col">
-            <p className="font-bold text-sm">
+        <CardHeader className="flex flex-row items-center justify-between px-4 py-1 pb-0">
+          {channel.channel_logo.light !== "N/A" && (
+            <div>
+              <img
+                alt={getChannelDisplayNameWithAbbreviations(channel)}
+                className="block h-12 w-24 object-contain dark:hidden"
+                src={channel.channel_logo.light || "/placeholder.svg"}
+              />
+              <img
+                alt={getChannelDisplayNameWithAbbreviations(channel)}
+                className="hidden h-12 w-24 object-contain dark:block"
+                src={channel.channel_logo.dark || "/placeholder.svg"}
+              />
+            </div>
+          )}
+          <div className="text-right">
+            <CardTitle className="font-bold text-sm">
               {getChannelDisplayNameWithAbbreviations(channel)}
-            </p>
-            {typeof channel.channel_number === "string" &&
-              channel.channel_number !== "N/A" && (
-                <p className="font-semibold text-primary text-xs">
-                  Channel {channel.channel_number}
-                </p>
-              )}
-            {channel.channel_group &&
-              channel.channel_group !== "N/A" &&
-              channel.channel_group.toLowerCase() !== "unknown" && (
-                <p className="font-semibold text-primary text-xs">
-                  {channel.channel_group}
-                </p>
-              )}
-            {channel.other_data &&
-              channel.other_data.channel_specs !== "N/A" &&
-              channel.other_data.channel_type !== "N/A" && (
-                <p className="text-muted-foreground text-xs">
-                  {channel.other_data.channel_specs},{" "}
-                  {channel.other_data.channel_type}
-                </p>
-              )}
+            </CardTitle>
+            {channel.channel_number !== "N/A" && (
+              <CardDescription>
+                Channel {channel.channel_number}
+              </CardDescription>
+            )}
           </div>
-        </div>
+        </CardHeader>
+        <CardContent className="grow px-4 py-1">
+          <div className="flex flex-wrap gap-1 text-xs">
+            {channel.channel_group &&
+            channel.channel_group !== "N/A" &&
+            channel.channel_group.toLowerCase() !== "unknown" ? (
+              <Badge className="bg-primary/10 font-semibold text-primary focus-visible:outline-none focus-visible:ring-primary/20 dark:bg-primary/10 dark:text-primary dark:focus-visible:ring-primary/40 [a&]:hover:bg-primary/5 dark:[a&]:hover:bg-primary/5">
+                <Building2Icon />
+                {channel.channel_group}
+              </Badge>
+            ) : (
+              <Badge className="font-semibold italic" variant="outline">
+                No Owner/Operator
+              </Badge>
+            )}
+          </div>
+          <ScrollArea className="w-full">
+            <div className="flex flex-wrap gap-2 pt-1 text-xs">
+              {channel.other_data?.channel_specs &&
+              channel.other_data.channel_specs !== "N/A" ? (
+                <Badge className="text-card-foreground/60" variant="outline">
+                  <RadioIcon />
+                  {channel.other_data.channel_specs}
+                </Badge>
+              ) : (
+                <Badge
+                  className="text-card-foreground/60 italic"
+                  variant="outline"
+                >
+                  No Channel Specs
+                </Badge>
+              )}
+
+              {channel.other_data?.channel_type &&
+              channel.other_data.channel_type !== "N/A" &&
+              channel.other_data.channel_type !== "(none)" ? (
+                <Badge className="text-card-foreground/60" variant="outline">
+                  <GroupIcon />
+                  {channel.other_data.channel_type}
+                </Badge>
+              ) : (
+                <Badge
+                  className="text-card-foreground/60 italic"
+                  variant="outline"
+                >
+                  No Channel Type
+                </Badge>
+              )}
+              {channel.other_data?.channel_availability &&
+                channel.other_data.channel_availability !== "N/A" &&
+                channel.other_data.channel_availability !== "(none)" && (
+                  <Badge className="text-card-foreground/60" variant="outline">
+                    <BadgeCheckIcon />
+                    {channel.other_data.channel_availability}
+                  </Badge>
+                )}
+              {channel.other_data?.channel_packages &&
+                channel.other_data.channel_packages !== "N/A" &&
+                channel.other_data.channel_packages !== "(none)" && (
+                  <Badge className="text-card-foreground/60" variant="outline">
+                    <BlocksIcon />
+                    {channel.other_data.channel_packages}
+                  </Badge>
+                )}
+            </div>
+            <ScrollBar className="h-1.5" orientation="horizontal" />
+          </ScrollArea>
+        </CardContent>
       </Card>
     </Link>
   );

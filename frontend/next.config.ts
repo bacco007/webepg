@@ -1,6 +1,5 @@
-import path from "node:path";
 import withBundleAnalyzer from "@next/bundle-analyzer";
-console.log("✅ next.config.js loaded in Docker");
+
 const bundleAnalyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
@@ -64,7 +63,7 @@ export default bundleAnalyzer({
   },
   output: "standalone",
   productionBrowserSourceMaps: false,
-  reactStrictMode: false,
+  reactStrictMode: true,
   rewrites: async () => [
     {
       destination:
@@ -93,10 +92,14 @@ export default bundleAnalyzer({
   typescript: {
     ignoreBuildErrors: false,
   },
-  webpack(config) {
-    config.resolve.alias["@"] = path.resolve(__dirname, 'src');
-    config.resolve.alias['~'] = path.resolve(__dirname, 'public');
-    config.plugins.push(new (require("case-sensitive-paths-webpack-plugin"))());
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // Improve hot reload performance
+      config.watchOptions = {
+        aggregateTimeout: 300,
+        poll: 1000,
+      };
+    }
     return config;
   },
 });

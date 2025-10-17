@@ -14,17 +14,17 @@ import { getCookie, setCookie } from "@/lib/cookies";
 import { detectTimezone } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 
-interface Timezone {
+type Timezone = {
   value: string;
   label: string;
   group: string;
   offset: number;
-}
+};
 
-interface GroupedTimezones {
+type GroupedTimezones = {
   group: string;
   timezones: Timezone[];
-}
+};
 
 const groupTimezones = (data: Timezone[]): GroupedTimezones[] => {
   const groupMap = new Map<string, Timezone[]>();
@@ -87,10 +87,10 @@ export function TimezoneSelector() {
             const group = timezone.split("/")[0];
 
             return {
-              value: timezone,
-              label: `${offsetPart} ${timezone.replaceAll("_", " ")}`,
               group,
+              label: `${offsetPart} ${timezone.replaceAll("_", " ")}`,
               offset,
+              value: timezone,
             };
           })
           .sort((a, b) => {

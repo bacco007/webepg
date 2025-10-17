@@ -2,13 +2,13 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
-interface FilterSectionProps {
+type FilterSectionProps = {
   title: string;
   options: string[];
   filters: string[];
   onFilterChange: (value: string) => void;
   counts: Record<string, number>;
-}
+};
 
 export function FilterSection({
   title,
@@ -29,11 +29,12 @@ export function FilterSection({
   }, [options, counts, filters]);
 
   // Calculate total available options for display
-  const totalAvailableOptions = useMemo(() => {
-    return options.filter(
-      (option) => counts[option] > 0 || filters.includes(option)
-    ).length;
-  }, [options, counts, filters]);
+  const totalAvailableOptions = useMemo(
+    () =>
+      options.filter((option) => counts[option] > 0 || filters.includes(option))
+        .length,
+    [options, counts, filters]
+  );
 
   return (
     <div className="border-b">

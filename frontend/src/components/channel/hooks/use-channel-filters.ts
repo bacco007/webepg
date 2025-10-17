@@ -179,9 +179,9 @@ export function useChannelFilters(channels: Channel[]) {
 
       return {
         groupCounts: groupCountsResult,
-        typeCounts: typeCountsResult,
-        specsCounts: specsCountsResult,
         nameGroupCounts: nameGroupCountsResult,
+        specsCounts: specsCountsResult,
+        typeCounts: typeCountsResult,
       };
     }, [
       channels,
@@ -198,27 +198,27 @@ export function useChannelFilters(channels: Channel[]) {
     ]);
 
   return {
-    searchTerm,
-    setSearchTerm,
-    selectedGroups,
-    selectedTypes,
-    selectedSpecs,
-    selectedNameGroups,
-    hideNoPrograms,
-    setHideNoPrograms,
-    uniqueGroups,
-    uniqueTypes,
-    uniqueSpecs,
-    uniqueNameGroups,
-    hasNameGroups,
     clearFilters,
-    handleGroupFilter,
-    handleTypeFilter,
-    handleSpecsFilter,
-    handleNameGroupFilter,
     groupCounts,
-    typeCounts,
-    specsCounts,
+    handleGroupFilter,
+    handleNameGroupFilter,
+    handleSpecsFilter,
+    handleTypeFilter,
+    hasNameGroups,
+    hideNoPrograms,
     nameGroupCounts,
+    searchTerm,
+    selectedGroups,
+    selectedNameGroups,
+    selectedSpecs,
+    selectedTypes,
+    setHideNoPrograms,
+    setSearchTerm,
+    specsCounts,
+    typeCounts,
+    uniqueGroups,
+    uniqueNameGroups,
+    uniqueSpecs,
+    uniqueTypes,
   };
 }
