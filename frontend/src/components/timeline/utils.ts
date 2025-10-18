@@ -87,8 +87,8 @@ export function calculateSpanPosition(
 
   const clampedFrom = clamp(fromDecimal, startDecimal, endDecimal);
 
-  // Use current year if no end date is provided
-  const endYear = span.to ?? new Date().getFullYear();
+  // Use timeline end if no end date is provided
+  const endYear = span.to ?? axis.end;
   const toDecimal = yearMonthToDecimal(endYear);
   const clampedTo = clamp(toDecimal, startDecimal, endDecimal);
 
@@ -301,14 +301,12 @@ export function convertSimplifiedToRows(groupedDoc: GroupedDoc): TimelineDoc {
     const sortedItems = [...items].sort((a, b) => {
       let aFrom = 0;
       if (a.from) {
-        aFrom =
-          typeof a.from === "number" ? a.from : Number.parseFloat(a.from);
+        aFrom = typeof a.from === "number" ? a.from : Number.parseFloat(a.from);
       }
 
       let bFrom = 0;
       if (b.from) {
-        bFrom =
-          typeof b.from === "number" ? b.from : Number.parseFloat(b.from);
+        bFrom = typeof b.from === "number" ? b.from : Number.parseFloat(b.from);
       }
 
       return aFrom - bFrom;
@@ -332,7 +330,7 @@ export function convertSimplifiedToRows(groupedDoc: GroupedDoc): TimelineDoc {
         genre: item.channel_genre,
         note: tooltipText,
         text: item.channel_name,
-        to: item.to,
+        to: item.to || groupedDoc.axis.end, // Use timeline end if no 'to' date provided
       };
     });
 

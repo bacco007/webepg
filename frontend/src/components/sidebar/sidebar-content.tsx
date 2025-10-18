@@ -11,6 +11,7 @@ import {
   Clapperboard,
   Clock,
   Database,
+  HistoryIcon,
   Home,
   LayoutGrid,
   List,
@@ -172,6 +173,38 @@ const data = {
       ],
       name: "New Zealand",
       url: "/nz",
+    },
+    {
+      icon: HistoryIcon,
+      items: [
+        {
+          icon: HistoryIcon,
+          title: "Austar",
+          url: "/channellist/history/austar",
+        },
+        {
+          icon: HistoryIcon,
+          title: "Foxtel (Analogue",
+          url: "/channellist/history/foxtelanalogue",
+        },
+        {
+          icon: HistoryIcon,
+          title: "Foxtel (Digital)",
+          url: "/channellist/history/foxteldigital",
+        },
+        {
+          icon: HistoryIcon,
+          title: "Galaxy",
+          url: "/channellist/history/galaxy",
+        },
+        {
+          icon: HistoryIcon,
+          title: "Optus Vision (Analogue)",
+          url: "/channellist/history/optus",
+        },
+      ],
+      name: "Channel Timeline History",
+      url: "/channellist/history",
     },
   ],
 };

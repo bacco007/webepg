@@ -18,7 +18,7 @@ export const optus: TimelineProvider = {
           to: 2001,
         },
         {
-          channel_genre: "Guide",
+          channel_genre: "Information",
           channel_name: "Optus Electronic Program Guide",
           from: 2001,
           to: 2002.12,
@@ -427,7 +427,7 @@ export const optus: TimelineProvider = {
           to: 1999,
         },
         {
-          channel_genre: "Weather",
+          channel_genre: "News",
           channel_name: "Optus Weather",
           from: 1999,
           to: 2001,
@@ -578,7 +578,7 @@ export const optus: TimelineProvider = {
           to: 1999,
         },
         {
-          channel_genre: "Guide",
+          channel_genre: "Information",
           channel_name: "Optus Electronic Program Guide",
           from: 1999,
           to: 2001.12,
@@ -642,7 +642,7 @@ export const optus: TimelineProvider = {
           to: 2001,
         },
         {
-          channel_genre: "News/Business",
+          channel_genre: "News",
           channel_name: "CNBC Australia",
           from: 2001,
           to: 2002.12,
@@ -693,7 +693,7 @@ export const optus: TimelineProvider = {
       ],
       "30": [
         {
-          channel_genre: "Religion",
+          channel_genre: "Religious",
           channel_name: "Australian Christian Channel",
           from: 1999,
           to: 2002.12,
@@ -702,7 +702,7 @@ export const optus: TimelineProvider = {
       ],
       "31": [
         {
-          channel_genre: "News/Business",
+          channel_genre: "News",
           channel_name: "CNNfn",
           from: 2001,
           to: 2002.12,
@@ -753,7 +753,7 @@ export const optus: TimelineProvider = {
       ],
       "34": [
         {
-          channel_genre: "Weather",
+          channel_genre: "News",
           channel_name: "Optus Weather",
           from: 2001,
           to: 2002.12,
@@ -929,7 +929,7 @@ export const optus: TimelineProvider = {
           to: 2001,
         },
         {
-          channel_genre: "News/International",
+          channel_genre: "News",
           channel_name: "Al Jazeera - Arabic",
           from: 2001,
           to: 2002.12,
@@ -1027,7 +1027,7 @@ export const optus: TimelineProvider = {
           to: 2002.12,
         },
         {
-          channel_genre: "Religion",
+          channel_genre: "Religious",
           channel_name: "Australian Christian Channel",
           from: 2002.12,
         },
@@ -1054,7 +1054,7 @@ export const optus: TimelineProvider = {
       ],
       "52": [
         {
-          channel_genre: "News/International",
+          channel_genre: "News",
           channel_name: "Al Jazeera (Arabic)",
           from: 2002.12,
         },
@@ -1101,7 +1101,7 @@ export const optus: TimelineProvider = {
       ],
       "57": [
         {
-          channel_genre: "Guide",
+          channel_genre: "Information",
           channel_name: "Optus Electronic Program Guide",
           from: 2002.12,
         },

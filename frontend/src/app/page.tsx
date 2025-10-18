@@ -80,10 +80,10 @@ export default function Home() {
       title: "Channel Lists",
     },
     {
-      description: "View historical channel timelines",
+      description: "View historical channel lineup timelines",
       icon: History,
-      link: "/timeline",
-      title: "Channel History",
+      link: "/channellist/history",
+      title: "Channel Timeline History",
     },
     {
       description: "View transmitter maps",

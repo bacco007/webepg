@@ -3,7 +3,7 @@
  * Works with the ultra-simplified data structure
  */
 
-import type React from "react";
+import React from "react";
 import { Timeline } from "./Timeline";
 import type { TimelineEvent, TimelineSpan } from "./types";
 import { convertSimplifiedToRows } from "./utils";
@@ -40,29 +40,40 @@ type TimelineUnifiedProps = {
   pxPerYear?: number; // Custom spacing override
 };
 
-export const TimelineUnified: React.FC<TimelineUnifiedProps> = ({
-  doc,
-  onEventClick,
-  onSpanClick,
-  className,
-  pxPerYear,
-}) => {
-  // Convert simplified data to row-based structure
-  const rowBasedDoc = convertSimplifiedToRows(doc);
+export const TimelineUnified: React.FC<TimelineUnifiedProps> = React.memo(
+  ({ doc, onEventClick, onSpanClick, className, pxPerYear }) => {
+    // Convert simplified data to row-based structure (memoized)
+    const rowBasedDoc = React.useMemo(
+      () => convertSimplifiedToRows(doc),
+      [doc]
+    );
 
-  // Apply custom pxPerYear if provided
-  if (pxPerYear && rowBasedDoc.style) {
-    rowBasedDoc.style.pxPerYear = pxPerYear;
-  } else if (pxPerYear) {
-    rowBasedDoc.style = { pxPerYear };
+    // Apply custom pxPerYear if provided (memoized)
+    const finalDoc = React.useMemo(() => {
+      if (pxPerYear && rowBasedDoc.style) {
+        return {
+          ...rowBasedDoc,
+          style: { ...rowBasedDoc.style, pxPerYear },
+        };
+      }
+      if (pxPerYear) {
+        return {
+          ...rowBasedDoc,
+          style: { pxPerYear },
+        };
+      }
+      return rowBasedDoc;
+    }, [rowBasedDoc, pxPerYear]);
+
+    return (
+      <Timeline
+        className={className}
+        doc={finalDoc}
+        onEventClick={onEventClick}
+        onSpanClick={onSpanClick}
+      />
+    );
   }
+);
 
-  return (
-    <Timeline
-      className={className}
-      doc={rowBasedDoc}
-      onEventClick={onEventClick}
-      onSpanClick={onSpanClick}
-    />
-  );
-};
+TimelineUnified.displayName = "TimelineUnified";

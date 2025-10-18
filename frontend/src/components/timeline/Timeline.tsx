@@ -18,38 +18,74 @@ import {
 
 /**
  * Timeline Error Boundary Component
+ * Improved error boundary with better error tracking and reset functionality
  */
-export const TimelineErrorBoundary: React.FC<{
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
-}> = ({ children, fallback }) => {
-  const [hasError, setHasError] = React.useState(false);
-
-  React.useEffect(() => {
-    const handleError = () => setHasError(true);
-    window.addEventListener("error", handleError);
-    return () => window.removeEventListener("error", handleError);
-  }, []);
-
-  if (hasError) {
-    return (
-      fallback || (
-        <div className="flex items-center justify-center p-8 text-center">
-          <div>
-            <h3 className="font-semibold text-destructive text-lg">
-              Timeline Error
-            </h3>
-            <p className="text-muted-foreground text-sm">
-              Something went wrong while rendering the timeline.
-            </p>
-          </div>
-        </div>
-      )
-    );
+export class TimelineErrorBoundary extends React.Component<
+  {
+    children: React.ReactNode;
+    fallback?: React.ReactNode;
+  },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: {
+    children: React.ReactNode;
+    fallback?: React.ReactNode;
+  }) {
+    super(props);
+    this.state = { error: null, hasError: false };
   }
 
-  return <>{children}</>;
-};
+  static getDerivedStateFromError(error: Error) {
+    return { error, hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log error details for debugging
+    // Store error for display but avoid console in production
+    if (process.env.NODE_ENV === "development") {
+      // Development-only error logging
+      // biome-ignore lint/suspicious/noConsole: Development debugging
+      console.error("Timeline Error:", error, errorInfo);
+    }
+  }
+
+  handleReset = () => {
+    this.setState({ error: null, hasError: false });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        this.props.fallback || (
+          <div className="flex flex-col items-center justify-center gap-4 p-8 text-center">
+            <div>
+              <h3 className="font-semibold text-destructive text-lg">
+                Timeline Error
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                Something went wrong while rendering the timeline.
+              </p>
+              {this.state.error && (
+                <p className="mt-2 font-mono text-destructive/70 text-xs">
+                  {this.state.error.message}
+                </p>
+              )}
+            </div>
+            <button
+              className="rounded-md border bg-background px-4 py-2 text-sm transition-colors hover:bg-muted"
+              onClick={this.handleReset}
+              type="button"
+            >
+              Try Again
+            </button>
+          </div>
+        )
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 /**
  * Loading State Component
@@ -100,10 +136,11 @@ export const Timeline: React.FC<TimelineProps> = React.memo(
 
     // Merge with document styles
     const style = React.useMemo(
-      () => ({
-        ...responsiveStyle,
-        ...doc.style,
-      }) as Required<TimelineStyle>,
+      () =>
+        ({
+          ...responsiveStyle,
+          ...doc.style,
+        }) as Required<TimelineStyle>,
       [responsiveStyle, doc.style]
     );
 
@@ -154,6 +191,10 @@ export const Timeline: React.FC<TimelineProps> = React.memo(
           className={cn("h-full w-full overflow-auto bg-background", className)}
           onKeyDown={handleKeyDown}
           role="application"
+          style={{
+            contain: "paint",
+            willChange: "scroll-position",
+          }}
         >
           <TimelineHeader
             axis={doc.axis}

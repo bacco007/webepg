@@ -804,6 +804,12 @@ export const foxtelanalogue: TimelineProvider = {
     description: "Timeline of channel changes from 1995 to 2007",
     events: [
       {
+        label: "News Corp & Telstra Agreement",
+        note: "News Corp & Telstra Agree to bring Pay TV to Australia",
+        type: "Launch",
+        when: 1994.11,
+      },
+      {
         label: "Foxtel Launches",
         note: "Foxtel launches on 23rd October 1995",
         type: "Launch",
@@ -819,13 +825,13 @@ export const foxtelanalogue: TimelineProvider = {
         label: "PBL Invests",
         note: "The Packers via PBL purchase a 25% stake (from News Corp)",
         type: "Launch",
-        when: 1998,
+        when: 1998.1,
       },
       {
         label: "Galaxy Collapses",
         note: "Competitor Galaxy ceases operations, Foxtel acquires subscribers",
         type: "Change",
-        when: 1998.5,
+        when: 1998.6,
       },
       {
         label: "Satellite Service",

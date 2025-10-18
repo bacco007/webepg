@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import TransmitterMap from "@/components/radio-transmitter-map";
+import RadioTransmittersClient from "./radio-transmitters-client";
 
 export const metadata: Metadata = {
   description:
@@ -8,9 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function TransmittersPage() {
-  return (
-    <div className="flex size-full flex-col">
-      <TransmitterMap />
-    </div>
-  );
+  return <RadioTransmittersClient />;
 }

@@ -27,12 +27,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -139,6 +145,7 @@ function useChannelMapData() {
     Record<string, boolean>
   >({});
   const [viewMode, setViewMode] = useState<"networks" | "flat">("networks");
+  const [isLegendOpen, setIsLegendOpen] = useState(false);
 
   const isMobile = useIsMobile();
   const debouncedGlobalSearch = useDebounce(globalFilter, 300);
@@ -1234,6 +1241,7 @@ function useChannelMapData() {
     filteredChannels,
     getChannelColor,
     globalFilter,
+    isLegendOpen,
     isMobile,
     // State
     loading,
@@ -1249,6 +1257,7 @@ function useChannelMapData() {
 
     // Actions
     setGlobalFilter,
+    setIsLegendOpen,
     setNetworkSearch,
     setSelectedChannelSpecs,
     setSelectedChannelTypes,
@@ -1978,6 +1987,7 @@ export default function ChannelMapSourcesPage() {
     expandedChannels,
     viewMode,
     isMobile,
+    isLegendOpen,
     locationsForSubgroup,
     channelTypes,
     channelSpecs,
@@ -1991,6 +2001,7 @@ export default function ChannelMapSourcesPage() {
 
     // Actions
     setGlobalFilter,
+    setIsLegendOpen,
     setSelectedNetworks,
     setSelectedChannelTypes,
     setSelectedChannelSpecs,
@@ -2135,61 +2146,64 @@ export default function ChannelMapSourcesPage() {
           showSearch={channelSpecs.length > 10}
           title="Channel Specs"
         />
-
-        {/* Channel Specs Legend */}
-        <div className="mt-4 rounded-md bg-muted/20 p-3">
-          <h3 className="mb-2 font-medium text-sm">Channel Specs Legend:</h3>
-          <div className="space-y-1 text-xs">
-            <div className="flex items-center gap-2">
-              <div
-                className={`h-3 w-3 rounded border ${channelSpecColors.hdMpeg4}`}
-              />
-              <span>HD MPEG-4</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className={`h-3 w-3 rounded border ${channelSpecColors.hdMpeg2}`}
-              />
-              <span>HD MPEG-2</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className={`h-3 w-3 rounded border ${channelSpecColors.sdMpeg4}`}
-              />
-              <span>SD MPEG-4</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className={`h-3 w-3 rounded border ${channelSpecColors.sdMpeg2}`}
-              />
-              <span>SD MPEG-2</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className={`h-3 w-3 rounded border ${channelSpecColors.radio}`}
-              />
-              <span>Radio</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className={`h-3 w-3 rounded border ${channelSpecColors.notAvailable}`}
-              />
-              <span>Not Available</span>
-            </div>
-          </div>
-        </div>
       </SidebarContent>
       <SidebarFooter>
-        <Button
-          className="w-full text-xs"
-          onClick={clearFilters}
-          size="sm"
-          variant="outline"
-        >
-          Clear All Filters
-        </Button>
-        <div className="mt-2 text-center text-muted-foreground text-xs">
-          Showing {filteredChannels} of {totalChannels} channels
+        <div className="space-y-3">
+          {/* Channel Specs Legend */}
+          <Collapsible onOpenChange={setIsLegendOpen} open={isLegendOpen}>
+            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+              <h4 className="font-semibold text-xs">Legend: Channel Specs</h4>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${isLegendOpen ? "rotate-180" : ""}`}
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-2">
+              <div className="grid grid-cols-2 gap-1.5">
+                <div
+                  className={`rounded-md border px-2 py-1 text-center ${channelSpecColors.hdMpeg4}`}
+                >
+                  <span className="text-xs">HD MPEG-4</span>
+                </div>
+                <div
+                  className={`rounded-md border px-2 py-1 text-center ${channelSpecColors.hdMpeg2}`}
+                >
+                  <span className="text-xs">HD MPEG-2</span>
+                </div>
+                <div
+                  className={`rounded-md border px-2 py-1 text-center ${channelSpecColors.sdMpeg4}`}
+                >
+                  <span className="text-xs">SD MPEG-4</span>
+                </div>
+                <div
+                  className={`rounded-md border px-2 py-1 text-center ${channelSpecColors.sdMpeg2}`}
+                >
+                  <span className="text-xs">SD MPEG-2</span>
+                </div>
+                <div
+                  className={`rounded-md border px-2 py-1 text-center ${channelSpecColors.radio}`}
+                >
+                  <span className="text-xs">Radio</span>
+                </div>
+                <div className="rounded-md border bg-muted/50 px-2 py-1 text-center">
+                  <span className="text-xs">Not Available</span>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          <Separator />
+
+          <Button
+            className="w-full text-xs"
+            onClick={clearFilters}
+            size="sm"
+            variant="outline"
+          >
+            Clear All Filters
+          </Button>
+          <div className="text-center text-muted-foreground text-xs">
+            Showing {filteredChannels} of {totalChannels} channels
+          </div>
         </div>
       </SidebarFooter>
     </SidebarContainer>

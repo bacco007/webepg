@@ -1,8 +1,15 @@
 "use client";
 
 import L from "leaflet";
+import { useTheme } from "next-themes";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useMap } from "react-leaflet";
+import {
+  MapContainer,
+  ScaleControl,
+  TileLayer,
+  useMap,
+  ZoomControl,
+} from "react-leaflet";
 import "leaflet.markercluster";
 import "leaflet.markercluster/dist/leaflet.markercluster.js";
 
@@ -21,13 +28,6 @@ import {
 } from "@/components/layouts/sidebar-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Map as LeafletMapComponent,
-  MapLayers,
-  MapLocateControl,
-  MapTileLayer,
-  MapZoomControl,
-} from "@/components/ui/map";
 import { toast } from "@/hooks/use-toast";
 import "leaflet/dist/leaflet.css";
 
@@ -184,24 +184,22 @@ function MapControls({
   }, [bounds, map]);
 
   return (
-    <div className="absolute top-16 left-1 z-[1000]">
-      <div className="flex flex-col gap-2">
+    <div className="leaflet-top leaflet-left" style={{ marginTop: "60px" }}>
+      <div className="leaflet-bar leaflet-control space-y-2">
         <Button
-          className="border"
           disabled={!bounds}
           onClick={handleFitBounds}
           size="icon"
           title="Fit to markers"
-          variant="secondary"
+          variant="outline"
         >
           <Target className="size-4" />
         </Button>
         <Button
-          className="border"
           onClick={() => map.setView(center, zoom)}
           size="icon"
           title="Reset view"
-          variant="secondary"
+          variant="outline"
         >
           <Maximize className="size-4" />
         </Button>
@@ -233,7 +231,10 @@ function MapLegend() {
   ];
 
   return (
-    <div className="absolute bottom-5 left-5 z-[1000]">
+    <div
+      className="leaflet-bottom leaflet-left"
+      style={{ marginBottom: "20px", marginLeft: "20px" }}
+    >
       <Card className="w-28 rounded-lg border border-border bg-background/90 py-1 shadow-md">
         <CardContent className="p-2">
           <h3 className="mb-1 font-bold text-xs">Radio Types</h3>
@@ -301,11 +302,8 @@ const MinimapControl = () => {
   }, [map]);
 
   return (
-    <div className="absolute right-20 bottom-16 z-[1000]">
-      <div
-        className="h-20 w-20 rounded-lg border border-border bg-background/90 shadow-lg"
-        ref={minimapRef}
-      />
+    <div className="leaflet-control leaflet-bar absolute bottom-4 left-4 z-[1000]">
+      <div className="h-32 w-32 rounded-lg border shadow-sm" ref={minimapRef} />
     </div>
   );
 };
@@ -358,6 +356,8 @@ export default function RadioTransmitterMap() {
     frequency: [87.5, 108] as [number, number],
     power: [0, 50] as [number, number],
   });
+
+  const { theme } = useTheme();
 
   // Update frequency range when radio type changes
   useEffect(() => {
@@ -912,51 +912,38 @@ export default function RadioTransmitterMap() {
       title="Radio Transmitter Map"
     >
       <div className="relative h-full w-full">
-        <LeafletMapComponent
+        <MapContainer
+          attributionControl={false}
           center={[-25.2744, 133.7751]}
-          className="size-full"
           maxZoom={18}
           minZoom={3}
+          preferCanvas={true}
           ref={mapRef}
+          style={{ height: "100%", width: "100%" }}
           zoom={4}
+          zoomControl={false}
         >
-          <MapLayers defaultTileLayer="Default">
-            <MapTileLayer
-              attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              darkUrl="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              maxZoom={18}
-              minZoom={3}
-              name="Default"
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            />
-            <MapZoomControl className="top-1 left-1" />
-            <MapLocateControl
-              className="right-1 bottom-1"
-              onLocationError={() => {
-                toast({
-                  description: "Unable to retrieve your location.",
-                  title: "Geolocation error",
-                  variant: "destructive",
-                });
-              }}
-              onLocationFound={() => {
-                toast({
-                  description: "Map centered on your current location.",
-                  title: "Location found",
-                });
-              }}
-            />
-            <MapControls
-              bounds={L.latLngBounds(
-                filteredTransmitters.map((t) => [t.Lat, t.Long])
-              )}
-              center={[-25.2744, 133.7751]}
-              zoom={4}
-            />
-            {showLegend && <MapLegend />}
-            <MinimapControl />
-          </MapLayers>
-        </LeafletMapComponent>
+          <TileLayer
+            maxZoom={18}
+            minZoom={3}
+            url={
+              theme === "dark"
+                ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            }
+          />
+          <ZoomControl position="bottomright" />
+          <ScaleControl position="bottomleft" />
+          <MapControls
+            bounds={L.latLngBounds(
+              filteredTransmitters.map((t) => [t.Lat, t.Long])
+            )}
+            center={[-25.2744, 133.7751]}
+            zoom={4}
+          />
+          {showLegend && <MapLegend />}
+          <MinimapControl />
+        </MapContainer>
       </div>
     </SidebarLayout>
   );

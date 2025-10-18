@@ -5,11 +5,10 @@
 
 // Export constants
 export {
-  CHANNEL_STYLES,
   EVENT_TYPE_BADGES,
   EVENT_TYPE_COLORS,
+  GENRE_COLORS,
   TIMELINE_CONSTANTS,
-  TIMELINE_STYLES,
 } from "./constants";
 export { Timeline } from "./Timeline";
 export { TimelineEvent } from "./TimelineEvent";

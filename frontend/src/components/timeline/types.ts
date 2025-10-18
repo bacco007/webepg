@@ -63,7 +63,7 @@ export type TimelineEvent =
 
 export type TimelineSpan = {
   from: YearNumber; // inclusive
-  to?: YearNumber; // exclusive, if not provided, assume current year
+  to?: YearNumber; // exclusive, if not provided, assumes timeline end year
   text: string;
   href?: string;
   note?: string;

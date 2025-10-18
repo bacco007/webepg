@@ -9,60 +9,45 @@ type BreadcrumbItem = {
 };
 
 // Regex patterns defined at top level for performance
-const EPG_ROUTE_REGEX = /^\/epg\/(.*)$/;
-const CHANNEL_ROUTE_REGEX = /^\/channel(\/.*)?$/;
+const DATE_SEGMENT_REGEX = /^\d{8}$/;
 
-const routeMapping: Record<string, BreadcrumbItem[]> = {
-  "/channellist": [{ link: "/channellist", title: "Channels by Service" }],
-  "/channellist/fetch": [
-    { link: "/channellist", title: "Channels by Service" },
-    { link: "/channellist/fetch", title: "Fetch TV" },
-  ],
-  "/channellist/foxtel": [
-    { link: "/channellist", title: "Channels by Service" },
-    { link: "/channellist/foxtel", title: "Foxtel" },
-  ],
-  "/channellist/freeview-au": [
-    { link: "/channellist", title: "Channels by Service" },
-    { link: "/channellist/freeview-au", title: "Freeview (AU)" },
-  ],
-  "/channellist/freeview-au/regionmap": [
-    { link: "/channellist", title: "Channels by Service" },
-    { link: "/channellist/freeview-au", title: "Freeview (AU)" },
-    { link: "/channellist/freeview-au/regionmap", title: "Region Map" },
-  ],
-  "/channellist/freeview-nz": [
-    { link: "/channellist", title: "Channels by Service" },
-    { link: "/channellist/freeview-nz", title: "Freeview (NZ)" },
-  ],
-  "/channellist/hubbl": [
-    { link: "/channellist", title: "Channels by Service" },
-    { link: "/channellist/hubbl", title: "Hubbl" },
-  ],
-  "/channellist/skynz": [
-    { link: "/channellist", title: "Channels by Service" },
-    { link: "/channellist/skynz", title: "Sky (NZ)" },
-  ],
-  "/channellist/vast": [
-    { link: "/channellist", title: "Channels by Service" },
-    { link: "/channellist/vast", title: "VAST" },
-  ],
-  "/epg": [{ link: "/epg", title: "Daily EPG" }],
-  "/movies": [{ link: "/movies", title: "Upcoming Movies" }],
-  "/nownext": [{ link: "/nownext", title: "Now & Next" }],
-  "/sources": [{ link: "/sources", title: "Data Sources" }],
-  "/sports": [{ link: "/sports", title: "Upcoming Sports Programming" }],
-  "/transmitters": [
-    { link: "/transmitters", title: "Transmitter Site Locations" },
-  ],
-  "/transmitters/radio": [
-    { link: "/transmitters", title: "Transmitter Site Locations" },
-    { link: "/transmitters/radio", title: "Radio" },
-  ],
-  "/transmitters/tv": [
-    { link: "/transmitters", title: "Transmitter Site Locations" },
-    { link: "/transmitters/tv", title: "Television" },
-  ],
+/**
+ * Segment-to-title mapping
+ * Maps each URL segment to its display title
+ * This allows automatic breadcrumb generation from any path
+ */
+const segmentTitles: Record<string, string> = {
+  channel: "Weekly EPG",
+  // Top-level pages
+  channellist: "Channels by Service",
+  epg: "Daily EPG",
+
+  // Channel list services
+  fetch: "Fetch TV",
+  foxtel: "Foxtel",
+  foxtelanalogue: "Foxtel Analogue",
+  foxteldigital: "Foxtel Digital",
+  "freeview-au": "Freeview (AU)",
+  "freeview-nz": "Freeview (NZ)",
+  history: "Channel History",
+  hubbl: "Hubbl",
+  movies: "Upcoming Movies",
+  nownext: "Now & Next",
+
+  // Transmitter types
+  radio: "Radio",
+
+  // Sub-pages
+  regionmap: "Region Map",
+  settings: "Settings",
+  skynz: "Sky (NZ)",
+  sources: "Data Sources",
+  sports: "Upcoming Sports Programming",
+  transmitters: "Transmitter Site Locations",
+  tv: "Television",
+  vast: "VAST",
+
+  // Dynamic segments (providers, dates, etc.) are handled separately
 };
 
 const formatDate = (dateString: string): string => {
@@ -72,40 +57,48 @@ const formatDate = (dateString: string): string => {
   return `${day}/${month}/${year}`;
 };
 
+/**
+ * Get the title for a path segment
+ * Handles special cases like dates (YYYYMMDD) and dynamic provider names
+ */
+const getSegmentTitle = (segment: string): string => {
+  // Check if it's a date (8 digits)
+  if (DATE_SEGMENT_REGEX.test(segment)) {
+    return formatDate(segment);
+  }
+
+  // Check if we have a custom title for this segment
+  if (segmentTitles[segment]) {
+    return segmentTitles[segment];
+  }
+
+  // For dynamic segments (like provider IDs), capitalize first letter
+  return (
+    segment.charAt(0).toUpperCase() + segment.slice(1).replaceAll("-", " ")
+  );
+};
+
 export function useBreadcrumbs() {
   const pathname = usePathname();
 
   const breadcrumbs = useMemo(() => {
-    // Check for EPG route with date
-    const epgMatch = pathname.match(EPG_ROUTE_REGEX);
-    if (epgMatch) {
-      const date = epgMatch[1];
-      return [
-        { link: "/epg", title: "Daily EPG" },
-        { link: pathname, title: formatDate(date) },
-      ];
-    }
-
-    // Check for channel route with date
-    const channelMatch = pathname.match(CHANNEL_ROUTE_REGEX);
-    if (channelMatch) {
-      return [{ link: "/channel", title: "Weekly EPG" }];
-    }
-
-    // Check if we have a custom mapping for this exact path
-    if (routeMapping[pathname]) {
-      return routeMapping[pathname];
-    }
-
-    // If no exact match, fall back to generating breadcrumbs from the path
+    // Split path into segments
     const segments = pathname.split("/").filter(Boolean);
-    return segments.map((segment, index) => {
-      const path = `/${segments.slice(0, index + 1).join("/")}`;
-      return {
+
+    // Build breadcrumb trail by accumulating segments
+    const trail: BreadcrumbItem[] = [];
+
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      const path = `/${segments.slice(0, i + 1).join("/")}`;
+
+      trail.push({
         link: path,
-        title: segment.charAt(0).toUpperCase() + segment.slice(1),
-      };
-    });
+        title: getSegmentTitle(segment),
+      });
+    }
+
+    return trail;
   }, [pathname]);
 
   return breadcrumbs;
