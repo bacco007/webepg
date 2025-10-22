@@ -8,6 +8,7 @@ import {
   Tv,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { parseAsInteger, useQueryStates } from "nuqs";
 import { use, useEffect, useMemo, useState } from "react";
 import {
   SidebarContainer,
@@ -26,6 +27,7 @@ import {
 import { TimelineUnified } from "@/components/timeline/TimelineUnified";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Collapsible,
   CollapsibleContent,
@@ -75,25 +77,58 @@ export default function ChannelHistoryClient({
   // Legend collapse state
   const [isIndicatorsOpen, setIsIndicatorsOpen] = useState(false);
   const [isGenresOpen, setIsGenresOpen] = useState(false);
+  const [isNetworksOpen, setIsNetworksOpen] = useState(false);
 
-  // Year range filter state
-  const [yearRange, setYearRange] = useState<[number, number]>([
-    selectedProvider?.data.axis.start ?? 1990,
-    selectedProvider?.data.axis.end ?? 2025,
-  ]);
+  // Network filter state
+  const [selectedNetworks, setSelectedNetworks] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Year range filter state - tracked in URL
+  const [{ yearStart, yearEnd }, setYearParams] = useQueryStates(
+    {
+      yearEnd: parseAsInteger.withDefault(
+        selectedProvider?.data.axis.end ?? 2025
+      ),
+      yearStart: parseAsInteger.withDefault(
+        selectedProvider?.data.axis.start ?? 1990
+      ),
+    },
+    {
+      history: "push",
+      shallow: true,
+    }
+  );
+
+  // Derive yearRange from URL params
+  const yearRange: [number, number] = [yearStart, yearEnd];
 
   // Debounce year range changes to improve performance (300ms delay)
   const debouncedYearRange = useDebounce(yearRange, 300);
 
-  // Reset year range when provider changes
+  // Reset year range and network filter when provider changes
   useEffect(() => {
     if (selectedProvider) {
-      setYearRange([
-        selectedProvider.data.axis.start,
-        selectedProvider.data.axis.end,
-      ]);
+      const newStart = selectedProvider.data.axis.start;
+      const newEnd = selectedProvider.data.axis.end;
+
+      // Only update if the current values are outside the new provider's range
+      if (
+        yearStart < newStart ||
+        yearStart > newEnd ||
+        yearEnd < newStart ||
+        yearEnd > newEnd
+      ) {
+        setYearParams({
+          yearEnd: newEnd,
+          yearStart: newStart,
+        });
+      }
+
+      // Reset network filter when provider changes
+      setSelectedNetworks(new Set());
     }
-  }, [selectedProvider]);
+  }, [selectedProvider, yearStart, yearEnd, setYearParams]);
 
   // Track container width for fill-space mode
   useEffect(() => {
@@ -159,6 +194,175 @@ export default function ChannelHistoryClient({
       handleProviderChange(nextProviderId);
     }
   };
+
+  // Filter timeline data based on year range and network
+  const filteredTimelineData = useMemo(() => {
+    if (!selectedProvider) {
+      return null;
+    }
+
+    type ChannelItem = {
+      channel_name: string;
+      channel_genre?: string;
+      channel_network?: string;
+      channel_notes?: string;
+      from: number | string;
+      to?: number | string;
+    };
+
+    type EventItem = {
+      when: number;
+      label: string;
+      type: string;
+      note?: string;
+      href?: string;
+    };
+
+    // Check if no filters are applied
+    const isFullRange =
+      debouncedYearRange[0] === selectedProvider.data.axis.start &&
+      debouncedYearRange[1] === selectedProvider.data.axis.end;
+    const hasNetworkFilter = selectedNetworks.size > 0;
+
+    // If no filters applied, return original data
+    if (isFullRange && !hasNetworkFilter) {
+      return selectedProvider.data;
+    }
+
+    // Helper: check if channel item overlaps with year range
+    const itemOverlapsRange = (item: ChannelItem): boolean => {
+      const itemStart = Number(item.from);
+      const itemEnd = item.to
+        ? Number(item.to)
+        : selectedProvider.data.axis.end;
+      return (
+        itemEnd >= debouncedYearRange[0] && itemStart <= debouncedYearRange[1]
+      );
+    };
+
+    // Helper: check if channel item matches network filter
+    const itemMatchesNetwork = (item: ChannelItem): boolean => {
+      if (!hasNetworkFilter) {
+        return true;
+      }
+      return item.channel_network
+        ? selectedNetworks.has(item.channel_network)
+        : false;
+    };
+
+    // Helper: check if event is within year range
+    const eventInRange = (event: EventItem): boolean => {
+      const eventYear = Number(event.when);
+      return (
+        eventYear >= debouncedYearRange[0] && eventYear <= debouncedYearRange[1]
+      );
+    };
+
+    // Filter channels
+    const filteredChannels: Record<string, ChannelItem[]> = {};
+    for (const [channelId, items] of Object.entries(
+      selectedProvider.data.channels
+    )) {
+      const filtered = (items as ChannelItem[]).filter(
+        (item) => itemOverlapsRange(item) && itemMatchesNetwork(item)
+      );
+      if (filtered.length > 0) {
+        filteredChannels[channelId] = filtered;
+      }
+    }
+
+    // Filter events
+    const filteredEvents = (
+      selectedProvider.data.events as EventItem[] | undefined
+    )?.filter(eventInRange);
+
+    return {
+      ...selectedProvider.data,
+      axis: {
+        ...selectedProvider.data.axis,
+        end: debouncedYearRange[1],
+        start: debouncedYearRange[0],
+      },
+      channels: filteredChannels,
+      events: filteredEvents,
+    };
+  }, [selectedProvider, debouncedYearRange, selectedNetworks]);
+
+  // Get color configuration from provider
+  const colorBy = selectedProvider?.colorBy || "channel_genre";
+  const colorMap = selectedProvider?.colorMap;
+
+  // Extract indicators, networks and color values used in the current provider
+  const { activeIndicators, availableNetworks, activeColorValues } =
+    useMemo(() => {
+      if (!filteredTimelineData) {
+        return {
+          activeColorValues: new Set<string>(),
+          activeIndicators: new Set<string>(),
+          availableNetworks: new Set<string>(),
+        };
+      }
+
+      type ChannelItem = {
+        channel_name: string;
+        channel_genre?: string;
+        channel_network?: string;
+        channel_notes?: string;
+        from: number | string;
+        to?: number | string;
+      };
+
+      // Helper: extract indicators from channel name
+      const extractIndicators = (name: string): string[] => {
+        const found: string[] = [];
+        if (
+          name.includes("4K") ||
+          name.includes("UHD") ||
+          name.includes("Ultra HD")
+        ) {
+          found.push("4K");
+        }
+        if (name.includes(" HD")) {
+          found.push("HD");
+        }
+        if (name.includes("+2")) {
+          found.push("+2");
+        }
+        return found;
+      };
+
+      const indicators = new Set<string>();
+      const networks = new Set<string>();
+      const colorValues = new Set<string>();
+
+      // Check all channels for indicators, networks, and color values
+      for (const items of Object.values(filteredTimelineData.channels)) {
+        for (const item of items as ChannelItem[]) {
+          // Extract indicators
+          for (const indicator of extractIndicators(item.channel_name)) {
+            indicators.add(indicator);
+          }
+          // Collect network
+          if (item.channel_network) {
+            networks.add(item.channel_network);
+          }
+          // Collect color values based on configured colorBy
+          const colorValue =
+            colorBy === "channel_network"
+              ? item.channel_network
+              : item.channel_genre;
+          if (colorValue) {
+            colorValues.add(colorValue);
+          }
+        }
+      }
+
+      return {
+        activeColorValues: colorValues,
+        activeIndicators: indicators,
+        availableNetworks: networks,
+      };
+    }, [filteredTimelineData, colorBy]);
 
   // Create the sidebar content
   const sidebar = (
@@ -241,10 +445,10 @@ export default function ChannelHistoryClient({
                 <Button
                   className="h-6 px-2"
                   onClick={() =>
-                    setYearRange([
-                      selectedProvider.data.axis.start,
-                      selectedProvider.data.axis.end,
-                    ])
+                    setYearParams({
+                      yearEnd: selectedProvider.data.axis.end,
+                      yearStart: selectedProvider.data.axis.start,
+                    })
                   }
                   size="sm"
                   variant="ghost"
@@ -256,7 +460,12 @@ export default function ChannelHistoryClient({
                 <Slider
                   max={selectedProvider.data.axis.end}
                   min={selectedProvider.data.axis.start}
-                  onValueChange={(value) => setYearRange([value[0], value[1]])}
+                  onValueChange={(value) =>
+                    setYearParams({
+                      yearEnd: value[1],
+                      yearStart: value[0],
+                    })
+                  }
                   step={1}
                   value={yearRange}
                 />
@@ -271,179 +480,175 @@ export default function ChannelHistoryClient({
 
           <Separator />
 
-          {/* Channel Type Indicators */}
-          <Collapsible
-            onOpenChange={setIsIndicatorsOpen}
-            open={isIndicatorsOpen}
-          >
-            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-              <h4 className="font-semibold text-xs">
-                Legend: Channel Indicators
-              </h4>
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${isIndicatorsOpen ? "rotate-180" : ""}`}
-              />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-2">
-              <div className="space-y-1.5">
-                <div
-                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                  style={{ borderColor: "#a855f7" }}
-                >
-                  <div
-                    className="h-3 w-3 rounded border-2"
-                    style={{ borderColor: "#a855f7" }}
-                  />
-                  <span className="text-xs">4K / UHD / Ultra HD</span>
-                </div>
-                <div
-                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                  style={{ borderColor: "#3b82f6" }}
-                >
-                  <div
-                    className="h-3 w-3 rounded border-2"
-                    style={{ borderColor: "#3b82f6" }}
-                  />
-                  <span className="text-xs">HD Channels</span>
-                </div>
-                <div
-                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                  style={{ borderColor: "#f97316" }}
-                >
-                  <div
-                    className="h-3 w-3 rounded border-2"
-                    style={{ borderColor: "#f97316" }}
-                  />
-                  <span className="text-xs">+2 Channels</span>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-
-          <Separator />
-
-          {/* Genre Colors Legend */}
-          <Collapsible onOpenChange={setIsGenresOpen} open={isGenresOpen}>
-            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-              <h4 className="font-semibold text-xs">Legend: Channel Genres</h4>
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${isGenresOpen ? "rotate-180" : ""}`}
-              />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-2">
-              <div className="grid grid-cols-2 gap-1.5">
-                {Object.entries(GENRE_COLORS)
-                  .filter(([genre]) => genre !== "Default")
-                  .map(([genre, colorClass]) => (
-                    <div
-                      className={`rounded-md border px-2 py-1 text-center ${colorClass}`}
-                      key={genre}
+          {/* Network Filter */}
+          {availableNetworks.size > 0 && (
+            <Collapsible onOpenChange={setIsNetworksOpen} open={isNetworksOpen}>
+              <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+                <h4 className="font-semibold text-xs">
+                  Filter by Network
+                  {selectedNetworks.size > 0 && (
+                    <span className="ml-2 font-normal text-muted-foreground">
+                      ({selectedNetworks.size} selected)
+                    </span>
+                  )}
+                </h4>
+                <div className="flex items-center gap-1">
+                  {selectedNetworks.size > 0 && (
+                    <span
+                      className="inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedNetworks(new Set());
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedNetworks(new Set());
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
                     >
-                      <span className="text-xs">{genre}</span>
+                      <RotateCcw className="h-3 w-3" />
+                    </span>
+                  )}
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${isNetworksOpen ? "rotate-180" : ""}`}
+                  />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2">
+                <div className="grid grid-cols-2 gap-2">
+                  {Array.from(availableNetworks)
+                    .sort()
+                    .map((network) => (
+                      <div
+                        className="flex items-center space-x-2"
+                        key={network}
+                      >
+                        <Checkbox
+                          checked={selectedNetworks.has(network)}
+                          id={`network-${network}`}
+                          onCheckedChange={(checked) => {
+                            const newNetworks = new Set(selectedNetworks);
+                            if (checked) {
+                              newNetworks.add(network);
+                            } else {
+                              newNetworks.delete(network);
+                            }
+                            setSelectedNetworks(newNetworks);
+                          }}
+                        />
+                        <Label
+                          className="cursor-pointer font-normal text-xs"
+                          htmlFor={`network-${network}`}
+                        >
+                          {network}
+                        </Label>
+                      </div>
+                    ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
+          {availableNetworks.size > 0 && <Separator />}
+
+          {/* Channel Type Indicators */}
+          {activeIndicators.size > 0 && (
+            <Collapsible
+              onOpenChange={setIsIndicatorsOpen}
+              open={isIndicatorsOpen}
+            >
+              <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+                <h4 className="font-semibold text-xs">
+                  Legend: Channel Indicators
+                </h4>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${isIndicatorsOpen ? "rotate-180" : ""}`}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2">
+                <div className="space-y-1.5">
+                  {activeIndicators.has("4K") && (
+                    <div
+                      className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
+                      style={{ borderColor: "#a855f7" }}
+                    >
+                      <div
+                        className="h-3 w-3 rounded border-2"
+                        style={{ borderColor: "#a855f7" }}
+                      />
+                      <span className="text-xs">4K / UHD / Ultra HD</span>
                     </div>
-                  ))}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+                  )}
+                  {activeIndicators.has("HD") && (
+                    <div
+                      className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
+                      style={{ borderColor: "#3b82f6" }}
+                    >
+                      <div
+                        className="h-3 w-3 rounded border-2"
+                        style={{ borderColor: "#3b82f6" }}
+                      />
+                      <span className="text-xs">HD Channels</span>
+                    </div>
+                  )}
+                  {activeIndicators.has("+2") && (
+                    <div
+                      className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
+                      style={{ borderColor: "#f97316" }}
+                    >
+                      <div
+                        className="h-3 w-3 rounded border-2"
+                        style={{ borderColor: "#f97316" }}
+                      />
+                      <span className="text-xs">+2 Channels</span>
+                    </div>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
+          {activeIndicators.size > 0 && <Separator />}
+
+          {/* Color Legend */}
+          {activeColorValues.size > 0 && (
+            <Collapsible onOpenChange={setIsGenresOpen} open={isGenresOpen}>
+              <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+                <h4 className="font-semibold text-xs">
+                  Legend: Channel{" "}
+                  {colorBy === "channel_network" ? "Networks" : "Genres"}
+                </h4>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${isGenresOpen ? "rotate-180" : ""}`}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2">
+                <div className="grid grid-cols-2 gap-1.5">
+                  {Object.entries(colorMap || GENRE_COLORS)
+                    .filter(
+                      ([value]) =>
+                        value !== "Default" && activeColorValues.has(value)
+                    )
+                    .map(([value, colorClass]) => (
+                      <div
+                        className={`rounded-md border px-2 py-1 text-center ${colorClass}`}
+                        key={value}
+                      >
+                        <span className="text-xs">{value}</span>
+                      </div>
+                    ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
         </div>
       </SidebarFooter>
     </SidebarContainer>
   );
-
-  // Filter timeline data based on year range
-  const filteredTimelineData = useMemo(() => {
-    try {
-      if (!selectedProvider) {
-        return null;
-      }
-
-      // Check if the year range matches the full range (no filtering needed)
-      const isFullRange =
-        debouncedYearRange[0] === selectedProvider.data.axis.start &&
-        debouncedYearRange[1] === selectedProvider.data.axis.end;
-
-      if (isFullRange) {
-        return selectedProvider.data;
-      }
-
-      type ChannelItem = {
-        channel_name: string;
-        channel_genre?: string;
-        channel_notes?: string;
-        from: number | string;
-        to?: number | string;
-      };
-
-      type EventItem = {
-        when: number;
-        label: string;
-        type: string;
-        note?: string;
-        href?: string;
-      };
-
-      // Filter channels to only include spans that overlap with the year range
-      const filteredChannels: Record<string, ChannelItem[]> = {};
-
-      for (const [channelId, items] of Object.entries(
-        selectedProvider.data.channels
-      )) {
-        const filteredItems = (items as ChannelItem[]).filter((item) => {
-          try {
-            const itemStart = Number(item.from);
-            const itemEnd = item.to
-              ? Number(item.to)
-              : selectedProvider.data.axis.end;
-
-            // Check if the item overlaps with the selected year range
-            return (
-              itemEnd >= debouncedYearRange[0] &&
-              itemStart <= debouncedYearRange[1]
-            );
-          } catch {
-            // Silently skip invalid items
-            return false;
-          }
-        });
-
-        if (filteredItems.length > 0) {
-          filteredChannels[channelId] = filteredItems;
-        }
-      }
-
-      // Filter events to only include those within the year range
-      const filteredEvents = (
-        selectedProvider.data.events as EventItem[] | undefined
-      )?.filter((event) => {
-        try {
-          const eventYear = Number(event.when);
-          return (
-            eventYear >= debouncedYearRange[0] &&
-            eventYear <= debouncedYearRange[1]
-          );
-        } catch {
-          // Silently skip invalid events
-          return false;
-        }
-      });
-
-      const filtered = {
-        ...selectedProvider.data,
-        axis: {
-          ...selectedProvider.data.axis,
-          end: debouncedYearRange[1],
-          start: debouncedYearRange[0],
-        },
-        channels: filteredChannels,
-        events: filteredEvents,
-      };
-
-      return filtered;
-    } catch {
-      // Return unfiltered data as fallback on error
-      return selectedProvider?.data ?? null;
-    }
-  }, [selectedProvider, debouncedYearRange]);
 
   // Calculate pixels per year based on spacing mode
   const pxPerYear = useMemo(() => {
@@ -532,6 +737,8 @@ export default function ChannelHistoryClient({
       <div className="flex h-full flex-col" data-timeline-container>
         {filteredTimelineData && (
           <TimelineUnified
+            colorBy={colorBy}
+            colorMap={colorMap}
             doc={filteredTimelineData}
             onEventClick={() => {
               // Handle event click

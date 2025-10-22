@@ -1508,7 +1508,37 @@ export const foxteldigital: TimelineProvider = {
           to: 2024.3,
         },
       ],
+      "184": [
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI GOLD",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 1 HD",
+          channel_notes: "Popup Channel for 2012 Olympics in London",
+          from: 2012.7,
+          to: 2012.8,
+        },
+      ],
       "185": [
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI 2",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 2 HD",
+          channel_notes: "Popup Channel for 2012 Olympics in London",
+          from: 2012.7,
+          to: 2012.8,
+        },
         {
           channel_genre: "Religious",
           channel_name: "Daystar",
@@ -1516,6 +1546,20 @@ export const foxteldigital: TimelineProvider = {
         },
       ],
       "186": [
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI 3",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 3 HD",
+          channel_notes: "Popup Channel for 2012 Olympics in London",
+          from: 2012.7,
+          to: 2012.8,
+        },
         { channel_genre: "Religious", channel_name: "SBN", from: "2020.11" },
       ],
       "187": [
@@ -1526,6 +1570,20 @@ export const foxteldigital: TimelineProvider = {
           to: "2006.10",
         },
         {
+          channel_genre: "Sports",
+          channel_name: "DELHI 4",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 4 HD",
+          channel_notes: "Popup Channel for 2012 Olympics in London",
+          from: 2012.7,
+          to: 2012.8,
+        },
+        {
           channel_genre: "FTA",
           channel_name: "7flix",
           from: 2016.3,
@@ -1534,10 +1592,86 @@ export const foxteldigital: TimelineProvider = {
       ],
       "188": [
         {
+          channel_genre: "Sports",
+          channel_name: "2010 Olympics - Whistler",
+          channel_notes: "Popup Channel for 2010 Winter Olympics in Vancouver",
+          from: "2010.2",
+          to: 2010.3,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI 5",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 5 HD",
+          channel_notes: "Popup Channel for 2012 Olympics in London",
+          from: 2012.7,
+          to: 2012.8,
+        },
+        {
           channel_genre: "FTA",
           channel_name: "7mate",
           from: 2015,
           to: 2020.11,
+        },
+      ],
+      "189": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2010 Olympics - Creekside",
+          channel_notes: "Popup Channel for 2010 Winter Olympics in Vancouver",
+          from: "2010.2",
+          to: 2010.3,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI 6",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 6 HD",
+          channel_notes: "Popup Channel for 2012 Olympics in London",
+          from: 2012.7,
+          to: 2012.8,
+        },
+      ],
+      "190": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2010 Olympics - Vancouver",
+          channel_notes: "Popup Channel for 2010 Winter Olympics in Vancouver",
+          from: "2010.2",
+          to: 2010.3,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 7 HD",
+          channel_notes: "Popup Channel for 2012 Olympics in London",
+          from: 2012.7,
+          to: 2012.8,
+        },
+      ],
+      "191": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2010 Olympics - Cypress",
+          channel_notes: "Popup Channel for 2010 Winter Olympics in Vancouver",
+          from: "2010.2",
+          to: 2010.3,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 8 HD",
+          channel_notes: "Popup Channel for 2012 Olympics in London",
+          from: 2012.7,
+          to: 2012.8,
         },
       ],
       "192": [
@@ -1557,17 +1691,95 @@ export const foxteldigital: TimelineProvider = {
       ],
       "194": [
         {
+          channel_genre: "Sports",
+          channel_name: "DELHI GOLD HD",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+        {
           channel_genre: "FTA",
           channel_name: "9Life",
           from: 2016.3,
           to: 2020.11,
         },
       ],
+      "195": [
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI 2 HD",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+      ],
+      "196": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2010 Olympics - Whistler HD",
+          channel_notes: "Popup Channel for 2010 Winter Olympics in Vancouver",
+          from: "2010.2",
+          to: 2010.3,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI 3 HD",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+      ],
       "197": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2010 Olympics - Creekside HD",
+          channel_notes: "Popup Channel for 2010 Winter Olympics in Vancouver",
+          from: "2010.2",
+          to: 2010.3,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI 4 HD",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
         {
           channel_genre: "FTA",
           channel_name: "7mate",
           from: 2016.2,
+        },
+      ],
+      "198": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2010 Olympics - Vancouver HD",
+          channel_notes: "Popup Channel for 2010 Winter Olympics in Vancouver",
+          from: "2010.2",
+          to: 2010.3,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI 5 HD",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
+        },
+      ],
+      "199": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2010 Olympics - Cypress HD",
+          channel_notes: "Popup Channel for 2010 Winter Olympics in Vancouver",
+          from: "2010.2",
+          to: 2010.3,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "DELHI 6 HD",
+          channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
+          from: "2010.10",
+          to: 2010.11,
         },
       ],
       "201": [
@@ -3603,6 +3815,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Sky Racing 1",
           from: "2010.5",
+          to: 2016.5,
         },
       ],
       "520": [
@@ -3616,6 +3829,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Sky Racing 2",
           from: "2010.5",
+          to: 2016.5,
         },
       ],
       "521": [
@@ -3629,6 +3843,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Sky Thoroughbred Central",
           from: 2015.3,
+          to: 2016.5,
         },
         { channel_genre: "PPV", channel_name: "Main Event", from: "2022.4" },
       ],
@@ -3645,6 +3860,7 @@ export const foxteldigital: TimelineProvider = {
           from: "2015.9",
           to: "2016.10",
         },
+        { channel_genre: "PPV", channel_name: "Main Event", from: "2022.4" },
       ],
       "523": [
         {
@@ -3671,21 +3887,33 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "Sports",
           channel_name: "Sky Racing 1",
-          from: "2023.10",
+          from: "2016.5",
+          to: 2025.5,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Sky Racing 1 HD",
+          from: 2025.5,
         },
       ],
       "527": [
         {
           channel_genre: "Sports",
           channel_name: "Sky Racing 2",
-          from: "2023.10",
+          from: "2016.5",
+          to: 2025.5,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Sky Racing 2 HD",
+          from: 2025.5,
         },
       ],
       "528": [
         {
           channel_genre: "Sports",
-          channel_name: "Sky Thoroughbred Central",
-          from: "2023.10",
+          channel_name: "Sky Thoroughbred Central HD",
+          from: "2016.5",
         },
       ],
       "529": [
@@ -3789,10 +4017,24 @@ export const foxteldigital: TimelineProvider = {
           to: 2023.6,
         },
       ],
+      "586": [
+        {
+          channel_genre: "Sports",
+          channel_name: "Sky Racing 1",
+          from: 2025.5,
+        },
+      ],
+      "587": [
+        {
+          channel_genre: "Sports",
+          channel_name: "Sky Racing 2",
+          from: 2025.5,
+        },
+      ],
       "588": [
         {
           channel_genre: "Sports",
-          channel_name: "Sky Thoroughbred Central HD",
+          channel_name: "Sky Thoroughbred Central",
           from: "2020.11",
         },
       ],
@@ -4500,8 +4742,10 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "News",
           channel_name: "Russia Today",
+          channel_notes:
+            "Channel withdrawn as a result of content broadcast by RT regarding the invasion of Ukraine by Russia",
           from: "2015.2",
-          to: 2020,
+          to: 2022.2,
         },
         { channel_genre: "News", channel_name: "GB News", from: "2025.5" },
       ],

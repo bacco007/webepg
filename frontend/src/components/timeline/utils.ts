@@ -267,6 +267,7 @@ type ChannelItem = {
   to?: number | string;
   channel_name: string;
   channel_genre?: string;
+  channel_network?: string;
   channel_notes?: string;
 };
 
@@ -292,7 +293,10 @@ type GroupedDoc = {
   events?: EventData[];
 };
 
-export function convertSimplifiedToRows(groupedDoc: GroupedDoc): TimelineDoc {
+export function convertSimplifiedToRows(
+  groupedDoc: GroupedDoc,
+  colorBy: "channel_genre" | "channel_network" = "channel_genre"
+): TimelineDoc {
   // Convert grouped channels to row structure
   const rows: TimelineRow[] = [];
 
@@ -325,9 +329,15 @@ export function convertSimplifiedToRows(groupedDoc: GroupedDoc): TimelineDoc {
         tooltipText = `${item.channel_name}\n\n${item.channel_notes}\n\nPeriod: ${fromYear} - ${toYear}`;
       }
 
+      // Get color value based on configured colorBy field
+      const colorValue =
+        colorBy === "channel_network"
+          ? item.channel_network
+          : item.channel_genre;
+
       return {
         from: item.from || 0,
-        genre: item.channel_genre,
+        genre: colorValue, // Use the configured field for coloring
         note: tooltipText,
         text: item.channel_name,
         to: item.to || groupedDoc.axis.end, // Use timeline end if no 'to' date provided

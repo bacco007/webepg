@@ -41,7 +41,7 @@ export const austar: TimelineProvider = {
           channel_genre: "FTA",
           channel_name: "ABC",
           from: 2001,
-          to: 2001,
+          to: 2007,
         },
       ],
       "3": [
@@ -224,6 +224,12 @@ export const austar: TimelineProvider = {
           channel_name: "National Geographic Channel",
           from: 1998,
           to: 2001,
+        },
+        {
+          channel_genre: "Documentary",
+          channel_name: "The History Channel",
+          from: 2001,
+          to: 2007,
         },
       ],
       "13": [
@@ -462,7 +468,7 @@ export const austar: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "C7 Sport",
           from: 2001,
-          to: 2002,
+          to: 2002.4,
         },
       ],
       "24": [
@@ -651,6 +657,13 @@ export const austar: TimelineProvider = {
       ],
       "35": [
         {
+          channel_genre: "Sports",
+          channel_name: "C7 Olympics",
+          channel_notes: "Popup Channel for 2000 Sydney Olympics",
+          from: "2000.9",
+          to: "2000.11",
+        },
+        {
           channel_genre: "News",
           channel_name: "BBC World",
           from: 2003,
@@ -658,6 +671,13 @@ export const austar: TimelineProvider = {
         },
       ],
       "36": [
+        {
+          channel_genre: "Sports",
+          channel_name: "C7 Games",
+          channel_notes: "Popup Channel for 2000 Sydney Olympics",
+          from: "2000.9",
+          to: "2000.11",
+        },
         {
           channel_genre: "Movies",
           channel_name: "TCM",
@@ -742,7 +762,15 @@ export const austar: TimelineProvider = {
       "52": [
         {
           channel_genre: "Sports",
-          channel_name: "Fox Footy Channel (Vic/Tas/(SA/NT)",
+          channel_name: "Fox Footy Channel (Vic/Tas)(SA/NT)",
+          from: 2002,
+          to: 2007,
+        },
+      ],
+      "53": [
+        {
+          channel_genre: "Sports",
+          channel_name: "Fox Footy Channel (SA/NT)",
           from: 2002,
           to: 2007,
         },

@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 import Script from "next/script";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { FontSizeProvider } from "@/components/font-size-provider";
 import { GlobalErrorBoundary } from "@/components/global-error-boundary";
 import Header from "@/components/Header";
@@ -169,31 +170,33 @@ export default async function RootLayout({
         >
           <FontSizeProvider>
             <GlobalErrorBoundary>
-              <SidebarProvider defaultOpen={defaultOpen}>
-                <div
-                  className="flex h-screen w-full overflow-hidden"
-                  style={
-                    {
-                      "--sidebar-width": "calc(var(--spacing) * 72)",
-                    } as React.CSSProperties
-                  }
-                >
-                  <Sidebar />
-                  <SidebarInset>
-                    <div className="h-svh w-full overflow-hidden lg:p-2">
-                      <div className="flex h-full w-full flex-col justify-start overflow-hidden bg-container lg:rounded-md lg:border">
-                        <Header />
-                        <main
-                          className="flex size-full h-[calc(100vh)] flex-col overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-background lg:h-[calc(100svh)]"
-                          style={{ width: "calc(100svw - 100px)" }}
-                        >
-                          {children}
-                        </main>
+              <NuqsAdapter>
+                <SidebarProvider defaultOpen={defaultOpen}>
+                  <div
+                    className="flex h-screen w-full overflow-hidden"
+                    style={
+                      {
+                        "--sidebar-width": "calc(var(--spacing) * 72)",
+                      } as React.CSSProperties
+                    }
+                  >
+                    <Sidebar />
+                    <SidebarInset>
+                      <div className="h-svh w-full overflow-hidden lg:p-2">
+                        <div className="flex h-full w-full flex-col justify-start overflow-hidden bg-container lg:rounded-md lg:border">
+                          <Header />
+                          <main
+                            className="flex size-full h-[calc(100vh)] flex-col overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-background lg:h-[calc(100svh)]"
+                            style={{ width: "calc(100svw - 100px)" }}
+                          >
+                            {children}
+                          </main>
+                        </div>
                       </div>
-                    </div>
-                  </SidebarInset>
-                </div>
-              </SidebarProvider>
+                    </SidebarInset>
+                  </div>
+                </SidebarProvider>
+              </NuqsAdapter>
             </GlobalErrorBoundary>
           </FontSizeProvider>
         </ThemeProvider>

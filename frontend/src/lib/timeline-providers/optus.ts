@@ -283,10 +283,16 @@ export const optus: TimelineProvider = {
           to: 2001,
         },
         {
-          channel_genre: "Documentary",
-          channel_name: "National Geographic Channel",
-          from: 2001.12,
-          to: 2004,
+          channel_genre: "Sports",
+          channel_name: "NRL on Optus",
+          from: 2001,
+          to: 2002,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Fox Footy Channel",
+          from: 2002.4,
+          to: 2002.12,
         },
         {
           channel_genre: "Entertainment",
@@ -581,7 +587,7 @@ export const optus: TimelineProvider = {
           channel_genre: "Information",
           channel_name: "Optus Electronic Program Guide",
           from: 1999,
-          to: 2001.12,
+          to: 2001,
         },
         {
           channel_genre: "News",
@@ -702,6 +708,13 @@ export const optus: TimelineProvider = {
       ],
       "31": [
         {
+          channel_genre: "Sports",
+          channel_name: "C7 Olympics",
+          channel_notes: "Popup Channel for 2000 Sydney Olympics",
+          from: "2000.9",
+          to: "2000.11",
+        },
+        {
           channel_genre: "News",
           channel_name: "CNNfn",
           from: 2001,
@@ -714,6 +727,13 @@ export const optus: TimelineProvider = {
         },
       ],
       "32": [
+        {
+          channel_genre: "Sports",
+          channel_name: "C7 Games",
+          channel_notes: "Popup Channel for 2000 Sydney Olympics",
+          from: "2000.9",
+          to: "2000.11",
+        },
         {
           channel_genre: "Sports",
           channel_name: "Sky Racing",
@@ -911,8 +931,7 @@ export const optus: TimelineProvider = {
         {
           channel_genre: "News",
           channel_name: "CNBC Asia",
-          from: 2002.12,
-          to: 2004,
+          from: 2004,
         },
       ],
       "43": [

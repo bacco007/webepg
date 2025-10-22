@@ -33,7 +33,7 @@ const getChannelBorderStyle = (
 };
 
 export const TimelineSpan: React.FC<TimelineSpanProps> = React.memo(
-  ({ span, axis, style, onSpanClick }) => {
+  ({ span, axis, style, onSpanClick, colorMap }) => {
     const { left, width, textMinWidth } = calculateSpanPosition(
       span,
       axis,
@@ -61,11 +61,12 @@ export const TimelineSpan: React.FC<TimelineSpanProps> = React.memo(
       }
     };
 
-    // Get genre-based styling
+    // Get genre-based styling (use colorMap if provided, otherwise use GENRE_COLORS)
+    const colors = colorMap || GENRE_COLORS;
     const genreStyle =
-      span.genre && GENRE_COLORS[span.genre]
-        ? GENRE_COLORS[span.genre]
-        : GENRE_COLORS.Default;
+      span.genre && colors[span.genre]
+        ? colors[span.genre]
+        : colors.Default || GENRE_COLORS.Default;
 
     // Get special border style
     const borderStyle = getChannelBorderStyle(span.text);

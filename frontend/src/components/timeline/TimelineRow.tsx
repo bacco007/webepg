@@ -21,6 +21,7 @@ export const TimelineRow: React.FC<TimelineRowProps> = React.memo(
     eventTypeBadge,
     onEventClick,
     onSpanClick,
+    colorMap,
   }) => {
     return (
       <TimelineEventPopover events={row.events || []}>
@@ -93,6 +94,7 @@ export const TimelineRow: React.FC<TimelineRowProps> = React.memo(
               {row.spans.map((span, index) => (
                 <TimelineSpan
                   axis={axis}
+                  colorMap={colorMap}
                   key={`${row.id}-span-${index}`}
                   onSpanClick={onSpanClick}
                   span={span}

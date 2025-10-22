@@ -717,6 +717,20 @@ export const foxtelanalogue: TimelineProvider = {
       ],
       "40": [
         {
+          channel_genre: "FTA",
+          channel_name: "Prime Television (Gold Coast Only)",
+          channel_notes: "Gold Coast Cable only",
+          from: "1995.10",
+          to: 2000.7,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "C7 Olympics",
+          channel_notes: "Popup Channel for 2000 Sydney Olympics",
+          from: "2000.9",
+          to: "2000.11",
+        },
+        {
           channel_genre: "Sports",
           channel_name: "Sky Racing",
           from: 2000.12,
@@ -730,10 +744,38 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "41": [
+        {
+          channel_genre: "FTA",
+          channel_name: "NBN Television (Gold Coast Only)",
+          channel_notes: "Gold Coast Cable only",
+          from: "1995.10",
+          to: 2000.7,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "C7 Games",
+          channel_notes: "Popup Channel for 2000 Sydney Olympics",
+          from: "2000.9",
+          to: "2000.11",
+        },
         { channel_name: "TVSN", from: 2000.12, to: 2001.12 },
         { channel_name: "SBS", from: 2001.12, to: 2007 },
       ],
       "42": [
+        {
+          channel_genre: "FTA",
+          channel_name: "Ten Northern NSW (Gold Coast Only)",
+          channel_notes: "Gold Coast Cable only",
+          from: "1995.10",
+          to: 2000.7,
+        },
+        {
+          channel_genre: "FTA",
+          channel_name: "Prime Television (Gold Coast Only)",
+          channel_notes: "Gold Coast Cable only",
+          from: "2000.7",
+          to: 2000.12,
+        },
         {
           channel_genre: "Movies",
           channel_name: "World Movies",
@@ -742,6 +784,13 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "43": [
+        {
+          channel_genre: "FTA",
+          channel_name: "NBN Television (Gold Coast Only)",
+          channel_notes: "Gold Coast Cable only",
+          from: 2000.7,
+          to: 2000.12,
+        },
         { channel_name: "Antenna Pacific", from: 2000.12, to: 2002.12 },
         { channel_name: "Ovation", from: 2002.12, to: 2003.12 },
         {
@@ -752,6 +801,13 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "44:": [
+        {
+          channel_genre: "FTA",
+          channel_name: "Ten Northern NSW (Gold Coast Only)",
+          channel_notes: "Gold Coast Cable only",
+          from: 2000.7,
+          to: 2000.12,
+        },
         { channel_name: "Main Event", from: 2000.12, to: 2002 },
         { channel_name: "Main Event / Adults Only", from: 2002, to: 2003.12 },
         {

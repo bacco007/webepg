@@ -133,6 +133,7 @@ export type TimelineDoc = {
   eventTypes?: Record<TimelineEventType, string>; // dictionary for legend/tooltip
   rows: TimelineRow[];
   style?: TimelineStyle;
+  colorMap?: Record<string, string>; // Custom color mapping for genres/networks
 };
 
 export type TimelineProps = {
@@ -160,6 +161,7 @@ export type TimelineRowProps = {
   eventTypeBadge: Record<TimelineEventType, string>;
   onEventClick?: (event: TimelineEvent) => void;
   onSpanClick?: (span: TimelineSpan) => void;
+  colorMap?: Record<string, string>; // Custom color mapping
 };
 
 export type TimelineEventProps = {
@@ -175,4 +177,5 @@ export type TimelineSpanProps = {
   axis: TimelineAxis;
   style: Required<TimelineStyle>;
   onSpanClick?: (span: TimelineSpan) => void;
+  colorMap?: Record<string, string>; // Custom color mapping
 };

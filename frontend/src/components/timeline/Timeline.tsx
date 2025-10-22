@@ -206,6 +206,7 @@ export const Timeline: React.FC<TimelineProps> = React.memo(
             {doc.rows.map((row) => (
               <TimelineRow
                 axis={doc.axis}
+                colorMap={doc.colorMap}
                 eventTypeBadge={EVENT_TYPE_BADGES}
                 key={row.id}
                 labelWidth={style.labelWidth}

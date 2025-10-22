@@ -13,6 +13,7 @@ type ChannelItem = {
   to?: number | string;
   channel_name: string;
   channel_genre?: string;
+  channel_network?: string;
   channel_notes?: string;
 };
 
@@ -38,32 +39,46 @@ type TimelineUnifiedProps = {
   onSpanClick?: (span: TimelineSpan) => void;
   className?: string;
   pxPerYear?: number; // Custom spacing override
+  colorBy?: "channel_genre" | "channel_network"; // Which attribute to use for coloring
+  colorMap?: Record<string, string>; // Custom color mapping
 };
 
 export const TimelineUnified: React.FC<TimelineUnifiedProps> = React.memo(
-  ({ doc, onEventClick, onSpanClick, className, pxPerYear }) => {
+  ({
+    doc,
+    onEventClick,
+    onSpanClick,
+    className,
+    pxPerYear,
+    colorBy,
+    colorMap,
+  }) => {
     // Convert simplified data to row-based structure (memoized)
     const rowBasedDoc = React.useMemo(
-      () => convertSimplifiedToRows(doc),
-      [doc]
+      () => convertSimplifiedToRows(doc, colorBy),
+      [doc, colorBy]
     );
 
-    // Apply custom pxPerYear if provided (memoized)
+    // Apply custom pxPerYear and colorMap if provided (memoized)
     const finalDoc = React.useMemo(() => {
-      if (pxPerYear && rowBasedDoc.style) {
-        return {
-          ...rowBasedDoc,
-          style: { ...rowBasedDoc.style, pxPerYear },
-        };
-      }
+      let result = rowBasedDoc;
+
+      // Add custom pxPerYear if provided
       if (pxPerYear) {
-        return {
-          ...rowBasedDoc,
-          style: { pxPerYear },
+        result = {
+          ...result,
+          style: result.style ? { ...result.style, pxPerYear } : { pxPerYear },
         };
       }
-      return rowBasedDoc;
-    }, [rowBasedDoc, pxPerYear]);
+
+      // Add colorMap if provided
+      result = {
+        ...result,
+        colorMap,
+      };
+
+      return result;
+    }, [rowBasedDoc, pxPerYear, colorMap]);
 
     return (
       <Timeline
