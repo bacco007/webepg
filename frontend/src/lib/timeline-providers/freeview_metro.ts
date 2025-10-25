@@ -26,6 +26,27 @@ export const freeview_metro: TimelineProvider = {
       "1": [
         {
           channel_genre: "Television",
+          channel_name: "10 HD",
+          channel_network: "Ten",
+          from: 2007.12,
+          to: 2009.3,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "10 Boss",
+          channel_network: "Ten",
+          from: 2018.11,
+          to: 2018.12,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "10 Bold",
+          channel_network: "Ten",
+          from: 2018.12,
+          to: 2024.6,
+        },
+        {
+          channel_genre: "Television",
           channel_name: "10 HD (Breakway Channel)",
           channel_network: "Ten",
           from: 2007.12,
@@ -40,9 +61,16 @@ export const freeview_metro: TimelineProvider = {
         },
         {
           channel_genre: "Television",
-          channel_name: "10 HD",
+          channel_name: "One",
           channel_network: "Ten",
           from: 2016.3,
+          to: 2018.12,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "10 HD",
+          channel_network: "Ten",
+          from: 2024.6,
         },
       ],
       "2": [
@@ -51,6 +79,20 @@ export const freeview_metro: TimelineProvider = {
           channel_name: "ABC TV",
           channel_network: "ABC",
           from: 2001.1,
+          to: 2008.2,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "ABC1",
+          channel_network: "ABC",
+          from: 2008.2,
+          to: 2014.7,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "ABC TV",
+          channel_network: "ABC",
+          from: 2014.7,
         },
       ],
       "3": [
@@ -59,6 +101,20 @@ export const freeview_metro: TimelineProvider = {
           channel_name: "SBS",
           channel_network: "SBS",
           from: 2001.1,
+          to: 2009.6,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "SBS One",
+          channel_network: "SBS",
+          from: 2009.6,
+          to: 2015.7,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "SBS",
+          channel_network: "SBS",
+          from: 2015.7,
         },
       ],
       "4": [
@@ -77,6 +133,13 @@ export const freeview_metro: TimelineProvider = {
           channel_name: "Seven Network",
           channel_network: "Seven",
           from: 2001.1,
+          to: 2025.6,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "Seven Network HD",
+          channel_network: "Seven",
+          from: 2025.6,
         },
       ],
       "9": [
@@ -127,7 +190,7 @@ export const freeview_metro: TimelineProvider = {
         },
         {
           channel_genre: "Television",
-          channel_name: "10 Peach Comedy",
+          channel_name: "10 Peach",
           channel_network: "Ten",
           from: "2018.11",
           to: 2024.6,
@@ -152,6 +215,13 @@ export const freeview_metro: TimelineProvider = {
           channel_name: "One HD",
           channel_network: "Ten",
           from: 2010.12,
+          to: 2016.3,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "One",
+          channel_network: "Ten",
+          from: 2016.3,
           to: 2018.11,
         },
         {
@@ -166,6 +236,13 @@ export const freeview_metro: TimelineProvider = {
           channel_name: "10 Bold",
           channel_network: "Ten",
           from: 2018.12,
+          to: 2021.9,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "10 Bold HD",
+          channel_network: "Ten",
+          from: 2021.9,
           to: 2024.6,
         },
         {
@@ -183,6 +260,13 @@ export const freeview_metro: TimelineProvider = {
         },
       ],
       "13": [
+        {
+          channel_genre: "Television",
+          channel_name: "10 HD",
+          channel_network: "Ten",
+          from: 2016.3,
+          to: 2020.9,
+        },
         {
           channel_genre: "Television",
           channel_name: "10 Shake",
@@ -218,7 +302,7 @@ export const freeview_metro: TimelineProvider = {
           channel_genre: "Television",
           channel_name: "10 HD",
           channel_network: "Ten",
-          from: 2001.1,
+          from: 2020.9,
         },
       ],
       "16": [
@@ -239,7 +323,7 @@ export const freeview_metro: TimelineProvider = {
       "17": [
         {
           channel_genre: "Television",
-          channel_name: "Gecko",
+          channel_name: "gecko",
           channel_network: "Ten",
           from: 2022.9,
         },
@@ -257,7 +341,15 @@ export const freeview_metro: TimelineProvider = {
           channel_genre: "Television",
           channel_name: "ABC TV HD",
           channel_network: "ABC",
-          from: 2001.1,
+          channel_notes: "HD Version of ABC TV Sydney in all markets",
+          from: 2008.1,
+          to: 2010.7,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "ABC TV HD",
+          channel_network: "ABC",
+          from: 2016.12,
         },
       ],
       "21": [
@@ -289,7 +381,7 @@ export const freeview_metro: TimelineProvider = {
           channel_genre: "Television",
           channel_name: "ABC TV",
           channel_network: "ABC",
-          from: 2001.1,
+          from: 2008.2,
         },
       ],
       "22": [
@@ -302,7 +394,10 @@ export const freeview_metro: TimelineProvider = {
         },
         {
           channel_genre: "Television",
-          channel_name: "ABC Comedy",
+          channel_name: "ABC Comedy / ABC Kids",
+          channel_network: "ABC",
+          channel_notes:
+            "ABC Kids on-air from 05:00 to 19:30, ABC Comedy on-air from 19:30 to 05:00",
           from: 2017.12,
           to: 2021.1,
         },
@@ -327,6 +422,7 @@ export const freeview_metro: TimelineProvider = {
           channel_genre: "Television",
           channel_name: "ABC3",
           channel_network: "ABC",
+          channel_notes: "on-air from 06:00 to 22:00",
           from: 2009.12,
           to: 2016.9,
         },
@@ -354,7 +450,7 @@ export const freeview_metro: TimelineProvider = {
       "24": [
         {
           channel_genre: "Television",
-          channel_name: "ABC News 24",
+          channel_name: "ABC News 24 HD",
           channel_network: "ABC",
           from: 2010.7,
           to: 2016.11,
@@ -419,6 +515,20 @@ export const freeview_metro: TimelineProvider = {
           channel_name: "SBS HD",
           channel_network: "SBS",
           from: 2006.12,
+          to: 2009.6,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "SBS One HD",
+          channel_network: "SBS",
+          from: 2009.6,
+          to: 2015.7,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "SBS HD",
+          channel_network: "SBS",
+          from: 2015.7,
         },
       ],
       "31": [
@@ -467,9 +577,23 @@ export const freeview_metro: TimelineProvider = {
         },
         {
           channel_genre: "Television",
+          channel_name: "SBS Viceland",
+          channel_network: "SBS",
+          from: 2016.11,
+          to: 2017.4,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "SBS Viceland HD",
+          channel_network: "SBS",
+          from: 2017.4,
+          to: 2019.6,
+        },
+        {
+          channel_genre: "Television",
           channel_name: "SBS World Movies HD",
           channel_network: "SBS",
-          from: 2019.7,
+          from: 2019.6,
         },
       ],
       "33": [
@@ -512,10 +636,51 @@ export const freeview_metro: TimelineProvider = {
       ],
       "36": [
         {
+          channel_genre: "Radio",
+          channel_name: "SBS Arabic 24",
+          channel_network: "SBS",
+          from: 2017.4,
+          to: 2023.12,
+        },
+        {
           channel_genre: "Television",
           channel_name: "NITV",
           channel_network: "SBS",
+          from: 2023.12,
+        },
+      ],
+      "37": [
+        {
+          channel_genre: "Radio",
+          channel_name: "SBS Radio 1",
+          channel_network: "SBS",
           from: 2001.1,
+          to: 2023.12,
+        },
+      ],
+      "38": [
+        {
+          channel_genre: "Radio",
+          channel_name: "SBS Radio 2",
+          channel_network: "SBS",
+          from: 2001.1,
+          to: 2023.12,
+        },
+      ],
+      "39": [
+        {
+          channel_genre: "Radio",
+          channel_name: "SBS Radio 3",
+          channel_network: "SBS",
+          from: 2013.4,
+          to: 2019.1,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "SBS Chill",
+          channel_network: "SBS",
+          from: 2019.1,
+          to: 2023.12,
         },
       ],
       "40": [
@@ -714,6 +879,13 @@ export const freeview_metro: TimelineProvider = {
         },
         {
           channel_genre: "Television",
+          channel_name: "Seven Network",
+          channel_network: "Seven",
+          from: "2010.10",
+          to: 2016.5,
+        },
+        {
+          channel_genre: "Television",
           channel_name: "7HD",
           channel_network: "Seven",
           from: 2016.5,
@@ -725,6 +897,13 @@ export const freeview_metro: TimelineProvider = {
           channel_name: "Seven Network",
           channel_network: "Seven",
           from: 2001.1,
+          to: 2025.6,
+        },
+        {
+          channel_genre: "Television",
+          channel_name: "Seven Network HD",
+          channel_network: "Seven",
+          from: 2025.6,
         },
       ],
       "72": [
@@ -733,21 +912,28 @@ export const freeview_metro: TimelineProvider = {
           channel_name: "7Two",
           channel_network: "Seven",
           from: 2009.11,
-          to: 2025,
+          to: 2025.6,
         },
         {
           channel_genre: "Television",
           channel_name: "7Two HD",
           channel_network: "Seven",
-          from: 2025,
+          from: 2025.6,
         },
       ],
       "73": [
         {
           channel_genre: "Television",
+          channel_name: "7Mate HD",
+          channel_network: "Seven",
+          from: "2010.10",
+          to: 2016.5,
+        },
+        {
+          channel_genre: "Television",
           channel_name: "7Mate",
           channel_network: "Seven",
-          from: 2010.9,
+          from: 2016.5,
           to: 2022.12,
         },
       ],
@@ -801,7 +987,7 @@ export const freeview_metro: TimelineProvider = {
       "75": [
         {
           channel_genre: "Television",
-          channel_name: "Open Shop",
+          channel_name: "openshop",
           channel_network: "Seven",
           from: 2019.8,
           to: 2021.9,
@@ -878,6 +1064,14 @@ export const freeview_metro: TimelineProvider = {
           channel_name: "9HD",
           channel_network: "Nine",
           from: 2015.11,
+        },
+      ],
+      "91": [
+        {
+          channel_genre: "Television",
+          channel_name: "Nine Network",
+          channel_network: "Nine",
+          from: 2016,
         },
       ],
       "92": [
@@ -1040,7 +1234,7 @@ export const freeview_metro: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "SBS Radio 1",
           channel_network: "SBS",
-          from: 2001.1,
+          from: 2019.1,
         },
       ],
       "302": [
@@ -1048,7 +1242,7 @@ export const freeview_metro: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "SBS Radio 2",
           channel_network: "SBS",
-          from: 2001.1,
+          from: 2019.1,
         },
       ],
       "303": [
@@ -1056,23 +1250,30 @@ export const freeview_metro: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "SBS Radio 3",
           channel_network: "SBS",
-          from: 2013.4,
+          from: 2019.1,
         },
       ],
       "304": [
         {
           channel_genre: "Radio",
-          channel_name: "SBS Arabic",
+          channel_name: "SBS Arabic 24",
           channel_network: "SBS",
-          from: 2016.3,
+          from: 2019.1,
         },
       ],
       "305": [
         {
           channel_genre: "Radio",
+          channel_name: "SBS PopDesi",
+          channel_network: "SBS",
+          from: 2019.1,
+          to: 2024.6,
+        },
+        {
+          channel_genre: "Radio",
           channel_name: "SBS South Asian",
           channel_network: "SBS",
-          from: 2001.1,
+          from: 2024.6,
         },
       ],
       "306": [
@@ -1080,7 +1281,7 @@ export const freeview_metro: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "SBS Chill",
           channel_network: "SBS",
-          from: 2001.1,
+          from: 2019.1,
         },
       ],
       "307": [
@@ -1088,7 +1289,7 @@ export const freeview_metro: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "SBS PopAsia",
           channel_network: "SBS",
-          from: 2011.1,
+          from: 2019.1,
         },
       ],
       "401": [
@@ -1171,16 +1372,89 @@ export const freeview_metro: TimelineProvider = {
         when: "2001.1",
       },
       {
-        label: "Digital Switchover Begins",
-        note: "Digital Switchover Begins",
+        label: "Freeview Marketing Brand Launched",
+        note: "Freeview Marketing Brand Launched",
+        type: "Launch",
+        when: "2008.11",
+      },
+      {
+        label: "Analogue Switchoff - Mildura",
+        note: "Analogue Switchoff - Mildura",
         type: "News",
-        when: 2010,
+        when: 2010.7,
+      },
+      {
+        label: "Analogue Switchoff - Regional SA, Broken Hill",
+        note: "Analogue Switchoff - Regional SA, Broken Hill",
+        type: "News",
+        when: 2010.15,
+      },
+      {
+        label: "Analogue Switchoff - Regional Victoria",
+        note: "Analogue Switchoff - Regional Victoria",
+        type: "News",
+        when: 2011.5,
+      },
+      {
+        label: "Analogue Switchoff - Regional Queensland",
+        note: "Analogue Switchoff - Regional Queensland",
+        type: "News",
+        when: 2011.12,
+      },
+      {
+        label: "Analogue Switchoff - Regional Southern NSW/ACT",
+        note: "Analogue Switchoff - Regional Southern NSW/ACT",
+        type: "News",
+        when: 2012.6,
+      },
+      {
+        label: "Analogue Switchoff - Regional Northern NSW",
+        note: "Analogue Switchoff - Regional Northern NSW",
+        type: "News",
+        when: 2012.11,
+      },
+      {
+        label: "Analogue Switchoff - Adelaide, Perth and Tasmania",
+        note: "Analogue Switchoff - Adelaide, Perth and Tasmania",
+        type: "News",
+        when: 2013.4,
+      },
+      {
+        label: "Analogue Switchoff - Brisbane",
+        note: "Analogue Switchoff - Brisbane",
+        type: "News",
+        when: 2013.5,
+      },
+      {
+        label: "Analogue Switchoff - Regional and Remote WA",
+        note: "Analogue Switchoff - Regional and Remote WA",
+        type: "News",
+        when: 2013.6,
+      },
+      {
+        label: "Analogue Switchoff - Darwin",
+        note: "Analogue Switchoff - Darwin",
+        type: "News",
+        when: 2013.7,
+      },
+      {
+        label:
+          "Analogue Switchoff - Sydney, Melbourne, Remote Central & Eastern Australia",
+        note: "Analogue Switchoff - Sydney, Melbourne, Remote Central & Eastern Australia",
+        type: "News",
+        when: 2013.12,
       },
       {
         label: "Digital Switchover Completes",
         note: "Digital Switchover Completes",
         type: "News",
         when: 2013,
+      },
+      {
+        label: "FreeviewPlus Launched",
+        note: "FreeviewPlus Launched",
+        type: "Launch",
+        when: "2014.9",
       },
     ],
     title: "Freeview Channel History (2001-)",

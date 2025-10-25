@@ -52,6 +52,281 @@ import {
   timelineProviders,
 } from "@/lib/timeline-data";
 
+type ChannelHistorySidebarProps = {
+  activeColorValues: Set<string>;
+  activeIndicators: Set<string>;
+  availableNetworks: Set<string>;
+  colorBy: string;
+  colorMap?: Record<string, string>;
+  isGenresOpen: boolean;
+  isIndicatorsOpen: boolean;
+  isNetworksOpen: boolean;
+  isYearRangeOpen: boolean;
+  onGenresOpenChange: (open: boolean) => void;
+  onIndicatorsOpenChange: (open: boolean) => void;
+  onNetworksOpenChange: (open: boolean) => void;
+  onYearRangeOpenChange: (open: boolean) => void;
+  onNetworksReset: () => void;
+  onNetworkToggle: (network: string, checked: boolean) => void;
+  onYearRangeReset: () => void;
+  onYearRangeChange: (value: number[]) => void;
+  selectedNetworks: Set<string>;
+  selectedProvider: any;
+  yearRange: [number, number];
+};
+
+function ChannelHistorySidebar({
+  activeColorValues,
+  activeIndicators,
+  availableNetworks,
+  colorBy,
+  colorMap,
+  isGenresOpen,
+  isIndicatorsOpen,
+  isNetworksOpen,
+  isYearRangeOpen,
+  onGenresOpenChange,
+  onIndicatorsOpenChange,
+  onNetworksOpenChange,
+  onYearRangeOpenChange,
+  onNetworksReset,
+  onNetworkToggle,
+  onYearRangeReset,
+  onYearRangeChange,
+  selectedNetworks,
+  selectedProvider,
+  yearRange,
+}: ChannelHistorySidebarProps) {
+  return (
+    <div className="space-y-3">
+      {/* <Separator /> */}
+
+      {/* Year Range Filter */}
+      {selectedProvider && (
+        <Collapsible
+          onOpenChange={onYearRangeOpenChange}
+          open={isYearRangeOpen}
+        >
+          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+            <h4 className="font-semibold text-xs">Filter by Year Range</h4>
+            <div className="flex items-center gap-1">
+              <span
+                className="inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onYearRangeReset();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onYearRangeReset();
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+              >
+                <RotateCcw className="h-3 w-3" />
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${isYearRangeOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-2">
+            <div className="space-y-2">
+              <Slider
+                max={selectedProvider.data.axis.end}
+                min={selectedProvider.data.axis.start}
+                onValueChange={onYearRangeChange}
+                step={1}
+                value={yearRange}
+              />
+              <div className="flex items-center justify-between text-muted-foreground text-xs">
+                <span>{Math.floor(yearRange[0])}</span>
+                <span>–</span>
+                <span>{Math.floor(yearRange[1])}</span>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+
+      <Separator />
+
+      {/* Network Filter */}
+      {availableNetworks.size > 0 && (
+        <Collapsible onOpenChange={onNetworksOpenChange} open={isNetworksOpen}>
+          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+            <h4 className="text-left font-semibold text-xs">
+              Filter by Network
+              <br />
+              {selectedNetworks.size > 0 && (
+                <span className="ml-2 font-normal text-muted-foreground">
+                  ({selectedNetworks.size} selected)
+                </span>
+              )}
+            </h4>
+            <div className="flex items-center gap-1">
+              {selectedNetworks.size > 0 && (
+                <span
+                  className="inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNetworksReset();
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onNetworksReset();
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <RotateCcw className="h-3 w-3" />
+                </span>
+              )}
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${isNetworksOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-2">
+            <div className="grid grid-cols-2 gap-2">
+              {Array.from(availableNetworks)
+                .sort()
+                .map((network) => (
+                  <div className="flex items-center space-x-2" key={network}>
+                    <Checkbox
+                      checked={selectedNetworks.has(network)}
+                      id={`network-${network}`}
+                      onCheckedChange={(checked) =>
+                        onNetworkToggle(network, !!checked)
+                      }
+                    />
+                    <Label
+                      className="cursor-pointer font-normal text-xs"
+                      htmlFor={`network-${network}`}
+                    >
+                      {network}
+                    </Label>
+                  </div>
+                ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+
+      {availableNetworks.size > 0 && <Separator />}
+
+      {/* Channel Type Indicators */}
+      {activeIndicators.size > 0 && (
+        <Collapsible
+          onOpenChange={onIndicatorsOpenChange}
+          open={isIndicatorsOpen}
+        >
+          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+            <h4 className="font-semibold text-xs">
+              Legend: Channel Indicators
+            </h4>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${isIndicatorsOpen ? "rotate-180" : ""}`}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-2">
+            <div className="space-y-1.5">
+              {activeIndicators.has("4K") && (
+                <div
+                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
+                  style={{ borderColor: "#a855f7" }}
+                >
+                  <div
+                    className="h-3 w-3 rounded border-2"
+                    style={{ borderColor: "#a855f7" }}
+                  />
+                  <span className="text-xs">4K / UHD / Ultra HD</span>
+                </div>
+              )}
+              {activeIndicators.has("HD") && (
+                <div
+                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
+                  style={{ borderColor: "#3b82f6" }}
+                >
+                  <div
+                    className="h-3 w-3 rounded border-2"
+                    style={{ borderColor: "#3b82f6" }}
+                  />
+                  <span className="text-xs">HD Channels</span>
+                </div>
+              )}
+              {activeIndicators.has("+2") && (
+                <div
+                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
+                  style={{ borderColor: "#f97316" }}
+                >
+                  <div
+                    className="h-3 w-3 rounded border-2"
+                    style={{ borderColor: "#f97316" }}
+                  />
+                  <span className="text-xs">+2 Channels</span>
+                </div>
+              )}
+              {activeIndicators.has("Interactive") && (
+                <div
+                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
+                  style={{ borderColor: "#10b981" }}
+                >
+                  <div
+                    className="h-3 w-3 rounded border-2"
+                    style={{ borderColor: "#10b981" }}
+                  />
+                  <span className="text-xs">Interactive Channels</span>
+                </div>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+
+      {activeIndicators.size > 0 && <Separator />}
+
+      {/* Color Legend */}
+      {activeColorValues.size > 0 && (
+        <Collapsible onOpenChange={onGenresOpenChange} open={isGenresOpen}>
+          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+            <h4 className="font-semibold text-xs">
+              Legend: Channel{" "}
+              {colorBy === "channel_network" ? "Networks" : "Genres"}
+            </h4>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${isGenresOpen ? "rotate-180" : ""}`}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-2">
+            <div className="grid grid-cols-2 gap-1.5">
+              {Object.entries(colorMap || GENRE_COLORS)
+                .filter(
+                  ([value]) =>
+                    value !== "Default" && activeColorValues.has(value)
+                )
+                .map(([value, colorClass]) => (
+                  <div
+                    className={`rounded-md border px-2 py-1 text-center ${colorClass}`}
+                    key={value}
+                  >
+                    <span className="text-xs">{value}</span>
+                  </div>
+                ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+    </div>
+  );
+}
+
 type ChannelHistoryClientProps = {
   params: Promise<{
     provider: string;
@@ -78,6 +353,7 @@ export default function ChannelHistoryClient({
   const [isIndicatorsOpen, setIsIndicatorsOpen] = useState(false);
   const [isGenresOpen, setIsGenresOpen] = useState(false);
   const [isNetworksOpen, setIsNetworksOpen] = useState(false);
+  const [isYearRangeOpen, setIsYearRangeOpen] = useState(false);
 
   // Network filter state
   const [selectedNetworks, setSelectedNetworks] = useState<Set<string>>(
@@ -292,360 +568,221 @@ export default function ChannelHistoryClient({
   const colorBy = selectedProvider?.colorBy || "channel_genre";
   const colorMap = selectedProvider?.colorMap;
 
-  // Extract indicators, networks and color values used in the current provider
-  const { activeIndicators, availableNetworks, activeColorValues } =
-    useMemo(() => {
-      if (!filteredTimelineData) {
-        return {
-          activeColorValues: new Set<string>(),
-          activeIndicators: new Set<string>(),
-          availableNetworks: new Set<string>(),
-        };
-      }
+  // Get all available networks from the original provider data (not filtered)
+  const availableNetworks = useMemo(() => {
+    if (!selectedProvider) {
+      return new Set<string>();
+    }
 
-      type ChannelItem = {
-        channel_name: string;
-        channel_genre?: string;
-        channel_network?: string;
-        channel_notes?: string;
-        from: number | string;
-        to?: number | string;
-      };
+    type ChannelItem = {
+      channel_name: string;
+      channel_genre?: string;
+      channel_network?: string;
+      channel_notes?: string;
+      from: number | string;
+      to?: number | string;
+    };
 
-      // Helper: extract indicators from channel name
-      const extractIndicators = (name: string): string[] => {
-        const found: string[] = [];
-        if (
-          name.includes("4K") ||
-          name.includes("UHD") ||
-          name.includes("Ultra HD")
-        ) {
-          found.push("4K");
-        }
-        if (name.includes(" HD")) {
-          found.push("HD");
-        }
-        if (name.includes("+2")) {
-          found.push("+2");
-        }
-        return found;
-      };
+    const networks = new Set<string>();
 
-      const indicators = new Set<string>();
-      const networks = new Set<string>();
-      const colorValues = new Set<string>();
-
-      // Check all channels for indicators, networks, and color values
-      for (const items of Object.values(filteredTimelineData.channels)) {
-        for (const item of items as ChannelItem[]) {
-          // Extract indicators
-          for (const indicator of extractIndicators(item.channel_name)) {
-            indicators.add(indicator);
-          }
-          // Collect network
-          if (item.channel_network) {
-            networks.add(item.channel_network);
-          }
-          // Collect color values based on configured colorBy
-          const colorValue =
-            colorBy === "channel_network"
-              ? item.channel_network
-              : item.channel_genre;
-          if (colorValue) {
-            colorValues.add(colorValue);
-          }
+    // Check all channels in the original provider data
+    for (const items of Object.values(selectedProvider.data.channels)) {
+      for (const item of items as ChannelItem[]) {
+        if (item.channel_network) {
+          networks.add(item.channel_network);
         }
       }
+    }
 
+    return networks;
+  }, [selectedProvider]);
+
+  // Extract indicators and color values from the filtered data
+  const { activeIndicators, activeColorValues } = useMemo(() => {
+    if (!filteredTimelineData) {
       return {
-        activeColorValues: colorValues,
-        activeIndicators: indicators,
-        availableNetworks: networks,
+        activeColorValues: new Set<string>(),
+        activeIndicators: new Set<string>(),
       };
-    }, [filteredTimelineData, colorBy]);
+    }
+
+    type ChannelItem = {
+      channel_name: string;
+      channel_genre?: string;
+      channel_network?: string;
+      channel_notes?: string;
+      from: number | string;
+      to?: number | string;
+    };
+
+    // Helper: extract indicators from channel name
+    const extractIndicators = (name: string): string[] => {
+      const found: string[] = [];
+      if (
+        name.includes("4K") ||
+        name.includes("UHD") ||
+        name.includes("Ultra HD")
+      ) {
+        found.push("4K");
+      }
+      if (name.includes(" HD")) {
+        found.push("HD");
+      }
+      if (name.includes("+2")) {
+        found.push("+2");
+      }
+      if (name.includes("Interactive") || name.includes("interactive")) {
+        found.push("Interactive");
+      }
+      return found;
+    };
+
+    const indicators = new Set<string>();
+    const colorValues = new Set<string>();
+
+    // Check all channels for indicators and color values
+    for (const items of Object.values(filteredTimelineData.channels)) {
+      for (const item of items as ChannelItem[]) {
+        // Extract indicators from channel name
+        for (const indicator of extractIndicators(item.channel_name)) {
+          indicators.add(indicator);
+        }
+        // Also check if channel_genre is "Interactive"
+        if (item.channel_genre === "Interactive") {
+          indicators.add("Interactive");
+        }
+        // Collect color values based on configured colorBy
+        const colorValue =
+          colorBy === "channel_network"
+            ? item.channel_network
+            : item.channel_genre;
+        if (colorValue) {
+          colorValues.add(colorValue);
+        }
+      }
+    }
+
+    return {
+      activeColorValues: colorValues,
+      activeIndicators: indicators,
+    };
+  }, [filteredTimelineData, colorBy]);
+
+  // Set all networks as selected by default when availableNetworks changes
+  useEffect(() => {
+    if (availableNetworks.size > 0 && selectedNetworks.size === 0) {
+      setSelectedNetworks(new Set(availableNetworks));
+    }
+  }, [availableNetworks.size, selectedNetworks.size]);
 
   // Create the sidebar content
   const sidebar = (
     <SidebarContainer>
       <SidebarHeader>
-        <div className="space-y-2">
-          <h3 className="font-semibold text-sm">Select Provider</h3>
-          <p className="text-muted-foreground text-xs">
-            Choose a TV provider to view its channel history
-          </p>
-        </div>
+        {" "}
+        {selectedProvider && (
+          <div className="rounded-md bg-muted p-3">
+            <div className="mb-1 flex items-center gap-2">
+              <Tv className="h-3 w-3" />
+              <span className="font-medium text-xs">
+                {selectedProvider.name}
+              </span>
+            </div>
+            <p className="text-muted-foreground text-xs">
+              {selectedProvider.description}
+            </p>
+            <div className="mt-2 flex gap-1">
+              <Badge className="text-xs" variant="outline">
+                {selectedProvider.country}
+              </Badge>
+              <Badge className="text-xs" variant="outline">
+                {selectedProvider.data.axis.start}-
+                {selectedProvider.data.axis.end}
+              </Badge>
+            </div>
+          </div>
+        )}
       </SidebarHeader>
       <ScrollArea className="flex-1">
         <SidebarContent>
-          {Object.entries(providersByCategory).map(([category, providers]) => (
-            <div className="mb-4" key={category}>
-              <h4 className="mb-2 px-2 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                {category}
-              </h4>
-              <div className="space-y-1">
-                {providers.map((provider) => (
-                  <Button
-                    className="w-full justify-start"
-                    key={provider.id}
-                    onClick={() => handleProviderChange(provider.id)}
-                    variant={providerId === provider.id ? "secondary" : "ghost"}
-                  >
-                    <div className="flex w-full items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Tv className="h-4 w-4" />
-                        <span className="text-sm">{provider.name}</span>
-                      </div>
-                      {providerId === provider.id && (
-                        <Badge className="ml-2 text-xs" variant="default">
-                          Active
-                        </Badge>
-                      )}
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          ))}
+          <div className="pt-2">
+            {Object.entries(providersByCategory).map(
+              ([category, providers]) => (
+                <div className="mb-4" key={category}>
+                  <h4 className="mb-2 px-2 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                    {category}
+                  </h4>
+                  <div className="space-y-1">
+                    {providers.map((provider) => (
+                      <Button
+                        className="w-full justify-start"
+                        key={provider.id}
+                        onClick={() => handleProviderChange(provider.id)}
+                        variant={
+                          providerId === provider.id ? "secondary" : "ghost"
+                        }
+                      >
+                        <div className="flex w-full items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Tv className="h-4 w-4" />
+                            <span className="text-sm">{provider.name}</span>
+                          </div>
+                          {providerId === provider.id && (
+                            <Badge className="ml-2 text-xs" variant="default">
+                              Active
+                            </Badge>
+                          )}
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )
+            )}
+          </div>
         </SidebarContent>
       </ScrollArea>
       <SidebarFooter>
-        <div className="space-y-3">
-          {selectedProvider && (
-            <div className="rounded-md bg-muted p-3">
-              <div className="mb-1 flex items-center gap-2">
-                <Tv className="h-3 w-3" />
-                <span className="font-medium text-xs">
-                  {selectedProvider.name}
-                </span>
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {selectedProvider.description}
-              </p>
-              <div className="mt-2 flex gap-1">
-                <Badge className="text-xs" variant="outline">
-                  {selectedProvider.country}
-                </Badge>
-                <Badge className="text-xs" variant="outline">
-                  {selectedProvider.data.axis.start}-
-                  {selectedProvider.data.axis.end}
-                </Badge>
-              </div>
-            </div>
-          )}
-
-          <Separator />
-
-          {/* Year Range Filter */}
-          {selectedProvider && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="font-semibold text-xs">
-                  Filter by Year Range
-                </Label>
-                <Button
-                  className="h-6 px-2"
-                  onClick={() =>
-                    setYearParams({
-                      yearEnd: selectedProvider.data.axis.end,
-                      yearStart: selectedProvider.data.axis.start,
-                    })
-                  }
-                  size="sm"
-                  variant="ghost"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <Slider
-                  max={selectedProvider.data.axis.end}
-                  min={selectedProvider.data.axis.start}
-                  onValueChange={(value) =>
-                    setYearParams({
-                      yearEnd: value[1],
-                      yearStart: value[0],
-                    })
-                  }
-                  step={1}
-                  value={yearRange}
-                />
-                <div className="flex items-center justify-between text-muted-foreground text-xs">
-                  <span>{Math.floor(yearRange[0])}</span>
-                  <span>–</span>
-                  <span>{Math.floor(yearRange[1])}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <Separator />
-
-          {/* Network Filter */}
-          {availableNetworks.size > 0 && (
-            <Collapsible onOpenChange={setIsNetworksOpen} open={isNetworksOpen}>
-              <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-                <h4 className="font-semibold text-xs">
-                  Filter by Network
-                  {selectedNetworks.size > 0 && (
-                    <span className="ml-2 font-normal text-muted-foreground">
-                      ({selectedNetworks.size} selected)
-                    </span>
-                  )}
-                </h4>
-                <div className="flex items-center gap-1">
-                  {selectedNetworks.size > 0 && (
-                    <span
-                      className="inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedNetworks(new Set());
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setSelectedNetworks(new Set());
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      <RotateCcw className="h-3 w-3" />
-                    </span>
-                  )}
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${isNetworksOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-2">
-                <div className="grid grid-cols-2 gap-2">
-                  {Array.from(availableNetworks)
-                    .sort()
-                    .map((network) => (
-                      <div
-                        className="flex items-center space-x-2"
-                        key={network}
-                      >
-                        <Checkbox
-                          checked={selectedNetworks.has(network)}
-                          id={`network-${network}`}
-                          onCheckedChange={(checked) => {
-                            const newNetworks = new Set(selectedNetworks);
-                            if (checked) {
-                              newNetworks.add(network);
-                            } else {
-                              newNetworks.delete(network);
-                            }
-                            setSelectedNetworks(newNetworks);
-                          }}
-                        />
-                        <Label
-                          className="cursor-pointer font-normal text-xs"
-                          htmlFor={`network-${network}`}
-                        >
-                          {network}
-                        </Label>
-                      </div>
-                    ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          {availableNetworks.size > 0 && <Separator />}
-
-          {/* Channel Type Indicators */}
-          {activeIndicators.size > 0 && (
-            <Collapsible
-              onOpenChange={setIsIndicatorsOpen}
-              open={isIndicatorsOpen}
-            >
-              <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-                <h4 className="font-semibold text-xs">
-                  Legend: Channel Indicators
-                </h4>
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${isIndicatorsOpen ? "rotate-180" : ""}`}
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-2">
-                <div className="space-y-1.5">
-                  {activeIndicators.has("4K") && (
-                    <div
-                      className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                      style={{ borderColor: "#a855f7" }}
-                    >
-                      <div
-                        className="h-3 w-3 rounded border-2"
-                        style={{ borderColor: "#a855f7" }}
-                      />
-                      <span className="text-xs">4K / UHD / Ultra HD</span>
-                    </div>
-                  )}
-                  {activeIndicators.has("HD") && (
-                    <div
-                      className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                      style={{ borderColor: "#3b82f6" }}
-                    >
-                      <div
-                        className="h-3 w-3 rounded border-2"
-                        style={{ borderColor: "#3b82f6" }}
-                      />
-                      <span className="text-xs">HD Channels</span>
-                    </div>
-                  )}
-                  {activeIndicators.has("+2") && (
-                    <div
-                      className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                      style={{ borderColor: "#f97316" }}
-                    >
-                      <div
-                        className="h-3 w-3 rounded border-2"
-                        style={{ borderColor: "#f97316" }}
-                      />
-                      <span className="text-xs">+2 Channels</span>
-                    </div>
-                  )}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          {activeIndicators.size > 0 && <Separator />}
-
-          {/* Color Legend */}
-          {activeColorValues.size > 0 && (
-            <Collapsible onOpenChange={setIsGenresOpen} open={isGenresOpen}>
-              <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-                <h4 className="font-semibold text-xs">
-                  Legend: Channel{" "}
-                  {colorBy === "channel_network" ? "Networks" : "Genres"}
-                </h4>
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${isGenresOpen ? "rotate-180" : ""}`}
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-2">
-                <div className="grid grid-cols-2 gap-1.5">
-                  {Object.entries(colorMap || GENRE_COLORS)
-                    .filter(
-                      ([value]) =>
-                        value !== "Default" && activeColorValues.has(value)
-                    )
-                    .map(([value, colorClass]) => (
-                      <div
-                        className={`rounded-md border px-2 py-1 text-center ${colorClass}`}
-                        key={value}
-                      >
-                        <span className="text-xs">{value}</span>
-                      </div>
-                    ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-        </div>
+        <ChannelHistorySidebar
+          activeColorValues={activeColorValues}
+          activeIndicators={activeIndicators}
+          availableNetworks={availableNetworks}
+          colorBy={colorBy}
+          colorMap={colorMap}
+          isGenresOpen={isGenresOpen}
+          isIndicatorsOpen={isIndicatorsOpen}
+          isNetworksOpen={isNetworksOpen}
+          isYearRangeOpen={isYearRangeOpen}
+          onGenresOpenChange={setIsGenresOpen}
+          onIndicatorsOpenChange={setIsIndicatorsOpen}
+          onNetworksOpenChange={setIsNetworksOpen}
+          onNetworksReset={() => setSelectedNetworks(new Set())}
+          onNetworkToggle={(network, checked) => {
+            const newNetworks = new Set(selectedNetworks);
+            if (checked) {
+              newNetworks.add(network);
+            } else {
+              newNetworks.delete(network);
+            }
+            setSelectedNetworks(newNetworks);
+          }}
+          onYearRangeChange={(value) =>
+            setYearParams({
+              yearEnd: value[1],
+              yearStart: value[0],
+            })
+          }
+          onYearRangeOpenChange={setIsYearRangeOpen}
+          onYearRangeReset={() =>
+            setYearParams({
+              yearEnd: selectedProvider.data.axis.end,
+              yearStart: selectedProvider.data.axis.start,
+            })
+          }
+          selectedNetworks={selectedNetworks}
+          selectedProvider={selectedProvider}
+          yearRange={yearRange}
+        />
       </SidebarFooter>
     </SidebarContainer>
   );

@@ -254,6 +254,12 @@ export const foxteldigital: TimelineProvider = {
       ],
       "114": [
         {
+          channel_genre: "Movies",
+          channel_name: "Foxtel Box Office Preview Channel",
+          from: 2004.3,
+          to: "2006.10",
+        },
+        {
           channel_genre: "Entertainment",
           channel_name: "W.",
           from: "2006.10",
@@ -3263,7 +3269,7 @@ export const foxteldigital: TimelineProvider = {
       "412": [
         {
           channel_genre: "Movies",
-          channel_name: "Movie Two",
+          channel_name: "Movie One Take Two (+2)",
           from: 2004.3,
           to: 2013.1,
         },
@@ -3411,13 +3417,33 @@ export const foxteldigital: TimelineProvider = {
       ],
       "430": [
         {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+        {
           channel_genre: "Movies",
           channel_name: "World Movies",
           from: 2009.11,
           to: 2018.4,
         },
       ],
+      "431": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
       "432": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
         {
           channel_genre: "Special",
           channel_name: "Help Channel - MyStar",
@@ -3431,16 +3457,204 @@ export const foxteldigital: TimelineProvider = {
       ],
       "433": [
         {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+        {
           channel_genre: "Movies",
           channel_name: "SBS World Movies",
           from: "2020.11",
         },
       ],
+      "434": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "435": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "436": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "437": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "438": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "439": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2017.10",
+        },
+      ],
+      "440": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "441": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "442": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "443": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
       "444": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
         {
           channel_genre: "Special",
           channel_name: "Foxtel 4K",
           from: "2018.10",
+        },
+      ],
+      "445": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "446": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "447": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "448": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "449": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "450": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "451": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "452": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "453": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "454": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "455": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
+        },
+      ],
+      "456": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2004.3,
+          to: "2007",
         },
       ],
       "471": [
@@ -3525,6 +3739,12 @@ export const foxteldigital: TimelineProvider = {
 
       "500": [
         {
+          channel_genre: "Interactive",
+          channel_name: "Sports Selector",
+          from: 2007,
+          to: 2009.1,
+        },
+        {
           channel_genre: "Sports",
           channel_name: "Fox Sports News",
           from: "2014.11",
@@ -3533,7 +3753,7 @@ export const foxteldigital: TimelineProvider = {
       "501": [
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports",
+          channel_name: "Fox Sports (Interactive)",
           from: 2004.3,
           to: "2006.10",
         },
@@ -3931,6 +4151,28 @@ export const foxteldigital: TimelineProvider = {
           to: 2011,
         },
       ],
+      "555": [
+        {
+          channel_genre: "Interactive",
+          channel_name: "Foxtel Gamesworld - The Arcade (Interactive)",
+          from: 2004.3,
+          to: 2006,
+        },
+        {
+          channel_genre: "Interactive",
+          channel_name: "Foxtel Gamesworld",
+          from: 2006,
+          to: 2009.6,
+        },
+      ],
+      "565": [
+        {
+          channel_genre: "Interactive",
+          channel_name: "Foxtel Gamesworld - Mind Games (Interactive)",
+          from: 2004.3,
+          to: 2006,
+        },
+      ],
       "570": [
         {
           channel_genre: "Sports",
@@ -4083,7 +4325,7 @@ export const foxteldigital: TimelineProvider = {
       "600": [
         {
           channel_genre: "News",
-          channel_name: "Sky News Active",
+          channel_name: "Sky News Active (Interactive)",
           from: "2009.11",
           to: "2020.10",
         },
@@ -4096,7 +4338,7 @@ export const foxteldigital: TimelineProvider = {
       "601": [
         {
           channel_genre: "News",
-          channel_name: "Sky News Australia",
+          channel_name: "Sky News Australia (Interactive)",
           from: 2004.3,
           to: 2010.5,
         },
@@ -4140,7 +4382,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "News",
-          channel_name: "The Weather Channel",
+          channel_name: "The Weather Channel (Interactive)",
           from: "2006.10",
           to: "2013.1",
         },
@@ -4923,6 +5165,12 @@ export const foxteldigital: TimelineProvider = {
       "802": [
         {
           channel_genre: "Music",
+          channel_name: "Channel [V] - Band in a Bubble",
+          from: "2004.9",
+          to: "2004.10",
+        },
+        {
+          channel_genre: "Music",
           channel_name: "NickMusic",
           from: "2023.11",
           to: "2025.7",
@@ -5129,7 +5377,7 @@ export const foxteldigital: TimelineProvider = {
       "830": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active",
+          channel_name: "Air Active (Interactive)",
           from: 2004.3,
           to: 2014.11,
         },
@@ -6108,7 +6356,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6116,7 +6364,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6124,7 +6372,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6132,7 +6380,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6140,7 +6388,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6148,7 +6396,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6156,7 +6404,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6164,7 +6412,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6172,7 +6420,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6180,7 +6428,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6188,29 +6436,35 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
       "912": [
-        // { channel_genre: "PPV", channel_name: "Antenna Pacific", from: 2004.3 },
+        {
+          channel_genre: "International",
+          channel_name: "Antenna Pacific",
+          from: 2004.3,
+          to: 2006,
+        },
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
       "913": [
-        // {
-        //   channel_genre: "International",
-        //   channel_name: "RAI Internazionale",
-        //   from: 2004.3,
-        // },
+        {
+          channel_genre: "International",
+          channel_name: "RAI Internazionale",
+          from: 2004.3,
+          to: 2006,
+        },
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6218,7 +6472,103 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
-          from: 2004.3,
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "915": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "916": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "917": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "918": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "919": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "920": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "921": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "922": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "923": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "924": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "925": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
+          to: "2017.10",
+        },
+      ],
+      "926": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office",
+          from: 2006,
           to: "2017.10",
         },
       ],
@@ -6226,7 +6576,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "International",
           channel_name: "ANT1 Radio",
-          from: "2004.3",
+          from: "2009",
           to: 2022.5,
         },
         {
@@ -6253,14 +6603,69 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "International",
           channel_name: "Rai Radio 1",
-          from: "2004.3",
+          from: "2009",
         },
       ],
       "950": [
-        { channel_genre: "PPV", channel_name: "Main Event", from: 2004.3 },
+        {
+          channel_genre: "PPV",
+          channel_name: "Main Event",
+          from: 2004.3,
+          to: 2008.6,
+          
+        },
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office HD",
+          from: 2008.6,
+          to: "2017.10",
+        },
+      ],
+      "951": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office HD",
+          from: 2008.6,
+          to: "2017.10",
+        },
+      ],
+      "952": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office HD",
+          from: 2008.6,
+          to: "2017.10",
+        },
+      ],
+      "953": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office HD",
+          from: 2008.6,
+          to: "2017.10",
+        },
+      ],
+      "954": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office HD",
+          from: 2008.6,
+          to: "2017.10",
+        },
       ],
       "955": [
-        { channel_genre: "PPV", channel_name: "Adults Only", from: 2004.3 },
+        {
+          channel_genre: "PPV",
+          channel_name: "Adults Only",
+          from: 2004.3,
+          to: 2009.11,
+        },
+        {
+          channel_genre: "PPV",
+          channel_name: "Foxtel Box Office HD",
+          from: 2008.6,
+          to: "2017.10",
+        },
       ],
       "960": [
         {
@@ -6273,6 +6678,13 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "PPV",
           channel_name: "Adults Only Select 2",
+          from: 2004.3,
+        },
+      ],
+      "998": [
+        {
+          channel_genre: "Information",
+          channel_name: "Modem Test Channel",
           from: 2004.3,
         },
       ],

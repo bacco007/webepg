@@ -15,10 +15,12 @@ import { calculateSpanPosition, isSpanClickable, toPx } from "./utils";
 const FOUR_K_UHD_REGEX = /4K|Ultra HD|UHD/i;
 const HD_REGEX = /(?<!Ultra\s)HD(?!.*(?:4K|Ultra HD|UHD))/i; // HD but not Ultra HD, UHD, or 4K
 const PLUS_TWO_REGEX = /\+2/i;
+const INTERACTIVE_REGEX = /Interactive|interactive/i;
 
 // Get border style for special channels
 const getChannelBorderStyle = (
-  channelName: string
+  channelName: string,
+  channelGenre?: string
 ): { borderColor?: string; borderWidth?: string } => {
   if (FOUR_K_UHD_REGEX.test(channelName)) {
     return { borderColor: "#a855f7", borderWidth: "2px" }; // purple-500 for 4K/UHD/Ultra HD
@@ -28,6 +30,9 @@ const getChannelBorderStyle = (
   }
   if (PLUS_TWO_REGEX.test(channelName)) {
     return { borderColor: "#f97316", borderWidth: "2px" }; // orange-500 for +2
+  }
+  if (INTERACTIVE_REGEX.test(channelName) || channelGenre === "Interactive") {
+    return { borderColor: "#10b981", borderWidth: "2px" }; // green-500 for Interactive
   }
   return {};
 };
@@ -69,7 +74,7 @@ export const TimelineSpan: React.FC<TimelineSpanProps> = React.memo(
         : colors.Default || GENRE_COLORS.Default;
 
     // Get special border style
-    const borderStyle = getChannelBorderStyle(span.text);
+    const borderStyle = getChannelBorderStyle(span.text, span.genre);
 
     return (
       <TimelineSpanPopover span={span}>

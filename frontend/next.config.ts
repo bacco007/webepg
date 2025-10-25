@@ -14,6 +14,14 @@ export default bundleAnalyzer({
   },
   experimental: {
     viewTransition: true,
+    turbo: {
+      rules: {
+        "*.svg": {
+          loaders: ["@svgr/webpack"],
+          as: "*.js",
+        },
+      },
+    },
   },
   headers: async () => [
     {
@@ -92,7 +100,12 @@ export default bundleAnalyzer({
   typescript: {
     ignoreBuildErrors: false,
   },
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { dev, isServer, nextRuntime }) => {
+    // Skip webpack processing for Turbopack
+    if (process.env.TURBOPACK) {
+      return config;
+    }
+
     if (dev && !isServer) {
       // Improve hot reload performance
       config.watchOptions = {
@@ -100,6 +113,17 @@ export default bundleAnalyzer({
         poll: 1000,
       };
     }
+
+    // Optimize for Next.js 16
+    if (nextRuntime === "nodejs") {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
     return config;
   },
 });
