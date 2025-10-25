@@ -4,7 +4,8 @@ import L from "leaflet";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMap } from "react-leaflet";
 import "leaflet.markercluster";
-import "leaflet.markercluster/dist/leaflet.markercluster.js";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 // biome-ignore lint/suspicious/noExplicitAny: Blah
 const markerClusterGroup = (L as any).markerClusterGroup;
