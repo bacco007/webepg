@@ -6612,7 +6612,6 @@ export const foxteldigital: TimelineProvider = {
           channel_name: "Main Event",
           from: 2004.3,
           to: 2008.6,
-          
         },
         {
           channel_genre: "PPV",

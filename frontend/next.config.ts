@@ -12,17 +12,12 @@ export default bundleAnalyzer({
         ? { exclude: ["error", "warn"] }
         : false,
   },
+
   experimental: {
     viewTransition: true,
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
-      },
-    },
+    // reactCompiler: true,
   },
+
   headers: async () => [
     {
       headers: [
@@ -54,6 +49,7 @@ export default bundleAnalyzer({
       source: "/:path*",
     },
   ],
+
   images: {
     domains: ["i.imgur.com"],
     formats: ["image/avif", "image/webp"],
@@ -68,10 +64,13 @@ export default bundleAnalyzer({
         protocol: "http",
       },
     ],
+    unoptimized: true,
   },
+
   output: "standalone",
   productionBrowserSourceMaps: false,
   reactStrictMode: true,
+
   rewrites: async () => [
     {
       destination:
@@ -95,17 +94,21 @@ export default bundleAnalyzer({
       source: "/openapi.json",
     },
   ],
-  // Add this to ensure Tailwind CSS v4 is properly transpiled
-  transpilePackages: ["tailwindcss"],
-  typescript: {
-    ignoreBuildErrors: false,
-  },
-  webpack: (config, { dev, isServer, nextRuntime }) => {
-    // Skip webpack processing for Turbopack
-    if (process.env.TURBOPACK) {
-      return config;
-    }
 
+  turbopack: {
+    rules: {
+      "*.svg": {
+        as: "*.js",
+        loaders: ["@svgr/webpack"],
+      },
+    },
+  },
+
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
+  webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
       // Improve hot reload performance
       config.watchOptions = {
@@ -115,14 +118,12 @@ export default bundleAnalyzer({
     }
 
     // Optimize for Next.js 16
-    if (nextRuntime === "nodejs") {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
 
     return config;
   },

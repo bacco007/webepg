@@ -34,4 +34,3 @@ export type VerticalTimelineEventCollection = {
     lastUpdated?: string;
   };
 };
-

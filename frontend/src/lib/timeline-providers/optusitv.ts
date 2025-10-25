@@ -432,25 +432,158 @@ export const optusitv: TimelineProvider = {
           to: 2003.4,
         },
       ],
-        "200": [{ channel_genre: "Radio", channel_name: "2 JJJ FM", from: 2001.6, to: 2003.4}],
-        "201": [{ channel_genre: "Radio", channel_name: "2 ABC FM", from: 2001.6, to: 2003.4}],
-        "202": [{ channel_genre: "Radio", channel_name: "Mix 106 FM", from: 2001.6, to: 2003.4}],
-        "203": [{ channel_genre: "Radio", channel_name: "2 WS FM", from: 2001.6, to: 2003.4}],
-        "204": [{ channel_genre: "Radio", channel_name: "2 Day FM", from: 2001.6, to: 2003.4}],
-        "205": [{ channel_genre: "Radio", channel_name: "2 MMM FM", from: 2001.6, to: 2003.4}],
-        "206": [{ channel_genre: "Radio", channel_name: "BBC World Radio", from: 2001.6, to: 2003.4}],
-        "207": [{ channel_genre: "Radio", channel_name: "Light Classical", from: 2001.6, to: 2003.4}],
-        "208": [{ channel_genre: "Radio", channel_name: "Club Mix", from: 2001.6, to: 2003.4}],
-        "209": [{ channel_genre: "Radio", channel_name: "Top 100", from: 2001.6, to: 2003.4}],
-        "210": [{ channel_genre: "Radio", channel_name: "Cafe Jazz", from: 2001.6, to: 2003.4}],
-        "211": [{ channel_genre: "Radio", channel_name: "Classic Gold", from: 2001.6, to: 2003.4}],
-        "212": [{ channel_genre: "Radio", channel_name: "Retro Beat", from: 2001.6, to: 2003.4}],
-        "213": [{ channel_genre: "Radio", channel_name: "Stage and Screen", from: 2001.6, to: 2003.4}],
-        "214": [{ channel_genre: "Radio", channel_name: "Latin Heat", from: 2001.6, to: 2003.4}],
-        "215": [{ channel_genre: "Radio", channel_name: "Blues", from: 2001.6, to: 2003.4}],
-        "216": [{ channel_genre: "Radio", channel_name: "Sports 927 AM", from: 2001.6, to: 2003.4}],
-        "217": [{ channel_genre: "Radio", channel_name: "News and More", from: 2001.6, to: 2003.4}],
-        "218": [{ channel_genre: "Radio", channel_name: "Cocktail lounge", from: 2001.6, to: 2003.4}],
+      "200": [
+        {
+          channel_genre: "Radio",
+          channel_name: "2 JJJ FM",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "201": [
+        {
+          channel_genre: "Radio",
+          channel_name: "2 ABC FM",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "202": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Mix 106 FM",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "203": [
+        {
+          channel_genre: "Radio",
+          channel_name: "2 WS FM",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "204": [
+        {
+          channel_genre: "Radio",
+          channel_name: "2 Day FM",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "205": [
+        {
+          channel_genre: "Radio",
+          channel_name: "2 MMM FM",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "206": [
+        {
+          channel_genre: "Radio",
+          channel_name: "BBC World Radio",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "207": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Light Classical",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "208": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Club Mix",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "209": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Top 100",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "210": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Cafe Jazz",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "211": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Classic Gold",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "212": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Retro Beat",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "213": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Stage and Screen",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "214": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Latin Heat",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "215": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Blues",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "216": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Sports 927 AM",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "217": [
+        {
+          channel_genre: "Radio",
+          channel_name: "News and More",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
+      "218": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Cocktail lounge",
+          from: 2001.6,
+          to: 2003.4,
+        },
+      ],
       "300": [
         {
           channel_genre: "Movies",

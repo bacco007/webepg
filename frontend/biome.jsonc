@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.0/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -126,9 +126,7 @@
         "useRegexLiterals": "error",
         "useSimpleNumberKeys": "error",
         "useSimplifiedLogicExpression": "error",
-        "useWhile": "error",
-        "useIndexOf": "error",
-        "noImportantStyles": "off"
+        "useWhile": "error"
       },
       "correctness": {
         "noChildrenProp": "error",
@@ -185,22 +183,16 @@
         "noUnknownTypeSelector": "error",
         "noUnknownUnit": "error",
         "noUnmatchableAnbSelector": "error",
-        "noGlobalDirnameFilename": "error",
-        "noNestedComponentDefinitions": "error",
         "noReactPropAssignments": "error",
-        "noRestrictedElements": "error",
         "useJsonImportAttributes": "error",
-        "useParseIntRadix": "error",
-        "useSingleJsDocAsterisk": "error",
         "noSolidDestructuredProps": "off",
-        "noProcessGlobal": "off",
-        "useUniqueElementIds": "off"
+        "useImageSize": "off"
       },
       "nursery": {
         "noShadow": "error",
         "noUselessUndefined": "error",
         "useExhaustiveSwitchCases": "error",
-        "noSecrets": "off",
+        //"noSecrets": "off",
         "useExplicitType": "off",
         "useSortedClasses": {
           "fix": "safe",
@@ -213,8 +205,28 @@
         "noFloatingPromises": "off",
         "noUnresolvedImports": "off",
         "noImportCycles": "off",
-        "useImageSize": "off",
+        //"useImageSize": "off",
         "useMaxParams": "off"
+        //"noNoninteractiveElementInteractions": "off",
+        //"useIndexOf": "error",
+        //"noImportantStyles": "off",
+        //"noGlobalDirnameFilename": "error",
+        //"noNestedComponentDefinitions": "error",
+        //"noRestrictedElements": "error",
+        //"useParseIntRadix": "error",
+        //"useSingleJsDocAsterisk": "error",
+        //"noProcessGlobal": "off",
+        //"useUniqueElementIds": "off",
+        // "noUnwantedPolyfillio": "error",
+        //"useGoogleFontPreconnect": "error",
+        //"useNumericSeparators": "error",
+        //"useObjectSpread": "error",
+        //"useSymbolDescription": "error",
+        //"useExportsLast": "off",
+        //"noBitwiseOperators": "error",
+        //"noTsIgnore": "error",
+        //"noUselessEscapeInString": "error"
+        //"useIterableCallbackReturn": "error"
       },
       "performance": {
         "noAccumulatingSpread": "error",
@@ -225,8 +237,6 @@
         "useTopLevelRegex": "error",
         "noBarrelFile": "off",
         "noReExportAll": "off",
-        "noUnwantedPolyfillio": "error",
-        "useGoogleFontPreconnect": "error",
         "useSolidForComponent": "off"
       },
       "security": {
@@ -305,10 +315,6 @@
         "noValueAtRule": "error",
         "useGroupedAccessorPairs": "error",
         "useConsistentObjectDefinitions": "error",
-        "useNumericSeparators": "error",
-        "useObjectSpread": "error",
-        "useSymbolDescription": "error",
-        "useExportsLast": "off",
         "noMagicNumbers": "off"
       },
       "suspicious": {
@@ -392,12 +398,8 @@
         "noEmptyBlock": "error",
         "noImportantInKeyframe": "error",
         "noShorthandPropertyOverrides": "error",
-        "noBitwiseOperators": "error",
         "noConstantBinaryExpressions": "error",
-        "noTsIgnore": "error",
-        "noUselessEscapeInString": "error",
         "useStaticResponseMethods": "error",
-        "useIterableCallbackReturn": "error",
         "noUnknownAtRules": "off"
       }
     }
@@ -411,6 +413,9 @@
       "quoteStyle": "double",
       "semicolons": "always",
       "trailingCommas": "es5"
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": false
     }
   },
   "css": {
@@ -441,5 +446,5 @@
       "allowTrailingCommas": false
     }
   },
-  "extends": ["ultracite"]
+  "extends": ["ultracite/core", "ultracite/react", "ultracite/next"]
 }

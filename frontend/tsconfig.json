@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,12 +15,8 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "~/*": [
-        "./public/*"
-      ]
+      "@/*": ["./src/*"],
+      "~/*": ["./public/*"]
     },
     "incremental": true,
     "plugins": [
@@ -44,9 +36,5 @@
     "src/app/example-page/page.temp",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "src/components/ui/**/*",
-    "zbackup/**"
-  ]
+  "exclude": ["node_modules", "src/components/ui/**/*", "zbackup/**"]
 }

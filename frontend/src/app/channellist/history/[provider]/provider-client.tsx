@@ -52,6 +52,60 @@ import {
   timelineProviders,
 } from "@/lib/timeline-data";
 
+// Helper: extract indicators from channel name
+const extractIndicators = (name: string): string[] => {
+  const found: string[] = [];
+  if (
+    name.includes("4K") ||
+    name.includes("UHD") ||
+    name.includes("Ultra HD")
+  ) {
+    found.push("4K");
+  }
+  if (name.includes(" HD")) {
+    found.push("HD");
+  }
+  if (name.includes("+2")) {
+    found.push("+2");
+  }
+  if (name.includes("Interactive") || name.includes("interactive")) {
+    found.push("Interactive");
+  }
+  return found;
+};
+
+// Helper function to process channel items
+const processChannelItems = (
+  items: Array<{
+    channel_name: string;
+    channel_genre?: string;
+    channel_network?: string;
+    channel_notes?: string;
+    from: number | string;
+    to?: number | string;
+  }>,
+  indicators: Set<string>,
+  colorValues: Set<string>,
+  colorBy: string
+) => {
+  for (const item of items) {
+    // Extract indicators from channel name
+    for (const indicator of extractIndicators(item.channel_name)) {
+      indicators.add(indicator);
+    }
+    // Also check if channel_genre is "Interactive"
+    if (item.channel_genre === "Interactive") {
+      indicators.add("Interactive");
+    }
+    // Collect color values based on configured colorBy
+    const colorValue =
+      colorBy === "channel_network" ? item.channel_network : item.channel_genre;
+    if (colorValue) {
+      colorValues.add(colorValue);
+    }
+  }
+};
+
 type ChannelHistorySidebarProps = {
   activeColorValues: Set<string>;
   activeIndicators: Set<string>;
@@ -71,7 +125,37 @@ type ChannelHistorySidebarProps = {
   onYearRangeReset: () => void;
   onYearRangeChange: (value: number[]) => void;
   selectedNetworks: Set<string>;
-  selectedProvider: any;
+  selectedProvider: {
+    name: string;
+    description: string;
+    country: string;
+    colorBy?: string;
+    colorMap?: Record<string, string>;
+    data: {
+      axis: {
+        start: number;
+        end: number;
+      };
+      channels: Record<
+        string,
+        Array<{
+          channel_name: string;
+          channel_genre?: string;
+          channel_network?: string;
+          channel_notes?: string;
+          from: number | string;
+          to?: number | string;
+        }>
+      >;
+      events?: Array<{
+        when: string | number;
+        label: string;
+        type: string;
+        note?: string;
+        href?: string;
+      }>;
+    };
+  } | null;
   yearRange: [number, number];
 };
 
@@ -110,24 +194,16 @@ function ChannelHistorySidebar({
           <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
             <h4 className="font-semibold text-xs">Filter by Year Range</h4>
             <div className="flex items-center gap-1">
-              <span
+              <button
                 className="inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
                 onClick={(e) => {
                   e.stopPropagation();
                   onYearRangeReset();
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onYearRangeReset();
-                  }
-                }}
-                role="button"
-                tabIndex={0}
+                type="button"
               >
                 <RotateCcw className="h-3 w-3" />
-              </span>
+              </button>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isYearRangeOpen ? "rotate-180" : ""}`}
               />
@@ -169,24 +245,16 @@ function ChannelHistorySidebar({
             </h4>
             <div className="flex items-center gap-1">
               {selectedNetworks.size > 0 && (
-                <span
+                <button
                   className="inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
                   onClick={(e) => {
                     e.stopPropagation();
                     onNetworksReset();
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onNetworksReset();
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
+                  type="button"
                 >
                   <RotateCcw className="h-3 w-3" />
-                </span>
+                </button>
               )}
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isNetworksOpen ? "rotate-180" : ""}`}
@@ -606,60 +674,12 @@ export default function ChannelHistoryClient({
       };
     }
 
-    type ChannelItem = {
-      channel_name: string;
-      channel_genre?: string;
-      channel_network?: string;
-      channel_notes?: string;
-      from: number | string;
-      to?: number | string;
-    };
-
-    // Helper: extract indicators from channel name
-    const extractIndicators = (name: string): string[] => {
-      const found: string[] = [];
-      if (
-        name.includes("4K") ||
-        name.includes("UHD") ||
-        name.includes("Ultra HD")
-      ) {
-        found.push("4K");
-      }
-      if (name.includes(" HD")) {
-        found.push("HD");
-      }
-      if (name.includes("+2")) {
-        found.push("+2");
-      }
-      if (name.includes("Interactive") || name.includes("interactive")) {
-        found.push("Interactive");
-      }
-      return found;
-    };
-
     const indicators = new Set<string>();
     const colorValues = new Set<string>();
 
     // Check all channels for indicators and color values
     for (const items of Object.values(filteredTimelineData.channels)) {
-      for (const item of items as ChannelItem[]) {
-        // Extract indicators from channel name
-        for (const indicator of extractIndicators(item.channel_name)) {
-          indicators.add(indicator);
-        }
-        // Also check if channel_genre is "Interactive"
-        if (item.channel_genre === "Interactive") {
-          indicators.add("Interactive");
-        }
-        // Collect color values based on configured colorBy
-        const colorValue =
-          colorBy === "channel_network"
-            ? item.channel_network
-            : item.channel_genre;
-        if (colorValue) {
-          colorValues.add(colorValue);
-        }
-      }
+      processChannelItems(items, indicators, colorValues, colorBy);
     }
 
     return {
@@ -673,7 +693,7 @@ export default function ChannelHistoryClient({
     if (availableNetworks.size > 0 && selectedNetworks.size === 0) {
       setSelectedNetworks(new Set(availableNetworks));
     }
-  }, [availableNetworks.size, selectedNetworks.size]);
+  }, [availableNetworks, selectedNetworks.size]);
 
   // Create the sidebar content
   const sidebar = (

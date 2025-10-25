@@ -37,7 +37,8 @@ export const subscriptionTVEvents: VerticalTimelineEventCollection = {
     },
     {
       date: "1995.10",
-      description: "Foxtel launches their cable service on 22nd October 1995 with a 20 channel service",
+      description:
+        "Foxtel launches their cable service on 22nd October 1995 with a 20 channel service",
       id: "foxtel-cablelaunch-1995",
       providers: ["foxtel"],
       title: "Foxtel Launches",
@@ -52,12 +53,14 @@ export const subscriptionTVEvents: VerticalTimelineEventCollection = {
       title: "Australis Proposed Merger with Galaxy Rejected",
       type: "launch",
     },
-    {date: "1997.7",
-        description: "Another Galaxy/Foxtel merger proposal is made, but is again rejected by the ACCC for similar reasons to the 1995 proposal",
-        id: "australis-proposed-merger-galaxy-foxtel-1997",
-        providers: ["galaxy", "foxtel"],
-        title: "Australis Proposed Merger with Galaxy Rejected",
-        type: "launch",
+    {
+      date: "1997.7",
+      description:
+        "Another Galaxy/Foxtel merger proposal is made, but is again rejected by the ACCC for similar reasons to the 1995 proposal",
+      id: "australis-proposed-merger-galaxy-foxtel-1997",
+      providers: ["galaxy", "foxtel"],
+      title: "Australis Proposed Merger with Galaxy Rejected",
+      type: "launch",
     },
     {
       date: 1998.5,
@@ -77,7 +80,15 @@ export const subscriptionTVEvents: VerticalTimelineEventCollection = {
       title: "Austar acquires ECTV",
       type: "closure",
     },
-    {date: "1998.10", description: "Kerry Packer's Publishing and Broadcasting Limited (PBL) purchases a 25% stake in Foxtel (via News Corporation) for $150 million", id: "pbl-invests-in-foxtel-1998", providers: ["pbl", "foxtel"], title: "PBL Invests in Foxtel", type: "launch"},
+    {
+      date: "1998.10",
+      description:
+        "Kerry Packer's Publishing and Broadcasting Limited (PBL) purchases a 25% stake in Foxtel (via News Corporation) for $150 million",
+      id: "pbl-invests-in-foxtel-1998",
+      providers: ["pbl", "foxtel"],
+      title: "PBL Invests in Foxtel",
+      type: "launch",
+    },
     {
       date: 2009.2,
       description: "Foxtel launches High Definition service",
@@ -86,9 +97,32 @@ export const subscriptionTVEvents: VerticalTimelineEventCollection = {
       title: "Foxtel HD Launches",
       type: "launch",
     },
-    {date: 2011.7, description: "Foxtel and Austar enter agreement for Foxtel to acquire Austar, requiring shareholder and regulatory approval", id: "foxtel-austar-merger-2011", providers: ["foxtel", "austar"], title: "Foxtel and Austar Announce Merger", type: "merger"},
-    {date: 2012.5, description: "Foxtel's acquisition of Austar is completed", id: "foxtel-austar-acquisition-2012", providers: ["foxtel", "austar"], title: "Foxtel acquires Austar", type: "acquisition"},
-    {date: 2014, description: "Foxtel phase out Austar branding, transitioning to a single brand, Foxtel", id: "foxtel-phase-out-austar-branding-2014", providers: ["foxtel", "austar"], title: "Foxtel phases out Austar branding", type: "rebrand"},
+    {
+      date: 2011.7,
+      description:
+        "Foxtel and Austar enter agreement for Foxtel to acquire Austar, requiring shareholder and regulatory approval",
+      id: "foxtel-austar-merger-2011",
+      providers: ["foxtel", "austar"],
+      title: "Foxtel and Austar Announce Merger",
+      type: "merger",
+    },
+    {
+      date: 2012.5,
+      description: "Foxtel's acquisition of Austar is completed",
+      id: "foxtel-austar-acquisition-2012",
+      providers: ["foxtel", "austar"],
+      title: "Foxtel acquires Austar",
+      type: "acquisition",
+    },
+    {
+      date: 2014,
+      description:
+        "Foxtel phase out Austar branding, transitioning to a single brand, Foxtel",
+      id: "foxtel-phase-out-austar-branding-2014",
+      providers: ["foxtel", "austar"],
+      title: "Foxtel phases out Austar branding",
+      type: "rebrand",
+    },
     {
       date: 2012.6,
       description:
@@ -98,8 +132,24 @@ export const subscriptionTVEvents: VerticalTimelineEventCollection = {
       title: "UBI World TV Collapses",
       type: "closure",
     },
-    {date: 2024.12, description: "DAZN announces it will acquire Foxtel in a deal worth $3.4 billion that will see Foxtel shareholders News Corp Australia and Telstra take 6% and 3% minority stakes in DAZN", id: "dazn-announces-foxtel-acquisition-2024", providers: ["dazn", "foxtel", "news-corp-australia", "telstra"], title: "DAZN Announces Foxtel Acquisition", type: "launch"},
-    {date: 2025.4, description: "DAZN completes the acquisition of Foxtel after receiving all regulatory approvals", id: "dazn-acquires-foxtel-2025", providers: ["dazn", "foxtel"], title: "DAZN acquires Foxtel", type: "acquisition"},
+    {
+      date: 2024.12,
+      description:
+        "DAZN announces it will acquire Foxtel in a deal worth $3.4 billion that will see Foxtel shareholders News Corp Australia and Telstra take 6% and 3% minority stakes in DAZN",
+      id: "dazn-announces-foxtel-acquisition-2024",
+      providers: ["dazn", "foxtel", "news-corp-australia", "telstra"],
+      title: "DAZN Announces Foxtel Acquisition",
+      type: "launch",
+    },
+    {
+      date: 2025.4,
+      description:
+        "DAZN completes the acquisition of Foxtel after receiving all regulatory approvals",
+      id: "dazn-acquires-foxtel-2025",
+      providers: ["dazn", "foxtel"],
+      title: "DAZN acquires Foxtel",
+      type: "acquisition",
+    },
   ],
   metadata: {
     description:
