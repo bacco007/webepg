@@ -1,4 +1,19 @@
+# Build arguments for metadata and versioning
+ARG APP_VERSION=0.2.0
+ARG BUILD_DATE
+ARG VCS_REF
+ARG BUILD_PLATFORM
+
 FROM node:24-alpine AS base
+
+# Metadata labels
+LABEL org.opencontainers.image.title="webepg-frontend" \
+      org.opencontainers.image.description="WebEPG Frontend Application" \
+      org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.platform="${BUILD_PLATFORM}" \
+      org.opencontainers.image.source="https://github.com/your-org/webepg/frontend"
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -15,6 +30,10 @@ COPY pnpm-lock.yaml package.json ./
 RUN --mount=type=cache,id=pnpm,target=/.pnpm-store \
     pnpm install --frozen-lockfile
 
+# Optional security scan stage (non-blocking)
+FROM deps AS security-scan
+RUN pnpm audit --audit-level=moderate || echo "Security audit completed with warnings"
+
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
@@ -22,13 +41,27 @@ WORKDIR /app
 # Enable pnpm for the builder stage
 RUN corepack enable pnpm
 
-# Copy only the files needed for the build
-COPY . .
+# Copy configuration files first for better layer caching
+# These change less frequently than source code
+COPY next.config.ts tsconfig.json tailwind.config.ts postcss.config.mjs components.json ./
+COPY biome.jsonc ./
+COPY package.json pnpm-lock.yaml ./
+
+# Copy node_modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code and other files needed for build
+# .dockerignore will exclude unnecessary files
+COPY . .
+
+# Build arguments available in build stage
+ARG APP_VERSION
+ARG NEXT_PUBLIC_APP_VERSION
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_PUBLIC_APP_VERSION="${NEXT_PUBLIC_APP_VERSION:-${APP_VERSION}}"
 
 # Build the application
 RUN --mount=type=cache,target=/app/.next/cache \
@@ -41,8 +74,22 @@ RUN test -d .next/standalone || (echo "Error: .next/standalone not found" && exi
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# Build arguments for metadata
+ARG APP_VERSION
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Production environment variables
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
+
+# Add metadata labels to final image
+LABEL org.opencontainers.image.title="webepg-frontend" \
+      org.opencontainers.image.description="WebEPG Frontend Application" \
+      org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.source="https://github.com/your-org/webepg/frontend"
 
 # Don't run production as root
 RUN addgroup --system --gid 1001 nodejs && \
@@ -68,4 +115,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Use array syntax for better signal handling
+# Note: For multi-platform builds, use: docker buildx build --platform linux/amd64,linux/arm64 -t your-image .
 CMD ["node", "server.js"]
