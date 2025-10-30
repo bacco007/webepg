@@ -2,7 +2,7 @@
 name = "webepg-backend"
 version = "1.0.0"
 description = "WebEPG FastAPI Backend"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "aiohappyeyeballs==2.6.1",
     "aiohttp==3.13.1",
@@ -31,8 +31,8 @@ dependencies = [
     "docopt==0.6.2",
     "email_validator==2.2.0",
     "et_xmlfile==2.0.0",
-    "fastapi[standard]==0.120.3",
-    "fastapi-cli==0.0.8",
+    "fastapi==0.120.0",
+    "fastapi-cli==0.0.7",
     "filelock==3.15.4",
     "frozenlist==1.4.1",
     "h11==0.16.0",
@@ -83,7 +83,7 @@ dependencies = [
     "PyYAML==6.0.3",
     "requests==2.32.5",
     "rich==13.8.0",
-    "rich-toolkit==0.14.8",
+    "rich-toolkit==0.13.2",
     "ruff==0.14.2",
     "selenium==4.38.0",
     "setuptools==78.1.0",

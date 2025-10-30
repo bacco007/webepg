@@ -1,5 +1,6 @@
+from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, AsyncGenerator, Dict
 
 import aiohttp
 import psutil
@@ -17,31 +18,7 @@ from app.config import settings
 from app.routers import channels, dates, epg, nownext, sources, transmitters, xmlepg
 
 limiter = Limiter(key_func=get_remote_address)
-app = FastAPI(title=settings.APP_NAME, docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
 scheduler = AsyncIOScheduler()
-
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(sources.router, prefix="/api", tags=["sources"])
-app.include_router(channels.router, prefix="/api", tags=["channels"])
-app.include_router(epg.router, prefix="/api", tags=["epg"])
-app.include_router(dates.router, prefix="/api", tags=["dates"])
-app.include_router(nownext.router, prefix="/api/py/epg/nownext", tags=["nownext"])
-# app.include_router(foxtel.router, prefix="/api", tags=["foxtel"])
-# app.include_router(optus.router, prefix="/api", tags=["optus"])
-app.include_router(transmitters.router, prefix="/api", tags=["transmitters"])
-app.include_router(xmlepg.router, prefix="/api", tags=["xmlepg"])
-
-app.mount("/xmltvdata", StaticFiles(directory="xmltvdata"), name="xmltvdata")
 
 # Function to process sources
 async def process_sources_task() -> None:
@@ -60,47 +37,86 @@ async def process_xmlepg_task() -> None:
 #     await optus.process_all_data()
 
 
-# Schedule the tasks
-scheduler.add_job(
-    process_sources_task,
-    trigger=IntervalTrigger(hours=3),
-    id='process_sources',
-    name='Process XMLTV sources every 3 hours',
-    replace_existing=True,
-)
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """
+    Lifespan context manager for FastAPI application.
+    Handles startup and shutdown events, including scheduler initialization.
+    """
+    # Startup: Configure and start the scheduler
+    scheduler.add_job(
+        process_sources_task,
+        trigger=IntervalTrigger(hours=3),
+        id='process_sources',
+        name='Process XMLTV sources every 3 hours',
+        replace_existing=True,
+    )
 
-# scheduler.add_job(
-#     process_foxtel_sources,
-#     trigger=IntervalTrigger(hours=6),
-#     id="process_foxtel_sources",
-#     name="Process Foxtel sources every 6 hours",
-#     replace_existing=True,
-# )
+    # scheduler.add_job(
+    #     process_foxtel_sources,
+    #     trigger=IntervalTrigger(hours=6),
+    #     id="process_foxtel_sources",
+    #     name="Process Foxtel sources every 6 hours",
+    #     replace_existing=True,
+    # )
 
-scheduler.add_job(
-    process_xmlepg_task,
-    trigger=IntervalTrigger(hours=12),
-    id="process_xmlepg",
-    name="Process XMLEPG every 12 hours",
-    replace_existing=True,
-)
+    scheduler.add_job(
+        process_xmlepg_task,
+        trigger=IntervalTrigger(hours=12),
+        id="process_xmlepg",
+        name="Process XMLEPG every 12 hours",
+        replace_existing=True,
+    )
 
-# scheduler.add_job(
-#     process_optus_task,
-#     trigger=IntervalTrigger(hours=12),
-#     id="process_optus",
-#     name="Process Optus Sport every 12 hours",
-#     replace_existing=True,
-# )
+    # scheduler.add_job(
+    #     process_optus_task,
+    #     trigger=IntervalTrigger(hours=12),
+    #     id="process_optus",
+    #     name="Process Optus Sport every 12 hours",
+    #     replace_existing=True,
+    # )
 
-
-@app.on_event("startup")
-async def startup_event() -> None:
     scheduler.start()
-
-@app.on_event("shutdown")
-async def shutdown_event() -> None:
+    
+    yield
+    
+    # Shutdown: Stop the scheduler
     scheduler.shutdown()
+
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    docs_url="/api/py/docs",
+    openapi_url="/api/py/openapi.json",
+    lifespan=lifespan,
+)
+
+# Configure app state and middleware after app creation
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(sources.router, prefix="/api", tags=["sources"])
+app.include_router(channels.router, prefix="/api", tags=["channels"])
+app.include_router(epg.router, prefix="/api", tags=["epg"])
+app.include_router(dates.router, prefix="/api", tags=["dates"])
+app.include_router(nownext.router, prefix="/api/py/epg/nownext", tags=["nownext"])
+# app.include_router(foxtel.router, prefix="/api", tags=["foxtel"])
+# app.include_router(optus.router, prefix="/api", tags=["optus"])
+app.include_router(transmitters.router, prefix="/api", tags=["transmitters"])
+app.include_router(xmlepg.router, prefix="/api", tags=["xmlepg"])
+
+# Mount static files
+app.mount("/xmltvdata", StaticFiles(directory="xmltvdata"), name="xmltvdata")
+
 
 @app.get("/")
 @limiter.limit("5/minute")

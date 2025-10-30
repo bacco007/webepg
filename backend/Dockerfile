@@ -8,31 +8,38 @@ ENV PYTHONUNBUFFERED=1
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container
-COPY . .
-
-# Install system dependencies (if needed, uncomment the following line)
-# RUN apt-get update && apt-get install -y gcc python3-dev libffi-dev && rm -rf /var/lib/apt/lists/*
-
 # Install system dependencies and MySQL client
 RUN apt-get update && \
-    apt-get install -y default-libmysqlclient-dev && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Copy dependency files first for better caching
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies using uv (frozen mode for reproducibility)
+RUN uv sync --frozen --no-dev
+
+# Copy the rest of the application code
+COPY . .
+
+# Create non-root user and set ownership (recommended for production)
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
 
 # Expose the port the app runs on
 EXPOSE 8000
 
-# # Optionally create a non-root user (recommended for production)
-# RUN useradd -m myuser
-# USER myuser
-
 # Healthcheck (optional)
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD python -c "import requests; requests.get('http://localhost:8000/api/py/health')" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+    CMD uv run python -c "import requests; requests.get('http://localhost:8000/api/py/health')" || exit 1
 
 # Define the command to run the app
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# uv creates .venv, so we activate it and run uvicorn
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

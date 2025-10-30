@@ -494,5 +494,5 @@ export const ectv: TimelineProvider = {
   },
   description: "ECTV's Service from 1995 to 1998",
   id: "ectv",
-  name: "ECTV",
+  name: "East Coast Television (ECTV)",
 };

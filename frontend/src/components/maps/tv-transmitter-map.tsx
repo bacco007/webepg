@@ -7,7 +7,6 @@ import {
   ChevronDown,
   ChevronUp,
   Layers,
-  Locate,
   Maximize,
   RefreshCw,
   Search,
@@ -20,15 +19,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  ScaleControl,
-  TileLayer,
-  useMap,
-  ZoomControl,
-} from "react-leaflet";
+import { Marker, Popup, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 
 import "@drustack/leaflet.resetview";
@@ -43,7 +34,7 @@ import {
   SidebarLayout,
   SidebarSearch,
 } from "@/components/layouts/sidebar-layout";
-import { TransmitterPopup } from "@/components/transmitter-popup";
+import { TransmitterPopup } from "@/components/maps/transmitter-popup";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -53,6 +44,13 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Map as LeafletMapComponent,
+  MapLayers,
+  MapLocateControl,
+  MapTileLayer,
+  MapZoomControl,
+} from "@/components/ui/map";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
@@ -99,8 +97,8 @@ if (typeof document !== "undefined") {
   document.head.appendChild(style);
 }
 
-// Add custom marker icons
-const createMarkerIcon = (type: string, highlight = false) => {
+// Helper function to get marker icon SVG
+const createMarkerIconSVG = (type: string) => {
   // SVG icons for each network
   const networkSVGs: Record<string, string> = {
     ABC: `<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10" fill="#FF0000" stroke="white" stroke-width="2"/><text x="11" y="15" text-anchor="middle" font-size="10" fill="white" font-family="Arial" font-weight="bold">A</text></svg>`,
@@ -125,13 +123,7 @@ const createMarkerIcon = (type: string, highlight = false) => {
   } else if (type.includes("Community") || type.includes("Narrowcasting")) {
     svg = networkSVGs.Community;
   }
-  // Add highlight border if needed
-  const highlightClass = highlight ? " custom-marker-highlight" : "";
-  return L.divIcon({
-    className: "custom-marker-container",
-    html: `<div class="custom-marker custom-marker-drop${highlightClass}">${svg}</div>`,
-    iconSize: highlight ? L.point(28, 28, true) : L.point(22, 22, true),
-  });
+  return svg;
 };
 
 // Add custom marker styles and drop animation
@@ -226,22 +218,24 @@ function MapControls({
   }, [bounds, map]);
 
   return (
-    <div className="leaflet-top leaflet-left" style={{ marginTop: "60px" }}>
-      <div className="leaflet-bar leaflet-control space-y-2">
+    <div className="absolute top-16 left-1 z-[1000]">
+      <div className="flex flex-col gap-2">
         <Button
+          className="border"
           disabled={!bounds}
           onClick={handleFitBounds}
           size="icon"
           title="Fit to markers"
-          variant="outline"
+          variant="secondary"
         >
           <Target className="size-4" />
         </Button>
         <Button
+          className="border"
           onClick={() => map.setView(center, zoom)}
           size="icon"
           title="Reset view"
-          variant="outline"
+          variant="secondary"
         >
           <Maximize className="size-4" />
         </Button>
@@ -251,55 +245,8 @@ function MapControls({
 }
 
 const TVLicenceAreasLayer = React.lazy(
-  () => import("@/components/tv-licence-areas-layer")
+  () => import("@/components/maps/tv-licence-areas-layer")
 );
-
-function GeolocationControl() {
-  const map = useMap();
-
-  const handleGeolocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          map.setView([latitude, longitude], 13);
-          toast({
-            description: "Map centered on your current location.",
-            title: "Location found",
-          });
-        },
-        (_error) => {
-          toast({
-            description: "Unable to retrieve your location.",
-            title: "Geolocation error",
-            variant: "destructive",
-          });
-        }
-      );
-    } else {
-      toast({
-        description: "Your browser doesn't support geolocation.",
-        title: "Geolocation not supported",
-        variant: "destructive",
-      });
-    }
-  };
-
-  return (
-    <div className="leaflet-top leaflet-right">
-      <div className="leaflet-bar leaflet-control">
-        <Button
-          onClick={handleGeolocation}
-          size="icon"
-          title="Find my location"
-          variant="outline"
-        >
-          <Locate className="size-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 // Frequency Range Filter component
 function FrequencyRangeFilter({
@@ -420,10 +367,7 @@ function MapLegend() {
   ];
 
   return (
-    <div
-      className="leaflet-bottom leaflet-left"
-      style={{ marginBottom: "20px", marginLeft: "20px" }}
-    >
+    <div className="absolute bottom-5 left-5 z-[1000]">
       <Card className="w-28 rounded-lg border border-border bg-background/90 py-1 shadow-md">
         <CardContent className="p-2">
           <h3 className="mb-1 font-bold text-xs">Networks</h3>
@@ -493,12 +437,9 @@ function MinimapControl() {
   }, [map, resolvedTheme]);
 
   return (
-    <div
-      className="leaflet-right leaflet-bottom"
-      style={{ marginBottom: "80px", marginRight: "90px" }}
-    >
+    <div className="absolute right-20 bottom-16 z-[1000]">
       <div
-        className="h-28 w-28 rounded-lg border border-border bg-background/90 shadow-lg"
+        className="h-20 w-20 rounded-lg border border-border bg-background/90 shadow-lg"
         ref={minimapRef}
       />
     </div>
@@ -506,7 +447,6 @@ function MinimapControl() {
 }
 
 export default function TVTransmitterMap() {
-  const { resolvedTheme } = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
   // Update initial frequency range values
@@ -1359,9 +1299,11 @@ export default function TVTransmitterMap() {
       title="TV Transmitter Map"
     >
       <div className="relative h-full w-full">
-        <MapContainer
+        <LeafletMapComponent
           center={mapView ? [mapView.lat, mapView.lng] : center}
           className="size-full"
+          maxZoom={20}
+          minZoom={3}
           ref={mapRef}
           whenReady={() => {
             if (mapRef.current) {
@@ -1369,91 +1311,112 @@ export default function TVTransmitterMap() {
             }
           }}
           zoom={mapView ? mapView.zoom : zoom}
-          zoomControl={false}
         >
-          <TileLayer
-            attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-            maxZoom={20}
-            url={
-              resolvedTheme === "dark"
-                ? "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-                : "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
-            }
-          />
-          <ZoomControl position="bottomright" />
-          <ScaleControl imperial={false} position="bottomleft" />
-          <MapControls bounds={bounds} center={center} zoom={zoom} />
-          {showLegend && <MapLegend />}
-          <MinimapControl />
-          <React.Suspense fallback={<div>Loading TV Licence Areas...</div>}>
-            {showTVLicenceAreas && geoJsonData && (
-              <TVLicenceAreasLayer
-                geoJsonData={geoJsonData}
-                onSelectArea={setSelectedArea}
-              />
-            )}
-          </React.Suspense>
-          <MarkerClusterGroup
-            animate={true}
-            chunkedLoading
-            iconCreateFunction={(cluster: { getChildCount: () => number }) => {
-              const count = cluster.getChildCount();
-              let size = "large";
-              if (count < 10) {
-                size = "small";
-              } else if (count < 100) {
-                size = "medium";
-              }
-              return L.divIcon({
-                className: "custom-marker-cluster",
-                html: `<div class="cluster-icon ${size}">${count}</div>`,
-                iconSize: L.point(40, 40, true),
-              });
-            }}
-            maxClusterRadius={60}
-            removeOutsideVisibleBounds={true}
-            showCoverageOnHover={true}
-            spiderfyOnMaxZoom={true}
-            zoomToBoundsOnClick={true}
-          >
-            {filteredTransmitters.map((transmitter) => {
-              const markerId = `${transmitter.ACMASiteID}-${transmitter.CallSignChannel}`;
-              return (
-                <Marker
-                  eventHandlers={{
-                    mouseout: (e) => {
-                      e.target.closePopup();
-                    },
-                    mouseover: (e) => {
-                      e.target.openPopup();
-                    },
-                  }}
-                  icon={createMarkerIcon(transmitter.Network, false)}
-                  key={markerId}
-                  position={[transmitter.Lat, transmitter.Long]}
-                >
-                  <Popup maxWidth={350}>
-                    <TransmitterPopup transmitter={transmitter} />
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </MarkerClusterGroup>
-          <GeolocationControl />
-          {/* Show a marker for the searched location */}
-          {searchResult && (
-            <Marker
-              icon={L.divIcon({
-                className: "custom-marker-container",
-                html: `<div class='custom-marker custom-marker-drop' style='background-color:#3b82f6;border:2px solid white;width:22px;height:22px;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.2);'></div>`,
-                iconSize: L.point(22, 22, true),
-              })}
-              position={[searchResult.lat, searchResult.lon]}
+          <MapLayers defaultTileLayer="Default">
+            <MapTileLayer
+              attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+              darkUrl="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+              maxZoom={20}
+              name="Default"
+              url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
+            />
+            <MapZoomControl className="top-1 left-1" />
+            <MapLocateControl
+              className="right-1 bottom-1"
+              onLocationError={() => {
+                toast({
+                  description: "Unable to retrieve your location.",
+                  title: "Geolocation error",
+                  variant: "destructive",
+                });
+              }}
+              onLocationFound={() => {
+                toast({
+                  description: "Map centered on your current location.",
+                  title: "Location found",
+                });
+              }}
+            />
+            <MapControls bounds={bounds} center={center} zoom={zoom} />
+            {showLegend && <MapLegend />}
+            <MinimapControl />
+            <React.Suspense fallback={<div>Loading TV Licence Areas...</div>}>
+              {showTVLicenceAreas && geoJsonData && (
+                <TVLicenceAreasLayer
+                  geoJsonData={geoJsonData}
+                  onSelectArea={setSelectedArea}
+                />
+              )}
+            </React.Suspense>
+            <MarkerClusterGroup
+              animate={true}
+              chunkedLoading
+              iconCreateFunction={(cluster: {
+                getChildCount: () => number;
+              }) => {
+                const count = cluster.getChildCount();
+                let size = "large";
+                if (count < 10) {
+                  size = "small";
+                } else if (count < 100) {
+                  size = "medium";
+                }
+                return L.divIcon({
+                  className: "custom-marker-cluster",
+                  html: `<div class="cluster-icon ${size}">${count}</div>`,
+                  iconSize: L.point(40, 40, true),
+                });
+              }}
+              maxClusterRadius={60}
+              removeOutsideVisibleBounds={true}
+              showCoverageOnHover={true}
+              spiderfyOnMaxZoom={true}
+              zoomToBoundsOnClick={true}
             >
-              <Popup>{searchResult.display_name}</Popup>
-            </Marker>
-          )}
-        </MapContainer>
+              {filteredTransmitters.map((transmitter) => {
+                const markerId = `${transmitter.ACMASiteID}-${transmitter.CallSignChannel}`;
+                const markerIcon = L.divIcon({
+                  className: "custom-marker-container",
+                  html: `<div class="custom-marker custom-marker-drop">${createMarkerIconSVG(transmitter.Network)}</div>`,
+                  iconSize: L.point(22, 22, true),
+                });
+
+                return (
+                  <Marker
+                    eventHandlers={{
+                      mouseout: (e) => {
+                        e.target.closePopup();
+                      },
+                      mouseover: (e) => {
+                        e.target.openPopup();
+                      },
+                    }}
+                    icon={markerIcon}
+                    key={markerId}
+                    position={[transmitter.Lat, transmitter.Long]}
+                  >
+                    <Popup maxWidth={350}>
+                      <TransmitterPopup transmitter={transmitter} />
+                    </Popup>
+                  </Marker>
+                );
+              })}
+            </MarkerClusterGroup>
+            {/* Show a marker for the searched location */}
+            {searchResult && (
+              <Marker
+                icon={L.divIcon({
+                  className: "custom-marker-container",
+                  html: `<div class='custom-marker custom-marker-drop' style='background-color:#3b82f6;border:2px solid white;width:22px;height:22px;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.2);'></div>`,
+                  iconSize: L.point(22, 22, true),
+                })}
+                position={[searchResult.lat, searchResult.lon]}
+              >
+                <Popup>{searchResult.display_name}</Popup>
+              </Marker>
+            )}
+          </MapLayers>
+        </LeafletMapComponent>
         {selectedArea && (
           <div className="absolute top-4 right-4 z-[1000] rounded bg-background p-2 shadow-sm">
             <p className="font-medium text-sm">Selected Area: {selectedArea}</p>

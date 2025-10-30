@@ -5,7 +5,7 @@ export const siteConfig = {
     github: "http://github.com/bacco007/webepg",
   },
   name: "webEPG",
-  url: "https://www.webepg.xyz",
+  url: "https://webepg.xyz",
 };
 
 export type SiteConfig = typeof siteConfig;

@@ -1,20 +1,11 @@
-"use client";
+import type { Metadata } from "next";
+import HubblClient from "./hubbl-client";
 
-import { ChannelDataTable } from "@/components/channel-data-table";
+export const metadata: Metadata = {
+  description: "Browse Hubbl channel listings and details.",
+  title: "Hubbl Channels",
+};
 
-export default function FetchChannelsPage() {
-  return (
-    <ChannelDataTable
-      fetchUrl="/api/py/channels/xmlepg_HUBALL"
-      title="Hubbl Channels"
-      // Optional customizations:
-      // dataExtractor={(data) => data.data.channels} // Default extractor
-      // initialSorting={[{ id: "channel_number", desc: false }]} // Default sorting
-      // defaultColumnVisibility={{}} // Default column visibility
-      // showChannelTypeFilter={true} // Show/hide specific filters
-      // showChannelGroupFilter={true}
-      // showChannelSpecsFilter={true}
-      // renderCustomActions={() => <Button>Custom Action</Button>} // Add custom actions
-    />
-  );
+export default function HubblPage() {
+  return <HubblClient />;
 }

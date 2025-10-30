@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import LoadingState from "@/components/loading-state";
 
 const TVTransmitterMap = dynamic(
-  () => import("@/components/tv-transmitter-map"),
+  () => import("@/components/maps/tv-transmitter-map"),
   {
     loading: () => <LoadingState />,
     ssr: false,

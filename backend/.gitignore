@@ -169,3 +169,7 @@ cython_debug/
 app/temp
 tools
 xmlepg_error_log.txt
+
+# uv
+.uv/
+uv.lock

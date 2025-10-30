@@ -20,7 +20,7 @@ mypy .
 # safety check
 
 echo "6. Freezing dependencies"
-pip freeze > requirements.txt
+uv export --format requirements-txt --output-file requirements.txt --no-hashes
 
 echo "8. Compiling Python files"
 python -m compileall .

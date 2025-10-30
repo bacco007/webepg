@@ -11,11 +11,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FilterSection } from "@/components/filter-section";
 import {
-  ChannelCard,
-  LocationSelector,
-  ViewModeToggle,
-} from "@/components/freeview-channel-map";
-import {
   SidebarContainer,
   SidebarContent,
   SidebarFooter,
@@ -23,6 +18,11 @@ import {
   SidebarLayout,
   SidebarSearch,
 } from "@/components/layouts/sidebar-layout";
+import {
+  ChannelCard,
+  LocationSelector,
+  ViewModeToggle,
+} from "@/components/freeview-channel-map";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

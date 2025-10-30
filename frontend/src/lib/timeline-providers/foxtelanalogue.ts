@@ -71,7 +71,12 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "5": [
-        { channel_name: "UK.TV", from: 1996.8, to: 2000.12 },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "UK.TV",
+          from: 1996.8,
+          to: 2000.12,
+        },
         {
           channel_genre: "Kids",
           channel_name: "Nickelodeon",
@@ -80,7 +85,12 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "6": [
-        { channel_name: "Discovery Channel", from: 1995.1, to: 2000.12 },
+        {
+          channel_genre: "Documentary",
+          channel_name: "Discovery Channel",
+          from: 1995.1,
+          to: 2000.12,
+        },
         {
           channel_genre: "Shared",
           channel_name: "Fox Kids & Fox Classics",
@@ -163,6 +173,7 @@ export const foxtelanalogue: TimelineProvider = {
           to: 1997.9,
         },
         {
+          channel_genre: "Documentary",
           channel_name: "National Geographic Channel",
           from: 1997.9,
           to: 2000.12,
@@ -187,7 +198,12 @@ export const foxtelanalogue: TimelineProvider = {
           from: 1997.4,
           to: 2000.12,
         },
-        { channel_name: "Foxtel EPG", from: 2000.12, to: 2007 },
+        {
+          channel_genre: "Information",
+          channel_name: "Foxtel EPG",
+          from: 2000.12,
+          to: 2007,
+        },
       ],
       "14": [
         {
@@ -216,7 +232,12 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "15": [
-        { channel_name: "TV1", from: 1995.1, to: 1998.11 },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "TV1",
+          from: 1995.1,
+          to: 1998.11,
+        },
         {
           channel_genre: "Movies",
           channel_name: "Encore",
@@ -270,8 +291,18 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "17": [
-        { channel_name: "TNT", from: 1995.1, to: 1997.9 },
-        { channel_name: "BBC World", from: 1997.9, to: 2000.12 },
+        {
+          channel_genre: "Movies",
+          channel_name: "TNT",
+          from: 1995.1,
+          to: 1997.9,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "BBC World",
+          from: 1997.9,
+          to: 2000.12,
+        },
         {
           channel_genre: "Music",
           channel_name: "MusicCountry",
@@ -292,8 +323,14 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "18": [
-        { channel_name: "CNN International", from: 1995.1, to: 2000.12 },
         {
+          channel_genre: "News",
+          channel_name: "CNN International",
+          from: 1995.1,
+          to: 2000.12,
+        },
+        {
+          channel_genre: "Documentary",
           channel_name: "National Geographic Channel",
           from: 2000.12,
           to: 2007,
@@ -301,11 +338,17 @@ export const foxtelanalogue: TimelineProvider = {
       ],
       "19": [
         {
+          channel_genre: "Music",
           channel_name: "Country Music Television",
           from: 1995.1,
           to: 1997.9,
         },
-        { channel_name: "The LifeStyle Channel", from: 1997.9, to: 2000.12 },
+        {
+          channel_genre: "Lifestyle",
+          channel_name: "The LifeStyle Channel",
+          from: 1997.9,
+          to: 2000.12,
+        },
         {
           channel_genre: "Documentary",
           channel_name: "Discovery Channel",
@@ -320,8 +363,18 @@ export const foxtelanalogue: TimelineProvider = {
           from: 1995.1,
           to: 1997.9,
         },
-        { channel_name: "TNT", from: 1997.9, to: 2000.7 },
-        { channel_name: "TCM", from: 2000.7, to: 2001 },
+        {
+          channel_genre: "Movies",
+          channel_name: "TNT",
+          from: 1997.9,
+          to: 2000.7,
+        },
+        {
+          channel_genre: "Movies",
+          channel_name: "TCM",
+          from: 2000.7,
+          to: 2001,
+        },
         {
           channel_genre: "Entertainment",
           channel_name: "UK.TV",
@@ -362,7 +415,7 @@ export const foxtelanalogue: TimelineProvider = {
           from: 1995.1,
           to: 1996.8,
         },
-        { channel_name: "SBS", from: 1996.8, to: 1997.9 },
+        { channel_genre: "FTA", channel_name: "SBS", from: 1996.8, to: 1997.9 },
         {
           channel_genre: "Sports",
           channel_name: "Fox Sports Two / Fox News",
@@ -383,8 +436,13 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "23": [
-        { channel_name: "SBS", from: 1995.1, to: 1996.8 },
-        { channel_name: "Bloomberg", from: 1996.8, to: 1997.9 },
+        { channel_genre: "FTA", channel_name: "SBS", from: 1995.1, to: 1996.8 },
+        {
+          channel_genre: "News",
+          channel_name: "Bloomberg",
+          from: 1996.8,
+          to: 1997.9,
+        },
         {
           channel_genre: "Music",
           channel_name: "Country Music Television",
@@ -397,7 +455,12 @@ export const foxtelanalogue: TimelineProvider = {
           from: 1999.8,
           to: 2000.12,
         },
-        { channel_name: "FX", from: 2000.12, to: 2003.11 },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "FX",
+          from: 2000.12,
+          to: 2003.11,
+        },
         {
           channel_genre: "Entertainment",
           channel_name: "W",
@@ -450,9 +513,24 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "25": [
-        { channel_name: "Foxtel Weather", from: 1995.1, to: 1996.8 },
-        { channel_name: "World Movies", from: 1996.8, to: 1997.9 },
-        { channel_name: "Bloomberg", from: 1997.9, to: 2000.12 },
+        {
+          channel_genre: "News",
+          channel_name: "Foxtel Weather",
+          from: 1995.1,
+          to: 1996.8,
+        },
+        {
+          channel_genre: "Movies",
+          channel_name: "World Movies",
+          from: 1996.8,
+          to: 1997.9,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "Bloomberg",
+          from: 1997.9,
+          to: 2000.12,
+        },
         {
           channel_genre: "Documentary",
           channel_name: "The History Channel",
@@ -497,16 +575,32 @@ export const foxtelanalogue: TimelineProvider = {
           from: 2001.12,
           to: 2003,
         },
-        { channel_name: "Ovation", from: 2003, to: 2007 },
+        {
+          channel_genre: "Arts",
+          channel_name: "Ovation",
+          from: 2003,
+          to: 2007,
+        },
       ],
       "27": [
         {
+          channel_genre: "Entertainment",
           channel_name: "Hallmark Entertainment Network",
           from: 1996.8,
           to: 1997.9,
         },
-        { channel_name: "Foxtel EPG", from: 1997.9, to: 1999.8 },
-        { channel_name: "TVSN", from: 1999.8, to: 2000.12 },
+        {
+          channel_genre: "Information",
+          channel_name: "Foxtel EPG",
+          from: 1997.9,
+          to: 1999.8,
+        },
+        {
+          channel_genre: "Shopping",
+          channel_name: "TVSN",
+          from: 1999.8,
+          to: 2000.12,
+        },
         {
           channel_genre: "Movies",
           channel_name: "TCM",
@@ -521,8 +615,18 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "28": [
-        { channel_name: "fx / FXM", from: 1995.1, to: 1997.9 },
-        { channel_name: "SBS", from: 1997.9, to: 2001.12 },
+        {
+          channel_genre: "Movies",
+          channel_name: "fx / FXM",
+          from: 1995.1,
+          to: 1997.9,
+        },
+        {
+          channel_genre: "FTA",
+          channel_name: "SBS",
+          from: 1997.9,
+          to: 2001.12,
+        },
         {
           channel_genre: "Kids",
           channel_name: "Cartoon Network",
@@ -532,12 +636,23 @@ export const foxtelanalogue: TimelineProvider = {
       ],
       "29": [
         {
+          channel_genre: "Entertainment",
           channel_name: "Fox Soap / Talk / Travel / History",
           from: 1996.8,
           to: 1997.9,
         },
-        { channel_name: "TVSN", from: 1997.9, to: 1999.8 },
-        { channel_name: "Foxtel Weather", from: 1999.8, to: 2000.12 },
+        {
+          channel_genre: "Shopping",
+          channel_name: "TVSN",
+          from: 1997.9,
+          to: 1999.8,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "Foxtel Weather",
+          from: 1999.8,
+          to: 2000.12,
+        },
         {
           channel_genre: "Movies",
           channel_name: "Movie One",
@@ -546,8 +661,14 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "30": [
-        { channel_name: "TVSN", from: 1995.12, to: 1997.9 },
         {
+          channel_genre: "Shopping",
+          channel_name: "TVSN",
+          from: 1995.12,
+          to: 1997.9,
+        },
+        {
+          channel_genre: "Entertainment",
           channel_name: "Hallmark Entertainment Network",
           from: 1997.9,
           to: 1999.8,
@@ -560,13 +681,20 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "31": [
-        { channel_name: "Foxtel EPG", from: 1995.1, to: 1997.9 },
         {
+          channel_genre: "Information",
+          channel_name: "Foxtel EPG",
+          from: 1995.1,
+          to: 1997.9,
+        },
+        {
+          channel_genre: "Entertainment",
           channel_name: "Fox Soap / Talk / Travel / History",
           from: 1997.9,
           to: 1998.11,
         },
         {
+          channel_genre: "Shared",
           channel_name: "Fox Kids / The History Channel",
           from: 1998.11,
           to: 2000.12,
@@ -586,12 +714,23 @@ export const foxtelanalogue: TimelineProvider = {
       ],
       "32": [
         {
+          channel_genre: "Movies",
           channel_name: "fx / FXM: Movies From Fox",
           from: 1997.9,
           to: 1998.11,
         },
-        { channel_name: "fx / FX Movies", from: 1998.11, to: 2000.12 },
-        { channel_name: "Fashion TV", from: 2000.12, to: 2001.12 },
+        {
+          channel_genre: "Movies",
+          channel_name: "fx / FX Movies",
+          from: 1998.11,
+          to: 2000.12,
+        },
+        {
+          channel_genre: "Lifestyle",
+          channel_name: "Fashion TV",
+          from: 2000.12,
+          to: 2001.12,
+        },
         {
           channel_genre: "Movies",
           channel_name: "TCM",
@@ -600,7 +739,12 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "33": [
-        { channel_name: "The Comedy Channel", from: 1997.9, to: 2000.12 },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "The Comedy Channel",
+          from: 1997.9,
+          to: 2000.12,
+        },
         {
           channel_genre: "Movies",
           channel_name: "Showtime 2",
@@ -609,8 +753,14 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "34": [
-        { channel_name: "World Movies", from: 1997.9, to: 1999.8 },
         {
+          channel_genre: "Movies",
+          channel_name: "World Movies",
+          from: 1997.9,
+          to: 1999.8,
+        },
+        {
+          channel_genre: "Entertainment",
           channel_name: "Hallmark Entertainment Network",
           from: 1999.8,
           to: 2000.12,
@@ -629,7 +779,12 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "35": [
-        { channel_name: "Event TV", from: 1997.9, to: 1999.8 },
+        {
+          channel_genre: "PPV",
+          channel_name: "Event TV",
+          from: 1997.9,
+          to: 1999.8,
+        },
         {
           channel_genre: "Movies",
           channel_name: "World Movies",
@@ -650,7 +805,12 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "36": [
-        { channel_name: "Antenna Pacific", from: 1998.9, to: 2000.12 },
+        {
+          channel_genre: "International",
+          channel_name: "Antenna Pacific",
+          from: 1998.9,
+          to: 2000.12,
+        },
         {
           channel_genre: "News",
           channel_name: "BBC World",
@@ -665,7 +825,12 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "37": [
-        { channel_name: "Rai Internazionale", from: 1998.9, to: 2000.12 },
+        {
+          channel_genre: "International",
+          channel_name: "Rai Internazionale",
+          from: 1998.9,
+          to: 2000.12,
+        },
         {
           channel_genre: "News",
           channel_name: "CNBC",
@@ -680,8 +845,18 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "38": [
-        { channel_name: "Sky Racing", from: 1998.9, to: 1999 },
-        { channel_name: "Main Event", from: 1999, to: 2000.12 },
+        {
+          channel_genre: "Sports",
+          channel_name: "Sky Racing",
+          from: 1998.9,
+          to: 1999,
+        },
+        {
+          channel_genre: "PPV",
+          channel_name: "Main Event",
+          from: 1999,
+          to: 2000.12,
+        },
         {
           channel_genre: "News",
           channel_name: "Bloomberg",
@@ -758,8 +933,13 @@ export const foxtelanalogue: TimelineProvider = {
           from: "2000.9",
           to: "2000.11",
         },
-        { channel_name: "TVSN", from: 2000.12, to: 2001.12 },
-        { channel_name: "SBS", from: 2001.12, to: 2007 },
+        {
+          channel_genre: "Shopping",
+          channel_name: "TVSN",
+          from: 2000.12,
+          to: 2001.12,
+        },
+        { channel_genre: "FTA", channel_name: "SBS", from: 2001.12, to: 2007 },
       ],
       "42": [
         {
@@ -791,8 +971,18 @@ export const foxtelanalogue: TimelineProvider = {
           from: 2000.7,
           to: 2000.12,
         },
-        { channel_name: "Antenna Pacific", from: 2000.12, to: 2002.12 },
-        { channel_name: "Ovation", from: 2002.12, to: 2003.12 },
+        {
+          channel_genre: "International",
+          channel_name: "Antenna Pacific",
+          from: 2000.12,
+          to: 2002.12,
+        },
+        {
+          channel_genre: "Arts",
+          channel_name: "Ovation",
+          from: 2002.12,
+          to: 2003.12,
+        },
         {
           channel_genre: "Music",
           channel_name: "Channel [V]",
@@ -808,8 +998,18 @@ export const foxtelanalogue: TimelineProvider = {
           from: 2000.7,
           to: 2000.12,
         },
-        { channel_name: "Main Event", from: 2000.12, to: 2002 },
-        { channel_name: "Main Event / Adults Only", from: 2002, to: 2003.12 },
+        {
+          channel_genre: "PPV",
+          channel_name: "Main Event",
+          from: 2000.12,
+          to: 2002,
+        },
+        {
+          channel_genre: "PPV",
+          channel_name: "Main Event / Adults Only",
+          from: 2002,
+          to: 2003.12,
+        },
         {
           channel_genre: "Music",
           channel_name: "Music Max",
@@ -824,29 +1024,87 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "45": [
-        { channel_name: "RAI Internazionale", from: 2000.12, to: 2002.12 },
-        { channel_name: "MTV", from: 2002.12, to: 2007 },
+        {
+          channel_genre: "International",
+          channel_name: "RAI Internazionale",
+          from: 2000.12,
+          to: 2002.12,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "MTV",
+          from: 2002.12,
+          to: 2007,
+        },
       ],
       "46": [
-        { channel_name: "Adults Only", from: 2001, to: 2002.12 },
-        { channel_name: "Antenna Pacific", from: 2002.12, to: 2003.12 },
         {
+          channel_genre: "Adult",
+          channel_name: "Adults Only",
+          from: 2001,
+          to: 2002.12,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Antenna Pacific",
+          from: 2002.12,
+          to: 2003.12,
+        },
+        {
+          channel_genre: "Shared",
           channel_name: "Main Event / Adults Only / Fashion TV",
           from: 2003.12,
           to: 2007,
         },
       ],
       "49": [
-        { channel_name: "nightmoves", from: 1997, to: 1998 },
-        { channel_name: "Adults Only", from: 1998, to: 2001.12 },
-        { channel_name: "TVSN", from: 2001.12, to: 2007 },
+        {
+          channel_genre: "Adult",
+          channel_name: "nightmoves",
+          from: 1997,
+          to: 1998,
+        },
+        {
+          channel_genre: "Adult",
+          channel_name: "Adults Only",
+          from: 1998,
+          to: 2001.12,
+        },
+        {
+          channel_genre: "Shopping",
+          channel_name: "TVSN",
+          from: 2001.12,
+          to: 2007,
+        },
       ],
       "50": [
-        { channel_name: "Foxtel Weather", from: 2001, to: 2002.12 },
-        { channel_name: "MTV", from: 2002.12, to: 2003.12 },
-        { channel_name: "Sky Racing", from: 2003.12, to: 2007 },
+        {
+          channel_genre: "News",
+          channel_name: "Foxtel Weather",
+          from: 2001,
+          to: 2002.12,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "MTV",
+          from: 2002.12,
+          to: 2003.12,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Sky Racing",
+          from: 2003.12,
+          to: 2007,
+        },
       ],
-      "51": [{ channel_name: "RAI Internazionale", from: 2003, to: 2007 }],
+      "51": [
+        {
+          channel_genre: "International",
+          channel_name: "RAI Internazionale",
+          from: 2003,
+          to: 2007,
+        },
+      ],
       "52": [
         {
           channel_genre: "News",
@@ -854,7 +1112,12 @@ export const foxtelanalogue: TimelineProvider = {
           from: 2002.12,
           to: 2003.12,
         },
-        { channel_name: "Antenna Pacific (Greek)", from: 2003.12, to: 2007 },
+        {
+          channel_genre: "International",
+          channel_name: "Antenna Pacific (Greek)",
+          from: 2003.12,
+          to: 2007,
+        },
       ],
     },
     description: "Timeline of channel changes from 1995 to 2007",

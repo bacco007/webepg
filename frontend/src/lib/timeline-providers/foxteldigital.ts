@@ -34,7 +34,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Foxtel One",
+          channel_name: "Foxtel One HD",
           from: 2023.11,
         },
       ],
@@ -59,7 +59,7 @@ export const foxteldigital: TimelineProvider = {
           from: 2004.3,
           to: 2018.5,
         },
-        { channel_genre: "News", channel_name: "Sky News", from: 2018.5 },
+        { channel_genre: "News", channel_name: "Sky News HD", from: 2018.5 },
       ],
       "104": [
         {
@@ -89,7 +89,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "BBC UKTV",
+          channel_name: "BBC UKTV HD",
           from: "2018.5",
         },
       ],
@@ -102,7 +102,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Lifestyle",
-          channel_name: "LifeStyle",
+          channel_name: "LifeStyle HD",
           from: 2010,
         },
       ],
@@ -116,7 +116,7 @@ export const foxteldigital: TimelineProvider = {
       "108": [
         {
           channel_genre: "Entertainment",
-          channel_name: "FOX8",
+          channel_name: "FOX8 HD",
           from: 2004.3,
         },
       ],
@@ -156,13 +156,13 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Fox Arena",
+          channel_name: "Fox Arena HD",
           from: "2020.10",
           to: "2023.11",
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Arena",
+          channel_name: "Arena HD",
           from: "2023.11",
         },
       ],
@@ -199,13 +199,13 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Fox Showcase",
+          channel_name: "Fox Showcase HD",
           from: "2020.10",
           to: "2023.11",
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Showcase",
+          channel_name: "Showcase HD",
           from: "2023.11",
         },
       ],
@@ -248,7 +248,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Crime",
+          channel_name: "Crime HD",
           from: "2023.10",
         },
       ],
@@ -297,7 +297,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Comedy",
+          channel_name: "Comedy HD",
           from: "2023.10",
         },
       ],
@@ -444,7 +444,11 @@ export const foxteldigital: TimelineProvider = {
           from: "2020.11",
           to: "2023.10",
         },
-        { channel_genre: "Movies", channel_name: "Classics", from: "2023.10" },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Classics",
+          from: "2023.10",
+        },
       ],
       "118": [
         {
@@ -491,7 +495,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "British",
+          channel_name: "British HD",
           from: 2024.8,
         },
       ],
@@ -528,7 +532,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "DocPlay Channel",
+          channel_name: "DocPlay Channel HD",
           from: 2024.9,
         },
       ],
@@ -553,7 +557,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Universal TV",
+          channel_name: "Universal TV HD",
           from: "2020.11",
         },
       ],
@@ -584,7 +588,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Real Life",
+          channel_name: "Real Life HD",
           from: 2023.3,
         },
       ],
@@ -680,7 +684,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Lifestyle",
-          channel_name: "LifeStyle Food",
+          channel_name: "LifeStyle Food HD",
           from: "2020.11",
         },
       ],
@@ -705,7 +709,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Lifestyle",
-          channel_name: "LifeStyle Home",
+          channel_name: "LifeStyle Home HD",
           from: "2020.11",
         },
       ],
@@ -801,7 +805,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Documentary",
-          channel_name: "Real History",
+          channel_name: "Real History HD",
           from: 2024.8,
         },
       ],
@@ -882,7 +886,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Documentary",
-          channel_name: "Discovery",
+          channel_name: "Discovery HD",
           from: "2023.10",
         },
       ],
@@ -927,14 +931,14 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Documentary",
-          channel_name: "Real Crime",
+          channel_name: "Real Crime HD",
           from: 2024.8,
         },
       ],
       "136": [
         {
           channel_genre: "Documentary",
-          channel_name: "Investigation Discovery (ID)",
+          channel_name: "Investigation Discovery (iD)",
           from: "2020.11",
         },
       ],
@@ -1078,7 +1082,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "BoxSets",
+          channel_name: "BoxSets HD",
           from: "2020.11",
         },
       ],
@@ -1164,7 +1168,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "FTA",
-          channel_name: "ABC Entertains",
+          channel_name: "ABC Entertains HD",
           from: 2024.6,
         },
       ],
@@ -1291,7 +1295,7 @@ export const foxteldigital: TimelineProvider = {
       "159": [
         {
           channel_genre: "FTA",
-          channel_name: "7 Bravo",
+          channel_name: "7 Bravo HD",
           from: "2023.12",
         },
       ],
@@ -1998,12 +2002,12 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "Entertainment",
           channel_name: "Fox Arena +2",
-          from: "2010.10",
+          from: "2020.10",
           to: 2023.11,
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Fox Arena +2",
+          channel_name: "Arena +2",
           from: "2023.11",
         },
       ],
@@ -2035,7 +2039,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "Entertainment",
           channel_name: "Fox Showcase +2",
-          from: "2010.10",
+          from: "2020.11",
           to: 2023.11,
         },
         {
@@ -2636,12 +2640,18 @@ export const foxteldigital: TimelineProvider = {
           from: "2014.11",
           to: 2020.11,
         },
+        {
+          channel_genre: "FTA",
+          channel_name: "NITV HD",
+          from: "2023.10",
+        },
       ],
       "273": [
         {
           channel_genre: "Documentary",
           channel_name: "LifeStyle Food HD",
           from: "2024.2",
+          to: "2025.10",
         },
       ],
       "274": [
@@ -2649,6 +2659,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Documentary",
           channel_name: "LifeStyle Home HD",
           from: "2024.2",
+          to: "2025.10",
         },
       ],
       "275": [
@@ -2662,6 +2673,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Foxtel One HD",
           from: "2023.11",
+          to: "2025.10",
         },
       ],
       "276": [
@@ -2675,6 +2687,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Lifestyle",
           channel_name: "Lifestyle HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "277": [
@@ -2682,6 +2695,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "FOX8 HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "278": [
@@ -2695,6 +2709,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Arena HD",
           from: "2023.11",
+          to: "2025.10",
         },
       ],
       "279": [
@@ -2708,6 +2723,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Showcase HD",
           from: "2023.11",
+          to: "2025.10",
         },
       ],
       "280": [
@@ -2721,6 +2737,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Crime HD",
           from: "2023.11",
+          to: "2025.10",
         },
       ],
       "281": [
@@ -2740,6 +2757,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Comedy HD",
           from: "2023.10",
+          to: "2025.10",
         },
       ],
       "282": [
@@ -2767,6 +2785,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Sleuth HD",
           from: "2023.10",
+          to: "2025.10",
         },
       ],
       "284": [
@@ -2786,6 +2805,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "DocPlay Channel HD",
           from: 2024.9,
+          to: "2025.10",
         },
       ],
       "285": [
@@ -2799,6 +2819,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Universal TV HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "286": [
@@ -2818,6 +2839,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Documentary",
           channel_name: "Docos HD",
           from: "2023.10",
+          to: "2025.10",
         },
       ],
       "287": [
@@ -2831,6 +2853,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Documentary",
           channel_name: "Real History HD",
           from: 2024.8,
+          to: "2025.10",
         },
       ],
       "288": [
@@ -2846,6 +2869,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Documentary",
           channel_name: "Discovery HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "290": [
@@ -2889,6 +2913,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "BoxSets HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "294": [
@@ -2896,6 +2921,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Popup Channel HD",
           from: 2024.3,
+          to: "2025.10",
         },
       ],
       "295": [
@@ -2917,6 +2943,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Documentary",
           channel_name: "Real Crime HD",
           from: 2024.8,
+          to: "2025.10",
         },
       ],
       "297": [
@@ -2924,6 +2951,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Real Life HD",
           from: "2023.3",
+          to: "2025.10",
         },
       ],
 
@@ -2939,6 +2967,7 @@ export const foxteldigital: TimelineProvider = {
           channel_name: "More Comedy HD",
           channel_notes: "Popup Channel",
           from: 2025.8,
+          to: "2025.10",
         },
       ],
       "400": [
@@ -2993,7 +3022,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Premiere",
+          channel_name: "Foxtel Movies Premiere HD",
           from: "2020.10",
         },
       ],
@@ -3024,7 +3053,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Hits",
+          channel_name: "Foxtel Movies Hits HD",
           from: "2020.11",
         },
       ],
@@ -3043,7 +3072,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Family",
+          channel_name: "Foxtel Movies Family HD",
           from: "2020.11",
         },
       ],
@@ -3068,7 +3097,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Kids",
+          channel_name: "Foxtel Movies Kids HD",
           from: "2023.10",
         },
       ],
@@ -3087,7 +3116,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Action",
+          channel_name: "Foxtel Movies Action HD",
           from: "2020.11",
         },
       ],
@@ -3118,7 +3147,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Comedy",
+          channel_name: "Foxtel Movies Comedy HD",
           from: "2020.11",
         },
       ],
@@ -3175,7 +3204,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Romance",
+          channel_name: "Foxtel Movies Romance HD",
           from: "2020.11",
         },
       ],
@@ -3206,7 +3235,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Drama",
+          channel_name: "Foxtel Movies Drama HD",
           from: "2020.11",
         },
       ],
@@ -3225,7 +3254,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Greats",
+          channel_name: "Foxtel Movies Greats HD",
           from: "2020.11",
         },
       ],
@@ -3262,8 +3291,9 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Foxtel Movies Life",
+          channel_name: "Foxtel Movies Life HD",
           from: 2025.8,
+          to: "2025.10",
         },
       ],
       "412": [
@@ -3349,11 +3379,16 @@ export const foxteldigital: TimelineProvider = {
           from: 2015.3,
           to: "2020.11",
         },
+        {
+          channel_genre: "Movies",
+          channel_name: "PULP",
+          from: 2025.11,
+        },
       ],
       "416": [
         {
           channel_genre: "Movies",
-          channel_name: "Starpics 2",
+          channel_name: "Starpics 2 (+2)",
           from: 2009.11,
           to: 2013.1,
         },
@@ -3662,6 +3697,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Foxtel Movies Premiere HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "472": [
@@ -3669,6 +3705,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Foxtel Movies Adventure HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "473": [
@@ -3676,6 +3713,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Foxtel Movies Family HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "474": [
@@ -3683,6 +3721,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Foxtel Movies Kids HD",
           from: "2023.10",
+          to: "2025.10",
         },
       ],
       "475": [
@@ -3690,6 +3729,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Foxtel Movies Action HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "476": [
@@ -3697,6 +3737,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Foxtel Movies Comedy HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "477": [
@@ -3712,6 +3753,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Foxtel Movies Romance HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "479": [
@@ -3719,6 +3761,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Foxtel Movies Drama HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "480": [
@@ -3726,6 +3769,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Foxtel Movies Greats HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "481": [
@@ -3739,6 +3783,12 @@ export const foxteldigital: TimelineProvider = {
 
       "500": [
         {
+          channel_genre: "Sports",
+          channel_name: "2006 Commonwealth Games",
+          from: "2006.2",
+          to: 2006.3,
+        },
+        {
           channel_genre: "Interactive",
           channel_name: "Sports Selector",
           from: 2007,
@@ -3746,7 +3796,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports News",
+          channel_name: "Fox Sports News HD",
           from: "2014.11",
         },
       ],
@@ -3771,7 +3821,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox Cricket",
+          channel_name: "Fox Cricket HD",
           from: "2018.9",
         },
       ],
@@ -3796,7 +3846,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox League",
+          channel_name: "Fox League HD",
           from: "2017.2",
         },
       ],
@@ -3809,14 +3859,14 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports 503",
+          channel_name: "Fox Sports 503 HD",
           from: "2017.2",
         },
       ],
       "504": [
         {
           channel_genre: "Sports",
-          channel_name: "Fox Footy",
+          channel_name: "Fox Footy HD",
           from: 2012.02,
         },
       ],
@@ -3841,7 +3891,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports 505",
+          channel_name: "Fox Sports 505 HD",
           from: "2017.2",
         },
       ],
@@ -3860,7 +3910,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports 506",
+          channel_name: "Fox Sports 506 HD",
           from: "2017.2",
         },
       ],
@@ -3873,8 +3923,14 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports More+",
+          channel_name: "Fox Sports More+ HD",
           from: "2017.2",
+          to: 2022.2,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Fox Sports 507 HD",
+          from: 2022.2,
         },
       ],
       "508": [
@@ -3892,7 +3948,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports 508",
+          channel_name: "Fox Sports 508 HD",
           from: "2022.2",
         },
       ],
@@ -3905,12 +3961,12 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "ESPN",
+          channel_name: "ESPN HD",
           from: "2011.1",
         },
       ],
       "510": [
-        { channel_genre: "Sports", channel_name: "ESPN2", from: "2020.11" },
+        { channel_genre: "Sports", channel_name: "ESPN2 HD", from: "2020.11" },
       ],
       "511": [
         {
@@ -3985,7 +4041,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Chelsea TV / Chelsea TV HD",
+          channel_name: "Chelsea TV",
           from: 2016.7,
           to: 2019.5,
         },
@@ -4005,7 +4061,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "LFC TV / LFC TV HD",
+          channel_name: "LFC TV",
           from: 2016.7,
           to: 2019.5,
         },
@@ -4019,7 +4075,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "MUTV TV / MUTV HD",
+          channel_name: "MUTV TV",
           from: 2016.7,
           to: 2019.5,
         },
@@ -4055,6 +4111,12 @@ export const foxteldigital: TimelineProvider = {
       "521": [
         {
           channel_genre: "Sports",
+          channel_name: "2006 Commonwealth Games",
+          from: "2006.2",
+          to: 2006.3,
+        },
+        {
+          channel_genre: "Sports",
           channel_name: "Sky Racing World",
           from: "2010.5",
           to: 2015.3,
@@ -4065,13 +4127,13 @@ export const foxteldigital: TimelineProvider = {
           from: 2015.3,
           to: 2016.5,
         },
-        { channel_genre: "PPV", channel_name: "Main Event", from: "2022.4" },
+        { channel_genre: "PPV", channel_name: "Main Event HD", from: "2022.4" },
       ],
       "522": [
         {
           channel_genre: "Sports",
           channel_name: "TVN",
-          from: "2006",
+          from: "2005.5",
           to: 2015.3,
         },
         {
@@ -4080,16 +4142,40 @@ export const foxteldigital: TimelineProvider = {
           from: "2015.9",
           to: "2016.10",
         },
-        { channel_genre: "PPV", channel_name: "Main Event", from: "2022.4" },
+        {
+          channel_genre: "PPV",
+          channel_name: "Main Event 2 HD",
+          from: "2022.4",
+        },
       ],
       "523": [
         {
           channel_genre: "Sports",
-          channel_name: "Main Event UFC HD",
+          channel_name: "2006 Commonwealth Games",
+          from: "2006.2",
+          to: 2006.3,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Main Event UFC",
           from: "2024.9",
         },
       ],
+      "524": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2006 Commonwealth Games",
+          from: "2006.2",
+          to: 2006.3,
+        },
+      ],
       "525": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2006 Commonwealth Games",
+          from: "2006.2",
+          to: 2006.3,
+        },
         {
           channel_genre: "Sports",
           channel_name: "Setanta Sports",
@@ -4106,6 +4192,12 @@ export const foxteldigital: TimelineProvider = {
       "526": [
         {
           channel_genre: "Sports",
+          channel_name: "2006 Commonwealth Games",
+          from: "2006.2",
+          to: 2006.3,
+        },
+        {
+          channel_genre: "Sports",
           channel_name: "Sky Racing 1",
           from: "2016.5",
           to: 2025.5,
@@ -4117,6 +4209,12 @@ export const foxteldigital: TimelineProvider = {
         },
       ],
       "527": [
+        {
+          channel_genre: "Sports",
+          channel_name: "2006 Commonwealth Games",
+          from: "2006.2",
+          to: 2006.3,
+        },
         {
           channel_genre: "Sports",
           channel_name: "Sky Racing 2",
@@ -4132,6 +4230,12 @@ export const foxteldigital: TimelineProvider = {
       "528": [
         {
           channel_genre: "Sports",
+          channel_name: "2006 Commonwealth Games",
+          from: "2006.2",
+          to: 2006.3,
+        },
+        {
+          channel_genre: "Sports",
           channel_name: "Sky Thoroughbred Central HD",
           from: "2016.5",
         },
@@ -4139,7 +4243,7 @@ export const foxteldigital: TimelineProvider = {
       "529": [
         {
           channel_genre: "Sports",
-          channel_name: "Racing.com",
+          channel_name: "Racing.com HD",
           from: "2016.10",
         },
       ],
@@ -4178,6 +4282,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Sports News HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "571": [
@@ -4185,6 +4290,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Cricket HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "572": [
@@ -4192,6 +4298,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox League HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "573": [
@@ -4199,6 +4306,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Sports 503 HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "574": [
@@ -4206,6 +4314,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Footy HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "575": [
@@ -4213,6 +4322,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Sports 505 HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "576": [
@@ -4220,6 +4330,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Sports 506 HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "577": [
@@ -4227,13 +4338,24 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Sports More+ HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "579": [
-        { channel_genre: "Sports", channel_name: "ESPN HD", from: "2020.11" },
+        {
+          channel_genre: "Sports",
+          channel_name: "ESPN HD",
+          from: "2020.11",
+          to: "2025.10",
+        },
       ],
       "580": [
-        { channel_genre: "Sports", channel_name: "ESPN2 HD", from: "2020.11" },
+        {
+          channel_genre: "Sports",
+          channel_name: "ESPN2 HD",
+          from: "2020.11",
+          to: "2025.10",
+        },
       ],
       "583": [
         {
@@ -4264,6 +4386,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Sky Racing 1",
           from: 2025.5,
+          to: "2025.10",
         },
       ],
       "587": [
@@ -4271,6 +4394,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Sky Racing 2",
           from: 2025.5,
+          to: "2025.10",
         },
       ],
       "588": [
@@ -4278,6 +4402,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Sky Thoroughbred Central",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "589": [
@@ -4285,6 +4410,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Racing.com HD",
           from: "2023.7",
+          to: "2025.10",
         },
       ],
       "591": [
@@ -4327,11 +4453,11 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "News",
           channel_name: "Sky News Active (Interactive)",
           from: "2009.11",
-          to: "2020.10",
+          to: "2018.5",
         },
         {
           channel_genre: "News",
-          channel_name: "Sky News",
+          channel_name: "Sky News HD",
           from: 2018.5,
         },
       ],
@@ -4369,7 +4495,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "News",
-          channel_name: "Fox Sports News",
+          channel_name: "Fox Sports News HD",
           from: "2020.11",
         },
       ],
@@ -4443,7 +4569,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "News",
-          channel_name: "Sky News UK",
+          channel_name: "Sky News UK HD",
           from: "2020.11",
         },
       ],
@@ -4545,7 +4671,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "News",
-          channel_name: "Fox News Channel",
+          channel_name: "Fox News Channel HD",
           from: "2020.10",
         },
       ],
@@ -4992,13 +5118,19 @@ export const foxteldigital: TimelineProvider = {
         { channel_genre: "News", channel_name: "GB News", from: "2025.5" },
       ],
       "691": [
-        { channel_genre: "News", channel_name: "Sky News HD", from: "2020.11" },
+        {
+          channel_genre: "News",
+          channel_name: "Sky News HD",
+          from: "2020.11",
+          to: "2025.10",
+        },
       ],
       "692": [
         {
           channel_genre: "News",
           channel_name: "Sky News UK HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "693": [
@@ -5006,6 +5138,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "News",
           channel_name: "Fox News Channel HD",
           from: "2020.11",
+          to: "2025.10",
         },
       ],
       "700": [
@@ -6698,10 +6831,16 @@ export const foxteldigital: TimelineProvider = {
     description: "Timeline of channel changes from 1995 to 2007",
     events: [
       {
-        label: "Foxtel Digital Launches",
-        note: "Foxtel Digital launches",
+        label: "Foxtel (and Austar) Digital Launches",
+        note: "Foxtel (and Austar) Digital launches",
         type: "Launch",
         when: 2004.3,
+      },
+      {
+        label: "Optus TV featuring Foxtel Digital Launches",
+        note: "Optus TV featuring Foxtel Digital launches",
+        type: "Launch",
+        when: "2005.10",
       },
       {
         label: "iQ PVR Launches",
@@ -6716,10 +6855,22 @@ export const foxteldigital: TimelineProvider = {
         when: 2008.1,
       },
       {
+        label: "Optus stops offering service to new subscribers",
+        note: "Optus stops offering service to new subscribers",
+        type: "Launch",
+        when: 2009,
+      },
+      {
         label: "Foxtel Next Generation Launches",
         note: "Foxtel Next Generation launches",
         type: "Launch",
         when: 2009.11,
+      },
+      {
+        label: "Optus recommences offering service to new subscribers",
+        note: "Optus recommences offering service to new subscribers",
+        type: "Launch",
+        when: 2011.2,
       },
       {
         label: "HD Channels Default",
@@ -6738,6 +6889,26 @@ export const foxteldigital: TimelineProvider = {
         note: "iQ3 Launches",
         type: "Launch",
         when: 2012.3,
+      },
+      {
+        label:
+          "News Corp acquires Consolidated Media Holdings, returning to 50% Ownership",
+        note: "News Corp acquires Consolidated Media Holdings, returning to 50% Ownership",
+        type: "News",
+        when: 2012.11,
+      },
+      {
+        label: "Foxtel purchases 15% of Ten Network Holdings",
+        note: "Foxtel purchases 15% of Ten Network Holdings",
+        type: "News",
+        when: 2015.6,
+      },
+      {
+        label:
+          "Foxtel and Fox Sports Australia merges, News Corp stake in Foxtel becomes 65% (Telstra 35%)",
+        note: "Foxtel and Fox Sports Australia merges, News Corp stake in Foxtel becomes 65% (Telstra 35%)",
+        type: "News",
+        when: 2019.3,
       },
       {
         label: "4K + iQ4 Launches",

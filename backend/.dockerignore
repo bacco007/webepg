@@ -130,6 +130,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# uv - Include uv.lock in Docker, ignore local .venv
+!.venv/lib/
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -165,3 +168,8 @@ cython_debug/
 .DS_Store
 
 .ruff_cache
+
+# Backup files
+*.backup
+requirements.txt.backup
+pyproject.toml.backup

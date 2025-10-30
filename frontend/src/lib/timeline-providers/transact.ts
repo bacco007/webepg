@@ -345,7 +345,11 @@ export const transact: TimelineProvider = {
         { channel_genre: "Kids", channel_name: "Disney Channel", from: 2008 },
       ],
       "202": [
-        { channel_genre: "Kids", channel_name: "Playhouse Disney", from: 2008 },
+        {
+          channel_genre: "Kids",
+          channel_name: "Playhouse Disney",
+          from: 2007.11,
+        },
       ],
       "203": [
         { channel_genre: "Kids", channel_name: "Cartoon Network", from: 2008 },
@@ -451,32 +455,32 @@ export const transact: TimelineProvider = {
         {
           channel_genre: "Movies",
           channel_name: "Movie One",
-          from: 2008,
-          to: 2013,
+          from: 2008.6,
+          to: 2012.12,
         },
       ],
       "412": [
         {
           channel_genre: "Movies",
           channel_name: "Movie Two",
-          from: 2008,
-          to: 2013,
+          from: 2008.6,
+          to: 2012.12,
         },
       ],
       "413": [
         {
           channel_genre: "Movies",
           channel_name: "Movie Extra",
-          from: 2008,
-          to: 2013,
+          from: 2008.6,
+          to: 2012.12,
         },
       ],
       "415": [
         {
           channel_genre: "Movies",
           channel_name: "Movie Greats",
-          from: 2008,
-          to: 2013,
+          from: 2008.6,
+          to: 2012.12,
         },
       ],
       "417": [
@@ -609,24 +613,6 @@ export const transact: TimelineProvider = {
         type: "Closure",
         when: "2017",
       },
-      // {
-      //   label: "WIN Corporation purchases 50.1%",
-      //   note: "WIN Corporation purchases 50.1%",
-      //   type: "News",
-      //   when: 2006.8,
-      // },
-      // {
-      //   label: "WIN Corporation purchases remaining 49.9%",
-      //   note: "WIN Corporation purchases remaining 49.9%",
-      //   type: "News",
-      //   when: 2006.10,
-      // },
-      // {
-      //   label: "transact Collapses",
-      //   note: "Enters Voluntary Administration, debt of $26 million",
-      //   type: "Change",
-      //   when: 2011.2,
-      // },
     ],
     title: "TransACT TransTV Channel History (2001-2017)",
   },

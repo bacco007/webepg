@@ -45,6 +45,7 @@ export type ChannelSpan = {
 // Import individual providers
 import { austar } from "./timeline-providers/austar";
 import { ectv } from "./timeline-providers/ectv";
+import { fetchtv } from "./timeline-providers/fetchtv";
 import { foxtelanalogue } from "./timeline-providers/foxtelanalogue";
 import { foxteldigital } from "./timeline-providers/foxteldigital";
 import { freeview_metro } from "./timeline-providers/freeview_metro";
@@ -58,6 +59,7 @@ import { transact } from "./timeline-providers/transact";
 export const timelineProviders: Record<string, TimelineProvider> = {
   austar,
   ectv,
+  fetchtv,
   foxtelanalogue,
   foxteldigital,
   freeview_metro,

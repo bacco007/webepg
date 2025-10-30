@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { parseAsInteger, useQueryStates } from "nuqs";
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import {
   SidebarContainer,
   SidebarContent,
@@ -71,6 +71,9 @@ const extractIndicators = (name: string): string[] => {
   if (name.includes("Interactive") || name.includes("interactive")) {
     found.push("Interactive");
   }
+  if (name.includes("Virtual Playlist") || name.includes("virtual playlist")) {
+    found.push("Virtual Playlist");
+  }
   return found;
 };
 
@@ -105,6 +108,45 @@ const processChannelItems = (
     }
   }
 };
+
+// Indicator legend component
+function IndicatorLegend({
+  activeIndicators,
+}: {
+  activeIndicators: Set<string>;
+}) {
+  const indicators = [
+    { color: "#a855f7", key: "4K", label: "4K / UHD / Ultra HD" },
+    { color: "#3b82f6", key: "HD", label: "HD Channels" },
+    { color: "#f97316", key: "+2", label: "+2 Channels" },
+    { color: "#10b981", key: "Interactive", label: "Interactive Channels" },
+    {
+      color: "#8b5cf6",
+      key: "Virtual Playlist",
+      label: "Virtual Playlist Channels",
+    },
+  ];
+
+  return (
+    <div className="space-y-1.5">
+      {indicators
+        .filter(({ key }) => activeIndicators.has(key))
+        .map(({ key, label, color }) => (
+          <div
+            className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
+            key={key}
+            style={{ borderColor: color }}
+          >
+            <div
+              className="h-3 w-3 rounded border-2"
+              style={{ borderColor: color }}
+            />
+            <span className="text-xs">{label}</span>
+          </div>
+        ))}
+    </div>
+  );
+}
 
 type ChannelHistorySidebarProps = {
   activeColorValues: Set<string>;
@@ -210,8 +252,16 @@ function ChannelHistorySidebar({
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
-            <div className="space-y-2">
+            <div className="flex w-full max-w-md flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="year-slider">Year Range</Label>
+                <span className="text-muted-foreground text-xs">
+                  {Math.floor(yearRange[0] ?? 0)} -{" "}
+                  {Math.floor(yearRange[1] ?? 0)}
+                </span>
+              </div>
               <Slider
+                id="year-slider"
                 max={selectedProvider.data.axis.end}
                 min={selectedProvider.data.axis.start}
                 onValueChange={onYearRangeChange}
@@ -219,9 +269,8 @@ function ChannelHistorySidebar({
                 value={yearRange}
               />
               <div className="flex items-center justify-between text-muted-foreground text-xs">
-                <span>{Math.floor(yearRange[0])}</span>
-                <span>–</span>
-                <span>{Math.floor(yearRange[1])}</span>
+                <span>{selectedProvider.data.axis.start}</span>
+                <span>{selectedProvider.data.axis.end}</span>
               </div>
             </div>
           </CollapsibleContent>
@@ -304,56 +353,7 @@ function ChannelHistorySidebar({
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
-            <div className="space-y-1.5">
-              {activeIndicators.has("4K") && (
-                <div
-                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                  style={{ borderColor: "#a855f7" }}
-                >
-                  <div
-                    className="h-3 w-3 rounded border-2"
-                    style={{ borderColor: "#a855f7" }}
-                  />
-                  <span className="text-xs">4K / UHD / Ultra HD</span>
-                </div>
-              )}
-              {activeIndicators.has("HD") && (
-                <div
-                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                  style={{ borderColor: "#3b82f6" }}
-                >
-                  <div
-                    className="h-3 w-3 rounded border-2"
-                    style={{ borderColor: "#3b82f6" }}
-                  />
-                  <span className="text-xs">HD Channels</span>
-                </div>
-              )}
-              {activeIndicators.has("+2") && (
-                <div
-                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                  style={{ borderColor: "#f97316" }}
-                >
-                  <div
-                    className="h-3 w-3 rounded border-2"
-                    style={{ borderColor: "#f97316" }}
-                  />
-                  <span className="text-xs">+2 Channels</span>
-                </div>
-              )}
-              {activeIndicators.has("Interactive") && (
-                <div
-                  className="flex items-center gap-2 rounded-md border-2 bg-muted px-2 py-1.5"
-                  style={{ borderColor: "#10b981" }}
-                >
-                  <div
-                    className="h-3 w-3 rounded border-2"
-                    style={{ borderColor: "#10b981" }}
-                  />
-                  <span className="text-xs">Interactive Channels</span>
-                </div>
-              )}
-            </div>
+            <IndicatorLegend activeIndicators={activeIndicators} />
           </CollapsibleContent>
         </Collapsible>
       )}
@@ -416,6 +416,12 @@ export default function ChannelHistoryClient({
   // Spacing state
   const [spacingMode, setSpacingMode] = useState<TimelineSpacingMode>("fill");
   const [containerWidth, setContainerWidth] = useState<number>(0);
+
+  // Scroll position preservation
+  const scrollPositionRef = useRef<{
+    scrollLeft: number;
+    scrollTop: number;
+  } | null>(null);
 
   // Legend collapse state
   const [isIndicatorsOpen, setIsIndicatorsOpen] = useState(false);
@@ -490,7 +496,8 @@ export default function ChannelHistoryClient({
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const width = entry.contentRect.width;
-        if (width > 0) {
+        if (width > 0 && Math.abs(width - containerWidth) > 10) {
+          // Only update if significant change
           setContainerWidth(width);
         }
       }
@@ -504,7 +511,7 @@ export default function ChannelHistoryClient({
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [containerWidth]);
 
   // Validate provider and redirect if invalid
   useEffect(() => {
@@ -695,6 +702,53 @@ export default function ChannelHistoryClient({
     }
   }, [availableNetworks, selectedNetworks.size]);
 
+  // Calculate pixels per year based on spacing mode
+  const pxPerYear = useMemo(() => {
+    if (!filteredTimelineData) {
+      return;
+    }
+
+    return calculatePxPerYear({
+      isMobile,
+      mode: spacingMode,
+      timelineEnd: filteredTimelineData.axis.end,
+      timelineStart: filteredTimelineData.axis.start,
+      viewportWidth: containerWidth,
+    });
+  }, [spacingMode, isMobile, containerWidth, filteredTimelineData]);
+
+  // Preserve scroll position during re-renders
+  useEffect(() => {
+    const container = document.querySelector("[data-timeline-container]");
+    if (!container) {
+      return;
+    }
+
+    const handleScroll = () => {
+      scrollPositionRef.current = {
+        scrollLeft: container.scrollLeft,
+        scrollTop: container.scrollTop,
+      };
+    };
+
+    const restoreScroll = () => {
+      if (scrollPositionRef.current) {
+        container.scrollLeft = scrollPositionRef.current.scrollLeft;
+        container.scrollTop = scrollPositionRef.current.scrollTop;
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+
+    // Restore scroll position after a brief delay to allow for layout
+    const timeoutId = setTimeout(restoreScroll, 0);
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   // Create the sidebar content
   const sidebar = (
     <SidebarContainer>
@@ -807,21 +861,6 @@ export default function ChannelHistoryClient({
     </SidebarContainer>
   );
 
-  // Calculate pixels per year based on spacing mode
-  const pxPerYear = useMemo(() => {
-    if (!filteredTimelineData) {
-      return;
-    }
-
-    return calculatePxPerYear({
-      isMobile,
-      mode: spacingMode,
-      timelineEnd: filteredTimelineData.axis.end,
-      timelineStart: filteredTimelineData.axis.start,
-      viewportWidth: containerWidth,
-    });
-  }, [spacingMode, isMobile, containerWidth, filteredTimelineData]);
-
   // Header actions for the sidebar layout (similar to EPG)
   const headerActions = (
     <div className="flex items-center gap-2">
@@ -891,7 +930,14 @@ export default function ChannelHistoryClient({
       sidebar={sidebar}
       title={pageTitle}
     >
-      <div className="flex h-full flex-col" data-timeline-container>
+      <div
+        className="flex h-full flex-col"
+        data-timeline-container
+        style={{
+          contain: "layout style paint",
+          willChange: "scroll-position",
+        }}
+      >
         {filteredTimelineData && (
           <TimelineUnified
             colorBy={colorBy}

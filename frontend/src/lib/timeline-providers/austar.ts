@@ -645,7 +645,7 @@ export const austar: TimelineProvider = {
         {
           channel_genre: "News",
           channel_name: "Sky News Australia",
-          from: 2000,
+          from: 2000.4,
           to: 2001,
         },
         {
