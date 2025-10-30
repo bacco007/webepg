@@ -316,7 +316,7 @@ selenium==4.38.0
     # via
     #   undetected-chromedriver
     #   webepg-backend
-setuptools==78.1.0
+setuptools==78.1.1
     # via webepg-backend
 shellingham==1.5.4
     # via
