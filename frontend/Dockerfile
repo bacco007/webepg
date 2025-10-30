@@ -28,37 +28,32 @@ COPY --from=deps /app/node_modules ./node_modules
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN echo "📁 Verifying files..." && \
-    ls -al src/components/sidebar && \
-    cat src/components/sidebar/sidebar.tsx | head -n 10
 
 # Build the application
 RUN --mount=type=cache,target=/app/.next/cache \
     pnpm run build
+
+# Verify standalone output exists (fail fast if build didn't produce expected output)
+RUN test -d .next/standalone || (echo "Error: .next/standalone not found" && exit 1)
 
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-# Uncomment the following line in case you want to disable telemetry during runtime.
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Don't run production as root
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs && \
-    mkdir .next && \
-    chown nextjs:nodejs .next
+    adduser --system --uid 1001 nextjs
 
-# Copy only the necessary files
+# Copy only the necessary files from builder
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Set the correct user
+# Set the correct user before creating any directories
 USER nextjs
 
 # Expose the port the app runs on
@@ -68,9 +63,9 @@ ENV PORT=3000
 # Ensure we listen on all network interfaces
 ENV HOSTNAME="0.0.0.0"
 
-# Add healthcheck
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+# Add healthcheck using node instead of wget (more reliable in alpine)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Use array syntax for better signal handling
 CMD ["node", "server.js"]
