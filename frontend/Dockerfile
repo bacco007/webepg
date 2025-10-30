@@ -4,7 +4,7 @@ ARG BUILD_DATE
 ARG VCS_REF
 ARG BUILD_PLATFORM
 
-FROM node:24-alpine AS base
+FROM node:25-alpine AS base
 
 # Metadata labels
 LABEL org.opencontainers.image.title="webepg-frontend" \
