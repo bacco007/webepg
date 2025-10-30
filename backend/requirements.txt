@@ -186,7 +186,7 @@ mdurl==0.1.2
     # via
     #   markdown-it-py
     #   webepg-backend
-multidict==6.1.0
+multidict==6.7.0
     # via
     #   aiohttp
     #   webepg-backend
