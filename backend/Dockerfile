@@ -33,6 +33,9 @@ RUN chmod +x /usr/local/bin/uv
 # Create non-root user first (needed for ownership changes)
 RUN useradd -m -u 1000 appuser
 
+# Ensure /app directory is owned by appuser so they can create .venv
+RUN chown -R appuser:appuser /app
+
 # Copy dependency files first for better caching
 COPY --chown=appuser:appuser pyproject.toml uv.lock ./
 
