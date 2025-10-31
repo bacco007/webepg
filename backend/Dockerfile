@@ -30,25 +30,30 @@ RUN apt-get update && \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 RUN chmod +x /usr/local/bin/uv
 
+# Create non-root user first (needed for ownership changes)
+RUN useradd -m -u 1000 appuser
+
 # Copy dependency files first for better caching
-COPY pyproject.toml uv.lock ./
+COPY --chown=appuser:appuser pyproject.toml uv.lock ./
 
 # Install dependencies using uv with BuildKit cache mount for faster rebuilds
 # Use --no-cache to ensure clean installs
-RUN --mount=type=cache,target=/root/.cache/uv \
+# Run as appuser to ensure .venv is owned by the correct user
+USER appuser
+RUN --mount=type=cache,target=/home/appuser/.cache/uv \
     uv sync --frozen --no-dev --no-cache
+USER root
 
 # Copy the rest of the application code
 # This layer changes more frequently, so it's kept separate for better caching
-COPY . .
+COPY --chown=appuser:appuser . .
 
-# Ensure xmltvdata directory structure exists with proper permissions
+# Ensure xmltvdata directory structure exists with write permissions
+# The app writes to xmltvdata/remote (XML files, JSON files, error logs)
+# Ensure all files and directories in /app are owned by appuser (including .venv)
 RUN mkdir -p xmltvdata/remote xmltvdata/local xmltvdata/logos xmltvdata/settings xmltvdata/transmitters && \
-    chmod -R 755 xmltvdata
-
-# Create non-root user and set ownership (recommended for production)
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
+    chown -R appuser:appuser /app && \
+    chmod -R 775 xmltvdata/remote xmltvdata/local
 
 # Switch to non-root user
 USER appuser

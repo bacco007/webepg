@@ -1,0 +1,39 @@
+# Label configuration for auto-labeling based on file paths
+
+frontend:
+  - frontend/**/*
+
+backend:
+  - backend/**/*
+
+docker:
+  - '**/Dockerfile'
+  - '**/docker-compose.yml'
+  - '**/.dockerignore'
+
+documentation:
+  - '**/*.md'
+  - '**/docs/**/*'
+
+ci:
+  - '.github/workflows/**/*'
+
+dependencies:
+  - '**/package.json'
+  - '**/package-lock.json'
+  - '**/pnpm-lock.yaml'
+  - '**/requirements.txt'
+  - '**/pyproject.toml'
+  - '**/uv.lock'
+
+config:
+  - '**/*.json'
+  - '**/*.toml'
+  - '**/*.yml'
+  - '**/*.yaml'
+  - '**/.env*'
+
+security:
+  - '.github/workflows/security-scan.yml'
+  - '**/SECURITY.md'
+

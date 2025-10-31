@@ -1,0 +1,30 @@
+# This file defines code owners for automatic PR review requests
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @YOUR_GITHUB_USERNAME
+
+# Frontend
+/frontend/ @YOUR_GITHUB_USERNAME
+
+# Backend
+/backend/ @YOUR_GITHUB_USERNAME
+
+# Documentation
+*.md @YOUR_GITHUB_USERNAME
+/docs/ @YOUR_GITHUB_USERNAME
+
+# CI/CD and GitHub workflows
+/.github/ @YOUR_GITHUB_USERNAME
+
+# Docker files
+/Dockerfile @YOUR_GITHUB_USERNAME
+/docker-compose.yml @YOUR_GITHUB_USERNAME
+**/.dockerignore @YOUR_GITHUB_USERNAME
+
+# Configuration files
+*.yml @YOUR_GITHUB_USERNAME
+*.yaml @YOUR_GITHUB_USERNAME
+*.json @YOUR_GITHUB_USERNAME
+*.toml @YOUR_GITHUB_USERNAME
+
