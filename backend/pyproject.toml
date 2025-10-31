@@ -22,6 +22,7 @@ dependencies = [
     "pytz>=2025.2",
     "tzlocal>=5.3.1",
     # Configuration
+    "pydantic-settings>=2.11.0",
     "python-dotenv>=1.1.1",
     "PyYAML>=6.0.3",
 ]
