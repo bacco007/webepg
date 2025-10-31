@@ -68,6 +68,6 @@ LABEL maintainer="webepg-backend" \
 
 # Define the command to run the app
 # Using uv run ensures the virtual environment is properly activated
-# FastAPI CLI uses module:app format (main:app where 'app' is the FastAPI instance)
+# uvicorn is the standard ASGI server for FastAPI in production
 # Using sh -c allows environment variable substitution in exec form
-CMD ["sh", "-c", "uv run fastapi run main:app --host ${HOST:-0.0.0.0} --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uv run uvicorn main:app --host ${HOST:-0.0.0.0} --port ${PORT:-8000} --workers ${WORKERS:-4}"]
