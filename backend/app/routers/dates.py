@@ -1,12 +1,11 @@
-import os
 from datetime import datetime
 from typing import List
 
 import pytz
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
-from app.config import settings
+from app.exceptions import InvalidTimezoneError, SourceNotFoundError
 from app.utils.file_operations import load_json
 
 router = APIRouter()
@@ -24,22 +23,18 @@ async def get_unique_dates(
 ) -> DateResponse:
     # Load the programs file for the source
     programs_filename = f"{source}_programs.json"
-    programs_path = os.path.join(settings.XMLTV_DATA_DIR, programs_filename)
 
     # Check if the file exists
-    if not os.path.exists(programs_path):
-        raise HTTPException(status_code=404, detail=f"File not found: {programs_filename}")
-
-    # Load programming data
-    programs_data = load_json(programs_filename)
+    try:
+        programs_data = load_json(programs_filename)
+    except FileNotFoundError as err:
+        raise SourceNotFoundError(source) from err
 
     # Handle timezone conversion
     try:
         target_timezone = pytz.timezone(timezone)
     except pytz.exceptions.UnknownTimeZoneError as err:
-        raise HTTPException(
-            status_code=400, detail=f"Unknown timezone: {timezone}"
-        ) from err
+        raise InvalidTimezoneError(timezone) from err
 
     # Set to collect unique dates
     unique_dates = set()

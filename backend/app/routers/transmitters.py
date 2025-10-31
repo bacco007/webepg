@@ -1,9 +1,10 @@
 from typing import List, Optional, Type, TypeVar, cast
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 from app.config import settings
+from app.exceptions import ConfigurationError, DataProcessingError, TransmitterDataError
 from app.utils.file_operations import load_sources
 
 router = APIRouter()
@@ -212,9 +213,7 @@ async def _get_transmitters(
         transmitter_sources = load_sources(data_path)
 
         if not isinstance(transmitter_sources, list):
-            raise HTTPException(
-                status_code=500, detail="Transmitter data is not a list."
-            )
+            raise TransmitterDataError("Transmitter data is not a list.")
 
         # Apply filters
         transmitter_sources = _filter_transmitters(
@@ -239,14 +238,8 @@ async def _get_transmitters(
         return cast(List[T], [model_class(**source) for source in transmitter_sources])
 
     except FileNotFoundError as err:
-        raise HTTPException(
-            status_code=404, detail="Transmitter data file not found."
-        ) from err
+        raise ConfigurationError("Transmitter data file not found") from err
     except ValueError as err:
-        raise HTTPException(
-            status_code=500, detail=f"Data format error: {str(err)}"
-        ) from err
+        raise DataProcessingError("transmitter data validation", str(err)) from err
     except Exception as err:
-        raise HTTPException(
-            status_code=500, detail=f"An error occurred: {str(err)}"
-        ) from err
+        raise DataProcessingError("loading transmitter data", str(err)) from err

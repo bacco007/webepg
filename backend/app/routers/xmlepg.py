@@ -273,6 +273,103 @@ async def process_channel_data(
     return processed_results
 
 
+def _parse_chanbouq(chanbouq: Union[str, list, None]) -> List[int]:
+    """Parse chanbouq into a list of integers."""
+    if isinstance(chanbouq, str):
+        try:
+            return [int(x.strip()) for x in chanbouq.split(",") if x.strip()]
+        except (ValueError, AttributeError):
+            return []
+    elif isinstance(chanbouq, list):
+        return chanbouq
+    return []
+
+
+def _get_matching_channels(
+    provider_num: int, channels: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """Get all channels that match the provider number."""
+    matching = []
+    for channel in channels:
+        chanbouq = channel.get("chanbouq", "")
+        bouq_list = _parse_chanbouq(chanbouq)
+        if provider_num in bouq_list:
+            channel_copy = {k: v for k, v in channel.items() if k != "chanbouq"}
+            matching.append(channel_copy)
+    return matching
+
+
+def _set_channel_lcn(channel: Dict[str, Any], guidelink: str) -> Dict[str, Any]:
+    """Set channel number and slug based on LCN priority."""
+    base = channel.copy()
+    chanlcnfta1 = channel.get("chanlcnfta1")
+    chanlcnfox = channel.get("chanlcnfox")
+    chanlcnfet = channel.get("chanlcnfet")
+    
+    if chanlcnfta1 and str(chanlcnfta1).strip() and str(chanlcnfta1).strip() != "0":
+        base["channel_number"] = str(chanlcnfta1)
+    elif chanlcnfox and str(chanlcnfox).strip() and str(chanlcnfox).strip() != "0":
+        base["channel_number"] = str(chanlcnfox)
+        logging.info(f"Using Fox LCN {chanlcnfox} for channel {guidelink} (no valid FTA LCN)")
+    elif chanlcnfet and str(chanlcnfet).strip() and str(chanlcnfet).strip() != "0":
+        base["channel_number"] = str(chanlcnfet)
+        logging.info(f"Using Fetch LCN {chanlcnfet} for channel {guidelink} (no valid FTA/Fox LCN)")
+    else:
+        base["channel_number"] = "N/A"
+        logging.warning(f"No valid LCN found for channel {guidelink}, setting to N/A")
+    
+    base["channel_slug"] = re.sub(r"\W+", "-", guidelink)
+    return base
+
+
+def _add_channel_if_unique(
+    channel: Dict[str, Any],
+    seen: Set[str],
+    is_streaming: bool,
+    is_noepg: bool,
+) -> bool:
+    """Add channel if unique combination or allowed duplicate. Returns True if added."""
+    combo = f"{channel['channel_slug']}-{channel['channel_number']}"
+    if is_streaming or is_noepg or combo not in seen:
+        if not is_streaming and not is_noepg:
+            seen.add(combo)
+        return True
+    return False
+
+
+def _process_channel_lcns(
+    channel: Dict[str, Any],
+    seen: Set[str],
+    is_streaming: bool,
+    processed: List[Dict[str, Any]],
+) -> None:
+    """Process channel and create entries for all valid LCNs."""
+    guidelink = channel.get("guidelink")
+    if not guidelink:
+        return
+    
+    is_noepg = guidelink == "NOEPG"
+    base_channel = _set_channel_lcn(channel, guidelink)
+    
+    if _add_channel_if_unique(base_channel, seen, is_streaming, is_noepg):
+        processed.append(base_channel)
+    
+    # Process additional LCNs
+    for lcn_field, lcn_value in [
+        ("chanlcnfta2", channel.get("chanlcnfta2")),
+        ("chanlcnfta3", channel.get("chanlcnfta3")),
+    ]:
+        if lcn_value and str(lcn_value).strip() and str(lcn_value).strip() != "0":
+            additional = channel.copy()
+            additional["channel_number"] = str(lcn_value)
+            additional["channel_slug"] = re.sub(r"\W+", "-", guidelink)
+            combo = f"{additional['channel_slug']}-{additional['channel_number']}"
+            if combo not in seen:
+                seen.add(combo)
+                processed.append(additional)
+                logging.info(f"Created additional channel entry for {guidelink} with LCN {lcn_value} ({lcn_field})")
+
+
 async def reverse_merge_data(
     providers: List[Dict[str, Any]], channels: List[Dict[str, Any]]
 ) -> List[Dict[str, Any]]:
@@ -285,118 +382,14 @@ async def reverse_merge_data(
             )
             continue
 
-        # Get all matching channels for this provider
-        all_matching_channels = []
-        for channel in channels:
-            chanbouq = channel.get("chanbouq", "")
-            if isinstance(chanbouq, str):
-                # Parse comma-separated string into list of integers
-                try:
-                    bouq_list = [int(x.strip()) for x in chanbouq.split(",") if x.strip()]
-                except (ValueError, AttributeError):
-                    bouq_list = []
-            elif isinstance(chanbouq, list):
-                bouq_list = chanbouq
-            else:
-                bouq_list = []
-            
-            if provider_num in bouq_list:
-                # Remove chanbouq from channel data to avoid issues
-                channel_copy = {k: v for k, v in channel.items() if k != "chanbouq"}
-                all_matching_channels.append(channel_copy)
-
-        # Process channels and create additional entries for multiple LCNs
-        processed_channels = []
-        seen_channel_combinations = set()  # Track unique channel slug + number combinations
+        all_matching_channels = _get_matching_channels(provider_num, channels)
         
-        # Check if this is a streaming provider (allows duplicate slugs)
+        processed_channels: List[Dict[str, Any]] = []
+        seen_channel_combinations: Set[str] = set()
         is_streaming_provider = provider.get("subgroup") == "Streaming"
         
         for channel in all_matching_channels:
-            guidelink = channel.get("guidelink")
-            if not guidelink:
-                continue
-                
-            # Get all LCN values
-            chanlcnfta1 = channel.get("chanlcnfta1")
-            chanlcnfta2 = channel.get("chanlcnfta2")
-            chanlcnfta3 = channel.get("chanlcnfta3")
-            chanlcnfox = channel.get("chanlcnfox")
-            chanlcnfet = channel.get("chanlcnfet")
-            
-            # Create base channel entry with chanlcnfta1
-            base_channel = channel.copy()
-            if chanlcnfta1 and str(chanlcnfta1).strip() and str(chanlcnfta1).strip() != "0":
-                base_channel["channel_number"] = str(chanlcnfta1)
-                # Create clean channel slug without channel number
-                base_channel["channel_slug"] = re.sub(r"\W+", "-", guidelink)
-            else:
-                # If no FTA LCN, try Fox LCN
-                if chanlcnfox and str(chanlcnfox).strip() and str(chanlcnfox).strip() != "0":
-                    base_channel["channel_number"] = str(chanlcnfox)
-                    base_channel["channel_slug"] = re.sub(r"\W+", "-", guidelink)
-                    logging.info(f"Using Fox LCN {chanlcnfox} for channel {guidelink} (no valid FTA LCN)")
-                # If no Fox LCN, try Fetch LCN
-                elif chanlcnfet and str(chanlcnfet).strip() and str(chanlcnfet).strip() != "0":
-                    base_channel["channel_number"] = str(chanlcnfet)
-                    base_channel["channel_slug"] = re.sub(r"\W+", "-", guidelink)
-                    logging.info(f"Using Fetch LCN {chanlcnfet} for channel {guidelink} (no valid FTA/Fox LCN)")
-                else:
-                    base_channel["channel_number"] = "N/A"
-                    base_channel["channel_slug"] = re.sub(r"\W+", "-", guidelink)
-                    logging.warning(f"No valid LCN found for channel {guidelink}, setting to N/A")
-            
-            # Create unique combination key for deduplication
-            channel_combination = f"{base_channel['channel_slug']}-{base_channel['channel_number']}"
-            
-            # For streaming providers, allow duplicate channel slugs
-            # For non-streaming providers, only add if channel combination is unique
-            # Special carveout: NOEPG channels are always allowed to have duplicate slugs
-            is_noepg_channel = guidelink == "NOEPG"
-            if is_streaming_provider or is_noepg_channel or channel_combination not in seen_channel_combinations:
-                if not is_streaming_provider and not is_noepg_channel:
-                    seen_channel_combinations.add(channel_combination)
-                processed_channels.append(base_channel)
-                if (is_streaming_provider or is_noepg_channel) and channel_combination in seen_channel_combinations:
-                    logging.info(f"Allowing duplicate channel combination for {'streaming provider' if is_streaming_provider else 'NOEPG channel'}: {channel_combination}")
-            else:
-                logging.info(f"Duplicate channel combination found: {channel_combination}, skipping")
-            
-            # Check for additional LCN values and create separate entries
-            # Only create additional entries if we have valid LCNs
-            if chanlcnfta2 and str(chanlcnfta2).strip() and str(chanlcnfta2).strip() != "0":
-                # Create additional channel entry with chanlcnfta2
-                additional_channel = channel.copy()
-                additional_channel["channel_number"] = str(chanlcnfta2)
-                additional_channel["channel_slug"] = re.sub(r"\W+", "-", guidelink)
-                
-                # Create unique combination key for deduplication
-                additional_combination = f"{additional_channel['channel_slug']}-{additional_channel['channel_number']}"
-                
-                # Only add if channel combination is unique
-                if additional_combination not in seen_channel_combinations:
-                    seen_channel_combinations.add(additional_combination)
-                    processed_channels.append(additional_channel)
-                    logging.info(f"Created additional channel entry for {guidelink} with LCN {chanlcnfta2} (chanlcnfta2)")
-                else:
-                    logging.info(f"Duplicate channel combination found: {additional_combination}, skipping")
-            
-            if chanlcnfta3 and str(chanlcnfta3).strip() and str(chanlcnfta3).strip() != "0":
-                # Create additional channel entry with chanlcnfta3
-                additional_channel = channel.copy()
-                additional_channel["channel_number"] = str(chanlcnfta3)
-                additional_channel["channel_slug"] = re.sub(r"\W+", "-", guidelink)
-                
-                # Create unique combination key for deduplication
-                additional_combination = f"{additional_channel['channel_slug']}-{additional_channel['channel_number']}"
-                
-                # Only add if channel combination is unique
-                if additional_combination not in seen_channel_combinations:
-                    seen_channel_combinations.add(additional_combination)
-                    processed_channels.append(additional_channel)
-                    logging.info(f"Created additional channel entry for {guidelink} with LCN {chanlcnfta3} (chanlcnfta3)")
-                else:
-                    logging.info(f"Duplicate channel combination found: {additional_combination}, skipping")
+            _process_channel_lcns(channel, seen_channel_combinations, is_streaming_provider, processed_channels)
 
         if processed_channels:
             merged_provider = provider.copy()

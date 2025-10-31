@@ -1,11 +1,18 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
+from datetime import timezone as tz
 from typing import Any, DefaultDict, Dict, List
 
 import pytz
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Path, Query
 from pydantic import BaseModel
 
+from app.exceptions import (
+    InvalidDateFormatError,
+    InvalidTimezoneError,
+    ProgrammingNotFoundError,
+    SourceNotFoundError,
+)
 from app.utils.file_operations import load_json
 from app.utils.time_utils import (
     adjust_programming,
@@ -82,30 +89,81 @@ def is_movies_program(program: Dict[str, Any]) -> bool:
     return False
 
 
-@router.get("/py/epg/channels/{id}/{channel}")
+@router.get(
+    "/py/epg/channels/{id}/{channel}",
+    summary="Get Programming by Channel",
+    description="Retrieve electronic program guide data for a specific channel, grouped by date.",
+    response_description="Programming data grouped by date",
+    responses={
+        200: {
+            "description": "Programming data retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "date_pulled": "2024-01-15T10:30:00.000000",
+                        "query": "epg/channels",
+                        "source": "xmltvnet",
+                        "channel": {
+                            "channel_id": "channel1",
+                            "channel_name": "Channel One",
+                            "channel_slug": "channel-1"
+                        },
+                        "programs": {
+                            "2024-01-15": [
+                                {
+                                    "start_time": "2024-01-15 06:00:00",
+                                    "end_time": "2024-01-15 07:00:00",
+                                    "title": "Morning News",
+                                    "description": "Latest news updates"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        400: {"description": "Invalid timezone or request parameters"},
+        404: {"description": "Channel or programming data not found"}
+    }
+)
 async def get_programming_by_channel(
-    id: str,
-    channel: str,
-    timezone: str = Query("UTC", description="Timezone for adjusting program times"),
+    id: str = Path(..., description="Source identifier", example="xmltvnet"),
+    channel: str = Path(..., description="Channel slug identifier", example="channel-1"),
+    timezone: str = Query(
+        "UTC",
+        description="Timezone for adjusting program times (e.g., 'Australia/Sydney', 'UTC')",
+        example="Australia/Sydney"
+    ),
 ) -> Dict[str, Any]:
+    """
+    Get programming schedule for a specific channel.
+    
+    Returns program listings grouped by date, with times adjusted to the specified timezone.
+    Programs are automatically filled to show 24-hour coverage.
+    
+    **Parameters:**
+    - **id**: Source identifier
+    - **channel**: Channel slug (e.g., 'channel-1', 'abc-tv')
+    - **timezone**: IANA timezone name (default: 'UTC')
+    
+    **Example Request:**
+    ```
+    GET /api/py/epg/channels/xmltvnet/channel-1?timezone=Australia/Sydney
+    ```
+    """
     try:
         programs_data = load_json(f"{id}_programs.json")
         channels_data = load_json(f"{id}_channels.json")
     except FileNotFoundError as err:
-        raise HTTPException(
-            status_code=404, detail=f"Required files not found for source: {id}"
-        ) from err
+        raise SourceNotFoundError(id) from err
     except Exception as err:
-        raise HTTPException(
-            status_code=500, detail="An unexpected error occurred"
-        ) from err
+        from app.exceptions import DataProcessingError
+        raise DataProcessingError("loading source data", str(err)) from err
 
     try:
         target_timezone = pytz.timezone(timezone)
     except pytz.exceptions.UnknownTimeZoneError as err:
-        raise HTTPException(
-            status_code=400, detail=f"Unknown timezone: {timezone}"
-        ) from err
+        raise InvalidTimezoneError(timezone) from err
 
     channel_metadata = next(
         (ch for ch in channels_data if ch.get("channel_slug") == channel), None
@@ -115,16 +173,15 @@ async def get_programming_by_channel(
     ]
 
     if not filtered_programming or not channel_metadata:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No programming or channel metadata found for channel: {channel}",
+        raise ProgrammingNotFoundError(
+            f"No programming or channel metadata found for channel: {channel}"
         )
 
     adjusted_programming = adjust_programming(filtered_programming, target_timezone)
     grouped_programs = group_and_fill_programs(adjusted_programming, target_timezone)
 
     return {
-        "date_pulled": datetime.utcnow().isoformat(),
+        "date_pulled": datetime.now(tz.utc).isoformat(),
         "query": "epg/channels",
         "source": id,
         "channel": channel_metadata,
@@ -132,34 +189,87 @@ async def get_programming_by_channel(
     }
 
 
-@router.get("/py/epg/date/{date}/{source}")
+@router.get(
+    "/py/epg/date/{date}/{source}",
+    summary="Get Programming by Date",
+    description="Retrieve programming schedule for all channels on a specific date.",
+    response_description="Programming data for all channels on the specified date",
+    responses={
+        200: {
+            "description": "Programming data retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "date_pulled": "2024-01-15T10:30:00.000000",
+                        "query": "epg/date",
+                        "source": "xmltvnet",
+                        "date": "2024-01-15",
+                        "channels": [
+                            {
+                                "channel": {
+                                    "id": "channel1",
+                                    "name": "Channel One",
+                                    "slug": "channel-1"
+                                },
+                                "programs": []
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        400: {"description": "Invalid date format or timezone"},
+        404: {"description": "No programming found for the specified date"}
+    }
+)
 async def get_programming_by_date(
-    date: str,
-    source: str,
-    timezone: str = Query("UTC", description="Timezone for adjusting program times"),
+    date: str = Path(
+        ...,
+        description="Date in YYYYMMDD format (e.g., 20240115)",
+        example="20240115",
+        regex="^[0-9]{8}$"
+    ),
+    source: str = Path(..., description="Source identifier", example="xmltvnet"),
+    timezone: str = Query(
+        "UTC",
+        description="Timezone for adjusting program times",
+        example="Australia/Sydney"
+    ),
 ) -> Dict[str, Any]:
+    """
+    Get programming schedule for all channels on a specific date.
+    
+    Returns a complete programming guide for all available channels on the specified date,
+    with program times adjusted to the requested timezone.
+    
+    **Parameters:**
+    - **date**: Date in YYYYMMDD format (e.g., 20240115 for January 15, 2024)
+    - **source**: Source identifier
+    - **timezone**: IANA timezone name (default: 'UTC')
+    
+    **Example Request:**
+    ```
+    GET /api/py/epg/date/20240115/xmltvnet?timezone=Australia/Sydney
+    ```
+    """
     try:
         selected_date = datetime.strptime(date, "%Y%m%d")
     except ValueError as err:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid date format: {date}. Expected format is YYYYMMDD.",
-        ) from err
+        raise InvalidDateFormatError(date) from err
 
     try:
         programs_data = load_json(f"{source}_programs.json")
         channels_data = load_json(f"{source}_channels.json")
     except FileNotFoundError as err:
-        raise HTTPException(
-            status_code=404, detail=f"Required files not found for source: {source}"
-        ) from err
+        raise SourceNotFoundError(source) from err
+    except Exception as err:
+        from app.exceptions import DataProcessingError
+        raise DataProcessingError("loading source data", str(err)) from err
 
     try:
         target_timezone = pytz.timezone(timezone)
     except pytz.exceptions.UnknownTimeZoneError as err:
-        raise HTTPException(
-            status_code=400, detail=f"Unknown timezone: {timezone}"
-        ) from err
+        raise InvalidTimezoneError(timezone) from err
 
     all_channels = get_all_channels(channels_data)
     adjusted_programming = adjust_programming(programs_data, target_timezone)
@@ -170,9 +280,8 @@ async def get_programming_by_date(
     selected_date_str = selected_date.strftime("%Y-%m-%d")
 
     if selected_date_str not in grouped_programs:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No programming found for date: {selected_date_str}",
+        raise ProgrammingNotFoundError(
+            f"No programming found for date: {selected_date_str}"
         )
 
     channels_list = []
@@ -195,13 +304,12 @@ async def get_programming_by_date(
             )
 
     if not channels_list:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No programming found for date: {selected_date_str}",
+        raise ProgrammingNotFoundError(
+            f"No programming found for date: {selected_date_str}"
         )
 
     return {
-        "date_pulled": datetime.utcnow().isoformat(),
+        "date_pulled": datetime.now(tz.utc).isoformat(),
         "query": "epg/date",
         "source": source,
         "date": selected_date_str,
@@ -244,16 +352,15 @@ async def get_sports_programming(
         programs_data = load_json(f"{source}_programs.json")
         channels_data = load_json(f"{source}_channels.json")
     except FileNotFoundError as err:
-        raise HTTPException(
-            status_code=404, detail=f"Required files not found for source: {source}"
-        ) from err
+        raise SourceNotFoundError(source) from err
+    except Exception as err:
+        from app.exceptions import DataProcessingError
+        raise DataProcessingError("loading source data", str(err)) from err
 
     try:
         target_timezone = pytz.timezone(timezone)
     except pytz.exceptions.UnknownTimeZoneError as err:
-        raise HTTPException(
-            status_code=400, detail=f"Unknown timezone: {timezone}"
-        ) from err
+        raise InvalidTimezoneError(timezone) from err
 
     start_date = datetime.now(target_timezone).replace(
         hour=0, minute=0, second=0, microsecond=0
@@ -281,13 +388,12 @@ async def get_sports_programming(
                 )
 
     if not sports_programs:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No sports programming found for the next {days} days",
+        raise ProgrammingNotFoundError(
+            f"No sports programming found for the next {days} days"
         )
 
     formatted_response: Dict[str, Any] = {
-        "date_pulled": datetime.utcnow().isoformat(),
+        "date_pulled": datetime.now(tz.utc).isoformat(),
         "query": "epg/sports",
         "source": source,
         "start_date": start_date.isoformat(),
@@ -354,16 +460,15 @@ async def get_movies_programming(
         programs_data = load_json(f"{source}_programs.json")
         channels_data = load_json(f"{source}_channels.json")
     except FileNotFoundError as err:
-        raise HTTPException(
-            status_code=404, detail=f"Required files not found for source: {source}"
-        ) from err
+        raise SourceNotFoundError(source) from err
+    except Exception as err:
+        from app.exceptions import DataProcessingError
+        raise DataProcessingError("loading source data", str(err)) from err
 
     try:
         target_timezone = pytz.timezone(timezone)
     except pytz.exceptions.UnknownTimeZoneError as err:
-        raise HTTPException(
-            status_code=400, detail=f"Unknown timezone: {timezone}"
-        ) from err
+        raise InvalidTimezoneError(timezone) from err
 
     start_date = datetime.now(target_timezone).replace(
         hour=0, minute=0, second=0, microsecond=0
@@ -391,13 +496,12 @@ async def get_movies_programming(
                 )
 
     if not movies_programs:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No movies programming found for the next {days} days",
+        raise ProgrammingNotFoundError(
+            f"No movies programming found for the next {days} days"
         )
 
     formatted_response: Dict[str, Any] = {
-        "date_pulled": datetime.utcnow().isoformat(),
+        "date_pulled": datetime.now(tz.utc).isoformat(),
         "query": "epg/movies",
         "source": source,
         "start_date": start_date.isoformat(),

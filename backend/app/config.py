@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,6 +19,10 @@ class Settings(BaseSettings):
     MYSQL_USER: str = "your_default_user"
     MYSQL_PASSWORD: str = "your_default_password"
     MYSQL_DATABASE: str = "your_default_database"
+
+    # Logging settings
+    LOG_LEVEL: str = "INFO"
+    LOG_FILE: Path | None = None
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

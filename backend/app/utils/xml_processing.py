@@ -142,9 +142,9 @@ async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
             with open(additional_data_file, "r", encoding="utf-8") as f:
                 additional_channels: List[Dict[str, Any]] = json.load(f)
                 additional_channels_map = {
-                    channel.get("channel_id"): channel
+                    str(channel.get("channel_id")): channel
                     for channel in additional_channels
-                    if channel.get("channel_id")
+                    if channel.get("channel_id") is not None
                 }
         else:
             print(
@@ -163,7 +163,7 @@ async def process_xml_file(file_id: str, save_path: str) -> None:  # noqa: C901
                 unchanged_channels.append(original_channel)
 
         # Add any remaining channels from additional_channels_map (these are the new ones)
-        for new_channel_id, new_channel_data in additional_channels_map.items():
+        for new_channel_data in additional_channels_map.values():
             updated_channels.append(new_channel_data)
 
         # Count the number of programs for each channel (using the possibly updated channel_slug)

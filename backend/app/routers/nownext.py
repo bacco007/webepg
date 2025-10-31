@@ -2,9 +2,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 import pytz
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
+from app.exceptions import InvalidTimezoneError, SourceNotFoundError
 from app.utils.file_operations import load_json
 
 router = APIRouter()
@@ -53,16 +54,14 @@ async def get_nownext(
     try:
         programs_data = load_json(f"{source}_programs.json")
         channels_data = load_json(f"{source}_channels.json")
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=f"File not found: {str(e)}") from e
+    except FileNotFoundError as err:
+        raise SourceNotFoundError(source) from err
 
     # Handle timezone conversion
     try:
         target_timezone = pytz.timezone(timezone)
     except pytz.UnknownTimeZoneError as err:
-        raise HTTPException(
-            status_code=400, detail=f"Unknown timezone: {timezone}"
-        ) from err
+        raise InvalidTimezoneError(timezone) from err
 
     # Get the current time in the target timezone
     now = datetime.now(target_timezone)
@@ -74,7 +73,7 @@ async def get_nownext(
     }
 
     # Helper to find current and next programs
-    def find_now_next(programs):
+    def find_now_next(programs: List[Dict[str, Any]]) -> tuple[Dict[str, Any] | None, Dict[str, Any] | None]:
         current, next_program = None, None
         for idx, program in enumerate(programs):
             start = datetime.fromisoformat(program["start_time"]).astimezone(

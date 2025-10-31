@@ -5,11 +5,12 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import aiohttp
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from app.config import settings
+from app.exceptions import ConfigurationError, SourceNotFoundError
 from app.utils.file_operations import download_file, load_sources
 from app.utils.xml_processing import process_xml_file
 
@@ -37,8 +38,58 @@ class SourceStatus(BaseModel):
     subgroup: Optional[str] = None
     location: Optional[str] = None
 
-@router.get("/py/sources")
+@router.get(
+    "/py/sources",
+    summary="List All Sources",
+    description="Retrieve a list of all configured XMLTV sources.",
+    response_description="List of all available sources",
+    responses={
+        200: {
+            "description": "Sources retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": [
+                        {
+                            "id": "xmltvnet",
+                            "name": "XMLTV.net",
+                            "url": "https://example.com/epg.xml",
+                            "group": "Freeview",
+                            "location": "Australia"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+)
 async def get_sources() -> List[Dict[str, Any]]:
+    """
+    Get all configured XMLTV sources.
+    
+    Returns a merged list of sources from both main and local configuration files.
+    Local sources take precedence over main sources if there are conflicts.
+    
+    **Returns:**
+    A list of source objects containing:
+    - `id`: Unique source identifier
+    - `name`: Display name of the source
+    - `url`: XMLTV file URL or "local" for local files
+    - `group`: Source group/category (optional)
+    - `location`: Geographic location (optional)
+    
+    **Example Response:**
+    ```json
+    [
+        {
+            "id": "xmltvnet",
+            "name": "XMLTV.net",
+            "url": "https://example.com/epg.xml",
+            "group": "Freeview",
+            "location": "Australia"
+        }
+    ]
+    ```
+    """
     # Load sources from both files
     main_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)  # type: ignore
     local_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES_LOCAL)  # type: ignore
@@ -60,15 +111,64 @@ async def get_sources() -> List[Dict[str, Any]]:
     return list(merged_sources.values())
 
 
-@router.get("/py/sources/status")
+@router.get(
+    "/py/sources/status",
+    summary="Get Sources Status",
+    description="Check the processing status of all XMLTV sources including file availability.",
+    response_description="Status information for all sources",
+    responses={
+        200: {
+            "description": "Status information retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "xmltvnet": {
+                            "source_file": {
+                                "status": "downloaded",
+                                "date": "2024-01-15T08:00:00.000000"
+                            },
+                            "channels": {
+                                "status": "downloaded",
+                                "date": "2024-01-15T08:05:00.000000"
+                            },
+                            "programs": {
+                                "status": "downloaded",
+                                "date": "2024-01-15T08:10:00.000000"
+                            },
+                            "group": "Freeview",
+                            "location": "Australia"
+                        }
+                    }
+                }
+            }
+        },
+        404: {"description": "Source configuration file not found"}
+    }
+)
 async def get_sources_status() -> Dict[str, SourceStatus]:
+    """
+    Get processing status for all sources.
+    
+    Returns detailed status information for each source including:
+    - Source XML file status and last modified date
+    - Processed channels file status
+    - Processed programs file status
+    - Source metadata (group, location)
+    
+    **Status Values:**
+    - `downloaded`: File exists and has been processed
+    - `missing`: File not found or not yet processed
+    
+    **Use Cases:**
+    - Monitor source freshness
+    - Identify sources that need updating
+    - Check if processing completed successfully
+    """
     try:
         main_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES)  # type: ignore
         local_sources: List[Dict[str, Any]] = load_sources(settings.XMLTV_SOURCES_LOCAL)  # type: ignore
     except FileNotFoundError as err:
-        raise HTTPException(
-            status_code=404, detail="XMLTV sources file not found"
-        ) from err
+        raise ConfigurationError("XMLTV sources file not found") from err
 
     # Merge the sources, with local_sources taking precedence
     merged_sources: Dict[str, Dict[str, Any]] = {}
@@ -219,9 +319,7 @@ async def process_single_source(
             merged_sources[source["id"]] = source
 
     if source_id not in merged_sources:
-        raise HTTPException(
-            status_code=404, detail=f"Source with ID {source_id} not found"
-        )
+        raise SourceNotFoundError(source_id)
 
     source = merged_sources[source_id]
 
