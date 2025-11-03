@@ -439,7 +439,7 @@ websocket-client==1.8.0
     # via
     #   selenium
     #   webepg-backend
-websockets==14.2
+websockets==15.0.1
     # via
     #   undetected-chromedriver
     #   uvicorn
