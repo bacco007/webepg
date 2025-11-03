@@ -152,3 +152,4 @@ uv sync
 | Backup | Manual copy | `upgrade_safely.sh` handles it |
 | Lock file | None (requirements.txt) | `uv.lock` (automatic) |
 
+

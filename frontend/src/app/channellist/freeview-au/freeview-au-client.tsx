@@ -9,6 +9,7 @@ import {
   SidebarHeader,
   SidebarLayout,
 } from "@/components/layouts/sidebar-layout";
+import LoadingState from "@/components/loading-state";
 import { useFreeviewData } from "@/hooks/use-freeview-data";
 
 export default function FreeviewAuClient() {
@@ -70,9 +71,11 @@ export default function FreeviewAuClient() {
       title={pageTitle}
     >
       {loading ? (
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-lg">Loading data...</p>
-        </div>
+        <LoadingState
+          className="bg-background/95"
+          fullscreen={false}
+          text="Loading Freeview data..."
+        />
       ) : (
         <div className="h-full overflow-auto bg-background">
           {sortedNetworks.map((networkName) => (

@@ -97,7 +97,7 @@ export function getMergedCells(
   let currentMergeStart = -1;
   let currentChannelName: string | null = null;
 
-  for (let i = 0; i < ALL_STATES.length; i++) {
+  for (let i = 0; i < ALL_STATES.length; i += 1) {
     const stateCode = ALL_STATES[i].code;
     const hasChannel = statesWithChannels.has(stateCode);
 

@@ -280,7 +280,7 @@ export function getNetworkCounts(
       );
 
       if (anyStateMatches) {
-        count++;
+        count += 1;
       }
     }
 
@@ -317,7 +317,7 @@ export function getTypeCounts(
             selectedChannelTypes: [],
           })
         ) {
-          count++;
+          count += 1;
         }
       }
     }
@@ -355,7 +355,7 @@ export function getSpecsCounts(
             selectedChannelSpecs: [],
           })
         ) {
-          count++;
+          count += 1;
         }
       }
     }

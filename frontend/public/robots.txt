@@ -9,8 +9,8 @@ Disallow: /_next/*
 Disallow: /static/*
 
 # Host
-Host: http://webepg.xyz
+Host: https://webepg.xyz
 
 # Sitemaps
-Sitemap: http://webepg.xyz/sitemap.xml
-Sitemap: http://webepg.xyz/server-sitemap.xml
+Sitemap: https://webepg.xyz/sitemap.xml
+Sitemap: https://webepg.xyz/server-sitemap.xml

@@ -18,15 +18,30 @@ import { SourcesDropdown } from "@/components/sources-dropdown";
 import { TimezoneDropdown } from "@/components/timezone-dropdown";
 import TVGuideTicker from "@/components/tv-guide-ticker";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardFooter } from "@/components/ui/card";
 import { siteConfig } from "@/config/site";
 import { ErrorBoundary } from "@/lib/error-handling";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   description:
     "Your Ultimate EPG Experience - Discover a new way to explore TV schedules with our innovative Electronic Program Guide.",
+  openGraph: {
+    description:
+      "Your Ultimate EPG Experience - Discover a new way to explore TV schedules with our innovative Electronic Program Guide.",
+    siteName: "webEPG",
+    title: "Home | webEPG",
+    type: "website",
+    url: "https://www.webepg.xyz",
+  },
   title: "Home",
+  twitter: {
+    card: "summary_large_image",
+    description:
+      "Your Ultimate EPG Experience - Discover a new way to explore TV schedules with our innovative Electronic Program Guide.",
+    title: "Home | webEPG",
+  },
 };
 
 export default function Home() {
@@ -181,14 +196,18 @@ export default function Home() {
                           </div>
                           <CardFooter className="px-1">
                             <p>
-                              <Button
-                                className="w-full group-hover:bg-primary/10"
-                                size="sm"
-                                variant="ghost"
+                              <span
+                                className={cn(
+                                  buttonVariants({
+                                    size: "sm",
+                                    variant: "ghost",
+                                  }),
+                                  "inline-flex w-full group-hover:bg-primary/10"
+                                )}
                               >
                                 Explore
                                 <ArrowRightIcon className="ml-2 size-4 transition-transform duration-300 group-hover:translate-x-1" />
-                              </Button>
+                              </span>
                             </p>
                           </CardFooter>
                         </Card>

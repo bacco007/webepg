@@ -11,6 +11,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FilterSection } from "@/components/filter-section";
 import {
+  ChannelCard,
+  LocationSelector,
+  ViewModeToggle,
+} from "@/components/freeview-channel-map";
+import {
   SidebarContainer,
   SidebarContent,
   SidebarFooter,
@@ -18,11 +23,6 @@ import {
   SidebarLayout,
   SidebarSearch,
 } from "@/components/layouts/sidebar-layout";
-import {
-  ChannelCard,
-  LocationSelector,
-  ViewModeToggle,
-} from "@/components/freeview-channel-map";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -758,7 +758,7 @@ function useChannelMapData() {
       let currentMergeStart = -1;
       let currentChannelName: string | null = null;
 
-      for (let i = 0; i < filteredLocations.length; i++) {
+      for (let i = 0; i < filteredLocations.length; i += 1) {
         const location = filteredLocations[i];
         const hasChannel = locationsWithChannels.has(location);
 
@@ -1161,7 +1161,7 @@ function useChannelMapData() {
       for (const channels of Object.values(channelData)) {
         for (const channel of channels) {
           if (channel.other_data?.channel_type === type) {
-            count++;
+            count += 1;
           }
         }
       }
@@ -1182,7 +1182,7 @@ function useChannelMapData() {
       for (const channels of Object.values(channelData)) {
         for (const channel of channels) {
           if (channel.other_data?.channel_specs === spec) {
-            count++;
+            count += 1;
           }
         }
       }
@@ -1300,8 +1300,8 @@ const calculateColspan = (
         mergedLocationChannels[flatViewFilteredLocations[locationIndex]]
           .channel_names.location
     ) {
-      colspan++;
-      j++;
+      colspan += 1;
+      j += 1;
     } else {
       break;
     }

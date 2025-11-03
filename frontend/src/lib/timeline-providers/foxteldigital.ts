@@ -1444,7 +1444,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "Community",
           channel_name: "Aurora Community Channel",
-          from: 2005.3,
+          from: "2023.11",
         },
       ],
       "176": [
@@ -1528,8 +1528,9 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "London 1 HD",
-          channel_notes: "Popup Channel for 2012 Olympics in London",
+          channel_name: "London 1",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Swimming, Diving, Synchronised Swimming, Water Polo",
           from: 2012.7,
           to: 2012.8,
         },
@@ -1544,8 +1545,9 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "London 2 HD",
-          channel_notes: "Popup Channel for 2012 Olympics in London",
+          channel_name: "London 2",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Cycling (Track, BMX, Mountain Bike, Road)",
           from: 2012.7,
           to: 2012.8,
         },
@@ -1565,8 +1567,9 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "London 3 HD",
-          channel_notes: "Popup Channel for 2012 Olympics in London",
+          channel_name: "London 3",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Gymnastics (Artistic, Rhythmic, Trampoline)",
           from: 2012.7,
           to: 2012.8,
         },
@@ -1588,8 +1591,9 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "London 4 HD",
-          channel_notes: "Popup Channel for 2012 Olympics in London",
+          channel_name: "London 4",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Athletics (Track)",
           from: 2012.7,
           to: 2012.8,
         },
@@ -1617,8 +1621,9 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "London 5 HD",
-          channel_notes: "Popup Channel for 2012 Olympics in London",
+          channel_name: "London 5",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Athletics (Field)",
           from: 2012.7,
           to: 2012.8,
         },
@@ -1646,8 +1651,9 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "London 6 HD",
-          channel_notes: "Popup Channel for 2012 Olympics in London",
+          channel_name: "London 6",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Equestrian (Jumping, Eventing, Dressage), Fencing, Table Tennis",
           from: 2012.7,
           to: 2012.8,
         },
@@ -1662,8 +1668,9 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "London 7 HD",
-          channel_notes: "Popup Channel for 2012 Olympics in London",
+          channel_name: "London 7",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Rowing, Canoeing (Sprint, Slalom)",
           from: 2012.7,
           to: 2012.8,
         },
@@ -1678,13 +1685,22 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "London 8 HD",
-          channel_notes: "Popup Channel for 2012 Olympics in London",
+          channel_name: "London 8",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Beach Volleyball, Sailing, Football, Hockey, Weightlifting",
           from: 2012.7,
           to: 2012.8,
         },
       ],
       "192": [
+        {
+          channel_genre: "Sports",
+          channel_name: "London 1 HD",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Swimming, Diving, Synchronised Swimming, Water Polo",
+          from: 2012.7,
+          to: 2012.8,
+        },
         {
           channel_genre: "FTA",
           channel_name: "9 GEM",
@@ -1693,6 +1709,14 @@ export const foxteldigital: TimelineProvider = {
         },
       ],
       "193": [
+        {
+          channel_genre: "Sports",
+          channel_name: "London 2 HD",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Cycling (Track, BMX, Mountain Bike, Road)",
+          from: 2012.7,
+          to: 2012.8,
+        },
         {
           channel_genre: "Religious",
           channel_name: "Daystar",
@@ -1708,6 +1732,14 @@ export const foxteldigital: TimelineProvider = {
           to: 2010.11,
         },
         {
+          channel_genre: "Sports",
+          channel_name: "London 3 HD",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Gymnastics (Artistic, Rhythmic, Trampoline)",
+          from: 2012.7,
+          to: 2012.8,
+        },
+        {
           channel_genre: "FTA",
           channel_name: "9Life",
           from: 2016.3,
@@ -1721,6 +1753,14 @@ export const foxteldigital: TimelineProvider = {
           channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
           from: "2010.10",
           to: 2010.11,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 4 HD",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Athletics (Track)",
+          from: 2012.7,
+          to: 2012.8,
         },
       ],
       "196": [
@@ -1738,6 +1778,14 @@ export const foxteldigital: TimelineProvider = {
           from: "2010.10",
           to: 2010.11,
         },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 5 HD",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Athletics (Field)",
+          from: 2012.7,
+          to: 2012.8,
+        },
       ],
       "197": [
         {
@@ -1753,6 +1801,14 @@ export const foxteldigital: TimelineProvider = {
           channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
           from: "2010.10",
           to: 2010.11,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 6 HD",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Equestrian (Jumping, Eventing, Dressage), Fencing, Table Tennis",
+          from: 2012.7,
+          to: 2012.8,
         },
         {
           channel_genre: "FTA",
@@ -1775,6 +1831,14 @@ export const foxteldigital: TimelineProvider = {
           from: "2010.10",
           to: 2010.11,
         },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 7 HD",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Rowing, Canoeing (Sprint, Slalom)",
+          from: 2012.7,
+          to: 2012.8,
+        },
       ],
       "199": [
         {
@@ -1790,6 +1854,14 @@ export const foxteldigital: TimelineProvider = {
           channel_notes: "Popup Channel for 2010 Commonwealth Games in Delhi",
           from: "2010.10",
           to: 2010.11,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "London 8 HD",
+          channel_notes:
+            "Popup Channel for 2012 Olympics in London - Beach Volleyball, Sailing, Football, Hockey, Weightlifting",
+          from: 2012.7,
+          to: 2012.8,
         },
       ],
       "201": [
@@ -2248,6 +2320,12 @@ export const foxteldigital: TimelineProvider = {
         },
       ],
       "222": [
+        {
+          channel_genre: "Interactive",
+          channel_name: "ASTRA Awards Voting (Interactive)",
+          from: "2007.2",
+          to: "2007.3",
+        },
         {
           channel_genre: "Entertainment",
           channel_name: "A&E HD",
@@ -3029,7 +3107,7 @@ export const foxteldigital: TimelineProvider = {
       "402": [
         {
           channel_genre: "Movies",
-          channel_name: "Showtime 2",
+          channel_name: "Showtime 2 (+2)",
           from: 2004.3,
           to: 2009.11,
         },
@@ -3381,7 +3459,7 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "PULP",
+          channel_name: "PULP HD",
           from: 2025.11,
         },
       ],
@@ -3548,7 +3626,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2004.3,
-          to: "2017.10",
+          to: "2007",
         },
       ],
       "440": [
@@ -3791,7 +3869,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "Interactive",
           channel_name: "Sports Selector",
-          from: 2007,
+          from: "2007.10",
           to: 2009.1,
         },
         {
@@ -3803,7 +3881,7 @@ export const foxteldigital: TimelineProvider = {
       "501": [
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports (Interactive)",
+          channel_name: "Fox Sports 1 (Interactive)",
           from: 2004.3,
           to: "2006.10",
         },
@@ -4021,7 +4099,7 @@ export const foxteldigital: TimelineProvider = {
       "515": [
         {
           channel_genre: "Sports",
-          channel_name: "Sky Racing 1",
+          channel_name: "Sky Racing",
           from: "2004.3",
           to: "2006.10",
         },
@@ -4061,6 +4139,13 @@ export const foxteldigital: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
+          channel_name: "2010 Summer Youth Olympics",
+          from: 2010.8,
+          to: 2010.9,
+        },
+
+        {
+          channel_genre: "Sports",
           channel_name: "LFC TV",
           from: 2016.7,
           to: 2019.5,
@@ -4084,7 +4169,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "Sports",
           channel_name: "Sky Racing",
-          from: "2006",
+          from: "2006.10",
           to: "2010.5",
         },
         {
@@ -4453,6 +4538,12 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "News",
           channel_name: "Sky News Active (Interactive)",
           from: "2009.11",
+          to: "2010",
+        },
+        {
+          channel_genre: "News",
+          channel_name: "Sky News Local (Interactive)",
+          from: "2010",
           to: "2018.5",
         },
         {
@@ -5510,8 +5601,14 @@ export const foxteldigital: TimelineProvider = {
       "830": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active (Interactive)",
+          channel_name: "Air - Hits",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active (Interactive)",
+          from: 2007,
           to: 2014.11,
         },
         {
@@ -5535,8 +5632,14 @@ export const foxteldigital: TimelineProvider = {
       "831": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Hit Factory",
+          channel_name: "Air - Radio 2",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Hit Factory",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5566,8 +5669,14 @@ export const foxteldigital: TimelineProvider = {
       "832": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Divas",
+          channel_name: "Air - Pop",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Divas",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5597,8 +5706,14 @@ export const foxteldigital: TimelineProvider = {
       "833": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - So Fresh",
+          channel_name: "Air - Groove",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - So Fresh",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5628,8 +5743,14 @@ export const foxteldigital: TimelineProvider = {
       "834": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Groove",
+          channel_name: "Air - Rock",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Groove",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5659,8 +5780,14 @@ export const foxteldigital: TimelineProvider = {
       "835": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Rock Classics",
+          channel_name: "Air - Jukebox",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Rock Classics",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5690,8 +5817,14 @@ export const foxteldigital: TimelineProvider = {
       "836": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Jukebox",
+          channel_name: "Air - New Wave",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Jukebox",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5721,8 +5854,14 @@ export const foxteldigital: TimelineProvider = {
       "837": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Retro Party",
+          channel_name: "Air - Home Grown",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Retro Party",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5752,8 +5891,14 @@ export const foxteldigital: TimelineProvider = {
       "838": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - ARIA Chart",
+          channel_name: "Air - Urban",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - ARIA Chart",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5783,8 +5928,14 @@ export const foxteldigital: TimelineProvider = {
       "839": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Urban",
+          channel_name: "Air - Dance",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Urban",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5814,8 +5965,14 @@ export const foxteldigital: TimelineProvider = {
       "840": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Dance",
+          channel_name: "Air - Anthems",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Dance",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5845,8 +6002,14 @@ export const foxteldigital: TimelineProvider = {
       "841": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Kids Zone",
+          channel_name: "Air - Soul",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Kids Zone",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5876,8 +6039,14 @@ export const foxteldigital: TimelineProvider = {
       "842": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Soul",
+          channel_name: "Air - Easy",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Soul",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5907,8 +6076,14 @@ export const foxteldigital: TimelineProvider = {
       "843": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Easy",
+          channel_name: "Air - Lounge",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Easy",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5938,8 +6113,14 @@ export const foxteldigital: TimelineProvider = {
       "844": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Chillout Lounge",
+          channel_name: "Air - Cafe",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Chillout Lounge",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -5969,8 +6150,14 @@ export const foxteldigital: TimelineProvider = {
       "845": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Cafe Jazz",
+          channel_name: "Air - Spa",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Cafe Jazz",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6000,8 +6187,14 @@ export const foxteldigital: TimelineProvider = {
       "846": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Relax",
+          channel_name: "Air - Blues",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Relax",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6026,8 +6219,14 @@ export const foxteldigital: TimelineProvider = {
       "847": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Roots",
+          channel_name: "Air - Light Classical",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Roots",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6057,8 +6256,14 @@ export const foxteldigital: TimelineProvider = {
       "848": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Light Classical",
+          channel_name: "Air - Soundtracks",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Light Classical",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6094,8 +6299,14 @@ export const foxteldigital: TimelineProvider = {
       "849": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Modern Rock",
+          channel_name: "Air - Crooners",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Modern Rock",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6126,8 +6337,14 @@ export const foxteldigital: TimelineProvider = {
       "850": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Crooners",
+          channel_name: "Air - Today's Country",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Crooners",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6158,8 +6375,14 @@ export const foxteldigital: TimelineProvider = {
       "851": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Today's Country",
+          channel_name: "Air - Classic Country",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Today's Country",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6189,8 +6412,14 @@ export const foxteldigital: TimelineProvider = {
       "852": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Classic Country",
+          channel_name: "BBC World Service",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Classic Country",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6220,8 +6449,14 @@ export const foxteldigital: TimelineProvider = {
       "853": [
         {
           channel_genre: "Radio",
-          channel_name: "BBC World Service",
+          channel_name: "Air - Special Events",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "BBC World Service",
+          from: 2007,
           to: 2021.9,
         },
         {
@@ -6245,8 +6480,14 @@ export const foxteldigital: TimelineProvider = {
       "854": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Special Events",
+          channel_name: "Air - Edge",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Special Events",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6270,8 +6511,14 @@ export const foxteldigital: TimelineProvider = {
       "855": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - FasterLouder",
+          channel_name: "Air - 70s",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - FasterLouder",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6295,8 +6542,14 @@ export const foxteldigital: TimelineProvider = {
       "856": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - 70's",
+          channel_name: "Air - 80s",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - 70s",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6326,8 +6579,14 @@ export const foxteldigital: TimelineProvider = {
       "857": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - '80s'",
+          channel_name: "Air - Alternative Rock",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - 80s",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6357,8 +6616,14 @@ export const foxteldigital: TimelineProvider = {
       "858": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Metalheadz",
+          channel_name: "Air - Classic R&B",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Metalheadz",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6376,8 +6641,14 @@ export const foxteldigital: TimelineProvider = {
       "859": [
         {
           channel_genre: "Radio",
-          channel_name: "Air Active - Motown",
+          channel_name: "Air - News and More",
           from: 2004.3,
+          to: 2007,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Air Active - Motown",
+          from: 2007,
           to: 2015.3,
         },
         {
@@ -6470,19 +6741,26 @@ export const foxteldigital: TimelineProvider = {
         },
         { channel_genre: "Radio", channel_name: "SBS Chill", from: "2022.4" },
       ],
-
+      "875": [
+        {
+          channel_genre: "Radio",
+          channel_name: "ABC DiG",
+          from: 2004.3,
+          to: 2007,
+        },
+      ],
       "884": [
         {
           channel_genre: "Radio",
-          channel_name: "ABC Dig",
-          from: 2004.3,
+          channel_name: "ABC DiG",
+          from: 2007,
         },
       ],
       "885": [
         {
           channel_genre: "Radio",
-          channel_name: "ABC Dig Jazz",
-          from: 2004.3,
+          channel_name: "ABC DiG Jazz",
+          from: 2006,
         },
       ],
       "901": [
@@ -6707,7 +6985,7 @@ export const foxteldigital: TimelineProvider = {
       ],
       "940": [
         {
-          channel_genre: "International",
+          channel_genre: "Radio",
           channel_name: "ANT1 Radio",
           from: "2009",
           to: 2022.5,
@@ -6734,7 +7012,7 @@ export const foxteldigital: TimelineProvider = {
       ],
       "943": [
         {
-          channel_genre: "International",
+          channel_genre: "Radio",
           channel_name: "Rai Radio 1",
           from: "2009",
         },
@@ -6744,7 +7022,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Main Event",
           from: 2004.3,
-          to: 2008.6,
+          to: 2006,
         },
         {
           channel_genre: "PPV",
@@ -6790,7 +7068,13 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Adults Only",
           from: 2004.3,
-          to: 2009.11,
+          to: 2006,
+        },
+        {
+          channel_genre: "PPV",
+          channel_name: "Main Event / Adults Only / Fashion TV",
+          from: 2006,
+          to: 2008.6,
         },
         {
           channel_genre: "PPV",

@@ -42,10 +42,11 @@ export const metadata: Metadata = {
     description: SITE_CONFIG.shortDescription,
     images: [
       {
-        alt: "webEPG Logo",
-        height: 512,
+        alt: "webEPG - Free Electronic Program Guide for TV and Radio",
+        height: 1200,
+        type: "image/png",
         url: "/favicon/android-chrome-512x512.png",
-        width: 512,
+        width: 1200,
       },
     ],
     locale: SITE_CONFIG.locale,
@@ -55,20 +56,51 @@ export const metadata: Metadata = {
     url: SITE_CONFIG.url,
   },
   other: {
-    "application/ld+json": JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      applicationCategory: "EntertainmentApplication",
-      author: {
+    "application/ld+json": JSON.stringify([
+      {
+        "@context": "https://schema.org",
         "@type": "Organization",
+        description: SITE_CONFIG.description,
+        logo: `${SITE_CONFIG.url}/favicon/android-chrome-512x512.png`,
         name: SITE_CONFIG.name,
+        sameAs: [],
         url: SITE_CONFIG.url,
       },
-      description: SITE_CONFIG.shortDescription,
-      name: SITE_CONFIG.name,
-      operatingSystem: "Web Browser",
-      url: SITE_CONFIG.url,
-    }),
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        description: SITE_CONFIG.description,
+        name: SITE_CONFIG.name,
+        potentialAction: {
+          "@type": "SearchAction",
+          "query-input": "required name=search_term_string",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${SITE_CONFIG.url}/search?q={search_term_string}`,
+          },
+        },
+        publisher: {
+          "@type": "Organization",
+          name: SITE_CONFIG.name,
+          url: SITE_CONFIG.url,
+        },
+        url: SITE_CONFIG.url,
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        applicationCategory: "EntertainmentApplication",
+        author: {
+          "@type": "Organization",
+          name: SITE_CONFIG.name,
+          url: SITE_CONFIG.url,
+        },
+        description: SITE_CONFIG.shortDescription,
+        name: SITE_CONFIG.name,
+        operatingSystem: "Web Browser",
+        url: SITE_CONFIG.url,
+      },
+    ]),
     preconnect: SITE_CONFIG.preconnect,
   },
   publisher: SITE_CONFIG.publisher,
@@ -88,7 +120,6 @@ export const metadata: Metadata = {
     nosnippet: false,
     notranslate: false,
   },
-  sitemap: `${SITE_CONFIG.url}/sitemap.xml`,
   title: {
     default: `${SITE_CONFIG.name}`,
     template: `%s | ${SITE_CONFIG.name}`,

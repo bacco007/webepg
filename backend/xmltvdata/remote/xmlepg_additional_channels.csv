@@ -1,72 +1,143 @@
 guidelink,channel_id,channel_slug,channel_name,channel_name_location,channel_name_real,chantype,chancomp,channel_url,chanbouq,chanlcnfta1,chanlcnfta2,chanlcnfta3,chanlcnfox,chanlcnfet,channel_number,chlogo_light,chlogo_dark,channel_group,channel_type,channel_availability,channel_packages
+
 bbc-world-service,bbc-world-service,bbc-world-service,BBC World Service,BBC World,BBC World Service,Audio,,,2010,0,0,0,858,0,,https://i.imgur.com/1JFeL39.png,https://i.imgur.com/1JFeL39.png,British Broadcasting Corporation,Radio,N/A,N/A
+
 394033auepg.com.au,394033auepg.com.au,394033auepg.com.au,SBS Radio 1,SBS Radio 1,SBS Radio 1,Audio,MPEG-1,,2010,0,0,0,867,0,,https://i.imgur.com/bZZA5RT.png,https://i.imgur.com/bZZA5RT.png,Special Broadcasting Service,Radio,N/A,N/A
+
 394034auepg.com.au,394034auepg.com.au,394034auepg.com.au,SBS Radio 2,SBS Radio 2,SBS Radio 2,Audio,MPEG-1,,2010,0,0,0,868,0,,https://i.imgur.com/CkDjsom.png,https://i.imgur.com/CkDjsom.png,Special Broadcasting Service,Radio,N/A,N/A
+
 sbs-chill.sbsod.au,sbs-chill.sbsod.au,sbs-chill.sbsod.au,SBS Chill,SBS Chill,SBS Chill,Audio,MPEG-1,,2010,0,0,0,869,0,,https://i.imgur.com/zG5TdVL.png,https://i.imgur.com/9smjizC.png,Special Broadcasting Service,Radio,N/A,N/A
+
 netflix,netflix,netflix,Netflix,Netflix,Netflix,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Netflix,Apps,iQ4/iQ5 Only,N/A
+
 max-app,max-app,max-app,max-app,max,max,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Warner Bros. Discovery,Apps,iQ4/iQ5 Only,N/A
+
 disney+,disney+,disney+,Disney+,Disney+,Disney+,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Disney,Apps,iQ4/iQ5 Only,N/A
+
 amazon-prime-video,amazon-prime-video,amazon-prime-video,Amazon Prime Video,Amazon Prime Video,Amazon Prime Video,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Amazon,Apps,iQ4/iQ5 Only,N/A
+
 youtube,youtube,youtube,YouTube,YouTube,YouTube,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,YouTube,Apps,iQ4/iQ5 Only,N/A
+
 paramount+,paramount+,paramount+,Paramount+,Paramount+,Paramount+,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Paramount Global,Apps,iQ4/iQ5 Only,N/A
+
 apple-tv+,apple-tv+,apple-tv+,Apple TV+,Apple TV+,Apple TV+,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Apple Inc,Apps,iQ4/iQ5 Only,N/A
+
 britbox,britbox,britbox,BritBox,BritBox,BritBox,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,BritBox,Apps,iQ4/iQ5 Only,N/A
+
 stan,stan,stan,Stan,Stan,Stan,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Nine Entertainment Co.,Apps,iQ4/iQ5 Only,N/A
+
 abc-iview,abc-iview,abc-iview,ABC iView,ABC iView,ABC iView,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/M0P76fl.png,https://i.imgur.com/86AcVqs.png,Australian Broadcasting Corporation,Apps,iQ4/iQ5 Only,N/A
+
 sbs-on-demand,sbs-on-demand,sbs-on-demand,SBS On Demand,SBS On Demand,SBS On Demand,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/c3KmY7U.png,https://i.imgur.com/FRN3rc5.png,Special Broadcasting Service,Apps,iQ4/iQ5 Only,N/A
+
 7plus,7plus,7plus,7plus,7plus,7plus,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/RuLoIvR.png,https://i.imgur.com/RuLoIvR.png,Seven West Media,Apps,iQ4/iQ5 Only,N/A
+
 9now,9now,9now,9now,9now,9now,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/ncyISu4.png,https://i.imgur.com/ncyISu4.png,Nine Entertainment Co.,Apps,iQ4/iQ5 Only,N/A
+
 10-play,10-play,10-play,10 play,10 play,10 play,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/ZnQ4BDW.png,https://i.imgur.com/gnOvrM1.png,10 Network,Apps,iQ4/iQ5 Only,N/A
+
 abc-kids-iview,abc-kids-iview,abc-kids-iview,ABC Kids iView,ABC Kids iView,ABC Kids iView,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/GPy2tEd.png,https://i.imgur.com/GPy2tEd.png,Australian Broadcasting Corporation,Apps,iQ4/iQ5 Only,N/A
+
 f1-tv,f1-tv,f1-tv,F1 TV,F1 TV,F1 TV,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,F1,Apps,iQ4/iQ5 Only,N/A
+
 optus-sport,optus-sport,optus-sport,Optus Sport,Optus Sport,Optus Sport,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/fKAgFp0.png,https://i.imgur.com/fKAgFp0.png,Optus Communications,Apps,iQ4/iQ5 Only,N/A
+
 docplay,docplay,docplay,DocPlay,DocPlay,DocPlay,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/PF9cTQx.png,https://i.imgur.com/8uc9VZg.png,Madman Entertainment Pty Ltd,Apps,iQ4/iQ5 Only,N/A
+
 youtube-kids,youtube-kids,youtube-kids,YouTube Kids,YouTube Kids,YouTube Kids,Streaming,,,3150,0,0,0,0,989,,/placeholder-image.png,/placeholder-image.png,YouTube,Streaming,N/A,N/A
+
 youtube,youtube,youtube,YouTube,YouTube,YouTube,Streaming,,,3150,0,0,0,0,990,,/placeholder-image.png,/placeholder-image.png,YouTube,Streaming,N/A,N/A
+
 hayu,hayu,hayu,hayu,hayu,hayu,Streaming,,,3150,0,0,0,0,991,,/placeholder-image.png,/placeholder-image.png,hayu,Streaming,N/A,N/A
+
 apple-tv,apple-tv,apple-tv,Apple TV+,Apple TV+,Apple TV+,Streaming,,,3150,0,0,0,0,992,,/placeholder-image.png,/placeholder-image.png,Apple Inc,Streaming,N/A,N/A
+
 prime-video,prime-video,prime-video,Amazon Prime Video,Amazon Prime Video,Amazon Prime Video,Streaming,,,3150,0,0,0,0,993,,/placeholder-image.png,/placeholder-image.png,Amazon,Streaming,N/A,N/A
+
 netflix,netflix,netflix,Netflix,Netflix,Netflix,Streaming,,,3150,0,0,0,0,995,,/placeholder-image.png,/placeholder-image.png,Netflix,Streaming,N/A,N/A
+
 disney,disney,disney,Disney+,Disney+,Disney+,Streaming,,,3150,0,0,0,0,996,,/placeholder-image.png,/placeholder-image.png,Disney,Streaming,N/A,N/A
+
 390715auepg.com.au,390715auepg.com.au,390715auepg.com.au,Double J,Double J,Double J,Radio,MPEG-1,,3150,0,0,0,0,200,,https://i.imgur.com/hYiRZj5.png,https://i.imgur.com/mjtraYc.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+
 390716auepg.com.au,390716auepg.com.au,390716auepg.com.au,ABC Jazz,ABC Jazz,ABC Jazz,Radio,MPEG-1,,3150,0,0,0,0,201,,https://i.imgur.com/Xt8X8di.png,https://i.imgur.com/Xt8X8di.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+
 394033auepg.com.au,394033auepg.com.au,394033auepg.com.au,SBS Radio 1,SBS Radio 1,SBS Radio 1,Radio,MPEG-1,,3150,0,0,0,0,301,,https://i.imgur.com/bZZA5RT.png,https://i.imgur.com/bZZA5RT.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+
 394034auepg.com.au,394034auepg.com.au,394034auepg.com.au,SBS Radio 2,SBS Radio 2,SBS Radio 2,Radio,MPEG-1,,3150,0,0,0,0,302,,https://i.imgur.com/CkDjsom.png,https://i.imgur.com/CkDjsom.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+
 abc-country,abc-country,abc-country,ABC Country,ABC Country,ABC Country,Radio,MPEG-1,,3150,0,0,0,0,203,,https://i.imgur.com/sdX2GMZ.png,https://i.imgur.com/sdX2GMZ.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+
 abc-kids-listen,abc-kids-listen,abc-kids-listen,ABC Kids Listen,ABC Kids Listen,ABC KIDS Listen,Radio,MPEG-1,,3150,0,0,0,0,202,,https://i.imgur.com/nsE8OzK.png,https://i.imgur.com/nsE8OzK.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+
 abc-newsradio,abc-newsradio,abc-newsradio,ABC NewsRadio,ABC NewsRadio,ABC NewsRadio,Radio,HE-AAC,,3150,0,0,0,0,204,,https://i.imgur.com/92rRxcI.png,https://i.imgur.com/92rRxcI.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+
 sbs-chill.sbsod.au,sbs-chill.sbsod.au,sbs-chill.sbsod.au,SBS Chill,SBS Chill,SBS Chill,Radio,MPEG-1,,3150,0,0,0,0,306,,https://i.imgur.com/zG5TdVL.png,https://i.imgur.com/9smjizC.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+
 sbs-pop-araby.sbsod.au,sbs-pop-araby.sbsod.au,sbs-pop-araby.sbsod.au,SBS Arabic 24,SBS Arabic 24,SBS Arabic24,Radio,MPEG-1,,3150,0,0,0,0,304,,https://i.imgur.com/tsbkD0K.png,https://i.imgur.com/6JFQUhi.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+
 sbs-pop-asia.sbsod.au,sbs-pop-asia.sbsod.au,sbs-pop-asia.sbsod.au,SBS Pop Asia,SBS Pop Asia,SBS PopAsia,Radio,HE-AAC,,3150,0,0,0,0,307,,https://i.imgur.com/JGGogek.png,https://i.imgur.com/JGGogek.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+
 sbs-pop-desi.sbsod.au,sbs-pop-desi.sbsod.au,sbs-pop-desi.sbsod.au,SBS South Asian,SBS South Asian,SBS South Asian,Radio,HE-AAC,,3150,0,0,0,0,305,,https://i.imgur.com/uWTKlon.png,https://i.imgur.com/uWTKlon.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+
 sbs-radio-3.sbsod.au,sbs-radio-3.sbsod.au,sbs-radio-3.sbsod.au,SBS Radio 3,SBS Radio 3,SBS Radio 3,Radio,MPEG-1,,3150,0,0,0,0,303,,https://i.imgur.com/vXn3D7N.png,https://i.imgur.com/vXn3D7N.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+
 NOEPG,NOEPG,NOEPG,Rai News24,Rai News24,Rai News24,SD 576i,,,3150,0,0,0,0,602,,https://i.imgur.com/kYAPMb2.png,https://i.imgur.com/QPeVJuW.png,Rai Internazionale,Special Interest,N/A,N/A
+
 NOEPG,NOEPG,NOEPG,Mediaset Italia,Mediaset Italia,Mediaset Italia,SD 576i,,,3150,0,0,0,0,603,,https://i.imgur.com/MvxlUyU.png,https://i.imgur.com/MvxlUyU.png,Mediaset,Special Interest,N/A,N/A
+
 NOEPG,NOEPG,NOEPG,Rai World Premium,Rai World Premium,Rai World Premium,SD 576i,,,3150,0,0,0,0,601,,https://i.imgur.com/Q2Vfbu3.png,https://i.imgur.com/z5GNBnL.png,Rai Internazionale,Special Interest,N/A,N/A
+
 RAIITA,RAIITA,RAIITA,Rai Italia,Rai Italia,Rai Italia,SD 576i,,,3150,0,0,0,0,600,,https://i.imgur.com/Uvv3tVz.png,https://i.imgur.com/DHELCyv.png,Rai Internazionale,Special Interest,N/A,N/A
+
 get-to-know-foxtel,get-to-know-foxtel,get-to-know-foxtel,Get To Know Foxtel,Get To Know Foxtel,Get2Know,SD 576i,,,2010,0,0,0,700,0,0,/logos/foxtel.png,/logos/foxtel.png,Foxtel Networks,Help,N/A,N/A
+
 listnr-good-vibes,listnr-good-vibes,listnr-good-vibes,LiSTNR Good Vibes,LiSTNR Good Vibes,Good Vibes,Audio,,,2010,0,0,0,830,0,0,https://i.imgur.com/3Qz16zD.png,https://i.imgur.com/3Qz16zD.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 triple-m-70s,triple-m-70s,triple-m-70s,Triple M 70s,Triple M 70s,Triple M 70s,Audio,,,2010,0,0,0,831,0,0,https://i.imgur.com/pxi21Tj.png,https://i.imgur.com/EqYYtRs.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 hit-old-skool-80s,hit-old-skool-80s,hit-old-skool-80s,Hit Old Skool 80s,Hit Old Skool 80s,Oldskool 80s Hits,Audio,,,2010,0,0,0,832,0,0,https://i.imgur.com/30c1VNE.png,https://i.imgur.com/fVjoiOR.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 triple-m-90s,triple-m-90s,triple-m-90s,Triple M 90s,Triple M 90s,Triple M 90s,Audio,,,2010,0,0,0,833,0,0,https://i.imgur.com/RHqOBSZ.png,https://i.imgur.com/amIZAlR.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 triple-m-2000s,triple-m-2000s,triple-m-2000s,Triple M 2000s,Triple M 2000s,Triple M 2000s,Audio,,,2010,0,0,0,834,0,0,https://i.imgur.com/SAzqCRh.png,https://i.imgur.com/N0j45ri.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-almost-acoustic-pop,listnr-almost-acoustic-pop,listnr-almost-acoustic-pop,LiSTNR Almost Acoustic Pop,LiSTNR Almost Acoustic Pop,Almost Acoustic Pop,Audio,,,2010,0,0,0,835,0,0,/placeholder-image.png,/placeholder-image.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-rock-n-road-trip,listnr-rock-n-road-trip,listnr-rock-n-road-trip,LiSTNR Rock 'n' Road Trip,LiSTNR Rock 'n' Road Trip,Rock'N'Roadtrip,Audio,,,2010,0,0,0,836,0,0,https://i.imgur.com/h2vPHUd.png,https://i.imgur.com/h2vPHUd.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 triple-m-classic-rock,triple-m-classic-rock,triple-m-classic-rock,Triple M Classic Rock,Triple M Classic Rock,MMMClassicRock,Audio,,,2010,0,0,0,837,0,0,https://i.imgur.com/FFfq2il.png,https://i.imgur.com/CxQasM8.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-indie-alt,listnr-indie-alt,listnr-indie-alt,LiSTNR Indie & Alt,LiSTNR Indie & Alt,Indie & Alt,Audio,,,2010,0,0,0,838,0,0,https://i.imgur.com/hkvAD60.png,https://i.imgur.com/hkvAD60.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-60s-hits,listnr-60s-hits,listnr-60s-hits,LiSTNR 60s Hits,LiSTNR 60s Hits,60s Hits,Audio,,,2010,0,0,0,839,0,0,https://i.imgur.com/zV7ZTkf.png,https://i.imgur.com/zV7ZTkf.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-blender-beats,listnr-blender-beats,listnr-blender-beats,LiSTNR Blender Beats,LiSTNR Blender Beats,Blender Beats,Audio,,,2010,0,0,0,840,0,0,https://i.imgur.com/v53xgNY.png,https://i.imgur.com/v53xgNY.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 triple-m-80s,triple-m-80s,triple-m-80s,Triple M 80s,Triple M 80s,Triple M 80s,Audio,,,2010,0,0,0,841,0,0,https://i.imgur.com/IGo9wLQ.png,https://i.imgur.com/JFSEjEF.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-almost-acoustic,listnr-almost-acoustic,listnr-almost-acoustic,LiSTNR Almost Acoustic,LiSTNR Almost Acoustic,Almost Acoustic,Audio,,,2010,0,0,0,842,0,0,https://i.imgur.com/OeHRigC.png,https://i.imgur.com/OeHRigC.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-easy-hits,listnr-easy-hits,listnr-easy-hits,LiSTNR Easy Hits,LiSTNR Easy Hits,Easy Hits,Audio,,,2010,0,0,0,843,0,0,https://i.imgur.com/HjUHuXR.png,https://i.imgur.com/HjUHuXR.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-deep-calm,listnr-deep-calm,listnr-deep-calm,LiSTNR Deep Calm,LiSTNR Deep Calm,Deep Calm,Audio,,,2010,0,0,0,844,0,0,/placeholder-image.png,/placeholder-image.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-rnb-chill,listnr-rnb-chill,listnr-rnb-chill,LiSTNR RnB Chill,LiSTNR RnB Chill,RnB Chill,Audio,,,2010,0,0,0,845,0,0,/placeholder-image.png,/placeholder-image.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-chill-pop-hits,listnr-chill-pop-hits,listnr-chill-pop-hits,LiSTNR Chill Pop Hits,LiSTNR Chill Pop Hits,Chill Pop Hits,Audio,,,2010,0,0,0,847,0,0,https://i.imgur.com/xaBD5GX.png,https://i.imgur.com/xaBD5GX.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 hit-old-skool-90s,hit-old-skool-90s,hit-old-skool-90s,Hit Old Skool 90s,Hit Old Skool 90s,Oldskool 90s Hits,Audio,,,2010,0,0,0,848,0,0,https://i.imgur.com/M8WAn5Q.png,https://i.imgur.com/8DeKsLn.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-top-30,listnr-top-30,listnr-top-30,LiSTNR Top 30,LiSTNR Top 30,Top 30,Audio,,,2010,0,0,0,851,0,0,https://i.imgur.com/ixJq2hq.png,https://i.imgur.com/ixJq2hq.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-90s-soft-pop,listnr-90s-soft-pop,listnr-90s-soft-pop,LiSTNR 90s Soft Pop,LiSTNR 90s Soft Pop,90s Soft Pop,Audio,,,2010,0,0,0,852,0,0,https://i.imgur.com/sB0anAM.png,https://i.imgur.com/sB0anAM.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 hit-rnb-fridays,hit-rnb-fridays,hit-rnb-fridays,Hit RnB Fridays,Hit RnB Fridays,RnB Fridays Radio,Audio,,,2010,0,0,0,853,0,0,https://i.imgur.com/SJhR84w.png,https://i.imgur.com/dBaz5DH.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 hit-dance,hit-dance,hit-dance,Hit Dance,Hit Dance,Dance Hits,Audio,,,2010,0,0,0,854,0,0,https://i.imgur.com/Kx2rwJX.png,https://i.imgur.com/XnLM7Mo.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-2010s,listnr-2010s,listnr-2010s,LiSTNR 2010s,LiSTNR 2010s,2010s,Audio,,,2010,0,0,0,855,0,0,https://i.imgur.com/ndCvWNj.png,https://i.imgur.com/ndCvWNj.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 triple-m-country,triple-m-country,triple-m-country,Triple M Country,Triple M Country,Triple M Country,Audio,,,2010,0,0,0,856,0,0,https://i.imgur.com/ckxQf26.png,https://i.imgur.com/LtRhcIz.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A
+
 listnr-country-classics,listnr-country-classics,listnr-country-classics,LiSTNR Country Classics,LiSTNR Country Classics,Country Classics,Audio,,,2010,0,0,0,857,0,0,/placeholder-image.png,/placeholder-image.png,Southern Cross Austereo / Listnr,Audio,N/A,N/A

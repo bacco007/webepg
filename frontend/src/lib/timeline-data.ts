@@ -53,6 +53,7 @@ import { galaxy } from "./timeline-providers/galaxy";
 import { ncable } from "./timeline-providers/ncable";
 import { optus } from "./timeline-providers/optus";
 import { optusitv } from "./timeline-providers/optusitv";
+import { tarbs } from "./timeline-providers/tarbs";
 import { transact } from "./timeline-providers/transact";
 
 // Export all providers
@@ -67,6 +68,7 @@ export const timelineProviders: Record<string, TimelineProvider> = {
   ncable,
   optus,
   optusitv,
+  tarbs,
   transact,
 };
 

@@ -62,13 +62,13 @@ export function ChannelCard({ channel, xmltvDataSource }: ChannelCardProps) {
           </div>
         </CardHeader>
         <CardContent className="grow px-4 py-1">
-          <div className="flex flex-wrap gap-1 text-xs">
+          <div className="flex flex-wrap gap-1 text-12px">
             {channel.channel_group &&
             channel.channel_group !== "N/A" &&
             channel.channel_group.toLowerCase() !== "unknown" ? (
               <Badge className="bg-primary/10 font-semibold text-primary focus-visible:outline-none focus-visible:ring-primary/20 dark:bg-primary/10 dark:text-primary dark:focus-visible:ring-primary/40 [a&]:hover:bg-primary/5 dark:[a&]:hover:bg-primary/5">
                 <Building2Icon />
-                {channel.channel_group}
+                &nbsp; {channel.channel_group}
               </Badge>
             ) : (
               <Badge className="font-semibold italic" variant="outline">
@@ -77,12 +77,12 @@ export function ChannelCard({ channel, xmltvDataSource }: ChannelCardProps) {
             )}
           </div>
           <ScrollArea className="w-full">
-            <div className="flex flex-wrap gap-2 pt-1 text-xs">
+            <div className="flex flex-wrap gap-2 pt-1 text-10px">
               {channel.other_data?.channel_specs &&
               channel.other_data.channel_specs !== "N/A" ? (
                 <Badge className="text-card-foreground/60" variant="outline">
                   <RadioIcon />
-                  {channel.other_data.channel_specs}
+                  &nbsp; {channel.other_data.channel_specs}
                 </Badge>
               ) : (
                 <Badge
@@ -98,7 +98,7 @@ export function ChannelCard({ channel, xmltvDataSource }: ChannelCardProps) {
               channel.other_data.channel_type !== "(none)" ? (
                 <Badge className="text-card-foreground/60" variant="outline">
                   <GroupIcon />
-                  {channel.other_data.channel_type}
+                  &nbsp; {channel.other_data.channel_type}
                 </Badge>
               ) : (
                 <Badge

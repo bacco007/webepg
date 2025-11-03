@@ -169,6 +169,12 @@ cython_debug/
 app/temp
 tools
 xmlepg_error_log.txt
+/xmltvdata/remote/chan*.csv
+/xmltvdata/remote/networks.csv
+/xmltvdata/remote/providers.csv
+
+# SSH password file for download script
+tools/.ssh_password
 
 # uv
 .uv/

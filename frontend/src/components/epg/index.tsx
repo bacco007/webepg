@@ -146,7 +146,7 @@ const GridView = ({
     height: number;
     title: string;
   }> = [];
-  for (let rowIndex = 0; rowIndex < processedChannels.length; rowIndex++) {
+  for (let rowIndex = 0; rowIndex < processedChannels.length; rowIndex += 1) {
     const channel = processedChannels[rowIndex];
     // Calculate program positions as in ChannelRow
     const uniquePrograms = new Map<string, Program>();

@@ -3,6 +3,7 @@
  * Renders individual timeline spans with text and styling
  */
 
+import { Presentation, Radio } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -76,6 +77,10 @@ export const TimelineSpan: React.FC<TimelineSpanProps> = React.memo(
     // Get special border style
     const borderStyle = getChannelBorderStyle(span.text, span.genre);
 
+    // Check if this is a radio channel or interactive channel
+    const isRadio = span.genre?.toLowerCase().includes("radio");
+    const isInteractive = span.genre?.toLowerCase().includes("interactive");
+
     return (
       <TimelineSpanPopover span={span}>
         <Button
@@ -109,7 +114,11 @@ export const TimelineSpan: React.FC<TimelineSpanProps> = React.memo(
           }}
           variant="outline"
         >
-          <span className="block truncate">{span.text}</span>
+          <div className="flex items-center gap-1">
+            {isRadio && <Radio className="h-3 w-3 shrink-0" />}
+            {isInteractive && <Presentation className="h-3 w-3 shrink-0" />}
+            <span className="truncate">{span.text}</span>
+          </div>
           {span.note && (
             <div className="sr-only" id={`span-${span.from}-desc`}>
               {span.note}

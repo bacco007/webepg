@@ -3,7 +3,7 @@
  * Displays detailed information about a timeline span in a popover
  */
 
-import { Calendar } from "lucide-react";
+import { Calendar, Presentation, Radio } from "lucide-react";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -32,6 +32,10 @@ export const TimelineSpanPopover: React.FC<TimelineSpanPopoverProps> = ({
   const [open, setOpen] = React.useState(false);
   const fromYear = span.from ? formatYearMonth(span.from) : "Unknown";
   const toYear = span.to ? formatYearMonth(span.to) : "Present";
+
+  // Check if this is a radio channel or interactive channel
+  const isRadio = span.genre?.toLowerCase().includes("radio");
+  const isInteractive = span.genre?.toLowerCase().includes("interactive");
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
@@ -89,7 +93,15 @@ export const TimelineSpanPopover: React.FC<TimelineSpanPopoverProps> = ({
                     </Badge>
                   )}
                 </div>
-                <h4 className="font-bold text-lg leading-tight">{span.text}</h4>
+                <div className="flex items-center gap-1.5">
+                  {isRadio && <Radio className="h-4 w-4 shrink-0" />}
+                  {isInteractive && (
+                    <Presentation className="h-4 w-4 shrink-0" />
+                  )}
+                  <h4 className="font-bold text-lg leading-tight">
+                    {span.text}
+                  </h4>
+                </div>
               </div>
             </div>
           </div>

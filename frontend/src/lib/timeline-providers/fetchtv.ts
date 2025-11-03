@@ -97,6 +97,7 @@ export const fetchtv: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "MTV",
           from: 2019.6,
+          to: "2025.10",
         },
       ],
       "105": [
@@ -1292,6 +1293,11 @@ export const fetchtv: TimelineProvider = {
           from: 2023.3,
           to: 2023.9,
         },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Mythbusters",
+          from: 2024.4,
+        },
       ],
       "223": [
         {
@@ -1305,11 +1311,6 @@ export const fetchtv: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Outdoor Channel",
           from: 2022.3,
-        },
-        {
-          channel_genre: "Entertainment",
-          channel_name: "Mythbusters",
-          from: 2024.4,
         },
       ],
       "225": [
@@ -1451,6 +1452,7 @@ export const fetchtv: TimelineProvider = {
           channel_genre: "Music",
           channel_name: "MTV 80s",
           from: 2023.8,
+          to: "2025.10",
         },
       ],
       "237": [
@@ -1470,6 +1472,7 @@ export const fetchtv: TimelineProvider = {
           channel_genre: "Music",
           channel_name: "MTV Hits (European Edition)",
           from: 2023.8,
+          to: "2025.10",
         },
       ],
       "238": [
@@ -1489,6 +1492,7 @@ export const fetchtv: TimelineProvider = {
           channel_genre: "Music",
           channel_name: "Club MTV (European Edition)",
           from: 2023.8,
+          to: "2025.10",
         },
       ],
       "239": [
@@ -1500,7 +1504,12 @@ export const fetchtv: TimelineProvider = {
         },
       ],
       "240": [
-        { channel_genre: "Music", channel_name: "MTV 90s", from: "2024.2" },
+        {
+          channel_genre: "Music",
+          channel_name: "MTV 90s",
+          from: "2024.2",
+          to: "2025.10",
+        },
       ],
       "241": [
         {
@@ -1509,7 +1518,12 @@ export const fetchtv: TimelineProvider = {
           from: 2019.6,
           to: "2023.10",
         },
-        { channel_genre: "Music", channel_name: "MTV 00s", from: "2024.2" },
+        {
+          channel_genre: "Music",
+          channel_name: "MTV 00s",
+          from: "2024.2",
+          to: "2025.10",
+        },
       ],
       "242": [
         {
@@ -1565,6 +1579,13 @@ export const fetchtv: TimelineProvider = {
           from: 2025.9,
         },
       ],
+      "249": [
+        {
+          channel_genre: "Kids",
+          channel_name: "Cartoon Network",
+          from: 2025.11,
+        },
+      ],
       "250": [
         {
           channel_genre: "Kids",
@@ -1586,13 +1607,28 @@ export const fetchtv: TimelineProvider = {
           from: 2019.6,
           to: 2020.4,
         },
-        { channel_genre: "Kids", channel_name: "Nick Music", from: 2021.4 },
+        {
+          channel_genre: "Kids",
+          channel_name: "Nick Music",
+          from: 2021.4,
+          to: "2025.10",
+        },
       ],
       "252": [
-        { channel_genre: "Kids", channel_name: "Nickelodeon", from: 2019.6 },
+        {
+          channel_genre: "Kids",
+          channel_name: "Nickelodeon",
+          from: 2019.6,
+          to: "2025.10",
+        },
       ],
       "253": [
-        { channel_genre: "Kids", channel_name: "Nick Jr.", from: 2019.6 },
+        {
+          channel_genre: "Kids",
+          channel_name: "Nick Jr.",
+          from: 2019.6,
+          to: "2025.10",
+        },
       ],
       "254": [
         {

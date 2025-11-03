@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Path
 from pydantic import BaseModel
@@ -8,6 +8,38 @@ from app.exceptions import ChannelNotFoundError, FileProcessingError
 from app.utils.file_operations import load_json
 
 router = APIRouter()
+
+
+def deduplicate_channels(channels: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Remove duplicate channels based on channel_id (or channel_slug) and channel_number.
+    Keeps the first occurrence of each unique channel.
+    
+    This ensures channels with the same slug but different channel numbers
+    are treated as unique channels.
+    """
+    seen_channels = set()
+    unique_channels = []
+    
+    for channel in channels:
+        # Use channel_id as primary identifier, fall back to channel_slug if channel_id is missing
+        channel_id = channel.get("channel_id", "")
+        channel_slug = channel.get("channel_slug", "")
+        channel_number = channel.get("channel_number", "")
+        
+        # Create a composite unique key that includes both identifier and channel number
+        identifier = channel_id if channel_id else channel_slug
+        channel_key = f"{identifier}_{channel_number}" if identifier else None
+        
+        if channel_key and channel_key not in seen_channels:
+            seen_channels.add(channel_key)
+            unique_channels.append(channel)
+        elif not channel_key:
+            # If both identifier and channel_number are missing, use the channel dict itself as a fallback
+            # This is a rare edge case
+            unique_channels.append(channel)
+    
+    return unique_channels
 
 class ChannelResponse(BaseModel):
     date_pulled: str
@@ -95,9 +127,16 @@ async def get_channel_data(
     except Exception as err:
         raise FileProcessingError(filename, str(err)) from err
 
+    # Ensure channels_data is a list
+    if not isinstance(channels_data, list):
+        channels_data = []
+
+    # Deduplicate channels before returning
+    unique_channels = deduplicate_channels(channels_data)
+
     return {
         "date_pulled": datetime.now(timezone.utc).isoformat(),
         "query": "channels",
         "source": id,
-        "data": {"channels": channels_data},
+        "data": {"channels": unique_channels},
     }

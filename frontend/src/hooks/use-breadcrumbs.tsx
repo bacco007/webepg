@@ -88,7 +88,7 @@ export function useBreadcrumbs() {
     // Build breadcrumb trail by accumulating segments
     const trail: BreadcrumbItem[] = [];
 
-    for (let i = 0; i < segments.length; i++) {
+    for (let i = 0; i < segments.length; i += 1) {
       const segment = segments[i];
       const path = `/${segments.slice(0, i + 1).join("/")}`;
 

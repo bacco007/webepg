@@ -1119,6 +1119,33 @@ export const foxtelanalogue: TimelineProvider = {
           to: 2007,
         },
       ],
+      "53": [
+        {
+          channel_genre: "FTA",
+          channel_name: "Prime Television (Gold Coast Only)",
+          channel_notes: "Gold Coast Cable only",
+          from: "2000.12",
+          to: 2007,
+        },
+      ],
+      "54": [
+        {
+          channel_genre: "FTA",
+          channel_name: "NBN Television (Gold Coast Only)",
+          channel_notes: "Gold Coast Cable only",
+          from: "2000.12",
+          to: 2007,
+        },
+      ],
+      "55": [
+        {
+          channel_genre: "FTA",
+          channel_name: "Ten Northern NSW (Gold Coast Only)",
+          channel_notes: "Gold Coast Cable only",
+          from: "2000.12",
+          to: 2007,
+        },
+      ],
     },
     description: "Timeline of channel changes from 1995 to 2007",
     events: [

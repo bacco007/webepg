@@ -228,8 +228,8 @@ export default function TVGuideTicker() {
       <div className="container mx-auto px-4 py-8">
         <div className="relative w-full overflow-hidden">
           {/* Gradient overlays for smooth edges */}
-          <div className="absolute top-0 bottom-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent" />
-          <div className="absolute top-0 right-0 bottom-0 z-10 w-16 bg-gradient-to-l from-background to-transparent" />
+          <div className="absolute top-0 bottom-0 left-0 z-10 w-16 bg-linear-to-r from-background to-transparent" />
+          <div className="absolute top-0 right-0 bottom-0 z-10 w-16 bg-linear-to-l from-background to-transparent" />
 
           <div className="overflow-hidden">
             <div

@@ -309,7 +309,7 @@ export const austar: TimelineProvider = {
         {
           channel_genre: "Kids",
           channel_name: "The Disney Channel",
-          from: 2001,
+          from: 1999,
           to: 2007,
         },
       ],
@@ -355,9 +355,15 @@ export const austar: TimelineProvider = {
           to: 2001,
         },
         {
+          channel_genre: "Sports",
+          channel_name: "C7 Sport Blue",
+          from: 2001,
+          to: 2002.4,
+        },
+        {
           channel_genre: "Shopping",
           channel_name: "Expo",
-          from: 2001,
+          from: 2002.4,
           to: 2007,
         },
       ],
@@ -402,7 +408,7 @@ export const austar: TimelineProvider = {
         },
         {
           channel_genre: "News",
-          channel_name: "BBC World",
+          channel_name: "Weather 21",
           from: 1998,
           to: 1999,
         },
@@ -466,7 +472,7 @@ export const austar: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "C7 Sport",
+          channel_name: "C7 Sport Gold",
           from: 2001,
           to: 2002.4,
         },
@@ -512,6 +518,12 @@ export const austar: TimelineProvider = {
         },
       ],
       "26": [
+        {
+          channel_genre: "News",
+          channel_name: "BBC World",
+          from: 1998,
+          to: 1999,
+        },
         {
           channel_genre: "News",
           channel_name: "CNN International",
@@ -742,11 +754,25 @@ export const austar: TimelineProvider = {
           to: 2007,
         },
       ],
+      "49": [
+        {
+          channel_genre: "FTA",
+          channel_name: "iTV64 (Darwin Only)",
+          from: 2001,
+          to: 2007,
+        },
+      ],
       "50": [
         {
           channel_genre: "Sports",
           channel_name: "Fox Footy Channel (Qld)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Fox Footy Extra (Qld)",
+          from: 2003,
           to: 2007,
         },
       ],
@@ -756,14 +782,26 @@ export const austar: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Footy Channel (NSW)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Fox Footy Extra (NSW)",
+          from: 2003,
           to: 2007,
         },
       ],
       "52": [
         {
           channel_genre: "Sports",
-          channel_name: "Fox Footy Channel (Vic/Tas)(SA/NT)",
+          channel_name: "Fox Footy Channel (Vic/Tas)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Fox Footy Extra (Vic/Tas)",
+          from: 2003,
           to: 2007,
         },
       ],
@@ -772,6 +810,44 @@ export const austar: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Footy Channel (SA/NT)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Fox Footy Extra (SA/NT)",
+          from: 2003,
+          to: 2007,
+        },
+      ],
+      "54": [
+        {
+          channel_genre: "Sports",
+          channel_name: "Fox Footy Channel",
+          from: 2003,
+          to: 2007,
+        },
+      ],
+      "90": [
+        {
+          channel_genre: "FTA",
+          channel_name: "SBS (Darwin Only)",
+          from: 2001,
+          to: 2007,
+        },
+      ],
+      "97": [
+        {
+          channel_genre: "FTA",
+          channel_name: "Seven Darwin (Darwin Only)",
+          from: 2001,
+          to: 2007,
+        },
+      ],
+      "98": [
+        {
+          channel_genre: "FTA",
+          channel_name: "Nine Darwin (Darwin Only)",
+          from: 2001,
           to: 2007,
         },
       ],

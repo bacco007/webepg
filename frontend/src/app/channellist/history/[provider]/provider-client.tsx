@@ -26,7 +26,7 @@ import {
 } from "@/components/timeline/TimelineSpacingSelector";
 import { TimelineUnified } from "@/components/timeline/TimelineUnified";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Collapsible,
@@ -51,6 +51,7 @@ import {
   getProvidersByCategory,
   timelineProviders,
 } from "@/lib/timeline-data";
+import { cn } from "@/lib/utils";
 
 // Helper: extract indicators from channel name
 const extractIndicators = (name: string): string[] => {
@@ -233,24 +234,27 @@ function ChannelHistorySidebar({
           onOpenChange={onYearRangeOpenChange}
           open={isYearRangeOpen}
         >
-          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-            <h4 className="font-semibold text-xs">Filter by Year Range</h4>
-            <div className="flex items-center gap-1">
-              <button
-                className="inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onYearRangeReset();
-                }}
-                type="button"
-              >
-                <RotateCcw className="h-3 w-3" />
-              </button>
+          <div className="flex w-full items-center gap-1">
+            <CollapsibleTrigger className="flex flex-1 items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+              <h4 className="font-semibold text-xs">Filter by Year Range</h4>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isYearRangeOpen ? "rotate-180" : ""}`}
               />
-            </div>
-          </CollapsibleTrigger>
+            </CollapsibleTrigger>
+            <button
+              className={cn(
+                buttonVariants({ size: "sm", variant: "ghost" }),
+                "inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                onYearRangeReset();
+              }}
+              type="button"
+            >
+              <RotateCcw className="h-3 w-3" />
+            </button>
+          </div>
           <CollapsibleContent className="pt-2">
             <div className="flex w-full max-w-md flex-col gap-2">
               <div className="flex items-center justify-between">
@@ -282,34 +286,37 @@ function ChannelHistorySidebar({
       {/* Network Filter */}
       {availableNetworks.size > 0 && (
         <Collapsible onOpenChange={onNetworksOpenChange} open={isNetworksOpen}>
-          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-            <h4 className="text-left font-semibold text-xs">
-              Filter by Network
-              <br />
-              {selectedNetworks.size > 0 && (
-                <span className="ml-2 font-normal text-muted-foreground">
-                  ({selectedNetworks.size} selected)
-                </span>
-              )}
-            </h4>
-            <div className="flex items-center gap-1">
-              {selectedNetworks.size > 0 && (
-                <button
-                  className="inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNetworksReset();
-                  }}
-                  type="button"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                </button>
-              )}
+          <div className="flex w-full items-center gap-1">
+            <CollapsibleTrigger className="flex flex-1 items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
+              <h4 className="text-left font-semibold text-xs">
+                Filter by Network
+                <br />
+                {selectedNetworks.size > 0 && (
+                  <span className="ml-2 font-normal text-muted-foreground">
+                    ({selectedNetworks.size} selected)
+                  </span>
+                )}
+              </h4>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isNetworksOpen ? "rotate-180" : ""}`}
               />
-            </div>
-          </CollapsibleTrigger>
+            </CollapsibleTrigger>
+            {selectedNetworks.size > 0 && (
+              <button
+                className={cn(
+                  buttonVariants({ size: "sm", variant: "ghost" }),
+                  "inline-flex h-6 cursor-pointer items-center justify-center rounded-md px-2 transition-colors hover:bg-accent hover:text-accent-foreground"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNetworksReset();
+                }}
+                type="button"
+              >
+                <RotateCcw className="h-3 w-3" />
+              </button>
+            )}
+          </div>
           <CollapsibleContent className="pt-2">
             <div className="grid grid-cols-2 gap-2">
               {Array.from(availableNetworks)

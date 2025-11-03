@@ -9,11 +9,7 @@
     "**/*.d.ts"
   ],
   "ignoreUnimported": [],
-  "ignoreUnused": [
-    "next",
-    "react",
-    "react-dom"
-  ],
+  "ignoreUnused": ["next", "react", "react-dom"],
   "ignoreUnresolved": [],
   "respectGitignore": true
 }

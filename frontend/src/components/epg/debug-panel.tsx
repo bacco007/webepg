@@ -35,7 +35,7 @@ export function DebugPanel({
     if (!channelIdCounts[id]) {
       channelIdCounts[id] = { count: 0, lcns: [] };
     }
-    channelIdCounts[id].count++;
+    channelIdCounts[id].count += 1;
     channelIdCounts[id].lcns.push(channel.channel.lcn);
   }
 
