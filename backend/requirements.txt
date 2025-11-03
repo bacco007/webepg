@@ -112,7 +112,7 @@ fastapi==0.120.0
     # via webepg-backend
 fastapi-cli==0.0.7
     # via webepg-backend
-filelock==3.15.4
+filelock==3.20.0
     # via
     #   virtualenv
     #   webepg-backend
