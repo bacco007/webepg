@@ -5,11 +5,11 @@ import { CalendarDays, Film, Globe, Loader2, Tv } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Channel } from "@/components/channel/types";
 import { Card } from "@/components/ui/card";
+import { SlidingNumber } from "@/components/ui/sliding-number";
 import { getCookie } from "@/lib/cookies";
 import { ErrorAlert } from "@/lib/error-handling";
 
 // Constants for better maintainability
-const ANIMATION_DURATION = 2000;
 const DEFAULT_DATA_SOURCE = "xmlepg_FTASYD";
 const DEFAULT_TIMEZONE = "UTC";
 const STAT_CARDS_CONFIG = [
@@ -42,12 +42,6 @@ type EPGStats = {
   sources: number;
 };
 
-type CountUpAnimationProps = {
-  end: number;
-  duration?: number;
-  className?: string;
-};
-
 type ApiResponse = {
   date_pulled: string;
   query: string;
@@ -75,59 +69,6 @@ type Source = {
     dark: string;
   };
 };
-
-function CountUpAnimation({
-  end,
-  duration = ANIMATION_DURATION,
-  className,
-}: CountUpAnimationProps) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    let startTime: number;
-    let animationFrame: number;
-    let isActive = true;
-
-    const animate = (timestamp: number) => {
-      if (!isActive) {
-        return;
-      }
-
-      if (!startTime) {
-        startTime = timestamp;
-      }
-
-      const progress = timestamp - startTime;
-      const percentage = Math.min(progress / duration, 1);
-      setCount(Math.floor(end * percentage));
-
-      if (percentage < 1 && isActive) {
-        animationFrame = requestAnimationFrame(animate);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(animate);
-
-    return () => {
-      isActive = false;
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-      }
-    };
-  }, [end, duration]);
-
-  return (
-    <motion.span
-      animate={{ opacity: 1, y: 0 }}
-      aria-live="polite"
-      className={className}
-      initial={{ opacity: 0, y: 20 }}
-      transition={{ duration: 0.5 }}
-    >
-      {count.toLocaleString()}
-    </motion.span>
-  );
-}
 
 // Helper function to validate API response
 function validateApiResponse(
@@ -291,7 +232,16 @@ export function EPGStats() {
                 <div>
                   <p className="text-lg text-muted-foreground">{stat.title}</p>
                   <p className="font-bold text-2xl">
-                    <CountUpAnimation end={stat.value} />
+                    <SlidingNumber
+                      inView
+                      number={stat.value}
+                      padStart
+                      transition={{
+                        damping: 20,
+                        mass: 0.8,
+                        stiffness: 200,
+                      }}
+                    />
                   </p>
                 </div>
                 <div className="w-fit rounded-full bg-primary/10 p-3">

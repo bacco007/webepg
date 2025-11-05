@@ -17,34 +17,38 @@ const DATE_SEGMENT_REGEX = /^\d{8}$/;
  * This allows automatic breadcrumb generation from any path
  */
 const segmentTitles: Record<string, string> = {
+  austar: "Austar",
   channel: "Weekly EPG",
-  // Top-level pages
   channellist: "Channels by Service",
+  ectv: "East Coast Television (ECTV)",
   epg: "Daily EPG",
-
-  // Channel list services
   fetch: "Fetch TV",
+  fetchtv: "Fetch TV",
   foxtel: "Foxtel",
-  foxtelanalogue: "Foxtel Analogue",
-  foxteldigital: "Foxtel Digital",
+  foxtelanalogue: "Foxtel (Analogue)",
+  foxteldigital: "Foxtel (Digital)",
+  freeview_metro: "Freeview (Metro)",
   "freeview-au": "Freeview (AU)",
   "freeview-nz": "Freeview (NZ)",
+  galaxy: "Galaxy",
   history: "Channel History",
   hubbl: "Hubbl",
   movies: "Upcoming Movies",
+  ncable: "Neighbourhood Cables",
   nownext: "Now & Next",
-
-  // Transmitter types
+  optus: "Optus (Tele)Vision",
+  optusitv: "Optus ITV",
   radio: "Radio",
-
-  // Sub-pages
   regionmap: "Region Map",
   settings: "Settings",
   skynz: "Sky (NZ)",
   sources: "Data Sources",
   sports: "Upcoming Sports Programming",
+  tarbs: "TARBS",
+  transact: "TransACT TransTV",
   transmitters: "Transmitter Site Locations",
   tv: "Television",
+  ubiworldtv: "Ubi World TV",
   vast: "VAST",
 
   // Dynamic segments (providers, dates, etc.) are handled separately

@@ -2,8 +2,17 @@
 
 import { ArrowRight, Calendar, History } from "lucide-react";
 import Link from "next/link";
-import { memo, Suspense, useMemo } from "react";
+import { memo, Suspense, useCallback, useMemo, useState } from "react";
+import {
+  SidebarContainer,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarLayout,
+  SidebarSearch,
+} from "@/components/layouts/sidebar-layout";
 import LoadingSpinner from "@/components/loading-spinner";
+import { FilterSection, ProgramPageErrorBoundary } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,7 +89,7 @@ const TimelineCard = memo(({ route }: { route: TimelineRoute }) => (
       <div
         className={cn(
           "absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100",
-          "bg-gradient-to-r from-primary/10 to-transparent"
+          "bg-linear-to-r from-primary/10 to-transparent"
         )}
       />
 
@@ -141,64 +150,250 @@ const TimelineCard = memo(({ route }: { route: TimelineRoute }) => (
 TimelineCard.displayName = "TimelineCard";
 
 function TimelineContent() {
-  // Get and sort timeline routes
-  const timelineRoutes = useMemo(() => {
+  const [filterText, setFilterText] = useState("");
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  // Get all timeline routes
+  const allTimelineRoutes = useMemo(() => {
     const routes = getTimelineRoutes();
     // Sort by badge first, then by title
     return routes.sort((a, b) => {
-      // First sort by badge (handle undefined badges)
       const badgeA = a.badge || "";
       const badgeB = b.badge || "";
       const badgeComparison = badgeA.localeCompare(badgeB);
       if (badgeComparison !== 0) {
         return badgeComparison;
       }
-      // If badges are the same, sort by title
       return a.title.localeCompare(b.title);
     });
   }, []);
 
-  return (
-    <div className="flex size-full flex-col">
-      <div className="flex-1 overflow-auto">
-        <div className="w-full p-4">
-          {/* Header Section */}
-          <div className="mb-8 text-center">
-            <div className="mb-4 flex items-center justify-center gap-2">
-              <Calendar className="h-8 w-8 text-primary" />
-              <h1 className="font-bold text-4xl">Channel History Timelines</h1>
-            </div>
-            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-              Explore historical channel lineup timelines showing how television
-              services evolved over time. Track channel changes, launches, and
-              transitions across different providers.
-            </p>
-          </div>
+  // Get unique countries and categories
+  const uniqueCountries = useMemo(() => {
+    const countries = new Set<string>();
+    for (const provider of Object.values(timelineProviders)) {
+      countries.add(provider.country);
+    }
+    return Array.from(countries).sort();
+  }, []);
 
-          {/* Timeline Grid */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {timelineRoutes.map((route) => (
-              <TimelineCard key={route.href} route={route} />
-            ))}
-          </div>
+  const uniqueCategories = useMemo(() => {
+    const categories = new Set<string>();
+    for (const provider of Object.values(timelineProviders)) {
+      categories.add(provider.category);
+    }
+    return Array.from(categories).sort();
+  }, []);
+
+  // Calculate counts for filter options
+  const countryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const country of uniqueCountries) {
+      counts[country] = allTimelineRoutes.filter((route) => {
+        // Text filter
+        const matchesText =
+          route.title.toLowerCase().includes(filterText.toLowerCase()) ||
+          route.description.toLowerCase().includes(filterText.toLowerCase());
+
+        // Get the provider for this route
+        const provider = Object.values(timelineProviders).find(
+          (p) => p.id === route.href.split("/").pop()
+        );
+
+        // Country filter
+        const matchesCountry = provider && provider.country === country;
+
+        // Category filter (if selected)
+        const matchesCategory =
+          selectedCategories.length === 0 ||
+          (provider && selectedCategories.includes(provider.category));
+
+        return matchesText && matchesCountry && matchesCategory;
+      }).length;
+    }
+    return counts;
+  }, [allTimelineRoutes, uniqueCountries, filterText, selectedCategories]);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const category of uniqueCategories) {
+      counts[category] = allTimelineRoutes.filter((route) => {
+        // Text filter
+        const matchesText =
+          route.title.toLowerCase().includes(filterText.toLowerCase()) ||
+          route.description.toLowerCase().includes(filterText.toLowerCase());
+
+        // Get the provider for this route
+        const provider = Object.values(timelineProviders).find(
+          (p) => p.id === route.href.split("/").pop()
+        );
+
+        // Category filter
+        const matchesCategory = provider && provider.category === category;
+
+        // Country filter (if selected)
+        const matchesCountry =
+          selectedCountries.length === 0 ||
+          (provider && selectedCountries.includes(provider.country));
+
+        return matchesText && matchesCategory && matchesCountry;
+      }).length;
+    }
+    return counts;
+  }, [allTimelineRoutes, uniqueCategories, filterText, selectedCountries]);
+
+  // Filter and sort routes
+  const filteredTimelineRoutes = useMemo(() => {
+    return allTimelineRoutes.filter((route) => {
+      // Text filter
+      const matchesText =
+        route.title.toLowerCase().includes(filterText.toLowerCase()) ||
+        route.description.toLowerCase().includes(filterText.toLowerCase());
+
+      // Country filter
+      const provider = Object.values(timelineProviders).find(
+        (p) => p.id === route.href.split("/").pop()
+      );
+      const matchesCountry =
+        selectedCountries.length === 0 ||
+        (provider && selectedCountries.includes(provider.country));
+
+      // Category filter
+      const matchesCategory =
+        selectedCategories.length === 0 ||
+        (provider && selectedCategories.includes(provider.category));
+
+      return matchesText && matchesCountry && matchesCategory;
+    });
+  }, [allTimelineRoutes, filterText, selectedCountries, selectedCategories]);
+
+  const handleCountryFilter = useCallback((country: string) => {
+    setSelectedCountries((previous) =>
+      previous.includes(country)
+        ? previous.filter((c) => c !== country)
+        : [...previous, country]
+    );
+  }, []);
+
+  const handleCategoryFilter = useCallback((category: string) => {
+    setSelectedCategories((previous) =>
+      previous.includes(category)
+        ? previous.filter((c) => c !== category)
+        : [...previous, category]
+    );
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilterText("");
+    setSelectedCountries([]);
+    setSelectedCategories([]);
+  }, []);
+
+  // Prepare sidebar content
+  const sidebar = (
+    <SidebarContainer>
+      <SidebarHeader>
+        <SidebarSearch
+          onValueChange={setFilterText}
+          placeholder="Search timelines..."
+          searchValue={filterText}
+        />
+      </SidebarHeader>
+      <SidebarContent>
+        <FilterSection
+          counts={countryCounts}
+          filters={selectedCountries}
+          onFilterChange={handleCountryFilter}
+          options={uniqueCountries}
+          title="Countries"
+        />
+        <FilterSection
+          counts={categoryCounts}
+          filters={selectedCategories}
+          onFilterChange={handleCategoryFilter}
+          options={uniqueCategories}
+          title="Categories"
+        />
+      </SidebarContent>
+      <SidebarFooter>
+        <Button
+          className="w-full text-xs"
+          onClick={clearFilters}
+          size="sm"
+          variant="outline"
+        >
+          Clear All Filters
+        </Button>
+        <div className="mt-2 text-center text-muted-foreground text-xs">
+          Showing {filteredTimelineRoutes.length} of {allTimelineRoutes.length}{" "}
+          timelines
         </div>
+      </SidebarFooter>
+    </SidebarContainer>
+  );
+
+  if (filteredTimelineRoutes.length === 0) {
+    return (
+      <SidebarLayout
+        contentClassName="overflow-auto"
+        sidebar={sidebar}
+        title="Channel History Timelines"
+      >
+        <div className="flex h-full flex-col items-center justify-center">
+          <div className="mb-4 max-w-md">
+            <div className="flex items-center">
+              <Calendar className="mr-2 h-6 w-6" />
+              <span className="font-bold">No Results</span>
+            </div>
+            <div className="mt-2 text-sm">
+              No timelines match your current filter. <br />
+              Try adjusting your search or clear the filter.
+            </div>
+          </div>
+          <Button aria-label="Clear All Filters" onClick={clearFilters}>
+            Clear All Filters
+          </Button>
+        </div>
+      </SidebarLayout>
+    );
+  }
+
+  return (
+    <SidebarLayout
+      contentClassName="overflow-auto"
+      sidebar={sidebar}
+      title="Channel History Timelines"
+    >
+      <div className="p-4 pb-4">
+        {/* Description */}
+        <div className="mb-6">
+          <p className="text-muted-foreground text-sm">
+            Explore historical channel lineup timelines showing how television
+            services evolved over time. Track channel changes, launches, and
+            transitions across different providers.
+          </p>
+        </div>
+        {/* Timeline Grid */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredTimelineRoutes.map((route) => (
+            <TimelineCard key={route.href} route={route} />
+          ))}
+        </div>
+        <div aria-hidden="true" className="h-24" /> {/* Spacer element */}
       </div>
-    </div>
+    </SidebarLayout>
   );
 }
 
 export default function TimelineIndexPageClient() {
   return (
-    <main className="flex h-screen flex-col overflow-hidden">
-      <Suspense
-        fallback={
-          <div className="flex h-full items-center justify-center">
-            <LoadingSpinner />
-          </div>
-        }
-      >
-        <TimelineContent />
-      </Suspense>
-    </main>
+    <div className="h-screen w-full overflow-hidden">
+      <ProgramPageErrorBoundary pageName="timeline">
+        <Suspense fallback={<LoadingSpinner />}>
+          <TimelineContent />
+        </Suspense>
+      </ProgramPageErrorBoundary>
+    </div>
   );
 }

@@ -28,7 +28,7 @@ export const galaxy: TimelineProvider = {
         {
           channel_genre: "Movies",
           channel_name: "Showtime",
-          from: 1995.1,
+          from: 1995.3,
           to: 1998.5,
         },
       ],
@@ -36,7 +36,7 @@ export const galaxy: TimelineProvider = {
         {
           channel_genre: "Movies",
           channel_name: "Encore",
-          from: 1995.1,
+          from: 1995.3,
           to: 1998.5,
         },
       ],
@@ -44,7 +44,7 @@ export const galaxy: TimelineProvider = {
         {
           channel_genre: "Entertainment",
           channel_name: "TV1",
-          from: 1995.1,
+          from: 1995.4,
           to: 1998.5,
         },
       ],
@@ -52,7 +52,7 @@ export const galaxy: TimelineProvider = {
         {
           channel_genre: "Entertainment",
           channel_name: "Arena",
-          from: 1995.1,
+          from: 1995.5,
           to: 1998.5,
         },
       ],
@@ -60,7 +60,7 @@ export const galaxy: TimelineProvider = {
         {
           channel_genre: "Music",
           channel_name: "Red",
-          from: 1995.1,
+          from: 1995.5,
           to: 1997.4,
         },
         {
@@ -72,9 +72,9 @@ export const galaxy: TimelineProvider = {
       ],
       "7": [
         {
-          channel_genre: "Kids",
-          channel_name: "Max",
-          from: 1995.1,
+          channel_genre: "Shared",
+          channel_name: "Max & Classic Max",
+          from: 1995.4,
           to: 1996,
         },
         {
@@ -88,7 +88,7 @@ export const galaxy: TimelineProvider = {
         {
           channel_genre: "Documentary",
           channel_name: "Quest",
-          from: 1995.1,
+          from: 1995.5,
           to: 1996,
         },
         {
@@ -99,6 +99,12 @@ export const galaxy: TimelineProvider = {
         },
       ],
       "9": [
+        {
+          channel_genre: "News",
+          channel_name: "ANBC Business News",
+          from: 1995.1,
+          to: 1996,
+        },
         {
           channel_genre: "News",
           channel_name: "CNBC Asia",
@@ -212,10 +218,16 @@ export const galaxy: TimelineProvider = {
     description: "Timeline of channel changes from 1995 to 1998",
     events: [
       {
-        label: "Galaxy Launches",
-        note: "Galaxy launches on 23rd October 1995",
+        label: "Galaxy Launches (MMDS Only)",
+        note: "Galaxy launches on 26th January 1995",
         type: "Launch",
         when: 1995.1,
+      },
+      {
+        label: "Galaxy Satellite Service Launches",
+        note: "Galaxy launches on 19th September 1995",
+        type: "Launch",
+        when: 1995.9,
       },
       {
         label: "Proposed Merger with Galaxy",

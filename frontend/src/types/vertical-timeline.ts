@@ -14,6 +14,13 @@ export type VerticalTimelineEventType =
   | "milestone"
   | "partnership"
   | "regulation"
+  | "anti-siphoning"
+  | "industry"
+  | "legal"
+  | "business"
+  | "super-league-war"
+  | "piracy"
+  | "subscribers"
   | "other";
 
 export type VerticalTimelineEvent = {
@@ -22,7 +29,7 @@ export type VerticalTimelineEvent = {
   title: string;
   description?: string;
   providers: string[]; // IDs of providers this event relates to
-  type: VerticalTimelineEventType;
+  event_type: VerticalTimelineEventType[]; // Array of event types
   tags?: string[]; // Additional custom tags
 };
 

@@ -55,6 +55,7 @@ import { optus } from "./timeline-providers/optus";
 import { optusitv } from "./timeline-providers/optusitv";
 import { tarbs } from "./timeline-providers/tarbs";
 import { transact } from "./timeline-providers/transact";
+import { ubiworldtv } from "./timeline-providers/ubiworldtv";
 
 // Export all providers
 export const timelineProviders: Record<string, TimelineProvider> = {
@@ -70,6 +71,7 @@ export const timelineProviders: Record<string, TimelineProvider> = {
   optusitv,
   tarbs,
   transact,
+  ubiworldtv,
 };
 
 // Helper function to get providers grouped by category

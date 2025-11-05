@@ -8,16 +8,17 @@ import type { TimelineProvider } from "./timeline-data";
 export type FormattedTimelineEvent = {
   date: string;
   description?: string;
+  event_type: string[];
   providers: string[];
   sortKey: number;
   tags?: string[];
   title: string;
-  type: string;
 };
 
 /**
  * Formats a year/decimal date into a readable string
- * @param date - Number like 1995.8 (August 1995) or 2001 (2001)
+ * @param date - Number like 1995.8 (August 1995), 1985.11 (November 1985), or 2001 (2001)
+ * Format: YYYY.M where M is the month number (1-12)
  */
 function formatDate(date: number | string): string {
   const numDate = typeof date === "string" ? Number.parseFloat(date) : date;
@@ -28,8 +29,34 @@ function formatDate(date: number | string): string {
     return year.toString();
   }
 
-  // Convert decimal to month (0.1 = Jan, 0.2 = Feb, etc.)
-  const month = Math.round(decimal * 10);
+  // Convert decimal to month number
+  // The decimal part represents the month number (1-12)
+  // For strings like "1985.11", parse the month directly from the string
+  // For numbers, infer from the decimal value
+  let month: number;
+
+  if (typeof date === "string") {
+    // Parse month from string (e.g., "1985.11" -> 11, "1995.8" -> 8, "1985.08" -> 8)
+    const parts = date.split(".");
+    const monthStr = parts[1];
+    if (monthStr) {
+      // Parse the month number from the string (handles "1", "8", "08", "11", etc.)
+      month = Number.parseInt(monthStr, 10);
+    } else {
+      month = Math.round(decimal * 10);
+    }
+  } else {
+    // For numeric input, determine if decimal represents single or double digit month
+    const decimalScaled = decimal * 100;
+    month =
+      decimalScaled >= 10 && decimalScaled <= 12
+        ? Math.round(decimalScaled)
+        : Math.round(decimal * 10);
+  }
+
+  // Ensure month is in valid range
+  month = Math.max(1, Math.min(12, month));
+
   const monthNames = [
     "January",
     "February",
@@ -50,9 +77,60 @@ function formatDate(date: number | string): string {
 
 /**
  * Converts a date to a sortable number
+ * Normalizes months to two-digit decimals (e.g., 1985.1 -> 1985.01, 1985.10 -> 1985.10)
+ * to ensure correct sorting (October before November, not before February)
  */
 function dateToSortKey(date: number | string): number {
-  return typeof date === "string" ? Number.parseFloat(date) : date;
+  if (typeof date === "string") {
+    const parts = date.split(".");
+    const year = Number.parseInt(parts[0] || "0", 10);
+    const monthStr = parts[1];
+
+    if (!monthStr) {
+      // No month specified, just the year
+      return year;
+    }
+
+    // Parse the month and normalize to two-digit decimal (01-12)
+    const month = Number.parseInt(monthStr, 10);
+    return year + month / 100;
+  }
+
+  // For numeric input, we need to extract year and month properly
+  // The challenge: JavaScript stores 1991.10 as 1991.1 (trailing zero dropped)
+  // So 1991.1 could mean January OR October
+  // Convention: If the numeric value has 2+ decimal digits that round to 10-12, it's Oct-Dec
+  // Otherwise, assume single-digit month (1-9)
+  const year = Math.floor(date);
+  const decimal = date - year;
+
+  // Calculate what month this decimal represents if treated as month/100
+  const monthFromDecimal100 = Math.round(decimal * 100);
+
+  // If decimal * 100 gives us exactly 10, 11, or 12, it's October-December
+  // We need to be careful: 0.1 * 100 = 10, but we want to distinguish this from actual 0.10
+  // The key is: if decimal * 100 is exactly 10-12 AND the original number had that precision,
+  // it's a double-digit month. Otherwise, treat as single-digit.
+
+  // For numbers like 1991.11 or 1991.12, monthFromDecimal100 will be 11 or 12
+  // For 1991.1, monthFromDecimal100 will be 10, but we need to check if it was originally 1991.10
+  // The way to check: if the decimal is >= 0.10 and <= 0.12, it's Oct-Dec
+  // If the decimal is 0.1-0.9, it's Jan-Sep
+
+  if (
+    decimal >= 0.1 &&
+    decimal <= 0.12 &&
+    monthFromDecimal100 >= 10 &&
+    monthFromDecimal100 <= 12
+  ) {
+    // This is October, November, or December
+    return year + monthFromDecimal100 / 100;
+  }
+
+  // Otherwise, treat as single-digit month (1-9)
+  // Multiply decimal by 10 to get the month number
+  const singleDigitMonth = Math.round(decimal * 10);
+  return year + singleDigitMonth / 100;
 }
 
 /**
@@ -60,12 +138,14 @@ function dateToSortKey(date: number | string): number {
  */
 export function formatVerticalTimelineEvents(
   eventCollection: VerticalTimelineEventCollection,
-  selectedProviderIds?: string[]
+  selectedProviderIds?: string[],
+  selectedEventTypes?: string[]
 ): FormattedTimelineEvent[] {
   const formattedEvents: FormattedTimelineEvent[] = [];
 
   for (const event of eventCollection.events) {
-    // Filter by selected providers if specified
+    // Filter by selected providers - only filter if selections have been made
+    // If array is empty or undefined, show all (don't filter)
     if (selectedProviderIds && selectedProviderIds.length > 0) {
       const hasMatchingProvider = event.providers.some((providerId) =>
         selectedProviderIds.includes(providerId)
@@ -75,19 +155,47 @@ export function formatVerticalTimelineEvents(
       }
     }
 
+    // Filter by selected event types - only filter if selections have been made
+    // If array is empty or undefined, show all (don't filter)
+    if (selectedEventTypes && selectedEventTypes.length > 0) {
+      const hasMatchingEventType = event.event_type.some((eventType) =>
+        selectedEventTypes.includes(eventType)
+      );
+      if (!hasMatchingEventType) {
+        continue;
+      }
+    }
+
     formattedEvents.push({
       date: formatDate(event.date),
       description: event.description,
+      event_type: event.event_type,
       providers: event.providers,
       sortKey: dateToSortKey(event.date),
       tags: event.tags,
       title: event.title,
-      type: event.type,
     });
   }
 
-  // Sort by date (newest first)
-  return formattedEvents.sort((a, b) => b.sortKey - a.sortKey);
+  // Sort by date (oldest first - chronological order)
+  return formattedEvents.sort((a, b) => a.sortKey - b.sortKey);
+}
+
+/**
+ * Get all unique event types from an event collection
+ */
+export function getEventTypesFromEvents(
+  eventCollection: VerticalTimelineEventCollection
+): string[] {
+  const eventTypeSet = new Set<string>();
+
+  for (const event of eventCollection.events) {
+    for (const eventType of event.event_type) {
+      eventTypeSet.add(eventType);
+    }
+  }
+
+  return Array.from(eventTypeSet).sort();
 }
 
 /**
@@ -140,10 +248,10 @@ export function extractTimelineEvents(
         eventMap.set(eventKey, {
           date: dateStr,
           description: event.note,
+          event_type: [event.type], // Convert single type to array
           providers: [providerId],
           sortKey,
           title: event.label,
-          type: event.type,
         });
       }
     }

@@ -58,7 +58,7 @@ export function ChannelCard({
   return (
     <div className="flex h-full flex-col rounded-md border bg-card shadow-sm">
       {/* Channel header */}
-      <div className="flex items-center justify-between border-b px-3 py-2">
+      <div className="flex items-center justify-between px-3 py-2">
         {channelData.channel.icon &&
           channelData.channel.icon.light !== "N/A" && (
             <div className="flex h-8 items-center">
@@ -148,7 +148,7 @@ export function ChannelCard({
       </div>
 
       {/* Card footer */}
-      <div className="mt-auto flex border-t px-2 py-2">
+      <div className="mt-auto flex px-2 py-2">
         <Button
           className="mr-2 flex-1"
           onClick={onNavigate}

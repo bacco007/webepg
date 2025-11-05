@@ -66,8 +66,8 @@ export function ChannelCard({ channel, xmltvDataSource }: ChannelCardProps) {
             {channel.channel_group &&
             channel.channel_group !== "N/A" &&
             channel.channel_group.toLowerCase() !== "unknown" ? (
-              <Badge className="bg-primary/10 font-semibold text-primary focus-visible:outline-none focus-visible:ring-primary/20 dark:bg-primary/10 dark:text-primary dark:focus-visible:ring-primary/40 [a&]:hover:bg-primary/5 dark:[a&]:hover:bg-primary/5">
-                <Building2Icon />
+              <Badge className="bg-primary/10 px-1.5 py-0.5 font-medium text-primary text-xs focus-visible:outline-none focus-visible:ring-primary/20 dark:bg-primary/10 dark:text-primary dark:focus-visible:ring-primary/40 [a&]:hover:bg-primary/5 dark:[a&]:hover:bg-primary/5">
+                <Building2Icon className="size-3" />
                 &nbsp; {channel.channel_group}
               </Badge>
             ) : (
@@ -80,8 +80,11 @@ export function ChannelCard({ channel, xmltvDataSource }: ChannelCardProps) {
             <div className="flex flex-wrap gap-2 pt-1 text-10px">
               {channel.other_data?.channel_specs &&
               channel.other_data.channel_specs !== "N/A" ? (
-                <Badge className="text-card-foreground/60" variant="outline">
-                  <RadioIcon />
+                <Badge
+                  className="px-1.5 py-0.5 text-card-foreground/60 text-xs"
+                  variant="outline"
+                >
+                  <RadioIcon className="size-3" />
                   &nbsp; {channel.other_data.channel_specs}
                 </Badge>
               ) : (
@@ -96,8 +99,11 @@ export function ChannelCard({ channel, xmltvDataSource }: ChannelCardProps) {
               {channel.other_data?.channel_type &&
               channel.other_data.channel_type !== "N/A" &&
               channel.other_data.channel_type !== "(none)" ? (
-                <Badge className="text-card-foreground/60" variant="outline">
-                  <GroupIcon />
+                <Badge
+                  className="px-1.5 py-0.5 text-card-foreground/60 text-card-foreground/60 text-xs"
+                  variant="outline"
+                >
+                  <GroupIcon className="size-3" />
                   &nbsp; {channel.other_data.channel_type}
                 </Badge>
               ) : (

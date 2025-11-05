@@ -76,6 +76,7 @@ export function ChannelCard({
               />
             </div>
           )}
+          <div className="py-0.5" />
           <div className="mt-2 font-semibold">
             Next Program: {channelData.nextProgram?.title || "N/A"}
           </div>
@@ -86,23 +87,24 @@ export function ChannelCard({
             ({channelData.nextProgram?.lengthstring || "N/A"})
           </div>
         </div>
+        <div className="py-0.5" />
       </CardContent>
       <CardFooter className="px-4 py-1 pt-0">
-        <div className="flex w-full gap-2">
+        <div className="flex w-full gap-3 py-0.5">
           <Button
-            className="flex-1"
+            className="flex-1 px-1.5 py-0.5 text-xs"
             onClick={onNavigateToNext24Hours}
             variant="secondary"
           >
-            <Clock className="mr-2 size-4" />
+            <Clock className="mr-2 size-3" />
             Next 24hrs
           </Button>
           <Button
-            className="flex-1"
+            className="flex-1 px-1.5 py-0.5 text-xs"
             onClick={() => onNavigateToFullWeek(channelData.channel.slug)}
             variant="outline"
           >
-            <Clock className="mr-2 size-4" />
+            <Clock className="mr-2 size-3" />
             Full Week
           </Button>
         </div>
