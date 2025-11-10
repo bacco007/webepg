@@ -100,7 +100,7 @@ pydantic==2.12.3
     #   fastapi
     #   fastapi-cloud-cli
     #   pydantic-settings
-pydantic-core==2.41.4
+pydantic-core==2.41.5
     # via pydantic
 pydantic-settings==2.11.0
     # via webepg-backend
