@@ -471,7 +471,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Kids",
-          channel_name: "Cartoon Network",
+          channel_name: "ABC Kids / Fly TV",
           from: 2001.7,
           to: 2002.12,
         },
@@ -510,16 +510,16 @@ export const optus: TimelineProvider = {
           channel_genre: "Music",
           channel_name: "MusicCountry",
           from: 2000,
-          to: 2001.12,
+          to: 2001.7,
         },
-        { channel_genre: "Music", channel_name: "MTV", from: 2001.12 },
+        { channel_genre: "Music", channel_name: "MTV", from: 2001.7 },
       ],
       "23": [
         {
           channel_genre: "Music",
           channel_name: "ARC Music Television",
           from: 1996.8,
-          to: 1997,
+          to: 1998,
         },
         {
           channel_genre: "News",
@@ -580,13 +580,13 @@ export const optus: TimelineProvider = {
         {
           channel_genre: "Shopping",
           channel_name: "The Value Channel",
-          from: 1996,
-          to: 1996,
+          from: 1995.12,
+          to: 1996.6,
         },
         {
           channel_genre: "Shopping",
           channel_name: "TVSN",
-          from: 1996,
+          from: 1996.6,
           to: 1999,
         },
         {
@@ -762,12 +762,6 @@ export const optus: TimelineProvider = {
         {
           channel_genre: "Kids",
           channel_name: "Cartoon Network",
-          from: 2001,
-          to: 2001.7,
-        },
-        {
-          channel_genre: "News",
-          channel_name: "WeatherVision",
           from: 2001.7,
           to: 2002.12,
         },
@@ -787,12 +781,6 @@ export const optus: TimelineProvider = {
         {
           channel_genre: "News",
           channel_name: "Optus Weather",
-          from: 2001,
-          to: 2001.7,
-        },
-        {
-          channel_genre: "Extra",
-          channel_name: "Video Wall",
           from: 2001.7,
           to: 2002.12,
         },
@@ -823,7 +811,7 @@ export const optus: TimelineProvider = {
           channel_genre: "FTA",
           channel_name: "ABC Kids/Fly TV",
           from: 2002.12,
-          to: 2004,
+          to: 2003.7,
         },
         {
           channel_genre: "Kids",
@@ -871,7 +859,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "Phoenix News",
+          channel_name: "Phoenix InfoNews Channel",
           from: 2001.7,
           to: 2002.12,
         },
@@ -1073,8 +1061,8 @@ export const optus: TimelineProvider = {
         {
           channel_genre: "Extra",
           channel_name: "LocalVision",
-          from: 1996,
-          to: 2001.7,
+          from: 1997,
+          to: 1998,
         },
         {
           channel_genre: "International",

@@ -130,3 +130,49 @@ function formatTimeRemaining(endTime: Date, now: Date): string {
   const minutes = remainingMinutes % 60;
   return `${hours} hour${hours === 1 ? "" : "s"} and ${minutes} minute${minutes === 1 ? "" : "s"} remaining`;
 }
+
+/**
+ * Format program length as "{X} Hr {X} Min" (e.g., "2 Hr 0 Min")
+ * @param startTime - The program's start time as ISO string
+ * @param endTime - The program's end time as ISO string
+ * @returns Formatted time string
+ */
+export function formatProgramLength(
+  startTime: string,
+  endTime: string
+): string {
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+
+  const totalMinutes = Math.floor(differenceInMinutes(end, start));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours > 0) {
+    return `${hours} Hr ${minutes} Min`;
+  }
+  return `${minutes} Min`;
+}
+
+/**
+ * Format remaining time as "{X} Hr {X} Min remaining" (e.g., "2 Hr 0 Min remaining")
+ * @param endTime - The program's end time as ISO string
+ * @returns Formatted time string or empty string if program has ended
+ */
+export function formatTimeRemainingAsTime(endTime: string): string {
+  const now = new Date();
+  const end = new Date(endTime);
+
+  if (now >= end) {
+    return "";
+  }
+
+  const remainingMinutes = Math.floor(differenceInMinutes(end, now));
+  const hours = Math.floor(remainingMinutes / 60);
+  const minutes = remainingMinutes % 60;
+
+  if (hours > 0) {
+    return `${hours} Hr ${minutes} Min remaining`;
+  }
+  return `${minutes} Min remaining`;
+}

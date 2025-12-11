@@ -663,8 +663,14 @@ export const foxtelanalogue: TimelineProvider = {
       "30": [
         {
           channel_genre: "Shopping",
-          channel_name: "TVSN",
+          channel_name: "The Value Channel",
           from: 1995.12,
+          to: 1996.6,
+        },
+        {
+          channel_genre: "Shopping",
+          channel_name: "TVSN",
+          from: 1996.6,
           to: 1997.9,
         },
         {

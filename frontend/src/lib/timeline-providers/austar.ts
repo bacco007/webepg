@@ -175,8 +175,14 @@ export const austar: TimelineProvider = {
       "10": [
         {
           channel_genre: "Shopping",
+          channel_name: "The Value Channel",
+          from: 1995.12,
+          to: 1996.6,
+        },
+        {
+          channel_genre: "Shopping",
           channel_name: "TVSN",
-          from: 1995.8,
+          from: 1996.6,
           to: 1998,
         },
         {
@@ -269,8 +275,8 @@ export const austar: TimelineProvider = {
         {
           channel_genre: "FTA",
           channel_name: "ABC Kids/Fly TV",
-          from: 2001,
-          to: 2002,
+          from: 2001.11,
+          to: 2003.7,
         },
       ],
       "15": [

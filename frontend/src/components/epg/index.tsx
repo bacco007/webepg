@@ -813,35 +813,33 @@ export function TVGuide({
         className={`relative min-h-0 flex-1 overflow-hidden rounded-md border bg-background ${hideDateHeader ? "" : ""}`}
         style={{ width: isMobile ? "100%" : "calc(100%)" }}
       >
-        {processedChannels.length > 0 ? (
-          viewMode === "grid" ? (
-            <GridView
-              actualRowHeight={actualRowHeight}
-              currentTime={currentTime}
-              data={data}
-              dataSource={dataSource}
-              date={date}
-              displayNameType={displayNameType}
-              handleProgramSelect={handleProgramSelect}
-              hourWidth={hourWidth}
-              isMobile={isMobile}
-              processedChannels={processedChannels}
-              rowHeight={rowHeight}
-              scrollContainerRef={scrollContainerRef}
-              timelineRef={timelineRef}
-            />
-          ) : (
-            <ListView
-              channels={processedChannels}
-              className={hideDateHeader ? "h-full" : "h-[calc(100vh-230px)]"}
-              currentTime={currentTime}
-              dataSource={dataSource}
-              displayNameType={displayNameType}
-              onProgramSelect={handleProgramSelect}
-            />
-          )
-        ) : (
-          <NoChannelsFound />
+        {processedChannels.length === 0 && <NoChannelsFound />}
+        {processedChannels.length > 0 && viewMode === "grid" && (
+          <GridView
+            actualRowHeight={actualRowHeight}
+            currentTime={currentTime}
+            data={data}
+            dataSource={dataSource}
+            date={date}
+            displayNameType={displayNameType}
+            handleProgramSelect={handleProgramSelect}
+            hourWidth={hourWidth}
+            isMobile={isMobile}
+            processedChannels={processedChannels}
+            rowHeight={rowHeight}
+            scrollContainerRef={scrollContainerRef}
+            timelineRef={timelineRef}
+          />
+        )}
+        {processedChannels.length > 0 && viewMode !== "grid" && (
+          <ListView
+            channels={processedChannels}
+            className={hideDateHeader ? "h-full" : "h-[calc(100vh-230px)]"}
+            currentTime={currentTime}
+            dataSource={dataSource}
+            displayNameType={displayNameType}
+            onProgramSelect={handleProgramSelect}
+          />
         )}
       </div>
 

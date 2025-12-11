@@ -57,7 +57,34 @@ export const handleError = (error: unknown): string => {
 };
 
 // Error boundary component
-export function ErrorBoundary({ children }: { children: React.ReactNode }) {
+type ErrorBoundaryProps = {
+  children: React.ReactNode;
+  source?: string;
+  onError?: (error: Error) => void;
+};
+
+function storeErrorDetails(error: Error, source?: string) {
+  try {
+    const entry = {
+      message: error.message,
+      name: error.name,
+      source: source ?? "unknown",
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+    };
+
+    const key = `error-log-${entry.timestamp}`;
+    sessionStorage.setItem(key, JSON.stringify(entry));
+  } catch {
+    // Ignore storage errors; we don't want error logging to throw
+  }
+}
+
+export function ErrorBoundary({
+  children,
+  source,
+  onError,
+}: ErrorBoundaryProps) {
   const [hasError, setHasError] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -91,6 +118,11 @@ export function ErrorBoundary({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (hasError) {
+    if (error) {
+      onError?.(error);
+      storeErrorDetails(error, source);
+    }
+
     return (
       <ErrorAlert
         message={error?.message || "Something went wrong"}

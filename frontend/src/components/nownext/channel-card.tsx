@@ -12,7 +12,9 @@ import type { ChannelData } from "@/lib/nownext-types";
 import {
   calculateProgress,
   decodeChannelName,
+  formatProgramLength,
   formatTime,
+  formatTimeRemainingAsTime,
   isChannelGreyedOut,
 } from "@/utils/nownext";
 
@@ -27,6 +29,27 @@ export function ChannelCard({
   onNavigateToNext24Hours,
   onNavigateToFullWeek,
 }: ChannelCardProps) {
+  const programLength = channelData.currentProgram
+    ? formatProgramLength(
+        channelData.currentProgram.start,
+        channelData.currentProgram.stop
+      )
+    : "";
+  const remainingTime = channelData.currentProgram
+    ? formatTimeRemainingAsTime(channelData.currentProgram.stop)
+    : "";
+
+  const currentProgramTimeDisplay = channelData.currentProgram
+    ? (() => {
+        const timeRange = `${formatTime(channelData.currentProgram.start)} - ${formatTime(channelData.currentProgram.stop)}`;
+        let timeInfoPart = "";
+        if (remainingTime) {
+          timeInfoPart = `, ${remainingTime}`;
+        }
+        return `${timeRange} (${programLength}${timeInfoPart})`;
+      })()
+    : "";
+
   return (
     <Card
       className={`flex flex-col bg-card p-0 ${isChannelGreyedOut(channelData) ? "bg-muted grayscale" : ""}`}
@@ -61,10 +84,7 @@ export function ChannelCard({
             Current Program: {channelData.currentProgram?.title || "N/A"}
           </div>
           <div className="text-card-foreground/60">
-            {channelData.currentProgram
-              ? `${formatTime(channelData.currentProgram.start)} - ${formatTime(channelData.currentProgram.stop)}`
-              : ""}{" "}
-            ({channelData.currentProgram?.lengthstring || "N/A"})
+            {currentProgramTimeDisplay}
           </div>
           {channelData.currentProgram && (
             <div className="mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700">

@@ -26,3 +26,4 @@ alwaysApply: true
 - skip linter issues relating to css ordering, I'll fix that
 - Dont try to start the server, assume its running on port 3000 already
 - Don't run tests yourself, you stop the server when you do this
+- Don't change code in components/ui - it is ShadCN supplied

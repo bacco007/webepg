@@ -70,14 +70,14 @@ export default async function RootLayout({
                   defaultOpen={defaultOpen}
                 >
                   <Sidebar />
-                  <div className="flex h-screen w-full overflow-hidden">
-                    <SidebarInset className="flex h-screen w-full overflow-hidden">
+                  <div className="flex h-screen flex-1 overflow-hidden">
+                    <SidebarInset className="flex h-screen flex-1 overflow-hidden">
                       <div className="h-svh w-full overflow-hidden lg:p-2">
                         <div className="flex h-full w-full flex-col justify-start overflow-hidden bg-container lg:rounded-md lg:border">
                           <Header />
                           <main
                             aria-label="Main content"
-                            className="main-content flex size-full h-[calc(100vh)] flex-col overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-background lg:h-[calc(100svh)]"
+                            className="main-content flex h-[calc(100vh)] flex-col overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-background lg:h-[calc(100svh)]"
                             id="main-content"
                           >
                             {children}

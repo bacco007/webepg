@@ -21,13 +21,13 @@ export default function Sidebar() {
       collapsible="icon"
       variant="inset"
     >
-      <ErrorBoundary source="SidebarHeader">
+      <ErrorBoundary>
         <MemoizedSidebarHeader />
       </ErrorBoundary>
-      <ErrorBoundary source="SidebarContent">
+      <ErrorBoundary>
         <MemoizedSidebarContent />
       </ErrorBoundary>
-      <ErrorBoundary source="SidebarFooter">
+      <ErrorBoundary>
         <MemoizedSidebarFooter />
       </ErrorBoundary>
       <SidebarRail />

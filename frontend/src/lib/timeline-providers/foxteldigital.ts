@@ -362,6 +362,11 @@ export const foxteldigital: TimelineProvider = {
           from: 2024.8,
           to: 2025.8,
         },
+        {
+          channel_genre: "Popup",
+          channel_name: "Popup Channel",
+          from: 2025.8,
+        },
       ],
       "116": [
         {
@@ -724,6 +729,12 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "LifeStyle Food",
           from: 2014.11,
+          to: 2020.11,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "More Lifestyle",
+          from: "2025.11",
         },
       ],
       "128": [
@@ -734,8 +745,8 @@ export const foxteldigital: TimelineProvider = {
           to: 2020.11,
         },
         {
-          channel_genre: "Entertainment",
-          channel_name: "Popup Channel",
+          channel_genre: "Popup",
+          channel_name: "Popup Channel HD",
           from: 2024.3,
         },
       ],
@@ -771,17 +782,9 @@ export const foxteldigital: TimelineProvider = {
           to: 2023.3,
         },
         {
-          channel_genre: "Entertainment",
-          channel_name: "Travel",
-          channel_notes: "Popup Channel",
+          channel_genre: "Popup",
+          channel_name: "Popup Channel HD",
           from: 2024.8,
-          to: 2024.11,
-        },
-        {
-          channel_genre: "Entertainment",
-          channel_name: "More Comedy",
-          channel_notes: "Popup Channel",
-          from: 2025.8,
         },
       ],
       "130": [
@@ -1005,6 +1008,11 @@ export const foxteldigital: TimelineProvider = {
           from: "2020.11",
           to: 2023.3,
         },
+        {
+          channel_genre: "Documentary",
+          channel_name: "More Docos",
+          from: "2025.11",
+        },
       ],
       "141": [
         {
@@ -1052,12 +1060,37 @@ export const foxteldigital: TimelineProvider = {
           from: 2022.12,
           to: 2024.12,
         },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "More Comedy",
+          from: "2025.11",
+        },
+      ],
+      "145": [
+        {
+          channel_genre: "Entertainment",
+          channel_name: "More Drama",
+          from: "2025.11",
+        },
       ],
       "146": [
         {
           channel_genre: "Movies",
           channel_name: "Foxtel Box Office Movies Preview",
           from: "2014.11",
+          to: 2020.11,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "More British",
+          from: "2025.11",
+        },
+      ],
+      "147": [
+        {
+          channel_genre: "Entertainment",
+          channel_name: "More Classics",
+          from: "2025.11",
         },
       ],
       "149": [
@@ -3520,6 +3553,13 @@ export const foxteldigital: TimelineProvider = {
           from: "2020.11",
         },
       ],
+      "424": [
+        {
+          channel_genre: "Movies",
+          channel_name: "More Movies",
+          from: "2025.11",
+        },
+      ],
       "428": [
         {
           channel_genre: "Movies",
@@ -3869,7 +3909,7 @@ export const foxteldigital: TimelineProvider = {
         {
           channel_genre: "Interactive",
           channel_name: "Sports Selector",
-          from: "2007.10",
+          from: "2006.10",
           to: 2009.1,
         },
         {
@@ -4820,7 +4860,17 @@ export const foxteldigital: TimelineProvider = {
           from: 2009.11,
           to: "2020.11",
         },
-        { channel_genre: "News", channel_name: "MSNBC", from: "2023.4" },
+        {
+          channel_genre: "News",
+          channel_name: "MSNBC",
+          from: "2023.4",
+          to: 2025.11,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "MS NOW",
+          from: 2025.11,
+        },
       ],
       "613": [
         {
@@ -6746,14 +6796,82 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "ABC DiG",
           from: 2004.3,
-          to: 2007,
+          to: 2006,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "ABC NewsRadio (Satellite Only)",
+          from: 2006,
+          to: 2019,
+        },
+      ],
+      "876": [
+        {
+          channel_genre: "Radio",
+          channel_name: "ABC Parliamentary News Network (Satellite Only)",
+          from: 2006,
+          to: 2019,
+        },
+      ],
+      "877": [
+        {
+          channel_genre: "Radio",
+          channel_name: "ABC Radio National (Satellite Only)",
+          from: 2006,
+          to: 2019,
+        },
+      ],
+      "878": [
+        {
+          channel_genre: "Radio",
+          channel_name: "ABC Metro Radio (Satellite Only)",
+          channel_notes:
+            "NSW: ABC 702 Sydney, QLD: ABC 612 Brisbane, VIC: ABC 774 Melbourne, SA: ABC 891 Adelaide, WA: ABC 720 Perth",
+          from: 2006,
+          to: 2019,
+        },
+      ],
+      "879": [
+        {
+          channel_genre: "Radio",
+          channel_name: "ABC Local Radio (Satellite Only)",
+          channel_notes:
+            "NSW: ABC Western Plains (Dubbo), QLD: ABC Local Radio, VIC: ABC Local Radio, SA: ABC Local Radio, WA: ABC Kimberley (Broome)",
+          from: 2006,
+          to: 2019,
+        },
+      ],
+      "880": [
+        {
+          channel_genre: "Radio",
+          channel_name: "ABC Local Radio (Satellite Only)",
+          channel_notes: "WA: ABC Goldfields Esperance (Kalgoorlie)",
+          from: 2006,
+          to: 2019,
+        },
+      ],
+      "882": [
+        {
+          channel_genre: "Radio",
+          channel_name: "ABC Classic FM (Satellite Only)",
+          channel_notes: "State Editions",
+          from: 2006,
+          to: 2019,
+        },
+      ],
+      "883": [
+        {
+          channel_genre: "Radio",
+          channel_name: "ABC Triple J (Satellite Only)",
+          from: 2006,
+          to: 2019,
         },
       ],
       "884": [
         {
           channel_genre: "Radio",
           channel_name: "ABC DiG",
-          from: 2007,
+          from: 2006,
         },
       ],
       "885": [
@@ -6908,7 +7026,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "918": [
@@ -6916,7 +7034,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "919": [
@@ -6924,7 +7042,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "920": [
@@ -6932,7 +7050,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "921": [
@@ -6940,7 +7058,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "922": [
@@ -6948,7 +7066,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "923": [
@@ -6956,7 +7074,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "924": [
@@ -6964,7 +7082,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "925": [
@@ -6972,7 +7090,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "926": [
@@ -6980,7 +7098,7 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "PPV",
           channel_name: "Foxtel Box Office",
           from: 2006,
-          to: "2017.10",
+          to: "2011",
         },
       ],
       "940": [

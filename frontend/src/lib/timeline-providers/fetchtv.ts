@@ -84,6 +84,7 @@ export const fetchtv: TimelineProvider = {
           channel_genre: "Information",
           channel_name: "Free to Watch",
           from: 2024.5,
+          to: 2025.11,
         },
       ],
       "104": [
@@ -383,6 +384,11 @@ export const fetchtv: TimelineProvider = {
           channel_name: "Garage",
           from: 2017.2,
           to: 2018.3,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "XXtreme Jobs (Virtual Playlist)",
+          from: 2025.11,
         },
       ],
       "121": [
@@ -925,6 +931,12 @@ export const fetchtv: TimelineProvider = {
           channel_genre: "News",
           channel_name: "MSNBC HD",
           from: 2019.11,
+          to: 2025.11,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "MS NOW HD",
+          from: 2025.11,
         },
       ],
       "172": [

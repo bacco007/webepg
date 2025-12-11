@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -206,7 +206,7 @@
         "noUnresolvedImports": "off",
         "noImportCycles": "off",
         //"useImageSize": "off",
-        "useMaxParams": "off"
+        "useMaxParams": "off",
         //"noNoninteractiveElementInteractions": "off",
         //"useIndexOf": "error",
         //"noImportantStyles": "off",
@@ -227,6 +227,7 @@
         //"noTsIgnore": "error",
         //"noUselessEscapeInString": "error"
         //"useIterableCallbackReturn": "error"
+        "noLeakedRender": "off"
       },
       "performance": {
         "noAccumulatingSpread": "error",
