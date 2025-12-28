@@ -3,7 +3,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import type { ChannelData } from "@/lib/nownext-types";
 import { isChannelGreyedOut } from "@/utils/nownext";
 
-type UseNowNextFiltersReturn = {
+interface UseNowNextFiltersReturn {
   // State
   searchTerm: string;
   selectedGroups: string[];
@@ -24,7 +24,7 @@ type UseNowNextFiltersReturn = {
   // Actions
   handleGroupFilter: (group: string) => void;
   clearFilters: () => void;
-};
+}
 
 export function useNowNextFilters(
   channels: ChannelData[]

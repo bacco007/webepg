@@ -10,9 +10,9 @@ import type { ChannelData, Program } from "@/lib/nownext-types";
 import { calculateProgress, formatTime, getTimeDisplay } from "@/utils/nownext";
 import { ChannelDetails } from "../channel-details";
 
-type MobileViewProps = {
+interface MobileViewProps {
   filteredChannels: ChannelData[];
-};
+}
 
 function ChannelIconButton({ channelData }: { channelData: ChannelData }) {
   return (

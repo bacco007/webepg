@@ -9,12 +9,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import type { Channel } from "./types";
 
-type DebugPanelProps = {
+interface DebugPanelProps {
   rawChannels: Channel[];
   processedChannels: Channel[];
   onToggleDeduplication: (strategy: string) => void;
   currentStrategy: string;
-};
+}
 
 export function DebugPanel({
   rawChannels,

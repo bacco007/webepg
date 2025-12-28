@@ -15,11 +15,11 @@ import { cn } from "@/lib/utils";
 
 export type TimelineSpacingMode = "standard" | "half" | "fill";
 
-type TimelineSpacingSelectorProps = {
+interface TimelineSpacingSelectorProps {
   value: TimelineSpacingMode;
   onChange: (mode: TimelineSpacingMode) => void;
   className?: string;
-};
+}
 
 export function TimelineSpacingSelector({
   value,

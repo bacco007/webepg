@@ -34,34 +34,6 @@ import {
 } from "@/lib/date-utils";
 import { getCookie, setCookie } from "../../../lib/cookies";
 
-// Types for the data structures
-type ChannelName = {
-  clean?: string;
-  real?: string;
-  location?: string;
-};
-
-type Channel = {
-  id: string;
-  lcn: string | number | null;
-  name: ChannelName;
-};
-
-type Program = {
-  categories?: string[];
-};
-
-type ChannelData = {
-  channel: Channel;
-  programs: Program[];
-};
-
-type TVGuideDatePageProps = {
-  params: Promise<{
-    date: string;
-  }>;
-};
-
 // Validate date format (YYYYMMDD)
 const isValidDateFormat = (dateStr: string): boolean => {
   if (!dateStr || dateStr.length !== 8) {
@@ -94,7 +66,20 @@ const isValidDateFormat = (dateStr: string): boolean => {
 
 // Helper function to extract categories from programs
 const extractCategoriesFromPrograms = (
-  channelData: ChannelData[]
+  channelData: Array<{
+    channel: {
+      id: string;
+      lcn: string | number | null;
+      name: {
+        clean?: string;
+        real?: string;
+        location?: string;
+      };
+    };
+    programs: Array<{
+      categories?: string[];
+    }>;
+  }>
 ): string[] => {
   const allCategoriesSet = new Set<string>();
 
@@ -113,19 +98,38 @@ const extractCategoriesFromPrograms = (
 
 // Helper function to create category counts
 const createCategoryCounts = (
-  channelData: ChannelData[],
+  channelData: Array<{
+    channel: {
+      id: string;
+      lcn: string | number | null;
+      name: {
+        clean?: string;
+        real?: string;
+        location?: string;
+      };
+    };
+    programs: Array<{
+      categories?: string[];
+    }>;
+  }>,
   categoryList: string[]
 ): Record<string, number> =>
   Object.fromEntries(
     categoryList.map((cat) => [
       cat,
-      channelData.filter((c: ChannelData) =>
-        c.programs.some((p: Program) => p.categories?.includes(cat))
+      channelData.filter((c) =>
+        c.programs.some((p) => p.categories?.includes(cat))
       ).length,
     ])
   );
 
-export default function EPGDateClient({ params }: TVGuideDatePageProps) {
+export default function EPGDateClient({
+  params,
+}: {
+  params: Promise<{
+    date: string;
+  }>;
+}) {
   const router = useRouter();
   const unwrappedParams = use(params);
   const { date } = unwrappedParams;
@@ -358,11 +362,26 @@ export default function EPGDateClient({ params }: TVGuideDatePageProps) {
         const result = await response.json();
 
         // Extract channel names and create counts
-        const channelData = result.channels.map((c: ChannelData) => ({
-          id: c.channel.id,
-          lcn: c.channel.lcn,
-          name: c.channel.name.clean,
-        }));
+        const channelData = result.channels.map(
+          (c: {
+            channel: {
+              id: string;
+              lcn: string | number | null;
+              name: {
+                clean?: string;
+                real?: string;
+                location?: string;
+              };
+            };
+            programs: Array<{
+              categories?: string[];
+            }>;
+          }) => ({
+            id: c.channel.id,
+            lcn: c.channel.lcn,
+            name: c.channel.name.clean,
+          })
+        );
 
         // Store channel names with ID and LCN for filtering
         const channelIdentifiers = channelData.map(

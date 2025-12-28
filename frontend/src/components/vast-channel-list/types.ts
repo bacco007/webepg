@@ -1,4 +1,4 @@
-export type ChannelData = {
+export interface ChannelData {
   channel_id: string;
   channel_slug: string;
   channel_name: string;
@@ -17,31 +17,31 @@ export type ChannelData = {
     channel_type?: string;
     channel_specs?: string;
   };
-};
+}
 
-export type ApiResponse = {
+export interface ApiResponse {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: ChannelData[];
   };
-};
+}
 
-export type ZoneConfig = {
+export interface ZoneConfig {
   name: string;
   states: {
     code: string;
     name: string;
   }[];
   color: string;
-};
+}
 
-export type MergedCell = {
+export interface MergedCell {
   startIndex: number;
   endIndex: number;
   channel: ChannelData | null; // Allow null for empty cells
-};
+}
 
 export const ZONES: ZoneConfig[] = [
   {
@@ -72,15 +72,15 @@ export const ZONES: ZoneConfig[] = [
 // Flatten all states into a single array for easier indexing
 export const ALL_STATES = ZONES.flatMap((zone) => zone.states);
 
-export type ChannelMap = {
+export interface ChannelMap {
   [network: string]: {
     [channelNumber: string]: {
       [stateCode: string]: ChannelData;
     };
   };
-};
+}
 
-export type FilterState = {
+export interface FilterState {
   globalFilter: string;
   selectedNetworks: string[];
   selectedChannelTypes: string[];
@@ -88,4 +88,4 @@ export type FilterState = {
   networkSearch: string;
   typeSearch: string;
   specsSearch: string;
-};
+}

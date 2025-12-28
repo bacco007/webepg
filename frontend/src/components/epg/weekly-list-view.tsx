@@ -20,7 +20,7 @@ import { decodeHtml } from "@/lib/html-utils";
 import { cn } from "@/lib/utils";
 
 // Extracted ProgramItem component
-type ProgramItemProps = {
+interface ProgramItemProps {
   program: Program;
   density: DensityOption;
   filteredCategory: string | null;
@@ -29,7 +29,7 @@ type ProgramItemProps = {
     hasEnded: boolean;
     isUpNext: boolean;
   };
-};
+}
 
 function ProgramItem({
   program,
@@ -204,7 +204,7 @@ function ProgramItem({
   );
 }
 
-type WeeklyListViewProps = {
+interface WeeklyListViewProps {
   days: Date[];
   selectedDay: number;
   setSelectedDay: (day: number) => void;
@@ -220,7 +220,7 @@ type WeeklyListViewProps = {
   filteredCategory: string | null;
   showPastPrograms: boolean;
   setShowPastPrograms: (show: boolean) => void;
-};
+}
 
 export function WeeklyListView({
   days,

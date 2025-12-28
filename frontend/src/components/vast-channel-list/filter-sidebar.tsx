@@ -17,7 +17,7 @@ import {
 } from "./channel-map-utils";
 import type { ChannelData } from "./types";
 
-type FilterSidebarProps = {
+interface FilterSidebarProps {
   channelData: Record<string, ChannelData[]>;
   networkGroups: string[];
   globalFilter: string;
@@ -37,7 +37,7 @@ type FilterSidebarProps = {
   onClearFilters: () => void;
   totalChannels: number;
   filteredChannels: number;
-};
+}
 
 export function FilterSidebar({
   channelData,

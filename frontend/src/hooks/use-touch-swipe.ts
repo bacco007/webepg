@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 
-type TouchSwipeOptions = {
+interface TouchSwipeOptions {
   onSwipe?: (direction: "left" | "right") => void;
   threshold?: number;
-};
+}
 
 export const useTouchSwipe = ({
   onSwipe,

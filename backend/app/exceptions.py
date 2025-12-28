@@ -145,3 +145,15 @@ class ConfigurationError(WebEPGException):
             error_type="ConfigurationError",
         )
 
+
+class UnauthorizedError(WebEPGException):
+    """Raised when API key authentication fails."""
+
+    def __init__(self, detail: str = "Invalid or missing API key") -> None:
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=detail,
+            error_code="UNAUTHORIZED",
+            error_type="UnauthorizedError",
+        )
+

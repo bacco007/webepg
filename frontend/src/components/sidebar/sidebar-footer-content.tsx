@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronsUpDown, Clock, Database, Settings } from "lucide-react";
+import Link from "next/link";
 
 import {
   DropdownMenu,
@@ -15,34 +16,40 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
-type SidebarFooterContentProps = {
+interface SidebarFooterContentProps {
   timezone?: string;
   xmltvdatasource?: string;
-};
+}
 
 export function SidebarFooterContent({
   timezone,
   xmltvdatasource,
 }: SidebarFooterContentProps) {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
   return (
     <SidebarFooterPrimitive>
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+              <SidebarMenuButton
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                tooltip={isCollapsed ? "Settings" : undefined}
+              >
                 <Settings />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  Settings
-                </div>
-                <ChevronsUpDown className="ml-auto size-4" />
+                {!isCollapsed && (
+                  <>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      Settings
+                    </div>
+                    <ChevronsUpDown className="ml-auto size-4" />
+                  </>
+                )}
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -53,29 +60,23 @@ export function SidebarFooterContent({
             >
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                  <a className="flex items-center gap-2" href="/settings">
+                  <Link className="flex items-center gap-2" href="/settings">
                     <Settings className="size-4" />
                     <span>Settings</span>
-                  </a>
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <DropdownMenuItem>
-                      <Database />
-                      <span>Data Source: {xmltvdatasource || "Not set"}</span>
-                    </DropdownMenuItem>
-                  </TooltipTrigger>
-                  <TooltipContent>Current EPG data source</TooltipContent>
-                </Tooltip>
-                <DropdownMenuItem>
-                  <Clock />
+                <DropdownMenuItem disabled>
+                  <Database className="size-4" />
+                  <span>Data Source: {xmltvdatasource || "Not set"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled>
+                  <Clock className="size-4" />
                   <span>Timezone: {timezone || "Not set"}</span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
-              <DropdownMenuSeparator />
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>

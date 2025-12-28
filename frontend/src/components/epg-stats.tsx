@@ -35,30 +35,30 @@ const STAT_CARDS_CONFIG = [
   },
 ] as const;
 
-type EPGStats = {
+interface EPGStats {
   days: number;
   channels: number;
   programs: number;
   sources: number;
-};
+}
 
-type ApiResponse = {
+interface ApiResponse {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: Channel[];
   };
-};
+}
 
-type DatesResponse = {
+interface DatesResponse {
   date: string;
   query: string;
   source: string;
   data: string[];
-};
+}
 
-type Source = {
+interface Source {
   id: string;
   group: string;
   subgroup: string;
@@ -68,7 +68,7 @@ type Source = {
     light: string;
     dark: string;
   };
-};
+}
 
 // Helper function to validate API response
 function validateApiResponse(

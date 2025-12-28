@@ -4,12 +4,12 @@ import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ChannelRow } from "./channel-row";
 import { type ChannelData, ZONES } from "./types";
 
-type NetworkGroupProps = {
+interface NetworkGroupProps {
   network: string;
   channels: Record<string, Record<string, ChannelData>>;
   isCollapsed: boolean;
   onToggleCollapse: (network: string) => void;
-};
+}
 
 export function NetworkGroup({
   network,

@@ -26,7 +26,7 @@ import {
 } from "./utils";
 
 // Program content component
-type ProgramContentProps = {
+interface ProgramContentProps {
   program: Program;
   isVeryNarrow: boolean;
   isHovered: boolean;
@@ -44,7 +44,7 @@ type ProgramContentProps = {
   timeRef: React.RefObject<HTMLDivElement | null>;
   closeMobileTooltip: (e: React.MouseEvent) => void;
   left?: number;
-};
+}
 
 const ProgramContent = ({
   program,
@@ -150,7 +150,7 @@ const ProgramContent = ({
   );
 };
 
-type ProgramItemProps = {
+interface ProgramItemProps {
   program: Program & {
     left: number;
     width: number;
@@ -166,7 +166,7 @@ type ProgramItemProps = {
   showDetails?: boolean;
   onSelect?: (program: Program) => void;
   isSelected?: boolean;
-};
+}
 
 // Helper function to handle program click
 const handleProgramClickHelper = (

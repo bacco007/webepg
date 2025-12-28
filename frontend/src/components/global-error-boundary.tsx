@@ -18,28 +18,28 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-type Props = {
+interface Props {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
-};
+}
 
-type State = {
+interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
   errorId: string | null;
   retryCount: number;
-};
+}
 
 // Error categorization for better user experience
-type ErrorCategory = {
+interface ErrorCategory {
   type: "network" | "runtime" | "component" | "unknown";
   title: string;
   message: string;
   suggestions: string[];
   severity: "low" | "medium" | "high";
-};
+}
 
 function categorizeError(error: Error): ErrorCategory {
   const errorMessage = error.message.toLowerCase();

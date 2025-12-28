@@ -18,10 +18,10 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { Channel } from "./types";
 import { getChannelDisplayNameWithAbbreviations } from "./utils";
 
-type ChannelCardProps = {
+interface ChannelCardProps {
   channel: Channel;
   xmltvDataSource: string;
-};
+}
 
 export function ChannelCard({ channel, xmltvDataSource }: ChannelCardProps) {
   return (

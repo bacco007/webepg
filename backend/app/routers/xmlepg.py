@@ -10,13 +10,41 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import mysql.connector
 import pytz
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from app.config import settings
+from app.exceptions import (
+    ChannelNotFoundError,
+    DataProcessingError,
+    UnauthorizedError,
+    WebEPGException,
+)
 
 router = APIRouter()
+
+# API Key authentication dependency
+async def verify_api_key(x_api_key: str = Header(..., alias="X-API-Key")) -> str:
+    """
+    Verify the API key for protected endpoints.
+    
+    Args:
+        x_api_key: The API key provided in the X-API-Key header.
+    
+    Returns:
+        The validated API key.
+    
+    Raises:
+        UnauthorizedError: If the API key is invalid or missing.
+    """
+    if not settings.ADMIN_API_KEY:
+        raise UnauthorizedError("API key authentication is not configured")
+    
+    if x_api_key != settings.ADMIN_API_KEY:
+        raise UnauthorizedError("Invalid API key")
+    
+    return x_api_key
 
 # Constants
 DATA_LOCATION = Path(settings.XMLTV_DATA_DIR)
@@ -62,6 +90,32 @@ class SourceStatus(BaseModel):
     group: str
     subgroup: str
     location: str
+
+
+class AdditionalChannelRow(BaseModel):
+    id: Optional[str] = None  # Auto-generated if not provided
+    guidelink: str
+    channel_id: str
+    channel_slug: str
+    channel_name: str
+    channel_name_location: Optional[str] = ""
+    channel_name_real: Optional[str] = ""
+    chantype: Optional[str] = ""
+    chancomp: Optional[str] = ""
+    channel_url: Optional[str] = ""
+    chanbouq: Optional[str] = ""
+    chanlcnfta1: Optional[str] = ""
+    chanlcnfta2: Optional[str] = ""
+    chanlcnfta3: Optional[str] = ""
+    chanlcnfox: Optional[str] = ""
+    chanlcnfet: Optional[str] = ""
+    channel_number: Optional[str] = ""
+    chlogo_light: Optional[str] = ""
+    chlogo_dark: Optional[str] = ""
+    channel_group: Optional[str] = ""
+    channel_type: Optional[str] = ""
+    channel_availability: Optional[str] = ""
+    channel_packages: Optional[str] = ""
 
 
 def execute_sql_query(query: str) -> List[Dict[str, Any]]:
@@ -1752,6 +1806,265 @@ async def process_fta_sql_provider(
     return JSONResponse(
         {"message": "FTA-SQL provider queued", "status": process_status}, 202
     )
+
+
+@router.get("/py/xmlepg/additional-channels")
+async def get_additional_channels(
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Get all additional channels from the CSV file.
+    
+    Returns:
+        Dictionary containing list of all additional channel rows.
+    """
+    try:
+        rows = read_additional_channels_csv()
+        return {
+            "count": len(rows),
+            "channels": rows
+        }
+    except Exception as e:
+        logging.error(f"Error retrieving additional channels: {e}")
+        raise DataProcessingError("retrieve additional channels", str(e)) from e
+
+
+@router.get("/py/xmlepg/additional-channels/{id}")
+async def get_additional_channel(
+    id: str,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, str]:
+    """
+    Get a specific additional channel by id.
+    
+    Args:
+        id: The unique identifier of the channel.
+    
+    Returns:
+        Dictionary representing the channel row.
+    """
+    try:
+        rows = read_additional_channels_csv()
+        for row in rows:
+            if row.get("id") == id:
+                return row
+        
+        raise ChannelNotFoundError(id)
+    except ChannelNotFoundError:
+        raise
+    except Exception as e:
+        logging.error(f"Error retrieving channel {id}: {e}")
+        raise DataProcessingError("retrieve channel", str(e)) from e
+
+
+@router.post("/py/xmlepg/additional-channels")
+async def create_additional_channel(
+    channel: AdditionalChannelRow,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Add a new channel to the additional channels CSV file.
+    
+    Args:
+        channel: The channel data to add. The 'id' field is optional and will be auto-generated if not provided.
+    
+    Returns:
+        Dictionary with success message and the created channel.
+    """
+    try:
+        rows = read_additional_channels_csv()
+        
+        # Convert Pydantic model to dict
+        channel_dict = channel.model_dump()
+        
+        # Auto-generate ID if not provided
+        if not channel_dict.get("id"):
+            # Generate a unique ID based on the highest existing ID + 1
+            max_id = 0
+            for row in rows:
+                try:
+                    row_id = int(row.get("id", "0"))
+                    max_id = max(max_id, row_id)
+                except (ValueError, TypeError):
+                    pass
+            channel_dict["id"] = str(max_id + 1)
+        else:
+            # Check if ID already exists
+            for row in rows:
+                if row.get("id") == channel_dict["id"]:
+                    raise WebEPGException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=f"Channel with id '{channel_dict['id']}' already exists",
+                        error_code="CHANNEL_EXISTS",
+                        error_type="ChannelExistsError"
+                    )
+        
+        # Ensure all fields are strings, handling None values
+        channel_dict = {k: str(v) if v is not None else "" for k, v in channel_dict.items()}
+        
+        rows.append(channel_dict)
+        write_additional_channels_csv(rows)
+        
+        return {
+            "message": "Channel created successfully",
+            "channel": channel_dict
+        }
+    except WebEPGException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating channel: {e}")
+        raise DataProcessingError("create channel", str(e)) from e
+
+
+@router.put("/py/xmlepg/additional-channels/{id}")
+async def update_additional_channel(
+    id: str,
+    channel: AdditionalChannelRow,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Update an existing channel in the additional channels CSV file.
+    
+    Args:
+        id: The unique identifier of the channel to update.
+        channel: The updated channel data. The 'id' field in the body will be ignored (uses path parameter).
+    
+    Returns:
+        Dictionary with success message and the updated channel.
+    """
+    try:
+        rows = read_additional_channels_csv()
+        
+        # Find and update the channel
+        updated_channel = None
+        for i, row in enumerate(rows):
+            if row.get("id") == id:
+                # Convert Pydantic model to dict
+                channel_dict = channel.model_dump()
+                # Override id with path parameter to ensure consistency
+                channel_dict["id"] = id
+                # Ensure all fields are strings, handling None values
+                channel_dict = {k: str(v) if v is not None else "" for k, v in channel_dict.items()}
+                rows[i] = channel_dict
+                updated_channel = channel_dict
+                break
+        
+        if updated_channel is None:
+            raise ChannelNotFoundError(id)
+        
+        write_additional_channels_csv(rows)
+        
+        return {
+            "message": "Channel updated successfully",
+            "channel": updated_channel
+        }
+    except ChannelNotFoundError:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating channel {id}: {e}")
+        raise DataProcessingError("update channel", str(e)) from e
+
+
+@router.delete("/py/xmlepg/additional-channels/{id}")
+async def delete_additional_channel(
+    id: str,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, str]:
+    """
+    Delete a channel from the additional channels CSV file.
+    
+    Args:
+        id: The unique identifier of the channel to delete.
+    
+    Returns:
+        Dictionary with success message.
+    """
+    try:
+        rows = read_additional_channels_csv()
+        
+        # Find and remove the channel
+        original_count = len(rows)
+        rows = [row for row in rows if row.get("id") != id]
+        
+        if len(rows) == original_count:
+            raise ChannelNotFoundError(id)
+        
+        write_additional_channels_csv(rows)
+        
+        return {
+            "message": f"Channel '{id}' deleted successfully"
+        }
+    except ChannelNotFoundError:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting channel {id}: {e}")
+        raise DataProcessingError("delete channel", str(e)) from e
+
+
+def read_additional_channels_csv() -> List[Dict[str, str]]:
+    """
+    Read all rows from the additional channels CSV file.
+    Auto-generates 'id' field for rows that don't have one (backward compatibility).
+    
+    Returns:
+        List of dictionaries representing CSV rows, all with 'id' field.
+    """
+    if not os.path.exists(ADDITIONAL_CHANNELS_CSV):
+        return []
+    
+    rows = []
+    try:
+        with open(ADDITIONAL_CHANNELS_CSV, "r", encoding="latin-1") as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            for row_index, row in enumerate(csv_reader, start=1):
+                # Skip empty rows
+                if not row.get("guidelink"):
+                    continue
+                
+                # Auto-generate ID if missing (backward compatibility)
+                if not row.get("id"):
+                    row["id"] = str(row_index)
+                
+                rows.append(row)
+    except Exception as e:
+        logging.error(f"Error reading CSV file: {e}")
+        raise DataProcessingError("read CSV", str(e)) from e
+    
+    return rows
+
+
+def write_additional_channels_csv(rows: List[Dict[str, str]]) -> None:
+    """
+    Write rows to the additional channels CSV file.
+    Ensures all rows have an 'id' field (generates one if missing).
+    
+    Args:
+        rows: List of dictionaries representing CSV rows.
+    """
+    fieldnames = [
+        "id", "guidelink", "channel_id", "channel_slug", "channel_name",
+        "channel_name_location", "channel_name_real", "chantype", "chancomp",
+        "channel_url", "chanbouq", "chanlcnfta1", "chanlcnfta2",
+        "chanlcnfta3", "chanlcnfox", "chanlcnfet", "channel_number",
+        "chlogo_light", "chlogo_dark", "channel_group", "channel_type",
+        "channel_availability", "channel_packages"
+    ]
+    
+    try:
+        # Ensure all rows have an id field
+        for index, row in enumerate(rows, start=1):
+            if not row.get("id"):
+                row["id"] = str(index)
+        
+        os.makedirs(os.path.dirname(ADDITIONAL_CHANNELS_CSV), exist_ok=True)
+        with open(ADDITIONAL_CHANNELS_CSV, "w", encoding="latin-1", newline="") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+        logging.info(f"Successfully wrote {len(rows)} rows to CSV file")
+    except Exception as e:
+        logging.error(f"Error writing CSV file: {e}")
+        raise DataProcessingError("write CSV", str(e)) from e
 
 
 def init_app() -> None:

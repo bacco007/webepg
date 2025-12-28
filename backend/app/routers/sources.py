@@ -1,20 +1,50 @@
 import asyncio
+import json
+import logging
 import os
 import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import aiohttp
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from app.config import settings
-from app.exceptions import ConfigurationError, SourceNotFoundError
+from app.exceptions import (
+    ConfigurationError,
+    DataProcessingError,
+    SourceNotFoundError,
+    UnauthorizedError,
+    WebEPGException,
+)
 from app.utils.file_operations import download_file, load_sources
 from app.utils.xml_processing import process_xml_file
 
 router = APIRouter()
+
+# API Key authentication dependency
+async def verify_api_key(x_api_key: str = Header(..., alias="X-API-Key")) -> str:
+    """
+    Verify the API key for protected endpoints.
+    
+    Args:
+        x_api_key: The API key provided in the X-API-Key header.
+    
+    Returns:
+        The validated API key.
+    
+    Raises:
+        UnauthorizedError: If the API key is invalid or missing.
+    """
+    if not settings.ADMIN_API_KEY:
+        raise UnauthorizedError("API key authentication is not configured")
+    
+    if x_api_key != settings.ADMIN_API_KEY:
+        raise UnauthorizedError("Invalid API key")
+    
+    return x_api_key
 
 # Global variable to store process status
 process_status: Dict[str, Any] = {
@@ -37,6 +67,20 @@ class SourceStatus(BaseModel):
     group: Optional[str] = None
     subgroup: Optional[str] = None
     location: Optional[str] = None
+
+
+class Logo(BaseModel):
+    light: str
+    dark: str
+
+
+class SourceEntry(BaseModel):
+    id: str
+    group: str
+    subgroup: str
+    location: str
+    url: str
+    logo: Optional[Logo] = None
 
 @router.get(
     "/py/sources",
@@ -344,3 +388,397 @@ async def process_single_source(
             "status": process_status,
         }
     )
+
+
+# ==================== Source Configuration Management Endpoints ====================
+
+def read_sources_json(file_path: str) -> List[Dict[str, Any]]:
+    """
+    Read all sources from a JSON file.
+    
+    Args:
+        file_path: Path to the JSON file.
+    
+    Returns:
+        List of source dictionaries.
+    """
+    if not os.path.exists(file_path):
+        return []
+    
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if not isinstance(data, list):
+                return []
+            return data
+    except Exception as e:
+        logging.error(f"Error reading sources JSON file {file_path}: {e}")
+        raise DataProcessingError("read sources JSON", str(e)) from e
+
+
+def write_sources_json(file_path: str, sources: List[Dict[str, Any]]) -> None:
+    """
+    Write sources to a JSON file.
+    
+    Args:
+        file_path: Path to the JSON file.
+        sources: List of source dictionaries.
+    """
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(sources, f, indent=2, ensure_ascii=False)
+        logging.info(f"Successfully wrote {len(sources)} sources to {file_path}")
+    except Exception as e:
+        logging.error(f"Error writing sources JSON file {file_path}: {e}")
+        raise DataProcessingError("write sources JSON", str(e)) from e
+
+
+@router.get("/py/sources/remote")
+async def get_remote_sources(
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Get all remote sources from xmltvsources.json.
+    
+    Returns:
+        Dictionary containing list of all remote source entries.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES)
+        return {
+            "count": len(sources),
+            "sources": sources
+        }
+    except Exception as e:
+        logging.error(f"Error retrieving remote sources: {e}")
+        raise DataProcessingError("retrieve remote sources", str(e)) from e
+
+
+@router.get("/py/sources/remote/{id}")
+async def get_remote_source(
+    id: str,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Get a specific remote source by id.
+    
+    Args:
+        id: The unique identifier of the source.
+    
+    Returns:
+        Dictionary representing the source entry.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES)
+        for source in sources:
+            if source.get("id") == id:
+                return source
+        
+        raise SourceNotFoundError(id)
+    except SourceNotFoundError:
+        raise
+    except Exception as e:
+        logging.error(f"Error retrieving remote source {id}: {e}")
+        raise DataProcessingError("retrieve remote source", str(e)) from e
+
+
+@router.post("/py/sources/remote")
+async def create_remote_source(
+    source: SourceEntry,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Add a new remote source to xmltvsources.json.
+    
+    Args:
+        source: The source data to add.
+    
+    Returns:
+        Dictionary with success message and the created source.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES)
+        
+        # Check if source already exists
+        for existing_source in sources:
+            if existing_source.get("id") == source.id:
+                raise WebEPGException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Source with id '{source.id}' already exists",
+                    error_code="SOURCE_EXISTS",
+                    error_type="SourceExistsError"
+                )
+        
+        # Convert Pydantic model to dict
+        source_dict = source.model_dump(exclude_none=True)
+        sources.append(source_dict)
+        write_sources_json(settings.XMLTV_SOURCES, sources)
+        
+        return {
+            "message": "Source created successfully",
+            "source": source_dict
+        }
+    except WebEPGException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating remote source: {e}")
+        raise DataProcessingError("create remote source", str(e)) from e
+
+
+@router.put("/py/sources/remote/{id}")
+async def update_remote_source(
+    id: str,
+    source: SourceEntry,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Update an existing remote source in xmltvsources.json.
+    
+    Args:
+        id: The unique identifier of the source to update.
+        source: The updated source data. The 'id' field in the body will be ignored (uses path parameter).
+    
+    Returns:
+        Dictionary with success message and the updated source.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES)
+        
+        # Find and update the source
+        updated_source = None
+        for i, existing_source in enumerate(sources):
+            if existing_source.get("id") == id:
+                # Convert Pydantic model to dict
+                source_dict = source.model_dump(exclude_none=True)
+                # Override id with path parameter to ensure consistency
+                source_dict["id"] = id
+                sources[i] = source_dict
+                updated_source = source_dict
+                break
+        
+        if updated_source is None:
+            raise SourceNotFoundError(id)
+        
+        write_sources_json(settings.XMLTV_SOURCES, sources)
+        
+        return {
+            "message": "Source updated successfully",
+            "source": updated_source
+        }
+    except SourceNotFoundError:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating remote source {id}: {e}")
+        raise DataProcessingError("update remote source", str(e)) from e
+
+
+@router.delete("/py/sources/remote/{id}")
+async def delete_remote_source(
+    id: str,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, str]:
+    """
+    Delete a remote source from xmltvsources.json.
+    
+    Args:
+        id: The unique identifier of the source to delete.
+    
+    Returns:
+        Dictionary with success message.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES)
+        
+        # Find and remove the source
+        original_count = len(sources)
+        sources = [s for s in sources if s.get("id") != id]
+        
+        if len(sources) == original_count:
+            raise SourceNotFoundError(id)
+        
+        write_sources_json(settings.XMLTV_SOURCES, sources)
+        
+        return {
+            "message": f"Source '{id}' deleted successfully"
+        }
+    except SourceNotFoundError:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting remote source {id}: {e}")
+        raise DataProcessingError("delete remote source", str(e)) from e
+
+
+@router.get("/py/sources/local")
+async def get_local_sources(
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Get all local sources from local.json.
+    
+    Returns:
+        Dictionary containing list of all local source entries.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES_LOCAL)
+        return {
+            "count": len(sources),
+            "sources": sources
+        }
+    except Exception as e:
+        logging.error(f"Error retrieving local sources: {e}")
+        raise DataProcessingError("retrieve local sources", str(e)) from e
+
+
+@router.get("/py/sources/local/{id}")
+async def get_local_source(
+    id: str,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Get a specific local source by id.
+    
+    Args:
+        id: The unique identifier of the source.
+    
+    Returns:
+        Dictionary representing the source entry.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES_LOCAL)
+        for source in sources:
+            if source.get("id") == id:
+                return source
+        
+        raise SourceNotFoundError(id)
+    except SourceNotFoundError:
+        raise
+    except Exception as e:
+        logging.error(f"Error retrieving local source {id}: {e}")
+        raise DataProcessingError("retrieve local source", str(e)) from e
+
+
+@router.post("/py/sources/local")
+async def create_local_source(
+    source: SourceEntry,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Add a new local source to local.json.
+    
+    Args:
+        source: The source data to add.
+    
+    Returns:
+        Dictionary with success message and the created source.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES_LOCAL)
+        
+        # Check if source already exists
+        for existing_source in sources:
+            if existing_source.get("id") == source.id:
+                raise WebEPGException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Source with id '{source.id}' already exists",
+                    error_code="SOURCE_EXISTS",
+                    error_type="SourceExistsError"
+                )
+        
+        # Convert Pydantic model to dict
+        source_dict = source.model_dump(exclude_none=True)
+        sources.append(source_dict)
+        write_sources_json(settings.XMLTV_SOURCES_LOCAL, sources)
+        
+        return {
+            "message": "Source created successfully",
+            "source": source_dict
+        }
+    except WebEPGException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating local source: {e}")
+        raise DataProcessingError("create local source", str(e)) from e
+
+
+@router.put("/py/sources/local/{id}")
+async def update_local_source(
+    id: str,
+    source: SourceEntry,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, Any]:
+    """
+    Update an existing local source in local.json.
+    
+    Args:
+        id: The unique identifier of the source to update.
+        source: The updated source data. The 'id' field in the body will be ignored (uses path parameter).
+    
+    Returns:
+        Dictionary with success message and the updated source.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES_LOCAL)
+        
+        # Find and update the source
+        updated_source = None
+        for i, existing_source in enumerate(sources):
+            if existing_source.get("id") == id:
+                # Convert Pydantic model to dict
+                source_dict = source.model_dump(exclude_none=True)
+                # Override id with path parameter to ensure consistency
+                source_dict["id"] = id
+                sources[i] = source_dict
+                updated_source = source_dict
+                break
+        
+        if updated_source is None:
+            raise SourceNotFoundError(id)
+        
+        write_sources_json(settings.XMLTV_SOURCES_LOCAL, sources)
+        
+        return {
+            "message": "Source updated successfully",
+            "source": updated_source
+        }
+    except SourceNotFoundError:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating local source {id}: {e}")
+        raise DataProcessingError("update local source", str(e)) from e
+
+
+@router.delete("/py/sources/local/{id}")
+async def delete_local_source(
+    id: str,
+    api_key: str = Depends(verify_api_key)
+) -> Dict[str, str]:
+    """
+    Delete a local source from local.json.
+    
+    Args:
+        id: The unique identifier of the source to delete.
+    
+    Returns:
+        Dictionary with success message.
+    """
+    try:
+        sources = read_sources_json(settings.XMLTV_SOURCES_LOCAL)
+        
+        # Find and remove the source
+        original_count = len(sources)
+        sources = [s for s in sources if s.get("id") != id]
+        
+        if len(sources) == original_count:
+            raise SourceNotFoundError(id)
+        
+        write_sources_json(settings.XMLTV_SOURCES_LOCAL, sources)
+        
+        return {
+            "message": f"Source '{id}' deleted successfully"
+        }
+    except SourceNotFoundError:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting local source {id}: {e}")
+        raise DataProcessingError("delete local source", str(e)) from e

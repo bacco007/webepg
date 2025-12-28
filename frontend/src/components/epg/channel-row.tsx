@@ -4,7 +4,7 @@ import { isAfter, isBefore, parseISODate } from "@/lib/date-utils";
 import { ProgramItem } from "./program-item";
 import type { Channel, Program } from "./types";
 
-type ChannelRowProps = {
+interface ChannelRowProps {
   channel: Channel;
   date: string;
   hourWidth: number;
@@ -12,7 +12,7 @@ type ChannelRowProps = {
   rowHeight?: number;
   showProgramDetails?: boolean;
   onProgramSelect?: (program: Program) => void;
-};
+}
 
 export function ChannelRow({
   channel,

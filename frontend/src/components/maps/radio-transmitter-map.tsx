@@ -114,7 +114,7 @@ if (typeof document !== "undefined") {
 }
 
 // Types
-type RadioTransmitter = {
+interface RadioTransmitter {
   LicenceNo: string;
   CallSign: string;
   AreaServed: string;
@@ -135,12 +135,12 @@ type RadioTransmitter = {
   BSL?: string;
   "Licence Area"?: string;
   uniqueKey: string;
-};
+}
 
-type RadioType = {
+interface RadioType {
   name: string;
   color: string;
-};
+}
 
 const radioTypes: RadioType[] = [
   { color: "#FF6B6B", name: "AM" },

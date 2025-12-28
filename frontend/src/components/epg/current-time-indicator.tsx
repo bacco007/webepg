@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-type CurrentTimeIndicatorProps = {
+interface CurrentTimeIndicatorProps {
   hourWidth: number;
-};
+}
 
 export function CurrentTimeIndicator({ hourWidth }: CurrentTimeIndicatorProps) {
   const [position, setPosition] = useState(0);
@@ -35,7 +35,7 @@ export function CurrentTimeIndicator({ hourWidth }: CurrentTimeIndicatorProps) {
       style={{ left: `${position}px` }}
     >
       <div className="h-full w-1 bg-[hsl(var(--time-indicator))] shadow-[0_0_8px_rgba(var(--time-indicator),0.5)]" />
-      <div className="-top-3 -translate-x-1/2 absolute h-4 w-4 rounded-full bg-[hsl(var(--time-indicator))] shadow-[0_0_8px_rgba(var(--time-indicator),0.5)]" />
+      <div className="absolute -top-3 h-4 w-4 -translate-x-1/2 rounded-full bg-[hsl(var(--time-indicator))] shadow-[0_0_8px_rgba(var(--time-indicator),0.5)]" />
     </div>
   );
 }

@@ -1,8 +1,8 @@
-type ChannelLogoProps = {
+interface ChannelLogoProps {
   logoUrl?: string;
   size?: "sm" | "md" | "lg";
   className?: string;
-};
+}
 
 export function ChannelLogo({
   logoUrl,

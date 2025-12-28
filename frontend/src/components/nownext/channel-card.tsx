@@ -18,11 +18,11 @@ import {
   isChannelGreyedOut,
 } from "@/utils/nownext";
 
-type ChannelCardProps = {
+interface ChannelCardProps {
   channelData: ChannelData;
   onNavigateToNext24Hours: () => void;
   onNavigateToFullWeek: (channelSlug: string) => void;
-};
+}
 
 export function ChannelCard({
   channelData,

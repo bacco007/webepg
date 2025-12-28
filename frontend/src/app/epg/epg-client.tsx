@@ -7,6 +7,10 @@ import updateLocale from "dayjs/plugin/updateLocale";
 import { Calendar, ChevronRight, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { memo, Suspense, useCallback, useEffect, useState } from "react";
+import {
+  SidebarContainer,
+  SidebarLayout,
+} from "@/components/layouts/sidebar-layout";
 import LoadingSpinner from "@/components/loading-spinner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getCookie } from "@/lib/cookies";
-import { formatDateFromYYYYMMDD, isAfter, isBefore } from "@/lib/date-utils";
+import { formatDateFromYYYYMMDD, isBefore } from "@/lib/date-utils";
 import { ErrorAlert } from "@/lib/error-handling";
 import { cn } from "@/lib/utils";
 
@@ -38,22 +42,22 @@ const DEFAULT_DATA_SOURCE = "xmlepg_FTASYD";
 const SKELETON_COUNT = 12;
 const RELATIVE_DAY_THRESHOLD = 7;
 
-type ApiResponse = {
+interface ApiResponse {
   date: string;
   query: string;
   source: string;
   data: string[];
-};
+}
 
-type DateCardProps = {
+interface DateCardProps {
   date: string;
   xmltvDataSource: string;
-};
+}
 
-type DateListItemProps = {
+interface DateListItemProps {
   date: string;
   xmltvDataSource: string;
-};
+}
 
 function DateSkeleton() {
   return (
@@ -81,9 +85,6 @@ const DateCard = memo(({ date, xmltvDataSource }: DateCardProps) => {
 
   const isPast = (dateString: string): boolean =>
     isBefore(formatDateFromYYYYMMDD(dateString, "YYYY-MM-DD"), new Date());
-
-  const isFuture = (dateString: string): boolean =>
-    isAfter(formatDateFromYYYYMMDD(dateString, "YYYY-MM-DD"), new Date());
 
   const getRelativeDay = (dateString: string): string => {
     const dateObj = dayjs(dateString, "YYYYMMDD");
@@ -115,28 +116,36 @@ const DateCard = memo(({ date, xmltvDataSource }: DateCardProps) => {
   const getFormattedDate = (dateString: string): string =>
     formatDateFromYYYYMMDD(dateString, "MMM D, YYYY");
 
+  const getCardClassName = () => {
+    if (isToday(date)) {
+      return "border-primary bg-primary/5 shadow-sm";
+    }
+    if (isPast(date)) {
+      return "border-muted/50 bg-muted/5";
+    }
+    return "border-border";
+  };
+
   return (
     <Link href={`/epg/${date}?source=${xmltvDataSource}`} key={date} passHref>
       <Card
         className={cn(
-          "group relative overflow-hidden py-1 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg",
-          isToday(date) ? "border-primary bg-primary/5" : "",
-          isPast(date) ? "border-muted bg-muted/5" : "",
-          isFuture(date) ? "border-muted" : ""
+          "group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg",
+          getCardClassName()
         )}
       >
         <div
           className={cn(
             "absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100",
-            "bg-gradient-to-r from-primary/10 to-transparent"
+            "bg-linear-to-r from-primary/10 to-transparent"
           )}
         />
 
-        <CardContent className="flex flex-col p-2">
-          <div className="mb-1 flex items-center justify-between">
+        <CardContent className="flex flex-col p-4">
+          <div className="mb-3 flex items-center justify-between">
             <div
               className={cn(
-                "flex h-6 w-6 items-center justify-center rounded-full text-sm",
+                "flex h-8 w-8 items-center justify-center rounded-full font-semibold text-sm",
                 isToday(date)
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground"
@@ -147,7 +156,7 @@ const DateCard = memo(({ date, xmltvDataSource }: DateCardProps) => {
 
             {getRelativeDay(date) && (
               <Badge
-                className="px-1.5 text-[10px]"
+                className="px-2 text-[10px]"
                 variant={isToday(date) ? "default" : "outline"}
               >
                 {getRelativeDay(date)}
@@ -155,18 +164,18 @@ const DateCard = memo(({ date, xmltvDataSource }: DateCardProps) => {
             )}
           </div>
 
-          <div className="space-y-0.5">
-            <h3 className="font-medium text-sm">{getDayOfWeek(date)}</h3>
+          <div className="mb-3 space-y-1">
+            <h3 className="font-semibold text-base">{getDayOfWeek(date)}</h3>
 
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-sm">
               {getFormattedDate(date)}
             </p>
           </div>
 
-          <div className="mt-1 flex items-center text-muted-foreground text-xs">
-            <Calendar className="mr-1 size-3" />
+          <div className="mt-auto flex items-center text-muted-foreground text-xs">
+            <Calendar className="mr-1.5 size-3.5" />
             <span>View Guide</span>
-            <ChevronRight className="ml-auto size-3" />
+            <ChevronRight className="ml-auto size-3.5" />
           </div>
         </CardContent>
       </Card>
@@ -214,15 +223,17 @@ const DateListItem = memo(({ date, xmltvDataSource }: DateListItemProps) => {
     <Link href={`/epg/${date}?source=${xmltvDataSource}`} key={date} passHref>
       <Card
         className={cn(
-          "group py-1 pb-4 transition-all duration-200 hover:bg-muted/5",
-          isToday(date) ? "border-primary bg-primary/5" : ""
+          "group transition-all duration-200 hover:bg-muted/5 hover:shadow-md",
+          isToday(date)
+            ? "border-primary bg-primary/5 shadow-sm"
+            : "border-border"
         )}
       >
-        <CardContent className="flex items-center justify-between p-2">
-          <div className="flex items-center">
+        <CardContent className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
             <div
               className={cn(
-                "mr-2 flex h-6 w-6 items-center justify-center rounded-full text-sm",
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-semibold text-sm",
                 isToday(date)
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground"
@@ -232,34 +243,29 @@ const DateListItem = memo(({ date, xmltvDataSource }: DateListItemProps) => {
             </div>
 
             <div>
-              <h3 className="flex items-center font-medium text-sm">
+              <h3 className="mb-1 flex items-center font-semibold text-base">
                 {getDayOfWeek(date)}
                 {getRelativeDay(date) && (
-                  <Badge className="ml-2 px-1.5 text-[10px]" variant="outline">
+                  <Badge className="ml-2 px-2 text-[10px]" variant="outline">
                     {getRelativeDay(date)}
                   </Badge>
                 )}
               </h3>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-muted-foreground text-sm">
                 {getFormattedDate(date)}
               </p>
             </div>
           </div>
 
           <div className="flex items-center">
-            <Button
-              className="h-6 gap-1 px-2 text-xs"
-              size="sm"
-              variant="ghost"
-            >
-              <Calendar className="size-3" />
+            <Button className="gap-1.5" size="sm" variant="ghost">
+              <Calendar className="size-4" />
               <span>View</span>
-              <ChevronRight className="size-3" />
+              <ChevronRight className="size-4" />
             </Button>
           </div>
         </CardContent>
       </Card>
-      &nbsp;
     </Link>
   );
 });
@@ -308,22 +314,28 @@ function EPGDayListContent() {
 
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center p-6">
-        <ErrorAlert message={error} onRetry={handleRefresh} />
-      </div>
+      <SidebarLayout
+        contentClassName="overflow-auto"
+        sidebar={<SidebarContainer>{null}</SidebarContainer>}
+        title="EPG Guide"
+      >
+        <div className="flex h-full items-center justify-center p-6">
+          <ErrorAlert message={error} onRetry={handleRefresh} />
+        </div>
+      </SidebarLayout>
     );
   }
 
   const headerActions = (
     <div className="flex items-center gap-2">
       <Tabs
-        className="mr-2"
         defaultValue="grid"
         onValueChange={(v) => setView(v as "grid" | "list")}
+        value={view}
       >
         <TabsList className="grid w-[160px] grid-cols-2">
-          <TabsTrigger value="grid">Grid View</TabsTrigger>
-          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="grid">Grid</TabsTrigger>
+          <TabsTrigger value="list">List</TabsTrigger>
         </TabsList>
       </Tabs>
       <TooltipProvider>
@@ -349,17 +361,34 @@ function EPGDayListContent() {
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
-            <DateSkeleton key={`skeleton-${index}-${Date.now()}`} />
-          ))}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {Array.from({ length: SKELETON_COUNT }, (_, index) => {
+            const key = `skeleton-${index}`;
+            return <DateSkeleton key={key} />;
+          })}
+        </div>
+      );
+    }
+
+    if (dates.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <Calendar className="mb-4 size-12 text-muted-foreground" />
+          <h3 className="mb-2 font-semibold text-lg">No dates available</h3>
+          <p className="mb-4 text-muted-foreground text-sm">
+            There are no EPG dates available for the selected source.
+          </p>
+          <Button onClick={handleRefresh} variant="outline">
+            <RefreshCw className="mr-2 size-4" />
+            Refresh
+          </Button>
         </div>
       );
     }
 
     if (view === "grid") {
       return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {dates.map((date) => (
             <DateCard
               date={date}
@@ -372,7 +401,7 @@ function EPGDayListContent() {
     }
 
     return (
-      <div className="space-y-3">
+      <div className="mx-auto max-w-4xl space-y-2">
         {dates.map((date) => (
           <DateListItem
             date={date}
@@ -388,30 +417,28 @@ function EPGDayListContent() {
     return <LoadingState />;
   }
 
+  const sidebar = <SidebarContainer>{null}</SidebarContainer>;
+
   return (
-    <div className="flex size-full flex-col">
-      <div className="flex-1 overflow-auto">
-        <div className="w-full p-4">
-          {/* Header Section */}
-          <div className="mb-8 text-center">
-            <div className="mb-4 flex items-center justify-center gap-2">
-              <Calendar className="h-8 w-8 text-primary" />
-              <h1 className="font-bold text-4xl">EPG Guide</h1>
-            </div>
-            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-              Browse electronic program guide dates and schedules for television
-              channels.
-            </p>
-          </div>
-
-          {/* Actions */}
-          <div className="mb-6 flex justify-center">{headerActions}</div>
-
-          {/* Content */}
-          {renderContent()}
+    <SidebarLayout
+      actions={headerActions}
+      contentClassName="overflow-auto"
+      sidebar={sidebar}
+      title="EPG Guide"
+    >
+      <div className="p-4 pb-4">
+        {/* Description */}
+        <div className="mb-6">
+          <p className="text-muted-foreground text-sm">
+            Browse electronic program guide dates and schedules for television
+            channels.
+          </p>
         </div>
+        {/* Content */}
+        {renderContent()}
+        <div aria-hidden="true" className="h-24" /> {/* Spacer element */}
       </div>
-    </div>
+    </SidebarLayout>
   );
 }
 

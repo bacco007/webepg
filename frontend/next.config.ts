@@ -77,17 +77,12 @@ export default bundleAnalyzer({
   ],
 
   images: {
-    domains: ["i.imgur.com"],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60,
     remotePatterns: [
       {
-        hostname: "**",
+        hostname: "i.imgur.com",
         protocol: "https",
-      },
-      {
-        hostname: "**",
-        protocol: "http",
       },
     ],
     unoptimized: true,

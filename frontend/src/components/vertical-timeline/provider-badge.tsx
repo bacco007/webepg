@@ -3,12 +3,12 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-type ProviderBadgeProps = {
+interface ProviderBadgeProps {
   provider: string;
   active?: boolean;
   onClick?: () => void;
   className?: string;
-};
+}
 
 const providerColors: Record<string, string> = {
   austar:
@@ -93,12 +93,12 @@ export function ProviderBadge({
   );
 }
 
-type ProviderFilterProps = {
+interface ProviderFilterProps {
   providers: string[];
   selectedProviders: string[];
   onToggle: (provider: string) => void;
   className?: string;
-};
+}
 
 export function ProviderFilter({
   providers,
@@ -121,12 +121,12 @@ export function ProviderFilter({
 }
 
 // Event Type Filter component (similar to ProviderFilter)
-type EventTypeFilterProps = {
+interface EventTypeFilterProps {
   eventTypes: string[];
   selectedEventTypes: string[];
   onToggle: (eventType: string) => void;
   className?: string;
-};
+}
 
 const eventTypeColors: Record<string, string> = {
   acquisition:

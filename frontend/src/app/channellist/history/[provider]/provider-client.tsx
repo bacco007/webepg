@@ -149,7 +149,7 @@ function IndicatorLegend({
   );
 }
 
-type ChannelHistorySidebarProps = {
+interface ChannelHistorySidebarProps {
   activeColorValues: Set<string>;
   activeIndicators: Set<string>;
   availableNetworks: Set<string>;
@@ -200,7 +200,7 @@ type ChannelHistorySidebarProps = {
     };
   } | null;
   yearRange: [number, number];
-};
+}
 
 function ChannelHistorySidebar({
   activeColorValues,
@@ -402,11 +402,11 @@ function ChannelHistorySidebar({
   );
 }
 
-type ChannelHistoryClientProps = {
+interface ChannelHistoryClientProps {
   params: Promise<{
     provider: string;
   }>;
-};
+}
 
 export default function ChannelHistoryClient({
   params,
@@ -559,22 +559,22 @@ export default function ChannelHistoryClient({
       return null;
     }
 
-    type ChannelItem = {
+    interface ChannelItem {
       channel_name: string;
       channel_genre?: string;
       channel_network?: string;
       channel_notes?: string;
       from: number | string;
       to?: number | string;
-    };
+    }
 
-    type EventItem = {
+    interface EventItem {
       when: number;
       label: string;
       type: string;
       note?: string;
       href?: string;
-    };
+    }
 
     // Check if no filters are applied
     const isFullRange =
@@ -656,14 +656,14 @@ export default function ChannelHistoryClient({
       return new Set<string>();
     }
 
-    type ChannelItem = {
+    interface ChannelItem {
       channel_name: string;
       channel_genre?: string;
       channel_network?: string;
       channel_notes?: string;
       from: number | string;
       to?: number | string;
-    };
+    }
 
     const networks = new Set<string>();
 

@@ -2,14 +2,14 @@
 
 import { cookies } from "next/headers";
 
-type CookieOptions = {
+interface CookieOptions {
   maxAge?: number;
   expires?: Date;
   httpOnly?: boolean;
   secure?: boolean;
   sameSite?: "strict" | "lax" | "none";
   path?: string;
-};
+}
 
 export async function getServerCookie(
   name: string

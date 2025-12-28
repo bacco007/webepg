@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-type SidebarLayoutProps = {
+interface SidebarLayoutProps {
   children: ReactNode;
   sidebar: ReactNode;
   title: string;
@@ -27,7 +27,7 @@ type SidebarLayoutProps = {
   sidebarClassName?: string;
   contentClassName?: string;
   actions?: ReactNode;
-};
+}
 
 export function SidebarLayout({
   children,
@@ -234,7 +234,7 @@ export function SidebarSearch({
 }) {
   return (
     <div className={cn("relative p-2", className)}>
-      <Search className="-translate-y-1/2 absolute top-1/2 left-4 h-4 w-4 text-muted-foreground" />
+      <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         className="h-9 bg-background/50 pl-9 text-sm backdrop-blur supports-[backdrop-filter]:bg-background/30"
         onChange={(e) => onValueChange(e.target.value)}
@@ -244,7 +244,7 @@ export function SidebarSearch({
       {searchValue && (
         <Button
           aria-label="Clear search"
-          className="-translate-y-1/2 absolute top-1/2 right-2 h-7 w-7 p-0 hover:bg-muted/50"
+          className="absolute top-1/2 right-2 h-7 w-7 -translate-y-1/2 p-0 hover:bg-muted/50"
           onClick={() => onValueChange("")}
           size="sm"
           variant="ghost"

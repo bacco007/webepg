@@ -38,11 +38,11 @@ import {
 const CHANNEL_NUMBER_PATTERN = /^(\d+)/;
 const PURE_NUMERIC_PATTERN = /^\d+$/;
 
-type TableViewProps = {
+interface TableViewProps {
   filteredChannels: Channel[];
   xmltvDataSource: string;
   hasNameGroups: boolean;
-};
+}
 
 // Define table columns using TanStack Table
 function getColumns(

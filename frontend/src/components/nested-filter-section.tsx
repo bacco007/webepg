@@ -3,14 +3,14 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
-export type NestedFilterSectionProps = {
+export interface NestedFilterSectionProps {
   data: Record<string, { count: number; subgroups: Record<string, number> }>;
   selectedGroups: string[];
   selectedSubgroups: string[];
   onGroupToggle: (group: string) => void;
   onSubgroupToggle: (group: string, subgroup: string) => void;
   title: string;
-};
+}
 
 export function NestedFilterSection({
   data,
@@ -40,7 +40,7 @@ export function NestedFilterSection({
           )}
           {Object.entries(data).map(([group, { count, subgroups }]) => (
             <div key={group}>
-              <button
+              <div
                 aria-expanded={!!openGroups[group]}
                 className={cn(
                   "flex w-full cursor-pointer items-center justify-between rounded px-2 py-1 text-left hover:bg-muted/10",
@@ -52,8 +52,8 @@ export function NestedFilterSection({
                     handleGroupClick(group);
                   }
                 }}
+                role="button"
                 tabIndex={0}
-                type="button"
               >
                 <div className="flex items-center gap-2">
                   <Checkbox
@@ -73,7 +73,7 @@ export function NestedFilterSection({
                       <ChevronDown className="size-4 text-muted-foreground" />
                     ))}
                 </div>
-              </button>
+              </div>
               {openGroups[group] && Object.keys(subgroups).length > 0 && (
                 <div className="ml-6 border-muted/30 border-l pl-3">
                   {Object.entries(subgroups).map(([subgroup, subCount]) => (

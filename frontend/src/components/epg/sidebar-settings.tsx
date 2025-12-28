@@ -17,14 +17,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type SidebarSettingsProps = {
+interface SidebarSettingsProps {
   sortBy: string;
   onSortByChange: (value: string) => void;
   groupBy: string;
   onGroupByChange: (value: string) => void;
   displayName: string;
   onDisplayNameChange: (value: string) => void;
-};
+}
 
 const SORT_OPTIONS = [
   { label: "Channel Number", value: "channelNumber" },

@@ -3,7 +3,7 @@
  * Defines different TV providers and their historical timeline data
  */
 
-export type TimelineProvider = {
+export interface TimelineProvider {
   id: string;
   name: string;
   description: string;
@@ -12,9 +12,9 @@ export type TimelineProvider = {
   data: TimelineData;
   colorBy?: "channel_genre" | "channel_network"; // Which attribute to use for coloring (defaults to channel_genre)
   colorMap?: Record<string, string>; // Optional custom color mapping
-};
+}
 
-export type TimelineData = {
+export interface TimelineData {
   title: string;
   description: string;
   axis: {
@@ -24,23 +24,23 @@ export type TimelineData = {
   };
   events: TimelineEvent[];
   channels: Record<string, ChannelSpan[]>;
-};
+}
 
-export type TimelineEvent = {
+export interface TimelineEvent {
   when: number | string; // Support string for dates like "2010.10" (October)
   type: string;
   label: string;
   note?: string;
-};
+}
 
-export type ChannelSpan = {
+export interface ChannelSpan {
   from: number | string; // Support string for dates like "2010.10" (October)
   to?: number | string; // Support string for dates like "2010.10" (October)
   channel_name: string;
   channel_genre?: string;
   channel_network?: string;
   channel_notes?: string;
-};
+}
 
 // Import individual providers
 import { austar } from "./timeline-providers/austar";
@@ -53,6 +53,7 @@ import { galaxy } from "./timeline-providers/galaxy";
 import { ncable } from "./timeline-providers/ncable";
 import { optus } from "./timeline-providers/optus";
 import { optusitv } from "./timeline-providers/optusitv";
+import { skynz } from "./timeline-providers/skynz";
 import { tarbs } from "./timeline-providers/tarbs";
 import { transact } from "./timeline-providers/transact";
 import { ubiworldtv } from "./timeline-providers/ubiworldtv";
@@ -69,6 +70,7 @@ export const timelineProviders: Record<string, TimelineProvider> = {
   ncable,
   optus,
   optusitv,
+  skynz,
   tarbs,
   transact,
   ubiworldtv,

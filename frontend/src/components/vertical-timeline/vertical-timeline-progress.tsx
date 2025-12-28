@@ -11,11 +11,11 @@ import {
 import { cn } from "@/lib/utils";
 import type { FormattedTimelineEvent } from "@/lib/vertical-timeline-utils";
 
-type VerticalTimelineProgressProps = {
+interface VerticalTimelineProgressProps {
   events: FormattedTimelineEvent[];
   scrollContainerRef: React.RefObject<HTMLElement | null>;
   className?: string;
-};
+}
 
 export function VerticalTimelineProgress({
   events,
@@ -550,7 +550,7 @@ export function VerticalTimelineProgress({
 
             return (
               <div
-                className="-translate-x-1/2 absolute top-0"
+                className="absolute top-0 -translate-x-1/2"
                 key={`label-${year}`}
                 style={{
                   left: `${position * 100}%`,

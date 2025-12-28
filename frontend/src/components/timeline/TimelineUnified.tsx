@@ -8,32 +8,32 @@ import { Timeline } from "./Timeline";
 import type { TimelineEvent, TimelineSpan } from "./types";
 import { convertSimplifiedToRows } from "./utils";
 
-type ChannelItem = {
+interface ChannelItem {
   from?: number | string;
   to?: number | string;
   channel_name: string;
   channel_genre?: string;
   channel_network?: string;
   channel_notes?: string;
-};
+}
 
-type EventData = {
+interface EventData {
   when: number | string;
   type: string;
   label?: string;
   note?: string;
   href?: string;
-};
+}
 
-type SimplifiedTimelineDoc = {
+interface SimplifiedTimelineDoc {
   title: string;
   axis: { start: number; end: number; unit: "year" };
   channels: Record<string, ChannelItem[]>;
   events?: EventData[];
   style?: Record<string, unknown>;
-};
+}
 
-type TimelineUnifiedProps = {
+interface TimelineUnifiedProps {
   doc: SimplifiedTimelineDoc;
   onEventClick?: (event: TimelineEvent) => void;
   onSpanClick?: (span: TimelineSpan) => void;
@@ -41,7 +41,7 @@ type TimelineUnifiedProps = {
   pxPerYear?: number; // Custom spacing override
   colorBy?: "channel_genre" | "channel_network"; // Which attribute to use for coloring
   colorMap?: Record<string, string>; // Custom color mapping
-};
+}
 
 export const TimelineUnified: React.FC<TimelineUnifiedProps> = React.memo(
   ({

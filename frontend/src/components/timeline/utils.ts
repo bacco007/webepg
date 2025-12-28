@@ -262,36 +262,36 @@ export function isEventClickable(event: TimelineEvent): boolean {
 /**
  * Convert grouped timeline data to row-based structure
  */
-type ChannelItem = {
+interface ChannelItem {
   from?: number | string;
   to?: number | string;
   channel_name: string;
   channel_genre?: string;
   channel_network?: string;
   channel_notes?: string;
-};
+}
 
-type TimelineRow = {
+interface TimelineRow {
   id: string;
   label: string;
   spans: TimelineSpan[];
   events?: TimelineEvent[];
-};
+}
 
-type EventData = {
+interface EventData {
   when: number | string;
   type: string;
   label?: string;
   note?: string;
   href?: string;
-};
+}
 
-type GroupedDoc = {
+interface GroupedDoc {
   title: string;
   axis: { start: number; end: number; unit: "year" };
   channels: Record<string, ChannelItem[]>;
   events?: EventData[];
-};
+}
 
 export function convertSimplifiedToRows(
   groupedDoc: GroupedDoc,

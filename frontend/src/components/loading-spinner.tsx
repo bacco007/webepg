@@ -3,11 +3,11 @@ import type React from "react";
 
 import { cn } from "@/lib/utils";
 
-type LoadingSpinnerProperties = {
+interface LoadingSpinnerProperties {
   size?: number;
   className?: string;
   text?: string;
-};
+}
 
 const LoadingSpinner: React.FC<LoadingSpinnerProperties> = ({
   size = 48,

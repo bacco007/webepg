@@ -122,7 +122,7 @@ export default function Home() {
                       className="group relative inline-flex items-center transition-transform hover:scale-105"
                       href="/"
                     >
-                      <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text font-extrabold text-5xl text-primary tracking-tight sm:text-6xl md:text-7xl">
+                      <span className="bg-linear-to-r from-primary to-primary/80 bg-clip-text font-extrabold text-5xl text-primary tracking-tight sm:text-6xl md:text-7xl">
                         {siteConfig.name}
                       </span>
                       <Badge
@@ -133,7 +133,7 @@ export default function Home() {
                       </Badge>
                     </Link>
                   </div>
-                  <h1 className="mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text font-extrabold text-4xl text-transparent tracking-tight sm:text-5xl md:text-6xl">
+                  <h1 className="mb-6 bg-linear-to-r from-foreground to-foreground/80 bg-clip-text font-extrabold text-4xl text-transparent tracking-tight sm:text-5xl md:text-6xl">
                     Your Ultimate EPG Experience
                   </h1>
                   <p className="mx-auto mb-10 max-w-4xl text-muted-foreground text-xl leading-relaxed">
@@ -173,7 +173,7 @@ export default function Home() {
               {/* Right Content - Cards Grid Section */}
               <div>
                 <section className="mb-12">
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     {cards.map((card) => (
                       <Link
                         className="group block focus:outline-none"

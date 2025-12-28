@@ -2,7 +2,7 @@ import { ChevronDown, ChevronUp, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-type Source = {
+interface Source {
   id: string;
   group: string;
   subgroup: string;
@@ -12,19 +12,19 @@ type Source = {
     light: string;
     dark: string;
   };
-};
+}
 
-type GroupedSources = {
+interface GroupedSources {
   [key: string]: Source[];
-};
+}
 
-type FilterSectionProps = {
+interface FilterSectionProps {
   title: string;
   children: React.ReactNode;
   isOpen: boolean;
   onToggle: () => void;
   count: number;
-};
+}
 
 function FilterSection({
   title,
@@ -62,10 +62,10 @@ function FilterSection({
   );
 }
 
-type SourceSearchProps = {
+interface SourceSearchProps {
   searchTerm: string;
   onSearchChange: (term: string) => void;
-};
+}
 
 export function SourceSearch({
   searchTerm,
@@ -100,13 +100,13 @@ export function SourceSearch({
   );
 }
 
-type SourceListProps = {
+interface SourceListProps {
   sources: Source[];
   selectedSource: string;
   onSourceSelect: (source: Source) => void;
   openGroups: { [key: string]: boolean };
   onToggleGroup: (group: string) => void;
-};
+}
 
 export function SourceList({
   sources,
@@ -152,7 +152,7 @@ export function SourceList({
   );
 }
 
-type SourceSelectorProps = {
+interface SourceSelectorProps {
   sources: Source[];
   selectedSource: string;
   onSourceSelect: (source: Source) => void;
@@ -160,7 +160,7 @@ type SourceSelectorProps = {
   onSearchChange: (term: string) => void;
   openGroups: { [key: string]: boolean };
   onToggleGroup: (group: string) => void;
-};
+}
 
 export function SourceSelector({
   sources,

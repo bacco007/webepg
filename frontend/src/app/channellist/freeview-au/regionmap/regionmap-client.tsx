@@ -56,7 +56,7 @@ import { deslugifyRegion, slugifyRegion } from "@/lib/slugify";
 import { channelSpecColors } from "@/lib/ticker-constants";
 
 // Define the ChannelData type that matches the API response structure
-type ChannelData = {
+interface ChannelData {
   channel_id: string;
   channel_slug: string;
   channel_name: string;
@@ -76,18 +76,18 @@ type ChannelData = {
     channel_specs?: string;
   };
   channel_network?: string;
-};
+}
 
-type ApiResponse = {
+interface ApiResponse {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: ChannelData[];
   };
-};
+}
 
-type SourceData = {
+interface SourceData {
   id: string;
   group: string;
   subgroup: string;
@@ -97,19 +97,19 @@ type SourceData = {
     light: string;
     dark: string;
   };
-};
+}
 
-type AdditionalSourceMapping = {
+interface AdditionalSourceMapping {
   sourceId: string;
   additionalRegions: string[];
   customLocationName?: string;
-};
+}
 
-type MergedCell = {
+interface MergedCell {
   startIndex: number;
   endIndex: number;
   channel: ChannelData | null; // Allow null for empty cells
-};
+}
 
 // Custom hook to manage all the state and logic
 function useChannelMapData() {

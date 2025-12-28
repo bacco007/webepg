@@ -3,7 +3,7 @@ import type { Density } from "@/types/channel-map";
 import { DensityToggle, type ViewMode } from "./density-toggle";
 import { LocationSelector } from "./location-selector";
 
-type MobileControlsProps = {
+interface MobileControlsProps {
   isMobile: boolean;
   locations: string[];
   visibleLocations: string[];
@@ -12,7 +12,7 @@ type MobileControlsProps = {
   setDensity: (density: Density) => void;
   viewMode: ViewMode;
   setViewMode: (viewMode: ViewMode) => void;
-};
+}
 
 export const MobileControls: React.FC<MobileControlsProps> = ({
   isMobile,

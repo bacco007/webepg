@@ -1,12 +1,12 @@
 import "./globals.css";
-import { IBM_Plex_Sans } from "next/font/google";
+import { Public_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 import Script from "next/script";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { FontSizeProvider } from "@/components/font-size-provider";
 import { GlobalErrorBoundary } from "@/components/global-error-boundary";
 import Header from "@/components/Header";
-import Sidebar from "@/components/sidebar/Sidebar";
+import AppSidebar from "@/components/sidebar/Sidebar";
 import { SkipLink } from "@/components/skip-link";
 import { ThemeProvider } from "@/components/theme-provider";
 import TopLoader from "@/components/top-loader";
@@ -20,12 +20,12 @@ import {
 export const metadata = siteMetadata;
 export const viewport = siteViewport;
 
-const ibmPlexSans = IBM_Plex_Sans({
+const publicSans = Public_Sans({
   display: "swap",
   fallback: ["system-ui", "arial"],
   preload: true,
   subsets: ["latin"],
-  variable: "--font-ibm-plex-sans",
+  variable: "--font-public-sans",
   weight: ["400", "500", "600", "700"],
 });
 
@@ -48,11 +48,11 @@ export default async function RootLayout({
         />
         <link
           as="style"
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap"
           rel="preload"
         />
       </head>
-      <body className={`${ibmPlexSans.variable} antialiased`}>
+      <body className={`${publicSans.variable} antialiased`}>
         <SkipLink />
         <TopLoader />
         <ThemeProvider
@@ -69,23 +69,21 @@ export default async function RootLayout({
                   className="flex h-screen w-full overflow-hidden"
                   defaultOpen={defaultOpen}
                 >
-                  <Sidebar />
-                  <div className="flex h-screen flex-1 overflow-hidden">
-                    <SidebarInset className="flex h-screen flex-1 overflow-hidden">
-                      <div className="h-svh w-full overflow-hidden lg:p-2">
-                        <div className="flex h-full w-full flex-col justify-start overflow-hidden bg-container lg:rounded-md lg:border">
-                          <Header />
-                          <main
-                            aria-label="Main content"
-                            className="main-content flex h-[calc(100vh)] flex-col overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-background lg:h-[calc(100svh)]"
-                            id="main-content"
-                          >
-                            {children}
-                          </main>
-                        </div>
+                  <AppSidebar variant="inset" />
+                  <SidebarInset className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+                    <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-hidden lg:p-2">
+                      <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col justify-start overflow-hidden bg-container lg:rounded-md lg:border">
+                        <Header />
+                        <main
+                          aria-label="Main content"
+                          className="main-content flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-background"
+                          id="main-content"
+                        >
+                          {children}
+                        </main>
                       </div>
-                    </SidebarInset>
-                  </div>
+                    </div>
+                  </SidebarInset>
                 </SidebarProvider>
               </NuqsAdapter>
             </GlobalErrorBoundary>

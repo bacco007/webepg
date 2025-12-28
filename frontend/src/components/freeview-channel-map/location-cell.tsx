@@ -2,12 +2,12 @@ import { TableCell } from "@/components/ui/table";
 import type { ChannelData } from "@/types/channel-map";
 import { ChannelLogo } from "./channel-logo";
 
-type LocationCellProps = {
+interface LocationCellProps {
   channel: ChannelData | null;
   location: string;
   colspan?: number;
   density: "comfortable" | "compact";
-};
+}
 
 export function LocationCell({
   channel,

@@ -18,7 +18,7 @@ export const freeview_metro: TimelineProvider = {
   country: "Australia",
   data: {
     axis: {
-      end: 2026,
+      end: 2027,
       start: 2001,
       unit: "year",
     },

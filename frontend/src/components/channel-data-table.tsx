@@ -132,7 +132,7 @@ function getSortingIcon(isSorted: false | "asc" | "desc") {
 }
 
 // Define the Channel interface that all pages will use
-export type Channel = {
+export interface Channel {
   channel_number: string;
   channel_name: string;
   channel_names: {
@@ -148,10 +148,10 @@ export type Channel = {
     channel_specs: string;
   };
   channel_slug: string;
-};
+}
 
 // Define the props for the ChannelDataTable component
-type ChannelDataTableProps = {
+interface ChannelDataTableProps {
   title: string;
   fetchUrl: string;
   dataExtractor?: (data: unknown) => Channel[];
@@ -161,7 +161,7 @@ type ChannelDataTableProps = {
   showChannelTypeFilter?: boolean;
   showChannelGroupFilter?: boolean;
   showChannelSpecsFilter?: boolean;
-};
+}
 
 // Default column definitions that will be used across all tables
 const defaultColumns: ColumnDef<Channel>[] = [

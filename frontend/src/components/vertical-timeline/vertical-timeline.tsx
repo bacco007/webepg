@@ -51,10 +51,10 @@ function sanitizeDescriptionHtml(html: string): string {
   return sanitized;
 }
 
-type VerticalTimelineProps = {
+interface VerticalTimelineProps {
   children: ReactNode;
   className?: string;
-};
+}
 
 export function VerticalTimeline({
   children,
@@ -63,13 +63,13 @@ export function VerticalTimeline({
   return (
     <div className={cn("relative", className)}>
       {/* Timeline line - centered */}
-      <div className="-translate-x-1/2 absolute top-2 left-1/2 h-[calc(100%-2rem)] w-[2px] bg-border" />
+      <div className="absolute top-2 left-1/2 h-[calc(100%-2rem)] w-[2px] -translate-x-1/2 bg-border" />
       {children}
     </div>
   );
 }
 
-type TimelineItemProps = {
+interface TimelineItemProps {
   date: string;
   title: string;
   description?: string;
@@ -77,7 +77,7 @@ type TimelineItemProps = {
   children?: ReactNode;
   className?: string;
   spacingMultiplier?: number; // Multiplier for spacing based on time gap (default: 1)
-};
+}
 
 type TimelineItemPropsWithIndex = TimelineItemProps & {
   itemIndex?: number;
@@ -119,7 +119,7 @@ export function TimelineItem({
       }}
     >
       {/* Dot - absolutely positioned at center */}
-      <div className="-translate-x-1/2 absolute top-0 left-1/2 z-10 flex h-8 w-8 items-center justify-center">
+      <div className="absolute top-0 left-1/2 z-10 flex h-8 w-8 -translate-x-1/2 items-center justify-center">
         <div className="h-3 w-3 rounded-full border-2 border-primary bg-background transition-all group-hover:scale-125 group-hover:border-primary group-hover:bg-primary" />
       </div>
 

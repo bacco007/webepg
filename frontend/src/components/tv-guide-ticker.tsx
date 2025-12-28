@@ -231,7 +231,7 @@ export default function TVGuideTicker() {
           <div className="absolute top-0 bottom-0 left-0 z-10 w-16 bg-linear-to-r from-background to-transparent" />
           <div className="absolute top-0 right-0 bottom-0 z-10 w-16 bg-linear-to-l from-background to-transparent" />
 
-          <div className="overflow-hidden">
+          <div className="overflow-hidden py-2">
             <div
               aria-live="polite"
               className={`${styles.ticker} flex cursor-grab active:cursor-grabbing`}

@@ -11,10 +11,10 @@ import {
 } from "@/lib/program-page-utils";
 import type { ProgramPageData } from "@/types/program-pages";
 
-type UseProgramPageOptions = {
+interface UseProgramPageOptions {
   endpoint: string;
   pageName: string;
-};
+}
 
 export function useProgramPage({ endpoint, pageName }: UseProgramPageOptions) {
   const [data, setData] = useState<ProgramPageData | null>(null);

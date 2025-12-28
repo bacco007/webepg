@@ -35,7 +35,7 @@ import {
 // Regex for numeric validation - defined at top level for performance
 const NUMERIC_REGEX = /^\d+$/;
 
-type ListViewProps = {
+interface ListViewProps {
   channels: Channel[];
   currentTime: Date;
   displayNameType?: "clean" | "location" | "real";
@@ -43,7 +43,7 @@ type ListViewProps = {
   showProgramDetails?: boolean;
   dataSource?: string;
   onProgramSelect?: (program: Program) => void;
-};
+}
 
 // Get program category icon helper function
 function getProgramCategoryIcon(categories?: string[]) {
@@ -67,7 +67,7 @@ function getProgramCategoryIcon(categories?: string[]) {
 }
 
 // Mobile program item component
-type MobileProgramItemProps = {
+interface MobileProgramItemProps {
   program: Program;
   status: ProgramStatus;
   categoryIcon: React.ReactNode;
@@ -79,7 +79,7 @@ type MobileProgramItemProps = {
   onProgramClick: (program: Program) => void;
   channelId: string;
   channelLcn: string;
-};
+}
 
 const MobileProgramItem = ({
   program,
@@ -170,12 +170,12 @@ const MobileProgramItem = ({
 );
 
 // Placeholder program item component
-type PlaceholderProgramItemProps = {
+interface PlaceholderProgramItemProps {
   program: Program;
   specialTitleClass: string | null;
   channelId: string;
   channelLcn: string;
-};
+}
 
 const PlaceholderProgramItem = ({
   program,
@@ -225,7 +225,7 @@ const PlaceholderProgramItem = ({
 );
 
 // Desktop program item component
-type DesktopProgramItemProps = {
+interface DesktopProgramItemProps {
   program: Program;
   status: ProgramStatus;
   categoryIcon: React.ReactNode;
@@ -236,7 +236,7 @@ type DesktopProgramItemProps = {
   showProgramDetails: boolean;
   channelId: string;
   channelLcn: string;
-};
+}
 
 const DesktopProgramItem = ({
   program,

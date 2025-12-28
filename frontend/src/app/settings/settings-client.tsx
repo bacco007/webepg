@@ -1,6 +1,7 @@
 "use client";
 
-import { Settings2 } from "lucide-react";
+import { Database, Settings2, Tv } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -69,7 +70,7 @@ export default function SettingsPageClient() {
 
   return (
     <div className="flex size-full flex-col">
-      <div className="flex flex-col items-start justify-between gap-4 border-b bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:flex-row sm:items-center sm:gap-0">
+      <div className="flex flex-col items-start justify-between gap-4 border-b bg-background/95 p-4 backdrop-blur supports-backdrop-filter:bg-background/60 sm:flex-row sm:items-center sm:gap-0">
         <div>
           <h1 className="font-bold text-xl sm:text-2xl">Settings</h1>
           <p className="text-muted-foreground text-sm">
@@ -120,6 +121,72 @@ export default function SettingsPageClient() {
               <CardContent>
                 <TimezoneSelector />
               </CardContent>
+            </Card>
+            <Card className="group transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+              <Link href="/settings/additional-channels" passHref>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                      <Tv className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle>Additional Channels</CardTitle>
+                      <CardDescription>
+                        Manage additional channels in the XMLEPG system
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-sm">
+                    Create, edit, and delete additional channel entries
+                  </p>
+                </CardContent>
+              </Link>
+            </Card>
+            <Card className="group transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+              <Link href="/settings/sources/remote" passHref>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                      <Database className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle>Remote Sources</CardTitle>
+                      <CardDescription>
+                        Manage remote XMLTV sources
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-sm">
+                    Create, edit, and delete remote XMLTV source configurations
+                  </p>
+                </CardContent>
+              </Link>
+            </Card>
+            <Card className="group transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+              <Link href="/settings/sources/local" passHref>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                      <Database className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle>Local Sources</CardTitle>
+                      <CardDescription>
+                        Manage local XMLTV sources
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-sm">
+                    Create, edit, and delete local XMLTV source configurations
+                  </p>
+                </CardContent>
+              </Link>
             </Card>
           </div>
         </div>

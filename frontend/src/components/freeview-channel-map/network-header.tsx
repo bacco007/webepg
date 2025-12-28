@@ -3,13 +3,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 
-type NetworkHeaderProps = {
+interface NetworkHeaderProps {
   network: string;
   channelCount: number;
   isCollapsed: boolean;
   onToggle: () => void;
   visibleLocationsCount: number;
-};
+}
 
 export function NetworkHeader({
   network,

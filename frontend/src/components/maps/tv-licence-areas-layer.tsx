@@ -2,7 +2,7 @@ import L from "leaflet";
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 
-type GeoJSONFeature = {
+interface GeoJSONFeature {
   type: "Feature";
   properties: {
     NAME: string;
@@ -12,17 +12,17 @@ type GeoJSONFeature = {
     type: string;
     coordinates: number[][][] | number[][];
   };
-};
+}
 
-type GeoJSONData = {
+interface GeoJSONData {
   type: "FeatureCollection";
   features: GeoJSONFeature[];
-};
+}
 
-type TVLicenceAreasLayerProps = {
+interface TVLicenceAreasLayerProps {
   geoJsonData: GeoJSONData | null;
   onSelectArea: (areaName: string) => void;
-};
+}
 
 export default function TVLicenceAreasLayer({
   geoJsonData,

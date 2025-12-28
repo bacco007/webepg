@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
-type SidebarTimeNavigationProps = {
+interface SidebarTimeNavigationProps {
   onJumpToTime: (hour: number) => void;
-};
+}
 
 export function SidebarTimeNavigation({
   onJumpToTime,

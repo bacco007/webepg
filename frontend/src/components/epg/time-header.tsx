@@ -2,9 +2,9 @@
 
 import { formatDate } from "@/lib/date-utils";
 
-type TimeHeaderProps = {
+interface TimeHeaderProps {
   hourWidth: number;
-};
+}
 
 export function TimeHeader({ hourWidth }: TimeHeaderProps) {
   // Generate 24 hours for the header

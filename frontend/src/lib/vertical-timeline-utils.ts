@@ -5,7 +5,7 @@
 import type { VerticalTimelineEventCollection } from "@/types/vertical-timeline";
 import type { TimelineProvider } from "./timeline-data";
 
-export type FormattedTimelineEvent = {
+export interface FormattedTimelineEvent {
   date: string;
   description?: string;
   event_type: string[];
@@ -13,7 +13,7 @@ export type FormattedTimelineEvent = {
   sortKey: number;
   tags?: string[];
   title: string;
-};
+}
 
 /**
  * Formats a year/decimal date into a readable string

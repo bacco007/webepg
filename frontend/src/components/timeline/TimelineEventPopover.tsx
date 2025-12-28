@@ -15,11 +15,11 @@ import { Separator } from "@/components/ui/separator";
 import { EVENT_TYPE_BADGES } from "./constants";
 import type { TimelineEvent } from "./types";
 
-type TimelineEventPopoverProps = {
+interface TimelineEventPopoverProps {
   events: TimelineEvent[];
   children: React.ReactNode;
   className?: string;
-};
+}
 
 export const TimelineEventPopover: React.FC<TimelineEventPopoverProps> = ({
   events,

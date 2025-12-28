@@ -34,14 +34,14 @@ const categoryColors: { [key: string]: string } = {
     "text-white from-emerald-600/90 to-emerald-500/80 hover:from-emerald-500/95 hover:to-emerald-400/85",
 };
 
-type ChannelWeeklyViewProps = {
+interface ChannelWeeklyViewProps {
   channelSlug: string;
   dataSource?: string;
   onNoProgrammingData?: (
     channelSlug: string,
     dataSource: string
   ) => React.ReactNode;
-};
+}
 
 export function ChannelWeeklyView({
   channelSlug,

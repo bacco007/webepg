@@ -4,7 +4,7 @@ export const foxteldigital: TimelineProvider = {
   category: "Subscription",
   country: "Australia",
   data: {
-    axis: { end: 2026, start: 2004, unit: "year" },
+    axis: { end: 2027, start: 2004, unit: "year" },
     channels: {
       "100": [
         {
@@ -4878,6 +4878,11 @@ export const foxteldigital: TimelineProvider = {
           channel_name: "Crime & Investigation Network",
           from: "2014.11",
           to: 2020.11,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "NBC News NOW",
+          from: 2025.12,
         },
       ],
       "614": [

@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 type DensityOption = "compact" | "normal" | "detailed";
 
-type ChannelSidebarProps = {
+interface ChannelSidebarProps {
   // Search
   searchTerm: string;
   setSearchTerm: (term: string) => void;
@@ -50,7 +50,7 @@ type ChannelSidebarProps = {
   startDayIndex: number;
   visibleDays: number;
   daysLength: number;
-};
+}
 
 export function ChannelSidebar({
   searchTerm,

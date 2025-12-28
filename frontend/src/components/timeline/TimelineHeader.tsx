@@ -57,7 +57,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
                 key={`tick-${year}`}
                 style={{ left: toPx(x) }}
               >
-                <div className="-translate-x-1/2 absolute top-2 rounded border bg-background px-2 py-0.5 font-medium text-muted-foreground text-xs">
+                <div className="absolute top-2 -translate-x-1/2 rounded border bg-background px-2 py-0.5 font-medium text-muted-foreground text-xs">
                   {formatYearMonth(year)}
                 </div>
               </div>

@@ -162,7 +162,7 @@ if (typeof document !== "undefined") {
   document.head.appendChild(style);
 }
 
-type Transmitter = {
+interface Transmitter {
   AreaServed: string;
   CallSignChannel: string;
   CallSign: string;
@@ -182,9 +182,9 @@ type Transmitter = {
   LicenceArea: string;
   LicenceNo: string;
   OnAirDate: string;
-};
+}
 
-type GeoJsonData = {
+interface GeoJsonData {
   type: "FeatureCollection";
   features: Array<{
     type: "Feature";
@@ -198,7 +198,7 @@ type GeoJsonData = {
       coordinates: number[][][];
     };
   }>;
-};
+}
 
 function MapControls({
   bounds,

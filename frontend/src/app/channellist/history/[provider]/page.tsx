@@ -3,11 +3,11 @@ import { SITE_CONFIG } from "@/config/constants";
 import { timelineProviders } from "@/lib/timeline-data";
 import ChannelHistoryClient from "./provider-client";
 
-type ChannelHistoryPageProps = {
+interface ChannelHistoryPageProps {
   params: Promise<{
     provider: string;
   }>;
-};
+}
 
 export async function generateMetadata({
   params,

@@ -57,11 +57,11 @@ export const handleError = (error: unknown): string => {
 };
 
 // Error boundary component
-type ErrorBoundaryProps = {
+interface ErrorBoundaryProps {
   children: React.ReactNode;
   source?: string;
   onError?: (error: Error) => void;
-};
+}
 
 function storeErrorDetails(error: Error, source?: string) {
   try {
@@ -138,10 +138,10 @@ export function ErrorBoundary({
 }
 
 // Error alert component
-type ErrorAlertProps = {
+interface ErrorAlertProps {
   message: string;
   onRetry?: () => void;
-};
+}
 
 export function ErrorAlert({ message, onRetry }: ErrorAlertProps) {
   return (

@@ -14,12 +14,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-type ErrorPageProperties = {
+interface ErrorPageProperties {
   statusCode?: number;
   title?: string;
   message?: string;
   showRefresh?: boolean;
-};
+}
 
 export default function ErrorPage({
   statusCode = 404,

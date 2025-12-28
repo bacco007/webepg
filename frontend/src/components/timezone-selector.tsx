@@ -14,17 +14,17 @@ import { getCookie, setCookie } from "@/lib/cookies";
 import { detectTimezone } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 
-type Timezone = {
+interface Timezone {
   value: string;
   label: string;
   group: string;
   offset: number;
-};
+}
 
-type GroupedTimezones = {
+interface GroupedTimezones {
   group: string;
   timezones: Timezone[];
-};
+}
 
 const groupTimezones = (data: Timezone[]): GroupedTimezones[] => {
   const groupMap = new Map<string, Timezone[]>();

@@ -3,15 +3,13 @@ import { SITE_CONFIG } from "@/config/constants";
 import { formatDateFromYYYYMMDD } from "@/lib/date-utils";
 import EPGDateClient from "./epg-date-client";
 
-type EPGDatePageProps = {
+export async function generateMetadata({
+  params,
+}: {
   params: Promise<{
     date: string;
   }>;
-};
-
-export async function generateMetadata({
-  params,
-}: EPGDatePageProps): Promise<Metadata> {
+}): Promise<Metadata> {
   const { date } = await params;
 
   // Format the date for display
@@ -52,6 +50,12 @@ export async function generateMetadata({
   };
 }
 
-export default function EPGDatePage({ params }: EPGDatePageProps) {
+export default function EPGDatePage({
+  params,
+}: {
+  params: Promise<{
+    date: string;
+  }>;
+}) {
   return <EPGDateClient params={params} />;
 }

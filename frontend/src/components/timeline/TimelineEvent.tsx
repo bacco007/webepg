@@ -52,7 +52,7 @@ export const TimelineEvent: React.FC<TimelineEventProps> = ({
         <button
           aria-describedby={event.note ? `event-${event.when}-desc` : undefined}
           aria-label={`${event.type} event: ${event.label || event.note || "No description"}`}
-          className="-translate-x-1/2 group absolute top-1/2 z-10 flex translate-y-[-50%] flex-col items-center"
+          className="group absolute top-1/2 z-10 flex -translate-x-1/2 translate-y-[-50%] flex-col items-center"
           onClick={handleClick}
           onKeyDown={handleKeyDown}
           onMouseEnter={() => setIsOpen(true)}

@@ -1,4 +1,4 @@
-export type Channel = {
+export interface Channel {
   channel_id: string;
   channel_slug: string;
   channel_name: string;
@@ -24,16 +24,16 @@ export type Channel = {
   };
   program_count: number;
   uuid?: string;
-};
+}
 
-export type ApiResponse = {
+export interface ApiResponse {
   date_pulled: string;
   query: string;
   source: string;
   data: {
     channels: Channel[];
   };
-};
+}
 
 export type ViewMode = "card" | "table";
 export type GroupBy =
@@ -43,9 +43,9 @@ export type GroupBy =
   | "channel_name_group"
   | "channel_specs";
 
-export type FilterCounts = {
+export interface FilterCounts {
   groupCounts: Record<string, number>;
   typeCounts: Record<string, number>;
   specsCounts: Record<string, number>;
   nameGroupCounts: Record<string, number>;
-};
+}

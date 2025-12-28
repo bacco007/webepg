@@ -26,17 +26,17 @@ import { getCookie, setCookie } from "@/lib/cookies";
 import { detectTimezone } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 
-type Timezone = {
+interface Timezone {
   value: string;
   label: string;
   group: string;
   offset: number;
-};
+}
 
-type GroupedTimezones = {
+interface GroupedTimezones {
   group: string;
   timezones: Timezone[];
-};
+}
 
 export function TimezoneDropdown() {
   const [groupedTimezones, setGroupedTimezones] = useState<GroupedTimezones[]>(

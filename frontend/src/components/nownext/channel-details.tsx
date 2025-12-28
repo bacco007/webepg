@@ -1,8 +1,8 @@
 import type { Channel } from "@/lib/nownext-types";
 
-type ChannelDetailsProps = {
+interface ChannelDetailsProps {
   channel: Channel;
-};
+}
 
 export function ChannelDetails({ channel }: ChannelDetailsProps) {
   return (

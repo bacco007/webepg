@@ -33,11 +33,11 @@ const getHeaderStyling = (status: ProgramStatus) => {
   return "bg-accent text-accent-foreground";
 };
 
-type ProgramDialogProps = {
+interface ProgramDialogProps {
   program: Program;
   trigger: React.ReactNode;
   onOpenChange?: (open: boolean) => void;
-};
+}
 
 export function ProgramDialog({
   program,

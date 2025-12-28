@@ -55,7 +55,7 @@ const softCategoryColors: { [key: string]: string } = {
 };
 
 // ProgramItem component to reduce complexity
-type ProgramItemProps = {
+interface ProgramItemProps {
   program: Program;
   programColor: string;
   density: DensityOption;
@@ -66,7 +66,7 @@ type ProgramItemProps = {
     isUpNext: boolean;
   };
   isPlaceholder: boolean;
-};
+}
 
 // Helper function to determine program color
 const getProgramColorForDisplay = (
@@ -261,7 +261,7 @@ const ProgramItem = ({
   );
 };
 
-type WeeklyGridViewProps = {
+interface WeeklyGridViewProps {
   days: Date[];
   programs: Program[];
   startDayIndex: number;
@@ -279,7 +279,7 @@ type WeeklyGridViewProps = {
     isUpNext: boolean;
   };
   gridRef: React.RefObject<HTMLDivElement | null>;
-};
+}
 
 export function WeeklyGridView({
   days,
@@ -470,7 +470,7 @@ export function WeeklyGridView({
                       top: `${topPosition}px`,
                     }}
                   >
-                    <div className="-translate-x-full -translate-y-1/2 absolute top-1/2 left-0 rounded bg-red-500 px-1.5 py-0.5 font-semibold text-[10px] text-white">
+                    <div className="absolute top-1/2 left-0 -translate-x-full -translate-y-1/2 rounded bg-red-500 px-1.5 py-0.5 font-semibold text-[10px] text-white">
                       {format(now, "HH:mm")}
                     </div>
                   </div>

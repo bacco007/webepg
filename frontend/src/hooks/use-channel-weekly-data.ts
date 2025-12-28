@@ -7,12 +7,12 @@ import { parseISODate } from "@/lib/date-utils";
 
 type DensityOption = "compact" | "normal" | "detailed";
 
-type UseChannelWeeklyDataProps = {
+interface UseChannelWeeklyDataProps {
   channelSlug: string;
   dataSource?: string;
-};
+}
 
-type UseChannelWeeklyDataReturn = {
+interface UseChannelWeeklyDataReturn {
   // Data
   allPrograms: Program[];
   channelData: Channel | null;
@@ -64,10 +64,10 @@ type UseChannelWeeklyDataReturn = {
   calculateProgress: (start: string, end: string) => number;
   handlePreviousDay: () => void;
   handleNextDay: () => void;
-};
+}
 
 // API response types
-type ApiProgram = {
+interface ApiProgram {
   start_time: string;
   end_time: string;
   title: string;
@@ -75,9 +75,9 @@ type ApiProgram = {
   description?: string;
   categories?: string[];
   rating?: string;
-};
+}
 
-type ApiChannel = {
+interface ApiChannel {
   channel_id: string;
   channel_names: {
     clean: string;
@@ -91,12 +91,12 @@ type ApiChannel = {
   channel_slug: string;
   channel_number: string;
   channel_name: string;
-};
+}
 
-type ApiResponse = {
+interface ApiResponse {
   channel: ApiChannel;
   programs: Record<string, ApiProgram[]>;
-};
+}
 
 export function useChannelWeeklyData({
   channelSlug,

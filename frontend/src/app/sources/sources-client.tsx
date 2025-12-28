@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { getCookie, setCookie } from "@/lib/cookies";
 import { cn } from "@/lib/utils";
 
-type Source = {
+interface Source {
   id: string;
   group: string;
   subgroup: string;
@@ -22,16 +22,16 @@ type Source = {
     light: string;
     dark: string;
   };
-};
+}
 
-type SourceStatus = {
+interface SourceStatus {
   source_file: { status: string; date: string };
   channels: { status: string; date: string };
   programs: { status: string; date: string };
   group: string | null;
   subgroup: string | null;
   location: string | null;
-};
+}
 
 const STALE_THRESHOLD_HOURS = 24;
 

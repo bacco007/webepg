@@ -1,4 +1,4 @@
-export type ChannelData = {
+export interface ChannelData {
   channel: {
     id: string;
     name: {
@@ -25,10 +25,10 @@ export type ChannelData = {
     rating: string;
     lengthstring: string;
   };
-};
+}
 
-export type ApiResponse = {
+export interface ApiResponse {
   data: ChannelData[];
-};
+}
 
 export type XmlTvDataSource = string;

@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     LOG_FILE: Path | None = None
 
+    # API Key for protected endpoints
+    ADMIN_API_KEY: str = "webepg-admin"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 

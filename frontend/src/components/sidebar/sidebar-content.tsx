@@ -15,23 +15,21 @@ import {
   Home,
   LayoutGrid,
   List,
+  type LucideIcon,
   Map as MapIcon,
   SatelliteDish,
   Smartphone,
   Trophy,
 } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Fragment } from "react";
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   SidebarContent as SidebarContentPrimitive,
   SidebarGroup,
@@ -43,15 +41,21 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 
-const data = {
+interface MenuItem {
+  icon: LucideIcon;
+  name: string;
+  url: string;
+  items?: SubMenuItem[];
+}
+
+interface SubMenuItem {
+  icon: LucideIcon;
+  title: string;
+  url: string;
+}
+
+const data: { projects: MenuItem[] } = {
   projects: [
     {
       icon: Home,
@@ -198,124 +202,84 @@ export default function SidebarContent() {
     return pathname === itemUrl || pathname.startsWith(`${itemUrl}/`);
   };
 
+  const renderMenuItem = (item: MenuItem) => {
+    if (!item.items) {
+      if (isCollapsed) {
+        return (
+          <SidebarMenuButton
+            isActive={isActive(item.url)}
+            render={(props) => (
+              <Link href={item.url} {...props}>
+                <item.icon />
+                <span>{item.name}</span>
+              </Link>
+            )}
+            tooltip={item.name}
+          />
+        );
+      }
+      return (
+        <SidebarMenuButton asChild isActive={isActive(item.url)}>
+          <Link href={item.url}>
+            <item.icon />
+            <span>{item.name}</span>
+          </Link>
+        </SidebarMenuButton>
+      );
+    }
+
+    return (
+      <Collapsible
+        asChild
+        className="group/collapsible"
+        defaultOpen={isActive(item.url)}
+      >
+        <SidebarMenuItem>
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton tooltip={item.name}>
+              <item.icon />
+              <span>{item.name}</span>
+              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <SidebarMenuSub>
+              {item.items.map((subItem) => (
+                <SidebarMenuSubItem key={subItem.title}>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={isActive(subItem.url)}
+                  >
+                    <a href={subItem.url}>
+                      <subItem.icon />
+                      <span>{subItem.title}</span>
+                    </a>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </SidebarMenuItem>
+      </Collapsible>
+    );
+  };
+
   return (
     <SidebarContentPrimitive>
       <SidebarGroup>
         <SidebarMenu>
-          {data.projects.map((item) => (
-            <SidebarMenuItem key={item.name}>
-              {item.items && isCollapsed && (
-                // When sidebar is collapsed, use Popover for submenu
-                <Popover>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <PopoverTrigger asChild>
-                          <SidebarMenuButton isActive={isActive(item.url)}>
-                            <item.icon />
-                            <span>{item.name}</span>
-                          </SidebarMenuButton>
-                        </PopoverTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" sideOffset={10}>
-                        {item.name}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <PopoverContent
-                    align="start"
-                    className="data-[side=right]:slide-in-from-left-2 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 fade-in-0 zoom-in-95 w-56 animate-in p-0 data-[state=closed]:animate-out"
-                    side="right"
-                    sideOffset={10}
-                  >
-                    <div className="py-2">
-                      <div className="border-b px-3 py-2 font-medium text-sm">
-                        {item.name}
-                      </div>
-                      <div className="mt-2">
-                        {item.items.map((subItem, index) => (
-                          <a
-                            className={cn(
-                              "fade-in-0 slide-in-from-right-1 flex animate-in items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-muted",
-                              isActive(subItem.url)
-                                ? "bg-muted font-medium"
-                                : "",
-                              // Stagger the animation for each item
-                              `animation-delay-${Math.min(index * 50, 300)}`
-                            )}
-                            href={subItem.url}
-                            key={subItem.title}
-                            style={{
-                              animationDelay: `${Math.min(index * 30, 300)}ms`,
-                              animationFillMode: "both",
-                            }}
-                          >
-                            <subItem.icon className="h-4 w-4" />
-                            <span>{subItem.title}</span>
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              )}
-              {item.items && !isCollapsed && (
-                // When sidebar is expanded, use Collapsible for submenu
-                <Collapsible asChild className="group/collapsible">
-                  <div>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton isActive={isActive(item.url)}>
-                        <item.icon />
-                        <span>{item.name}</span>
-                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-                      <SidebarMenuSub>
-                        {item.items.map((subItem, index) => (
-                          <SidebarMenuSubItem
-                            className="slide-in-from-left-1 fade-in-0 animate-in"
-                            key={subItem.title}
-                            style={{
-                              animationDelay: `${Math.min(index * 30, 300)}ms`,
-                              animationFillMode: "both",
-                            }}
-                          >
-                            <SidebarMenuSubButton
-                              asChild
-                              isActive={isActive(subItem.url)}
-                            >
-                              <a href={subItem.url}>
-                                <subItem.icon />
-                                <span>{subItem.title}</span>
-                              </a>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </div>
-                </Collapsible>
-              )}
-              {!item.items && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                        <a href={item.url}>
-                          <item.icon />
-                          <span>{item.name}</span>
-                        </a>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={10}>
-                      {item.name}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-            </SidebarMenuItem>
-          ))}
+          {data.projects.map((item) => {
+            const menuItem = renderMenuItem(item);
+            // If the item has subitems, Collapsible already wraps SidebarMenuItem
+            // so we don't need to wrap it again
+            if (item.items) {
+              return <Fragment key={item.name}>{menuItem}</Fragment>;
+            }
+            // For items without subitems, wrap in SidebarMenuItem
+            return (
+              <SidebarMenuItem key={item.name}>{menuItem}</SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroup>
     </SidebarContentPrimitive>

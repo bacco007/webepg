@@ -6,14 +6,14 @@ import { Component } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
-type ProgramPageErrorBoundaryProps = {
+interface ProgramPageErrorBoundaryProps {
   children: React.ReactNode;
   pageName: string;
-};
+}
 
-type ProgramPageErrorBoundaryState = {
+interface ProgramPageErrorBoundaryState {
   hasError: boolean;
-};
+}
 
 export class ProgramPageErrorBoundary extends Component<
   ProgramPageErrorBoundaryProps,

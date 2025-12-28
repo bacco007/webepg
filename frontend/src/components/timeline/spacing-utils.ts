@@ -6,13 +6,13 @@
 import { TIMELINE_CONSTANTS } from "./constants";
 import type { TimelineSpacingMode } from "./TimelineSpacingSelector";
 
-type SpacingCalculationParams = {
+interface SpacingCalculationParams {
   mode: TimelineSpacingMode;
   isMobile: boolean;
   viewportWidth?: number;
   timelineStart: number;
   timelineEnd: number;
-};
+}
 
 /**
  * Calculate pixels per year based on spacing mode

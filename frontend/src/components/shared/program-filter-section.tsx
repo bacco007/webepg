@@ -3,13 +3,13 @@
 import { useMemo, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
-type FilterSectionProps = {
+interface FilterSectionProps {
   title: string;
   options: string[];
   filters: string[];
   onFilterChange: (value: string) => void;
   counts: Record<string, number>;
-};
+}
 
 export function FilterSection({
   title,

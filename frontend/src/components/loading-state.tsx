@@ -1,13 +1,13 @@
 import type React from "react";
 import LoadingSpinner from "./loading-spinner";
 
-type LoadingStateProps = {
+interface LoadingStateProps {
   text?: string;
   size?: number;
   className?: string;
   children?: React.ReactNode;
   fullscreen?: boolean;
-};
+}
 
 const LoadingState: React.FC<LoadingStateProps> = ({
   text = "Loading...",

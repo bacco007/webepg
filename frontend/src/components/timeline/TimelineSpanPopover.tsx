@@ -15,15 +15,15 @@ import { cn } from "@/lib/utils";
 import type { TimelineSpan } from "./types";
 import { formatYearMonth } from "./utils";
 
-type TimelineSpanPopoverProps = {
+interface TimelineSpanPopoverProps {
   span: TimelineSpan;
   children: React.ReactNode;
-};
+}
 
-type ChildProps = {
+interface ChildProps {
   onMouseEnter?: (e: React.MouseEvent) => void;
   onMouseLeave?: (e: React.MouseEvent) => void;
-};
+}
 
 export const TimelineSpanPopover: React.FC<TimelineSpanPopoverProps> = ({
   span,

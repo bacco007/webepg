@@ -34,25 +34,25 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { getCookie, setCookie } from "@/lib/cookies";
 import { cn } from "@/lib/utils";
 
-type Source = {
+interface Source {
   id: string;
   group: string;
   subgroup: string;
   location: string;
   url: string;
-};
+}
 
-type GroupedSources = {
+interface GroupedSources {
   group: string;
   subgroups: {
     name: string;
     sources: Source[];
   }[];
-};
+}
 
-type SourcesDropdownProps = {
+interface SourcesDropdownProps {
   onSourceSelect?: (source: Source) => void;
-};
+}
 
 const getDisplayText = (
   selectedSource: Source | null,
@@ -322,7 +322,7 @@ export function SourcesDropdown({ onSourceSelect }: SourcesDropdownProps = {}) {
               {inputValue && (
                 <button
                   aria-label="Clear search"
-                  className="-translate-y-1/2 absolute top-1/2 right-2 text-muted-foreground hover:text-foreground"
+                  className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   onClick={() => setInputValue("")}
                   type="button"
                 >

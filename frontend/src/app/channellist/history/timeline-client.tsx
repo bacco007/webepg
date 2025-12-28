@@ -25,7 +25,7 @@ import {
 import { timelineProviders } from "@/lib/timeline-data";
 import { cn } from "@/lib/utils";
 
-type TimelineRoute = {
+interface TimelineRoute {
   title: string;
   description: string;
   href: string;
@@ -33,7 +33,7 @@ type TimelineRoute = {
   badge?: string;
   features?: string[];
   period?: string;
-};
+}
 
 // Helper function to generate features from provider data
 function generateFeatures(

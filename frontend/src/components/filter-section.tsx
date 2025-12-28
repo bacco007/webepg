@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-type FilterSectionProps = {
+interface FilterSectionProps {
   title: string;
   options: string[];
   filters: string[];
@@ -20,7 +20,7 @@ type FilterSectionProps = {
   counts: Record<string, number>;
   showSearch?: boolean;
   children?: React.ReactNode;
-};
+}
 
 export function FilterSection({
   title,

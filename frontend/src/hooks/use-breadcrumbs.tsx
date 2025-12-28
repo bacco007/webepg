@@ -3,10 +3,10 @@
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
-type BreadcrumbItem = {
+interface BreadcrumbItem {
   title: string;
   link: string;
-};
+}
 
 // Regex patterns defined at top level for performance
 const DATE_SEGMENT_REGEX = /^\d{8}$/;

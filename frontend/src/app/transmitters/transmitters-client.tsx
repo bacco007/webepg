@@ -24,14 +24,14 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-type TransmitterRoute = {
+interface TransmitterRoute {
   title: string;
   description: string;
   href: string;
   icon: React.ReactNode;
   badge?: string;
   features?: string[];
-};
+}
 
 const transmitterRoutes: TransmitterRoute[] = [
   {

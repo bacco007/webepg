@@ -15,14 +15,14 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-type ChannelListRoute = {
+interface ChannelListRoute {
   title: string;
   description: string;
   href: string;
   icon: React.ReactNode;
   badge?: string;
   features?: string[];
-};
+}
 
 const channelListRoutesData: ChannelListRoute[] = [
   {
@@ -117,7 +117,7 @@ const ChannelCard = memo(({ route }: { route: ChannelListRoute }) => (
       <div
         className={cn(
           "absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100",
-          "bg-gradient-to-r from-primary/10 to-transparent"
+          "bg-linear-to-r from-primary/10 to-transparent"
         )}
       />
 

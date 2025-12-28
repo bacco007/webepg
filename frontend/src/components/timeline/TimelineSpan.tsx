@@ -87,7 +87,7 @@ export const TimelineSpan: React.FC<TimelineSpanProps> = React.memo(
           aria-describedby={span.note ? `span-${span.from}-desc` : undefined}
           aria-label={`Timeline span: ${span.text}`}
           className={cn(
-            "-translate-y-1/2 absolute top-1/2",
+            "absolute top-1/2 -translate-y-1/2",
             "hover:z-30 hover:shadow-md",
             genreStyle,
             isClickable && "cursor-pointer"

@@ -10,14 +10,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-type NavigationControlsProps = {
+interface NavigationControlsProps {
   startDayIndex: number;
   visibleDays: number;
   daysLength: number;
   days: Date[];
   onPrevious: () => void;
   onNext: () => void;
-};
+}
 
 export function NavigationControls({
   startDayIndex,

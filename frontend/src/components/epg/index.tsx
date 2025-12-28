@@ -97,7 +97,7 @@ const MobileTimeNav = ({
   <div className="no-scrollbar mb-1 flex gap-1 overflow-x-auto px-2 py-1">
     {[6, 9, 12, 15, 18, 21, 0].map((hour) => (
       <Button
-        className="h-8 flex-shrink-0 px-2 py-1 text-xs"
+        className="h-8 shrink-0 px-2 py-1 text-xs"
         key={hour}
         onClick={() => jumpToTime(hour)}
         size="sm"
@@ -224,7 +224,7 @@ const GridView = ({
                       <div className="line-clamp-2 font-medium">
                         <Link
                           className={cn(
-                            "block break-words font-medium text-xs hover:underline"
+                            "wrap-break-word block font-medium text-xs hover:underline"
                           )}
                           href={`/channel/${channel.channel.slug}?source=${dataSource}`}
                         >
@@ -350,7 +350,7 @@ const formatDateLabel = (dateStr: string, isLong = false) => {
     : formatDate(dateObj, "EEE");
 };
 
-type TVGuideProps = {
+interface TVGuideProps {
   initialDate?: string;
   initialViewMode?: "grid" | "list";
   channelFilters?: string[];
@@ -367,7 +367,7 @@ type TVGuideProps = {
   sortBy?: string;
   groupBy?: string;
   debug?: boolean;
-};
+}
 
 // Main TV Guide Component
 export function TVGuide({

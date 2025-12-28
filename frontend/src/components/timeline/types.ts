@@ -15,13 +15,13 @@ export type TimelineEventType =
   | "Merge"
   | "News";
 
-export type TimelineEventBase = {
+export interface TimelineEventBase {
   when: YearNumber; // decimal year allowed (e.g., 2001.5 = mid-2001)
   type: TimelineEventType;
   label?: string; // short text for display
   note?: string; // longer description (tooltip/popover)
   href?: string; // optional link to more details
-};
+}
 
 export type RenameEvent = TimelineEventBase & {
   type: "Rename";
@@ -61,7 +61,7 @@ export type TimelineEvent =
   | MergeEvent
   | SimpleEvent;
 
-export type TimelineSpan = {
+export interface TimelineSpan {
   from: YearNumber; // inclusive
   to?: YearNumber; // exclusive, if not provided, assumes timeline end year
   text: string;
@@ -69,17 +69,17 @@ export type TimelineSpan = {
   note?: string;
   class?: string; // CSS token for styling
   genre?: string; // Channel genre for color coding
-};
+}
 
-export type TimelineRow = {
+export interface TimelineRow {
   id: string; // unique key
   label: string; // e.g., "Channel number 5"
   spans: TimelineSpan[];
   events?: TimelineEvent[];
-};
+}
 
 // Unified timeline item that can be either a span or event
-export type TimelineItem = {
+export interface TimelineItem {
   id: string;
   type: "span" | "event";
   when: YearNumber;
@@ -94,10 +94,10 @@ export type TimelineItem = {
   // Channel information
   channelId: string;
   channelLabel: string;
-};
+}
 
 // Single unified timeline document
-export type TimelineDocV2 = {
+export interface TimelineDocV2 {
   title: string;
   description: string;
   axis: TimelineAxis;
@@ -110,48 +110,48 @@ export type TimelineDocV2 = {
     rowHeight: number;
     spanPadding: number;
   };
-};
+}
 
-export type TimelineAxis = {
+export interface TimelineAxis {
   unit: "year";
   start: YearNumber;
   end: YearNumber; // exclusive upper bound
   tickEvery?: number;
-};
+}
 
-export type TimelineStyle = {
+export interface TimelineStyle {
   rowHeight?: number; // px
   labelWidth?: number; // px
   gap?: number; // px between rows
   spanPadding?: number; // px inner padding
   pxPerYear?: number; // px per year (controls overall width)
-};
+}
 
-export type TimelineDoc = {
+export interface TimelineDoc {
   title?: string;
   axis: TimelineAxis;
   eventTypes?: Record<TimelineEventType, string>; // dictionary for legend/tooltip
   rows: TimelineRow[];
   style?: TimelineStyle;
   colorMap?: Record<string, string>; // Custom color mapping for genres/networks
-};
+}
 
-export type TimelineProps = {
+export interface TimelineProps {
   doc: TimelineDoc;
   className?: string;
   isLoading?: boolean;
   error?: string | null;
   onEventClick?: (event: TimelineEvent) => void;
   onSpanClick?: (span: TimelineSpan) => void;
-};
+}
 
-export type TimelineHeaderProps = {
+export interface TimelineHeaderProps {
   axis: TimelineAxis;
   style: Required<TimelineStyle>;
   labelWidth: number;
-};
+}
 
-export type TimelineRowProps = {
+export interface TimelineRowProps {
   row: TimelineRow;
   axis: TimelineAxis;
   style: Required<TimelineStyle>;
@@ -162,20 +162,20 @@ export type TimelineRowProps = {
   onEventClick?: (event: TimelineEvent) => void;
   onSpanClick?: (span: TimelineSpan) => void;
   colorMap?: Record<string, string>; // Custom color mapping
-};
+}
 
-export type TimelineEventProps = {
+export interface TimelineEventProps {
   event: TimelineEvent;
   axis: TimelineAxis;
   style: Required<TimelineStyle>;
   eventTypeBadge: Record<TimelineEventType, string>;
   onEventClick?: (event: TimelineEvent) => void;
-};
+}
 
-export type TimelineSpanProps = {
+export interface TimelineSpanProps {
   span: TimelineSpan;
   axis: TimelineAxis;
   style: Required<TimelineStyle>;
   onSpanClick?: (span: TimelineSpan) => void;
   colorMap?: Record<string, string>; // Custom color mapping
-};
+}
