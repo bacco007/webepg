@@ -167,7 +167,7 @@ tzlocal==5.3.1
     #   webepg-backend
 urllib3==2.5.0
     # via sentry-sdk
-uvicorn==0.38.0
+uvicorn==0.40.0
     # via
     #   fastapi
     #   fastapi-cli
