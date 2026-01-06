@@ -2,7 +2,7 @@
 #    uv export --format requirements-txt --output-file requirements.txt --no-hashes
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.2
+aiohttp==3.13.3
     # via webepg-backend
 aiosignal==1.4.0
     # via aiohttp
@@ -165,7 +165,7 @@ tzlocal==5.3.1
     # via
     #   apscheduler
     #   webepg-backend
-urllib3==2.5.0
+urllib3==2.6.0
     # via sentry-sdk
 uvicorn==0.38.0
     # via
