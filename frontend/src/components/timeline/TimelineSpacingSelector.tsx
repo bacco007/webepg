@@ -28,7 +28,7 @@ export function TimelineSpacingSelector({
 }: TimelineSpacingSelectorProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <Space className="h-4 w-4 text-muted-foreground" />
+      {/* <Space className="h-4 w-4 text-muted-foreground" /> */}
       <Select onValueChange={onChange} value={value}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Timeline spacing" />

@@ -5,7 +5,7 @@ export const fetchtv: TimelineProvider = {
   country: "Australia",
   data: {
     axis: {
-      end: 2026,
+      end: 2027,
       start: 2010,
       unit: "year",
     },
@@ -232,7 +232,7 @@ export const fetchtv: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "BBC Drama HD (Virtual Playlist)",
+          channel_name: "BBC Drama (Virtual Playlist)",
           from: 2024.8,
         },
       ],
@@ -407,7 +407,7 @@ export const fetchtv: TimelineProvider = {
       ],
       "122": [
         {
-          channel_genre: "Documentaries",
+          channel_genre: "Documentary",
           channel_name: "Animal Planet",
           from: 2010.7,
           to: 2015.2,
@@ -560,7 +560,7 @@ export const fetchtv: TimelineProvider = {
 
       "132": [
         {
-          channel_genre: "Documentaries",
+          channel_genre: "Documentary",
           channel_name: "Discovery Home and Health",
           from: 2010.7,
           to: 2015.2,
@@ -579,7 +579,7 @@ export const fetchtv: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "BBC Brit HD",
+          channel_name: "BBC Brit (Virtual Playlist)",
           from: "2019.10",
         },
       ],
@@ -634,7 +634,7 @@ export const fetchtv: TimelineProvider = {
       ],
       "140": [
         {
-          channel_genre: "Documentaries",
+          channel_genre: "Documentary",
           channel_name: "Discovery Science",
           from: 2010.7,
           to: 2015.2,
@@ -648,7 +648,7 @@ export const fetchtv: TimelineProvider = {
       ],
       "141": [
         {
-          channel_genre: "Documentaries",
+          channel_genre: "Documentary",
           channel_name: "Discovery Turbo",
           from: 2010.7,
           to: 2015.2,
@@ -1177,7 +1177,7 @@ export const fetchtv: TimelineProvider = {
       ],
       "203": [
         {
-          channel_genre: "Documentaries",
+          channel_genre: "Documentary",
           channel_name: "Ovation",
           from: 2010.7,
         },
@@ -1594,7 +1594,7 @@ export const fetchtv: TimelineProvider = {
       "249": [
         {
           channel_genre: "Kids",
-          channel_name: "Cartoon Network",
+          channel_name: "Cartoon Network (Virtual Playlist)",
           from: 2025.11,
         },
       ],
@@ -2777,7 +2777,7 @@ export const fetchtv: TimelineProvider = {
           to: "2019.6",
         },
         {
-          channel_genre: "Information",
+          channel_genre: "Interactive",
           channel_name: "YouTube Kids",
           from: 2019.6,
           to: 2024,
@@ -2790,7 +2790,7 @@ export const fetchtv: TimelineProvider = {
           from: "2016.10",
           to: "2019.6",
         },
-        { channel_genre: "Information", channel_name: "YouTube", from: 2019.6 },
+        { channel_genre: "Interactive", channel_name: "YouTube", from: 2019.6 },
       ],
       "991": [
         {
@@ -2799,11 +2799,11 @@ export const fetchtv: TimelineProvider = {
           from: 2017.7,
           to: 2019.6,
         },
-        { channel_genre: "Information", channel_name: "hayu", from: 2019.6 },
+        { channel_genre: "Interactive", channel_name: "hayu", from: 2019.6 },
       ],
       "993": [
         {
-          channel_genre: "Information",
+          channel_genre: "Interactive",
           channel_name: "Amazon Prime Video",
           from: 2021.9,
         },
@@ -2818,8 +2818,13 @@ export const fetchtv: TimelineProvider = {
         { channel_genre: "Interactive", channel_name: "Netflix", from: 2019.6 },
       ],
       "996": [
-        { channel_genre: "Interactive", channel_name: "MovieBox", from: 2018 },
-        { channel_genre: "Information", channel_name: "Disney+", from: 2022.6 },
+        {
+          channel_genre: "Interactive",
+          channel_name: "MovieBox",
+          from: 2018,
+          to: 2022.6,
+        },
+        { channel_genre: "Interactive", channel_name: "Disney+", from: 2022.6 },
       ],
       "997": [
         {
@@ -2833,7 +2838,12 @@ export const fetchtv: TimelineProvider = {
         {
           channel_genre: "Movies",
           channel_name: "Movies Now Showing",
-          from: 2019.6,
+          from: 2019.6, to: 2024.5
+        },
+        {
+          channel_genre: "Information",
+          channel_name: "Now on Fetch",
+          from: 2024.5,
         },
       ],
       "999": [
@@ -2843,11 +2853,11 @@ export const fetchtv: TimelineProvider = {
           from: 2014,
           to: 2018,
         },
-        { channel_genre: "Interactive", channel_name: "Netflix", from: 2018 },
         {
-          channel_genre: "Information",
-          channel_name: "Now on Fetch",
-          from: 2024.5,
+          channel_genre: "Interactive",
+          channel_name: "Netflix",
+          from: 2018,
+          to: 2019.6,
         },
       ],
     },

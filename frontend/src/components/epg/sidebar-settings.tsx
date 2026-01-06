@@ -20,8 +20,6 @@ import {
 interface SidebarSettingsProps {
   sortBy: string;
   onSortByChange: (value: string) => void;
-  groupBy: string;
-  onGroupByChange: (value: string) => void;
   displayName: string;
   onDisplayNameChange: (value: string) => void;
 }
@@ -30,12 +28,6 @@ const SORT_OPTIONS = [
   { label: "Channel Number", value: "channelNumber" },
   { label: "Channel Name", value: "channelName" },
   { label: "Network Name", value: "networkName" },
-];
-
-const GROUP_OPTIONS = [
-  { label: "None", value: "none" },
-  { label: "Network", value: "network" },
-  { label: "Category", value: "category" },
 ];
 
 const DISPLAY_NAME_OPTIONS = [
@@ -47,8 +39,6 @@ const DISPLAY_NAME_OPTIONS = [
 export function SidebarSettings({
   sortBy,
   onSortByChange,
-  groupBy,
-  onGroupByChange,
   displayName,
   onDisplayNameChange,
 }: SidebarSettingsProps) {
@@ -86,25 +76,6 @@ export function SidebarSettings({
               </SelectTrigger>
               <SelectContent>
                 {SORT_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Group by */}
-          <div className="space-y-2">
-            <Label className="text-sm" htmlFor="group-by">
-              Group by
-            </Label>
-            <Select onValueChange={onGroupByChange} value={groupBy}>
-              <SelectTrigger className="w-full" id="group-by">
-                <SelectValue placeholder="Select grouping" />
-              </SelectTrigger>
-              <SelectContent>
-                {GROUP_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>

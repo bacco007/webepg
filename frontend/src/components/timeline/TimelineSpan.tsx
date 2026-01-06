@@ -15,14 +15,19 @@ import { calculateSpanPosition, isSpanClickable, toPx } from "./utils";
 // Regex patterns for special channel tags
 const FOUR_K_UHD_REGEX = /4K|Ultra HD|UHD/i;
 const HD_REGEX = /(?<!Ultra\s)HD(?!.*(?:4K|Ultra HD|UHD))/i; // HD but not Ultra HD, UHD, or 4K
-const PLUS_TWO_REGEX = /\+2/i;
+const PLUS_TWO_REGEX = /\+[12]/i; // Matches +1 or +2
 const INTERACTIVE_REGEX = /Interactive|interactive/i;
+const VIRTUAL_PLAYLIST_REGEX = /Virtual Playlist|virtual playlist/i;
 
 // Get border style for special channels
 const getChannelBorderStyle = (
   channelName: string,
   channelGenre?: string
 ): { borderColor?: string; borderWidth?: string } => {
+  // Check Virtual Playlist first (before HD) to handle cases like "Oxygen HD (Virtual Playlist)"
+  if (VIRTUAL_PLAYLIST_REGEX.test(channelName)) {
+    return { borderColor: "#8b5cf6", borderWidth: "2px" }; // purple-500 for Virtual Playlist
+  }
   if (FOUR_K_UHD_REGEX.test(channelName)) {
     return { borderColor: "#a855f7", borderWidth: "2px" }; // purple-500 for 4K/UHD/Ultra HD
   }
@@ -30,7 +35,7 @@ const getChannelBorderStyle = (
     return { borderColor: "#3b82f6", borderWidth: "2px" }; // blue-500 for regular HD
   }
   if (PLUS_TWO_REGEX.test(channelName)) {
-    return { borderColor: "#f97316", borderWidth: "2px" }; // orange-500 for +2
+    return { borderColor: "#f97316", borderWidth: "2px" }; // orange-500 for +1 or +2
   }
   if (INTERACTIVE_REGEX.test(channelName) || channelGenre === "Interactive") {
     return { borderColor: "#10b981", borderWidth: "2px" }; // green-500 for Interactive
@@ -74,12 +79,15 @@ export const TimelineSpan: React.FC<TimelineSpanProps> = React.memo(
         ? colors[span.genre]
         : colors.Default || GENRE_COLORS.Default;
 
-    // Get special border style
-    const borderStyle = getChannelBorderStyle(span.text, span.genre);
+    // Get special border style (use original genre for Interactive check)
+    const genreForBorder = span.channelGenre ?? span.genre;
+    const borderStyle = getChannelBorderStyle(span.text, genreForBorder);
 
     // Check if this is a radio channel or interactive channel
-    const isRadio = span.genre?.toLowerCase().includes("radio");
-    const isInteractive = span.genre?.toLowerCase().includes("interactive");
+    // Use channelGenre (original genre) for icon detection, fallback to genre if not available
+    const genreForIcon = span.channelGenre ?? span.genre;
+    const isRadio = genreForIcon?.toLowerCase().includes("radio");
+    const isInteractive = genreForIcon?.toLowerCase().includes("interactive");
 
     return (
       <TimelineSpanPopover span={span}>

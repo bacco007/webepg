@@ -336,6 +336,7 @@ export function convertSimplifiedToRows(
           : item.channel_genre;
 
       return {
+        channelGenre: item.channel_genre, // Preserve original genre for icon detection
         from: item.from || 0,
         genre: colorValue, // Use the configured field for coloring
         note: tooltipText,

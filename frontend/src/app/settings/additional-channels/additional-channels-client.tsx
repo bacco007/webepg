@@ -4,6 +4,7 @@ import { Edit, Plus, RefreshCw, Settings, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { ApiKeyDialog } from "@/components/additional-channels/api-key-dialog";
 import { ChannelFormDialog } from "@/components/additional-channels/channel-form-dialog";
+import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -170,40 +171,40 @@ export default function AdditionalChannelsClient() {
     );
   }
 
-  return (
-    <div className="flex size-full flex-col">
-      <div className="flex flex-col items-start justify-between gap-4 border-b bg-background/95 p-4 backdrop-blur supports-backdrop-filter:bg-background/60 sm:flex-row sm:items-center sm:gap-0">
-        <div>
-          <h1 className="font-bold text-xl sm:text-2xl">Additional Channels</h1>
-          <p className="text-muted-foreground text-sm">
-            Manage additional channels in the XMLEPG system
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={() => setShowApiKeyDialog(true)}
-            size="icon"
-            title="Configure API Key"
-            variant="outline"
-          >
-            <Settings className="size-4" />
-          </Button>
-          <Button
-            disabled={loading}
-            onClick={() => refetch()}
-            size="icon"
-            title="Refresh"
-            variant="outline"
-          >
-            <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
-          </Button>
-          <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="mr-2 size-4" />
-            Create Channel
-          </Button>
-        </div>
-      </div>
+  // Create header actions
+  const headerActions = (
+    <div className="flex gap-2">
+      <Button
+        onClick={() => setShowApiKeyDialog(true)}
+        size="icon"
+        title="Configure API Key"
+        variant="outline"
+      >
+        <Settings className="size-4" />
+      </Button>
+      <Button
+        disabled={loading}
+        onClick={() => refetch()}
+        size="icon"
+        title="Refresh"
+        variant="outline"
+      >
+        <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
+      </Button>
+      <Button onClick={() => setShowCreateDialog(true)}>
+        <Plus className="mr-2 size-4" />
+        Create Channel
+      </Button>
+    </div>
+  );
 
+  return (
+    <SidebarLayout
+      actions={headerActions}
+      contentClassName="p-0"
+      sidebar={null}
+      title="Additional Channels"
+    >
       <div className="flex-1 overflow-auto p-4">
         {error && (
           <Alert className="mb-4" variant="destructive">
@@ -334,6 +335,6 @@ export default function AdditionalChannelsClient() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </SidebarLayout>
   );
 }

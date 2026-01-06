@@ -34,7 +34,7 @@ export const TimelineRow: React.FC<TimelineRowProps> = React.memo(
         >
           {/* Left label */}
           <div
-            className="sticky left-0 z-10 flex shrink-0 items-center border-r bg-background px-4 font-medium text-sm"
+            className="sticky left-0 z-10 flex shrink-0 items-center justify-center border-r bg-background px-2 font-medium text-sm"
             style={{
               height: style.rowHeight,
               width: labelWidth,
@@ -42,12 +42,9 @@ export const TimelineRow: React.FC<TimelineRowProps> = React.memo(
             }}
             title={row.label}
           >
-            <span className="flex items-center gap-2 truncate">
+            <span className="flex items-center justify-center gap-2 truncate">
               {row.label === "Events" ? (
-                <>
-                  <span>📅</span>
-                  <span>Events</span>
-                </>
+                <span>📅</span>
               ) : (
                 <>
                   {row.label}
@@ -67,7 +64,7 @@ export const TimelineRow: React.FC<TimelineRowProps> = React.memo(
           {/* Right track */}
           <div className="relative" style={{ width: "100%" }}>
             <div
-              className="relative bg-gradient-to-r from-transparent via-muted/5 to-transparent"
+              className="relative bg-linear-to-r from-transparent via-muted/5 to-transparent"
               style={{
                 height: style.rowHeight,
                 marginLeft: 20,

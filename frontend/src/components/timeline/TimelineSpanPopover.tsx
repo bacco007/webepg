@@ -67,7 +67,7 @@ export const TimelineSpanPopover: React.FC<TimelineSpanPopoverProps> = ({
         align="center"
         alignOffset={0}
         className={cn(
-          "z-[1000] max-w-md overflow-hidden rounded-md border-0 p-0 shadow-lg"
+          "z-1000 max-w-md overflow-hidden rounded-md border-0 p-0 shadow-lg"
         )}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}

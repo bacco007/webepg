@@ -38,12 +38,12 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
         }}
       >
         <span className="flex items-center gap-2">
-          <span>Channel</span>
+          <span>Ch</span>
         </span>
       </div>
       <div className="relative flex-1">
         <div
-          className="relative bg-gradient-to-r from-muted/30 to-transparent"
+          className="relative bg-linear-to-r from-muted/30 to-transparent"
           style={{ height: 40, marginLeft: 20, width: toPx(trackWidth + 20) }}
         >
           {ticks.map((year) => {

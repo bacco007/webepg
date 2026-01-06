@@ -21,6 +21,18 @@ export const skynz: TimelineProvider = {
           channel_genre: "Other",
           channel_name: "Preview",
           from: 2004,
+          to: 2010,
+        },
+        {
+          channel_genre: "Other",
+          channel_name: "My Sky HDi Help Channel",
+          from: 2010,
+          to: 2011,
+        },
+        {
+          channel_genre: "Other",
+          channel_name: "Preview",
+          from: 2011,
         },
       ],
       "1": [
@@ -30,7 +42,12 @@ export const skynz: TimelineProvider = {
           from: 1999,
           to: 2008.7,
         },
-        { channel_genre: "FTA", channel_name: "TV One HD", from: 2008.7, to: 2016.1 },
+        {
+          channel_genre: "FTA",
+          channel_name: "TV One HD",
+          from: 2008.7,
+          to: 2016.1,
+        },
         { channel_genre: "FTA", channel_name: "TVNZ 1 HD", from: 2016.1 },
       ],
       "2": [
@@ -40,12 +57,22 @@ export const skynz: TimelineProvider = {
           from: 1999,
           to: 2008.7,
         },
-        { channel_genre: "FTA", channel_name: "TV2 HD", from: 2008.7, to: 2016.1 },
+        {
+          channel_genre: "FTA",
+          channel_name: "TV2 HD",
+          from: 2008.7,
+          to: 2016.1,
+        },
         { channel_genre: "FTA", channel_name: "TVNZ 2 HD", from: 2016.1 },
       ],
       "3": [
         { channel_genre: "FTA", channel_name: "TV3", from: 1999, to: 2008.7 },
-        { channel_genre: "FTA", channel_name: "TV3 HD", from: 2008.7, to: 2017 },
+        {
+          channel_genre: "FTA",
+          channel_name: "TV3 HD",
+          from: 2008.7,
+          to: 2017,
+        },
         { channel_genre: "FTA", channel_name: "Three HD", from: 2017 },
       ],
       "4": [
@@ -76,13 +103,13 @@ export const skynz: TimelineProvider = {
       "5": [
         {
           channel_genre: "Entertainment",
-          channel_name: "Sky 1",
+          channel_name: "SKY 1",
           from: 1999,
           to: 2004,
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "The Box",
+          channel_name: "the BOX",
           from: 2004,
           to: 2018,
         },
@@ -107,14 +134,14 @@ export const skynz: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "UKTV",
+          channel_name: "UK.TV",
           from: 2008,
-          to: 2012,
+          to: 2009,
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Vibe",
-          from: 2012,
+          channel_name: "UKTV",
+          from: 2009,
         },
       ],
       "7": [
@@ -122,12 +149,18 @@ export const skynz: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "E!",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "UKTV",
-          from: 2012,
+          channel_name: "Vibe",
+          from: 2008,
+          to: 2009,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Vibe",
+          from: 2009,
         },
       ],
       "8": [
@@ -135,19 +168,19 @@ export const skynz: TimelineProvider = {
           channel_genre: "Lifestyle",
           channel_name: "The Living Channel",
           from: 1999,
-          to: 2004,
+          to: 2012,
         },
         {
           channel_genre: "Entertainment",
           channel_name: "Jones!",
-          from: 2004,
+          from: 2012,
         },
       ],
       "9": [
         {
           channel_genre: "Lifestyle",
           channel_name: "Food Television",
-          from: 2008,
+          from: 2006,
           to: 2012,
         },
         {
@@ -174,12 +207,18 @@ export const skynz: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Sky Sport 1 HD",
           from: 2008.7,
-          to: 2012,
+          to: 2009.4,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Comedy Central",
+          from: 2009.4,
+          to: 2011,
         },
         {
           channel_genre: "Entertainment",
           channel_name: "SoHo HD",
-          from: 2012,
+          from: 2011,
           to: "2024.10",
         },
         {
@@ -199,12 +238,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Sky Sport 2 HD",
           from: 2008.7,
-          to: 2012,
+          to: 2009,
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Comedy Central",
-          from: 2012,
+          channel_name: "E!",
+          from: 2009,
         },
       ],
       "12": [
@@ -222,8 +261,14 @@ export const skynz: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
+          channel_name: "FOUR",
+          from: "2011.2",
+          to: 2016.7,
+        },
+        {
+          channel_genre: "Entertainment",
           channel_name: "Four",
-          from: 2011.2,
+          from: 2016.7,
           to: 2016.7,
         },
         { channel_genre: "Entertainment", channel_name: "Bravo", from: 2016.7 },
@@ -234,6 +279,12 @@ export const skynz: TimelineProvider = {
           channel_name: "ESPN",
           from: 1999,
           to: 2008,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Fashion TV",
+          from: 2008,
+          to: 2017,
         },
         {
           channel_genre: "Entertainment",
@@ -260,6 +311,23 @@ export const skynz: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "E!",
           from: 2004,
+          to: 2010,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "MTV",
+          from: 2010,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "MTV",
+          from: 2012,
+          to: 2025.12,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Sky Comedy HD",
+          from: 2025.12,
         },
       ],
       "15": [
@@ -273,22 +341,40 @@ export const skynz: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "MTV",
           from: 2004,
-          to: 2025.12,
+          to: 2011,
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Sky Comedy HD",
-          from: 2025.12,
+          channel_name: "Comedy Central",
+          from: 2011,
         },
       ],
       "16": [
-        { channel_genre: "Entertainment", channel_name: "TLC", from: 1999 },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "TLC",
+          from: 1999,
+          to: 2010,
+        },
+        {
+          channel_genre: "FTA",
+          channel_name: "TVNZ 6",
+          from: 2010,
+          to: 2011,
+        },
+        { channel_genre: "Entertainment", channel_name: "U", from: 2011 },
       ],
       "17": [
         {
           channel_genre: "Lifestyle",
           channel_name: "Living Channel",
           from: 1999,
+          to: 2010,
+        },
+        {
+          channel_genre: "FTA",
+          channel_name: "TVNZ Heartland",
+          from: 2010,
         },
       ],
       "18": [
@@ -296,6 +382,18 @@ export const skynz: TimelineProvider = {
           channel_genre: "Lifestyle",
           channel_name: "Food TV",
           from: 1999,
+          to: 2012,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "The Shopping Channel",
+          from: 2012,
+          to: 2013.11,
+        },
+        {
+          channel_genre: "Lifestyle",
+          channel_name: "Food TV",
+          from: 2013.11,
           to: 2021.3,
         },
         {
@@ -322,8 +420,20 @@ export const skynz: TimelineProvider = {
       "20": [
         {
           channel_genre: "Movies",
-          channel_name: "Sky Movies 1",
+          channel_name: "SKY Movies 1",
           from: 1999,
+          to: 2008,
+        },
+        {
+          channel_genre: "Movies",
+          channel_name: "SKY Movies",
+          from: 2008,
+          to: 2008.7,
+        },
+        {
+          channel_genre: "Movies",
+          channel_name: "SKY Movies HD",
+          from: 2008.7,
           to: 2013.11,
         },
         {
@@ -335,7 +445,7 @@ export const skynz: TimelineProvider = {
       "21": [
         {
           channel_genre: "Movies",
-          channel_name: "Sky Movies 2",
+          channel_name: "SKY Movies 2",
           from: 1999,
           to: 2008.7,
         },
@@ -368,17 +478,23 @@ export const skynz: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Sky Movies Action",
           from: 2004,
+          to: 2007.7,
+        },
+        {
+          channel_genre: "Movies",
+          channel_name: "SKY Movie Greats",
+          from: 2007.7,
           to: 2008.7,
         },
         {
           channel_genre: "Movies",
-          channel_name: "Sky Movies Action HD",
+          channel_name: "SKY Movies Greats HD",
           from: 2008.7,
           to: 2012,
         },
         {
           channel_genre: "Movies",
-          channel_name: "Sky Movies Greats",
+          channel_name: "Sky Movies Greats HD",
           from: 2012,
           to: 2013.11,
         },
@@ -394,6 +510,12 @@ export const skynz: TimelineProvider = {
           channel_name: "Rialto Channel",
           from: 2002.11,
           to: 2004,
+        },
+        {
+          channel_genre: "Movies",
+          channel_name: "MGM",
+          from: 2004,
+          to: 2016.3,
         },
         { channel_genre: "FTA", channel_name: "TVNZ Duke", from: 2016.3 },
       ],
@@ -423,12 +545,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "Other",
           channel_name: "Preview Channel",
           from: 2006,
-          to: 2008,
+          to: 2007,
         },
         {
           channel_genre: "Movies",
           channel_name: "Rialto Channel",
-          from: 2008,
+          from: 2007,
           to: 2013.11,
         },
         {
@@ -444,16 +566,25 @@ export const skynz: TimelineProvider = {
           channel_genre: "Shopping",
           channel_name: "YesShop",
           from: 1999,
-          to: 2016,
+          to: 2012,
         },
-        { channel_genre: "Music", channel_name: "J2", from: 2016 },
+        {
+          channel_genre: "Movies",
+          channel_name: "Sky Box Office",
+          from: 2012,
+        },
       ],
       "27": [
         {
           channel_genre: "Shopping",
           channel_name: "TVSN",
           from: 2004,
-          to: 2020.8,
+          to: 2012,
+        },
+        {
+          channel_genre: "Movies",
+          channel_name: "Sky Box Office",
+          from: 2012,
         },
       ],
       "28": [
@@ -461,6 +592,18 @@ export const skynz: TimelineProvider = {
           channel_genre: "Other",
           channel_name: "Preview",
           from: 1999,
+          to: 2010,
+        },
+        {
+          channel_genre: "Other",
+          channel_name: "My Sky HDi Help Channel",
+          from: 2010,
+          to: 2011,
+        },
+        {
+          channel_genre: "Other",
+          channel_name: "Preview",
+          from: 2011,
         },
       ],
       "29": [
@@ -468,6 +611,18 @@ export const skynz: TimelineProvider = {
           channel_genre: "FTA",
           channel_name: "Three Life",
           from: 1999,
+          to: 2010,
+        },
+        {
+          channel_genre: "Other",
+          channel_name: "Upgrade Channel",
+          from: 2010,
+          to: 2019,
+        },
+        {
+          channel_genre: "FTA",
+          channel_name: "Three Life",
+          from: 2019,
           to: 2019,
         },
         {
@@ -488,12 +643,18 @@ export const skynz: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Sky Movies",
           from: 2004,
-          to: 2008,
+          to: 2007,
         },
         {
-          channel_genre: "Movies",
-          channel_name: "Sky Movies 1",
-          from: 2008,
+          channel_genre: "Sports",
+          channel_name: "SKY Sport 1",
+          from: 2007,
+          to: 2008.7,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "SKY Sport 1 HD",
+          from: 2008.7,
           to: 2012,
         },
         {
@@ -513,12 +674,18 @@ export const skynz: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Sky Movies Max",
           from: 2004,
-          to: 2008,
+          to: 2007,
         },
         {
-          channel_genre: "Movies",
-          channel_name: "Sky Movies 2",
-          from: 2008,
+          channel_genre: "Sports",
+          channel_name: "SKY Sport 2",
+          from: 2007,
+          to: 2008.7,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "SKY Sport 2 HD",
+          from: 2008.7,
           to: 2012,
         },
         {
@@ -544,12 +711,35 @@ export const skynz: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Sky Movies Action",
           from: 2004,
+          to: 2007,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "SKY Sport 3",
+          from: 2007,
           to: 2008.7,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "SKY Sport 3 HD",
+          from: 2008.7,
+          to: 2009,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "SKY Sport 3",
+          from: 2009,
+          to: 2011,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "SKY Sport 3 HD",
+          from: 2011,
         },
         {
           channel_genre: "Movies",
           channel_name: "Sky Movies Action HD",
-          from: 2008.7,
+          from: 2012,
         },
       ],
       "33": [
@@ -557,15 +747,33 @@ export const skynz: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Maori Television",
           from: 2004,
+          to: 2007.7,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "SKY Sports Highlights",
+          from: 2007.7,
           to: 2012,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "SKY Sport Highlights",
+          from: 2012,
+          to: 2013.11,
         },
         {
           channel_genre: "Movies",
           channel_name: "Sky Movies Greats HD",
-          from: 2012,
+          from: 2013.11,
         },
       ],
       "34": [
+        {
+          channel_genre: "Sports",
+          channel_name: "ESPN",
+          from: 1999,
+          to: 2008,
+        },
         {
           channel_genre: "Movies",
           channel_name: "Sky Movies Classics",
@@ -573,36 +781,64 @@ export const skynz: TimelineProvider = {
           to: 2008.7,
         },
         {
-          channel_genre: "Movies",
-          channel_name: "Sky Movies Classics HD",
+          channel_genre: "Sports",
+          channel_name: "ESPN HD",
           from: 2008.7,
+          to: 2009,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "ESPN",
+          from: 2009,
           to: 2012,
         },
         {
-          channel_genre: "Movies",
-          channel_name: "Sky Movies Classics",
+          channel_genre: "Sports",
+          channel_name: "ESPN HD",
           from: 2012,
         },
       ],
       "35": [
         {
+          channel_genre: "Sports",
+          channel_name: "TAB Trackside",
+          from: 1999,
+          to: 2004,
+        },
+        {
           channel_genre: "Entertainment",
           channel_name: "MTV New Zealand",
           from: 2006,
+          to: 2007,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "TAB Trackside",
+          from: 2007,
           to: 2008,
         },
         {
-          channel_genre: "Movies",
-          channel_name: "Sky Movies Pop-Up",
-          channel_notes: "Popup Channel",
+          channel_genre: "Sports",
+          channel_name: "Trackside",
           from: 2008,
           to: 2008.7,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "TAB TV",
+          from: 2008.7,
+          to: 2010,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "TAB TV",
+          from: 2010,
         },
         {
           channel_genre: "Movies",
           channel_name: "Sky Movies Pop-Up HD",
           channel_notes: "Popup Channel",
-          from: 2008.7,
+          from: 2012,
           to: 2019,
         },
         {
@@ -620,23 +856,21 @@ export const skynz: TimelineProvider = {
       ],
       "36": [
         {
-          channel_genre: "Movies",
-          channel_name: "Sky Movies Family Pop-Up",
-          channel_notes: "Popup Channel, School Holidays only",
-          from: 2008,
-          to: 2008.7,
+          channel_genre: "Sports",
+          channel_name: "The Rugby Channel",
+          from: 2002,
+          to: 2004,
         },
         {
-          channel_genre: "Movies",
-          channel_name: "Sky Movies Family Pop-Up HD",
-          channel_notes: "Popup Channel, School Holidays only",
-          from: 2008.7,
-          to: 2019.11,
+          channel_genre: "Sports",
+          channel_name: "The Rugby Channel",
+          from: 2004,
+          to: 2010,
         },
         {
-          channel_genre: "Movies",
-          channel_name: "Sky Movies Family HD",
-          from: 2019.11,
+          channel_genre: "Sports",
+          channel_name: "Trackside",
+          from: 2010,
         },
       ],
       "37": [
@@ -647,9 +881,15 @@ export const skynz: TimelineProvider = {
           to: 2008.7,
         },
         {
+          channel_genre: "Sports",
+          channel_name: "The Rugby Channel",
+          from: 2008.7,
+          to: 2012,
+        },
+        {
           channel_genre: "Movies",
           channel_name: "Sky Movies Disney HD",
-          from: 2008.7,
+          from: 2012,
           to: "2019.10",
         },
       ],
@@ -661,16 +901,9 @@ export const skynz: TimelineProvider = {
           to: 2008,
         },
         {
-          channel_genre: "Movies",
-          channel_name: "TCM",
+          channel_genre: "PPV",
+          channel_name: "SKY ARENA",
           from: 2008,
-          to: 2019,
-        },
-        {
-          channel_genre: "Movies",
-          channel_name: "Sky Movies Pop-up HD",
-          channel_notes: "Popup Channel",
-          from: 2019,
         },
       ],
       "39": [
@@ -678,15 +911,14 @@ export const skynz: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Rialto Channel",
           from: 2004,
-          to: 2016,
+          to: 2011.3,
         },
         {
-          channel_genre: "Movies",
-          channel_name: "Rialto HD",
-          from: 2016,
+          channel_genre: "PPV",
+          channel_name: "SKY ARENA HD",
+          from: 2011.3,
         },
       ],
-
       "40": [
         {
           channel_genre: "Kids",
@@ -765,9 +997,15 @@ export const skynz: TimelineProvider = {
           to: 2010,
         },
         {
+          channel_genre: "Interactive",
+          channel_name: "Playin' TV",
+          from: 2010,
+          to: 2010,
+        },
+        {
           channel_genre: "Kids",
-          channel_name: "Nick Jr",
-          from: 2012,
+          channel_name: "Nick Jr.",
+          from: 2010,
         },
       ],
       "45": [
@@ -778,15 +1016,27 @@ export const skynz: TimelineProvider = {
           to: 2006,
         },
         {
+          channel_genre: "Kids",
+          channel_name: "Playhouse Disney Channel",
+          from: 2006,
+          to: 2008,
+        },
+        {
           channel_genre: "Interactive",
           channel_name: "MindGames",
-          from: 2006,
+          from: 2008,
           to: 2010,
+        },
+        {
+          channel_genre: "Interactive",
+          channel_name: "MindGames",
+          from: 2010,
+          to: 2011.5,
         },
         {
           channel_genre: "Kids",
           channel_name: "Disney Junior",
-          from: 2012,
+          from: 2011.5,
           to: 2020,
         },
         {
@@ -798,8 +1048,8 @@ export const skynz: TimelineProvider = {
       "46": [
         {
           channel_genre: "Kids",
-          channel_name: "TVNZ Kidzone",
-          from: 2012,
+          channel_name: "TVNZ Kidzone24",
+          from: 2011,
           to: 2020,
         },
         {
@@ -837,9 +1087,21 @@ export const skynz: TimelineProvider = {
           to: 2004,
         },
         {
+          channel_genre: "Interactive",
+          channel_name: "Playin'TV",
+          from: 2004,
+          to: 2010,
+        },
+        {
           channel_genre: "Sports",
           channel_name: "Sport Mosaic",
-          from: 2004,
+          from: 2010,
+          to: 2012,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "Sport Mosaic",
+          from: 2012,
           to: 2019.8,
         },
         {
@@ -856,9 +1118,15 @@ export const skynz: TimelineProvider = {
           to: 2004,
         },
         {
+          channel_genre: "Interactive",
+          channel_name: "MindGames",
+          from: 2004,
+          to: 2006,
+        },
+        {
           channel_genre: "Sports",
           channel_name: "Sky Sport 1",
-          from: 2004,
+          from: 2006,
           to: 2008.7,
         },
         {
@@ -1064,7 +1332,7 @@ export const skynz: TimelineProvider = {
         {
           channel_genre: "Entertainment",
           channel_name: "Te Reo",
-          from: 2012,
+          from: 2008.3,
           to: 2016,
         },
         {
@@ -1082,15 +1350,27 @@ export const skynz: TimelineProvider = {
 
       "60": [
         {
-          channel_genre: "Movies",
-          channel_name: "Sky Box Office",
+          channel_genre: "Music",
+          channel_name: "MTV New Zealand",
           from: 2006,
-          to: 2012,
+          to: 2008,
         },
         {
-          channel_genre: "Sports",
-          channel_name: "ESPN",
-          from: 2012,
+          channel_genre: "Movies",
+          channel_name: "Sky Box Office",
+          from: 2008,
+          to: 2009,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "MTV",
+          from: 2009,
+          to: 2011,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "MTV Hits",
+          from: 2011,
         },
       ],
       "61": [
@@ -1098,19 +1378,37 @@ export const skynz: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Sky Box Office Movies",
           from: 2006,
-          to: 2012,
+          to: 2011,
         },
         {
-          channel_genre: "Sports",
-          channel_name: "ESPN2 HD",
-          from: 2012,
+          channel_genre: "Music",
+          channel_name: "MTV Classic",
+          from: 2011.6,
         },
       ],
       "62": [
         {
+          channel_genre: "Music",
+          channel_name: "Juice TV",
+          from: 1999,
+          to: 2004,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "Juice TV",
+          from: 2004,
+          to: 2006,
+        },
+        {
           channel_genre: "Movies",
           channel_name: "Sky Box Office Movies",
           from: 2006,
+          to: 2012,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "Juice TV",
+          from: 2012,
           to: 2014.8,
         },
         {
@@ -1121,9 +1419,33 @@ export const skynz: TimelineProvider = {
       ],
       "63": [
         {
+          channel_genre: "Music",
+          channel_name: "J2",
+          from: 1999,
+          to: 2004,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "J2",
+          from: 2004,
+          to: 2006,
+        },
+        {
           channel_genre: "Movies",
           channel_name: "Sky Box Office Movies",
           from: 2006,
+          to: 2008,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "63 - Our Music TV",
+          from: 2008,
+          to: 2011,
+        },
+        {
+          channel_genre: "Other",
+          channel_name: "63",
+          from: 2011,
           to: 2014.8,
         },
         {
@@ -1134,28 +1456,52 @@ export const skynz: TimelineProvider = {
       ],
       "64": [
         {
+          channel_genre: "Entertainment",
+          channel_name: "C4",
+          from: 1999,
+          to: 2004,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "C4",
+          from: 2004,
+          to: 2006,
+        },
+        {
           channel_genre: "Movies",
           channel_name: "Sky Box Office Movies",
           from: 2006,
           to: 2012,
         },
         {
-          channel_genre: "Sports",
-          channel_name: "Rugby Channel",
+          channel_genre: "Entertainment",
+          channel_name: "C4",
           from: 2012,
         },
       ],
       "65": [
         {
+          channel_genre: "Entertainment",
+          channel_name: "Alt TV",
+          from: 2006,
+          to: 2008,
+        },
+        {
           channel_genre: "Movies",
           channel_name: "Sky Box Office Movies",
-          from: 2006,
+          from: 2008,
           to: 2011.3,
         },
         {
           channel_genre: "PPV",
-          channel_name: "Sky Arena HD",
+          channel_name: "SKY ARENA HD",
           from: 2011.3,
+          to: 2012,
+        },
+        {
+          channel_genre: "PPV",
+          channel_name: "Sky Arena HD",
+          from: 2012,
         },
       ],
       "66": [
@@ -1163,6 +1509,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Sky Box Office Movies",
           from: 2006,
+          to: 2010,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Fashion TV",
+          from: 2010,
         },
       ],
       "67": [
@@ -1188,8 +1540,14 @@ export const skynz: TimelineProvider = {
       "71": [
         {
           channel_genre: "Documentary",
-          channel_name: "Crime + Investigation",
-          from: 1999,
+          channel_name: "Crime & Investigation Network",
+          from: 2007.9,
+          to: 2009,
+        },
+        {
+          channel_genre: "Documentary",
+          channel_name: "CI",
+          from: 2009,
           to: 2024.8,
         },
         {
@@ -1203,6 +1561,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "Documentary",
           channel_name: "National Geographic Channel",
           from: 1999,
+          to: 2009,
+        },
+        {
+          channel_genre: "Documentary",
+          channel_name: "National Geographic",
+          from: 2009,
           to: 2016,
         },
         {
@@ -1217,11 +1581,17 @@ export const skynz: TimelineProvider = {
           channel_genre: "Documentary",
           channel_name: "History",
           from: 1999,
-          to: 2012,
+          to: 2009,
         },
         {
           channel_genre: "Documentary",
           channel_name: "The History Channel",
+          from: 2009,
+          to: 2012,
+        },
+        {
+          channel_genre: "Documentary",
+          channel_name: "History",
           from: 2012,
           to: 2016,
         },
@@ -1240,8 +1610,14 @@ export const skynz: TimelineProvider = {
       "74": [
         {
           channel_genre: "Documentary",
-          channel_name: "BBC Knowledge",
+          channel_name: "Documentary Channel",
           from: 1999,
+          to: 2008,
+        },
+        {
+          channel_genre: "Documentary",
+          channel_name: "BBC Knowledge",
+          from: 2008,
           to: 2019,
         },
         {
@@ -1286,13 +1662,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "Documentary",
           channel_name: "Animal Planet",
           from: 1999,
-          to: 2012,
+          to: 2011,
         },
         {
-          channel_genre: "Documentary",
+          channel_genre: "Lifestyle",
           channel_name: "Travel Channel",
-          from: 2012,
-          to: 2016,
+          from: 2011,
         },
         {
           channel_genre: "Documentary",
@@ -1305,7 +1680,26 @@ export const skynz: TimelineProvider = {
           channel_genre: "Special Interest",
           channel_name: "Garage",
           from: 1999,
+          to: 2010.5,
+        },
+        {
+          channel_genre: "Lifestyle",
+          channel_name: "Travel Channel",
+          from: 2010.5,
+          to: 2011,
+        },
+        {
+          channel_genre: "FTA",
+          channel_name: "TVNZ 7",
+          from: 2011,
           to: 2018.8,
+        },
+      ],
+      "78": [
+        {
+          channel_genre: "Lifestyle",
+          channel_name: "ChoiceTV",
+          from: 2012,
         },
       ],
       "79": [
@@ -1317,6 +1711,12 @@ export const skynz: TimelineProvider = {
         },
       ],
       "81": [
+        {
+          channel_genre: "FTA",
+          channel_name: "TV One +1",
+          from: 2012,
+          to: 2013.5,
+        },
         {
           channel_genre: "Special Interest",
           channel_name: "Country TV",
@@ -1334,6 +1734,12 @@ export const skynz: TimelineProvider = {
       ],
       "83": [
         {
+          channel_genre: "FTA",
+          channel_name: "TV3 +1",
+          from: 2012,
+          to: 2013.2,
+        },
+        {
           channel_genre: "Entertainment",
           channel_name: "Face",
           from: 2013.2,
@@ -1350,6 +1756,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "News",
           channel_name: "Sky News New Zealand",
           from: 1999,
+          to: 2012,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "Sky News",
+          from: 2012,
           to: 2016,
         },
         {
@@ -1384,6 +1796,11 @@ export const skynz: TimelineProvider = {
           from: 1999,
           to: 2012,
         },
+        {
+          channel_genre: "News",
+          channel_name: "CNN",
+          from: 2012,
+        },
       ],
       "88": [
         {
@@ -1392,31 +1809,60 @@ export const skynz: TimelineProvider = {
           from: 1999,
           to: 2012,
         },
+        {
+          channel_genre: "News",
+          channel_name: "Fox News",
+          from: 2012,
+        },
       ],
       "89": [
         {
           channel_genre: "News",
           channel_name: "BBC World News",
           from: 1999,
+          to: 2008,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Triangle Stratos",
+          from: 2008,
+          to: 2009,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "STRATOS",
+          from: 2009,
+          to: 2010,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Triangle STRATOS",
+          from: 2010,
           to: 2012,
         },
         {
           channel_genre: "News",
-          channel_name: "BBC News",
+          channel_name: "BBC World News",
           from: 2012,
         },
       ],
       "90": [
         {
           channel_genre: "News",
-          channel_name: "Al Jazeera English",
+          channel_name: "Sky News NZ",
           from: 1999,
-          to: 2012,
+          to: 2006,
         },
         {
           channel_genre: "News",
           channel_name: "Sky News New Zealand",
-          from: 2012,
+          from: 2006,
+          to: 2009,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "Sky News",
+          from: 2009,
           to: 2016,
         },
         {
@@ -1434,7 +1880,7 @@ export const skynz: TimelineProvider = {
         },
         {
           channel_genre: "News",
-          channel_name: "CNN International",
+          channel_name: "CNN",
           from: 2012,
         },
       ],
@@ -1447,7 +1893,7 @@ export const skynz: TimelineProvider = {
         },
         {
           channel_genre: "News",
-          channel_name: "Fox News Channel",
+          channel_name: "Fox News",
           from: 2012,
           to: 2013,
         },
@@ -1458,24 +1904,54 @@ export const skynz: TimelineProvider = {
           to: 2022.2,
         },
       ],
+      "93": [
+        {
+          channel_genre: "News",
+          channel_name: "BBC World",
+          from: 1999,
+          to: 2008,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "BBC World News",
+          from: 2008,
+        },
+      ],
+      "94": [
+        {
+          channel_genre: "News",
+          channel_name: "Parliament TV",
+          from: 2008,
+        },
+      ],
+      "95": [
+        {
+          channel_genre: "News",
+          channel_name: "CNBC",
+          from: 2008,
+          to: 2012,
+        },
+      ],
+      "96": [
+        {
+          channel_genre: "News",
+          channel_name: "RT",
+          from: 2010,
+        },
+      ],
+      "98": [
+        {
+          channel_genre: "News",
+          channel_name: "Weather Channel",
+          from: 2006,
+          to: 2012,
+        },
+      ],
       "99": [
         {
           channel_genre: "Special Interest",
           channel_name: "The Country Channel",
           from: "2008.10",
-          to: 2009.11,
-        },
-        {
-          channel_genre: "Special Interest",
-          channel_name: "Country99TV",
-          from: "2009.11",
-          to: 2012,
-        },
-        {
-          channel_genre: "Special Interest",
-          channel_name: "Country 99 TV",
-          from: 2012,
-          to: 2013.5,
         },
       ],
       "100": [
@@ -1486,9 +1962,15 @@ export const skynz: TimelineProvider = {
           to: 2008,
         },
         {
+          channel_genre: "News",
+          channel_name: "France 24 English",
+          from: 2008,
+          to: 2012,
+        },
+        {
           channel_genre: "Kids",
           channel_name: "Disney Channel",
-          from: 2008,
+          from: 2012,
         },
       ],
       "101": [
@@ -1496,12 +1978,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "Kids",
           channel_name: "Nickelodeon",
           from: 1999,
-          to: 2012,
+          to: 2011,
         },
         {
           channel_genre: "News",
-          channel_name: "France 24 Français",
-          from: 2012,
+          channel_name: "France 24 Francais",
+          from: 2011,
           to: 2016,
         },
         {
@@ -1569,6 +2051,33 @@ export const skynz: TimelineProvider = {
           channel_name: "Mai FM",
           from: 2005,
           to: 2010,
+        },
+      ],
+      "110": [
+        {
+          channel_genre: "Entertainment",
+          channel_name: "CUE TV",
+          from: 2009,
+          to: 2010,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "CUE",
+          from: 2010,
+        },
+      ],
+      "111": [
+        {
+          channel_genre: "Religious",
+          channel_name: "Shine TV",
+          from: 2012,
+        },
+      ],
+      "112": [
+        {
+          channel_genre: "Religious",
+          channel_name: "Daystar",
+          from: 2010,
         },
       ],
       "114": [
@@ -1847,6 +2356,14 @@ export const skynz: TimelineProvider = {
           from: 2018.8,
         },
       ],
+      "200": [
+        {
+          channel_genre: "PPV",
+          channel_name: "SKY Box Office Events",
+          from: 2006,
+          to: 2012,
+        },
+      ],
       "201": [
         {
           channel_genre: "Interactive",
@@ -1988,6 +2505,12 @@ export const skynz: TimelineProvider = {
           to: 2010,
         },
         {
+          channel_genre: "Interactive",
+          channel_name: "SkyBet Sport",
+          from: 2010,
+          to: 2012,
+        },
+        {
           channel_genre: "Movies",
           channel_name: "Sky Box Office Movies",
           from: 2012,
@@ -2037,6 +2560,12 @@ export const skynz: TimelineProvider = {
           to: 2010,
         },
         {
+          channel_genre: "Interactive",
+          channel_name: "SkyBet Trackside",
+          from: 2010,
+          to: 2012,
+        },
+        {
           channel_genre: "Movies",
           channel_name: "Sky Box Office Movies",
           from: 2012,
@@ -2053,15 +2582,21 @@ export const skynz: TimelineProvider = {
       "218": [
         {
           channel_genre: "Adult",
+          channel_name: "Fresh",
+          from: 2006,
+          to: 2010,
+        },
+        {
+          channel_genre: "Adult",
           channel_name: "Adult Channel",
-          from: 2012,
+          from: 2010,
         },
       ],
       "219": [
         {
           channel_genre: "Adult",
-          channel_name: "Spice:xcess",
-          from: 2012,
+          channel_name: "Spice: Xcess",
+          from: 2010,
         },
       ],
       "264": [
@@ -2123,14 +2658,20 @@ export const skynz: TimelineProvider = {
       "300": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "KTV1",
-          from: 2012,
+          from: 2008,
+          to: 2010,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "World TV",
+          from: 2010,
           to: 2016.3,
         },
         {
@@ -2142,166 +2683,172 @@ export const skynz: TimelineProvider = {
       "301": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "KTV2",
-          from: 2012,
-          to: 2016.3,
+          from: 2008,
+          to: 2010,
         },
         {
           channel_genre: "International",
           channel_name: "World TV",
-          from: 2016.3,
+          from: 2010,
         },
       ],
       "302": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "JTV",
-          from: 2012,
-          to: 2016.3,
+          from: 2008,
+          to: 2010,
         },
         {
           channel_genre: "International",
           channel_name: "World TV",
-          from: 2016.3,
+          from: 2010,
         },
       ],
       "303": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "CTV1",
-          from: 2012,
-          to: 2016.3,
+          from: 2008,
+          to: 2010,
         },
         {
           channel_genre: "International",
           channel_name: "World TV",
-          from: 2016.3,
+          from: 2010,
         },
       ],
       "304": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "CTV2",
-          from: 2012,
-          to: 2016.3,
+          from: 2008,
+          to: 2010,
         },
         {
           channel_genre: "International",
           channel_name: "World TV",
-          from: 2016.3,
+          from: 2010,
         },
       ],
       "305": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "CTV3",
-          from: 2012,
-          to: 2016.3,
+          from: 2008,
+          to: 2010,
         },
         {
           channel_genre: "International",
           channel_name: "World TV",
-          from: 2016.3,
+          from: 2010,
         },
       ],
       "306": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "CTV4",
-          from: 2012,
-          to: 2016.3,
+          from: 2008,
+          to: 2010,
         },
         {
           channel_genre: "International",
           channel_name: "World TV",
-          from: 2016.3,
+          from: 2010,
         },
       ],
       "307": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "CTV5",
-          from: 2012,
-          to: 2016.3,
+          from: 2008,
+          to: 2010,
         },
         {
           channel_genre: "International",
           channel_name: "World TV",
-          from: 2016.3,
+          from: 2010,
         },
       ],
       "308": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "CTV6",
-          from: 2012,
-          to: 2016.3,
+          from: 2008,
+          to: 2010,
         },
         {
           channel_genre: "International",
           channel_name: "World TV",
-          from: 2016.3,
+          from: 2010,
         },
       ],
       "309": [
         {
           channel_genre: "International",
-          channel_name: "World TV",
+          channel_name: "WTV",
           from: 1999,
-          to: 2012,
+          to: 2008,
         },
         {
           channel_genre: "International",
           channel_name: "CTV7",
-          from: 2012,
+          from: 2008,
+          to: 2010,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "World TV",
+          from: 2010,
           to: 2016.3,
         },
         {
@@ -2315,6 +2862,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "News",
           channel_name: "CCTV News",
           from: 1999,
+          to: 2007,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "CCTV-9",
+          from: 2007,
           to: 2017,
         },
         {
@@ -2328,6 +2881,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Real Good Life Chinese Radio",
           from: 1999,
+          to: 2009,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Real Good Life",
+          from: 2009,
           to: 2018,
         },
         {
@@ -2342,6 +2901,12 @@ export const skynz: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "New Supreme Chinese Radio",
           from: 1999,
+          to: 2009,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "New Supremo",
+          from: 2009,
           to: 2018,
         },
         {
@@ -2364,7 +2929,32 @@ export const skynz: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Star Plus",
           from: 1999,
+          to: 2012,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "STAR Plus Hindi",
+          from: 2012,
           to: 2018.8,
+        },
+      ],
+      "319": [
+        {
+          channel_genre: "Other",
+          channel_name: "Preview",
+          from: 2009,
+          to: 2010,
+        },
+        {
+          channel_genre: "Other",
+          channel_name: "My Sky HDi Help Channel",
+          from: 2010,
+          to: 2011,
+        },
+        {
+          channel_genre: "Other",
+          channel_name: "Preview",
+          from: 2011,
         },
       ],
       "400": [
@@ -2461,7 +3051,7 @@ export const skynz: TimelineProvider = {
       "413": [
         {
           channel_genre: "Radio",
-          channel_name: "Sky Digital Music - Valentines",
+          channel_name: "Sky Digital Music - Theme",
           from: 1999,
         },
       ],
@@ -2470,33 +3060,41 @@ export const skynz: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "The Edge FM",
           from: 1999,
+          to: 2012,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "The Edge",
+          from: 2012,
           to: 2016,
         },
       ],
-      "421": [
+      "500": [
+        {
+          channel_genre: "Radio",
+          channel_name: "KIWI",
+          from: 2005,
+          to: 2009,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Kiwi",
+          from: 2009,
+          to: 2011,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "The Edge",
+          from: 2011,
+        },
+      ],
+      "501": [
         {
           channel_genre: "Radio",
           channel_name: "Radio New Zealand National",
           from: 1999,
+          to: 2012.7,
         },
-      ],
-      "422": [
-        {
-          channel_genre: "Radio",
-          channel_name: "Radio New Zealand Concert",
-          from: 1999,
-        },
-      ],
-      "423": [{ channel_genre: "Radio", channel_name: "Tahu FM", from: 1999 }],
-      "424": [
-        {
-          channel_genre: "Radio",
-          channel_name: "Calvary Chapel Radio",
-          from: 1999,
-          to: 2018,
-        },
-      ],
-      "501": [
         {
           channel_genre: "FTA",
           channel_name: "One +1",
@@ -2506,6 +3104,12 @@ export const skynz: TimelineProvider = {
         { channel_genre: "FTA", channel_name: "TVNZ 1+1", from: 2016.1 },
       ],
       "502": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Radio New Zealand Concert",
+          from: 1999,
+          to: 2013.9,
+        },
         {
           channel_genre: "FTA",
           channel_name: "TV2 +1",
@@ -2521,7 +3125,23 @@ export const skynz: TimelineProvider = {
       "504": [
         { channel_genre: "FTA", channel_name: "TVNZ Duke +1", from: 2020.11 },
       ],
-      "505": [{ channel_genre: "FTA", channel_name: "Eden +1", from: 1999 }],
+      "505": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Tahu FM",
+          from: 1999,
+          to: 2012,
+        },
+        { channel_genre: "FTA", channel_name: "Eden +1", from: 2012 },
+      ],
+      "506": [
+        {
+          channel_genre: "Radio",
+          channel_name: "Calvary Chapel Radio",
+          from: 1999,
+          to: 2018,
+        },
+      ],
       "512": [
         {
           channel_genre: "FTA",

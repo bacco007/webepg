@@ -74,7 +74,7 @@ interface MobileProgramItemProps {
   isPremiere: boolean;
   isNew: boolean;
   isPlaceholder: boolean;
-  specialTitleClass: string | null;
+  specialTitleClass: { className: string; style: React.CSSProperties } | null;
   progressPercentage: number;
   onProgramClick: (program: Program) => void;
   channelId: string;
@@ -98,10 +98,11 @@ const MobileProgramItem = ({
     className={cn(
       "relative flex cursor-pointer items-center px-3 py-2 hover:bg-muted/50",
       "border-l-[3px]",
-      getMobileProgramStyling(isPlaceholder, specialTitleClass, status)
+      getMobileProgramStyling(isPlaceholder, specialTitleClass?.className || null, status)
     )}
     key={`${channelId}-${channelLcn}-${program.guideid}`}
     onClick={() => onProgramClick(program)}
+    style={specialTitleClass?.style}
   >
     <div className="min-w-0 flex-1">
       <div className="flex items-center gap-2">
@@ -172,7 +173,7 @@ const MobileProgramItem = ({
 // Placeholder program item component
 interface PlaceholderProgramItemProps {
   program: Program;
-  specialTitleClass: string | null;
+  specialTitleClass: { className: string; style: React.CSSProperties } | null;
   channelId: string;
   channelLcn: string;
 }
@@ -187,9 +188,10 @@ const PlaceholderProgramItem = ({
     className={cn(
       "relative flex items-center px-3 py-2",
       "border-l-[3px] border-l-muted",
-      specialTitleClass
+      specialTitleClass?.className
     )}
     key={`${channelId}-${channelLcn}-${program.guideid}`}
+    style={specialTitleClass?.style}
   >
     <div className="min-w-0 flex-1">
       <div className="flex items-center gap-2">

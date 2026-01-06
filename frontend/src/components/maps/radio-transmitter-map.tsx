@@ -185,7 +185,7 @@ function MapControls({
   }, [bounds, map]);
 
   return (
-    <div className="absolute top-16 left-1 z-[1000]">
+    <div className="absolute top-16 left-1 z-1000">
       <div className="flex flex-col gap-2">
         <Button
           className="border"
@@ -225,6 +225,18 @@ const getFrequencyRange = (type: "FM" | "AM" | "DAB") => {
   }
 };
 
+// Get combined frequency range for multiple types
+const getCombinedFrequencyRange = (types: ("FM" | "AM" | "DAB")[]) => {
+  if (types.length === 0) {
+    return { max: 108, min: 87.5 };
+  }
+  const ranges = types.map((type) => getFrequencyRange(type));
+  return {
+    max: Math.max(...ranges.map((r) => r.max)),
+    min: Math.min(...ranges.map((r) => r.min)),
+  };
+};
+
 // Map Legend Component
 function MapLegend() {
   const legendRadioTypes = [
@@ -234,7 +246,7 @@ function MapLegend() {
   ];
 
   return (
-    <div className="absolute bottom-5 left-5 z-[1000]">
+    <div className="absolute bottom-5 left-5 z-1000">
       <Card className="w-28 rounded-lg border border-border bg-background/90 py-1 shadow-md">
         <CardContent className="p-2">
           <h3 className="mb-1 font-bold text-xs">Radio Types</h3>
@@ -302,7 +314,7 @@ const MinimapControl = () => {
   }, [map]);
 
   return (
-    <div className="absolute right-20 bottom-16 z-[1000]">
+    <div className="absolute right-20 bottom-16 z-1000">
       <div
         className="h-20 w-20 rounded-lg border border-border bg-background/90 shadow-lg"
         ref={minimapRef}
@@ -353,41 +365,40 @@ export default function RadioTransmitterMap() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [showLegend, setShowLegend] = useState(true);
-  const [selectedType, setSelectedType] = useState<"FM" | "AM" | "DAB">("FM");
-  const [filters, setFilters] = useState({
-    areas: [] as string[],
-    frequency: [87.5, 108] as [number, number],
-    power: [0, 50] as [number, number],
-  });
-
-  // Update frequency range when radio type changes
-  useEffect(() => {
-    const range = getFrequencyRange(selectedType);
-    setFilters((prev) => ({
-      ...prev,
-      frequency: [range.min, range.max],
-    }));
-  }, [selectedType]);
+  const [selectedTypes, setSelectedTypes] = useState<("FM" | "AM" | "DAB")[]>([
+    "FM",
+  ]);
 
   const handleRefresh = useCallback(async () => {
+    if (selectedTypes.length === 0) {
+      setTransmittersData([]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `/api/py/transmitters/${selectedType.toLowerCase()}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
-      const data = await response.json();
+      // Fetch data for all selected types in parallel
+      const fetchPromises = selectedTypes.map(async (type) => {
+        const response = await fetch(
+          `/api/py/transmitters/${type.toLowerCase()}`
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${type} data`);
+        }
+        const data = await response.json();
+        // Add type information and ensure unique keys
+        return data.map((t: RadioTransmitter) => ({
+          ...t,
+          Type: type,
+          uniqueKey: `${type}-${t.LicenceNo}`,
+        }));
+      });
 
-      // Add type information and ensure unique keys
-      const typedData = data.map((t: RadioTransmitter) => ({
-        ...t,
-        Type: selectedType,
-        uniqueKey: `${selectedType}-${t.LicenceNo}`,
-      }));
-
-      setTransmittersData(typedData);
+      const results = await Promise.all(fetchPromises);
+      // Combine all data from different types
+      const combinedData = results.flat();
+      setTransmittersData(combinedData);
     } catch (_err) {
       toast({
         description: "Failed to load transmitters",
@@ -397,9 +408,9 @@ export default function RadioTransmitterMap() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedType]);
+  }, [selectedTypes]);
 
-  // Load data when radio type changes
+  // Load data when radio types change
   useEffect(() => {
     handleRefresh();
   }, [handleRefresh]);
@@ -421,16 +432,26 @@ export default function RadioTransmitterMap() {
   const [areaServedSearch, setAreaServedSearch] = useState("");
   const [licenceAreaSearch, setLicenceAreaSearch] = useState("");
   const [purposeSearch, setPurposeSearch] = useState("");
+  const [freqBlockSearch, setFreqBlockSearch] = useState("");
   const [callSignFilters, setCallSignFilters] = useState<string[]>([]);
   const [areaServedFilters, setAreaServedFilters] = useState<string[]>([]);
   const [licenceAreaFilters, setLicenceAreaFilters] = useState<string[]>([]);
   const [purposeFilters, setPurposeFilters] = useState<string[]>([]);
+  const [freqBlockFilters, setFreqBlockFilters] = useState<string[]>([]);
   const [minFrequency, setMinFrequency] = useState("");
   const [maxFrequency, setMaxFrequency] = useState("");
   const [frequencyRange, setFrequencyRange] = useState<[number, number]>([
-    getFrequencyRange(selectedType).min,
-    getFrequencyRange(selectedType).max,
+    getCombinedFrequencyRange(selectedTypes).min,
+    getCombinedFrequencyRange(selectedTypes).max,
   ]);
+
+  // Update frequency range when selected types change
+  useEffect(() => {
+    const range = getCombinedFrequencyRange(selectedTypes);
+    setFrequencyRange([range.min, range.max]);
+    setMinFrequency(String(range.min));
+    setMaxFrequency(String(range.max));
+  }, [selectedTypes]);
 
   // --- Unique options for each filter ---
   const uniqueCallSigns = useMemo(
@@ -443,6 +464,15 @@ export default function RadioTransmitterMap() {
   );
   const uniquePurposes = useMemo(
     () => [...new Set(transmittersData.map((t) => t.Purpose))].sort(),
+    [transmittersData]
+  );
+  const uniqueFreqBlocks = useMemo(
+    () =>
+      [
+        ...new Set(transmittersData
+            .map((t) => t.FreqBlock)
+            .filter((fb): fb is string => Boolean(fb))),
+      ].sort(),
     [transmittersData]
   );
 
@@ -479,23 +509,28 @@ export default function RadioTransmitterMap() {
     }
     return counts;
   }, [transmittersData, uniquePurposes]);
+  const freqBlockCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const fb of uniqueFreqBlocks) {
+      if (fb) {
+        counts[fb] = transmittersData.filter((t) => t.FreqBlock === fb).length;
+      }
+    }
+    return counts;
+  }, [transmittersData, uniqueFreqBlocks]);
 
   // --- Consolidated filtering logic ---
   const filteredTransmitters = useMemo(() => {
     return transmittersData.filter((transmitter) => {
-      // Basic filter matches
-      const areaMatch =
-        filters.areas.length === 0 ||
-        filters.areas.includes(transmitter.AreaServed);
-      const frequencyMatch =
-        transmitter.Frequency >= filters.frequency[0] &&
-        transmitter.Frequency <= filters.frequency[1];
-
-      // Convert MaxERP or TransmitPower to a number for comparison
-      const powerStr = transmitter.MaxERP || transmitter.TransmitPower || "0 W";
-      const powerValue = Number.parseFloat(powerStr);
-      const powerMatch =
-        powerValue >= filters.power[0] && powerValue <= filters.power[1];
+      // Validate coordinates - check for null, undefined, or NaN
+      if (
+        transmitter.Lat == null ||
+        transmitter.Long == null ||
+        Number.isNaN(transmitter.Lat) ||
+        Number.isNaN(transmitter.Long)
+      ) {
+        return false;
+      }
 
       // Advanced filter matches
       const callSignMatch =
@@ -510,6 +545,10 @@ export default function RadioTransmitterMap() {
       const purposeMatch =
         purposeFilters.length === 0 ||
         purposeFilters.includes(transmitter.Purpose);
+      const freqBlockMatch =
+        freqBlockFilters.length === 0 ||
+        (transmitter.FreqBlock &&
+          freqBlockFilters.includes(transmitter.FreqBlock));
       const frequencyRangeMatch =
         transmitter.Frequency >= frequencyRange[0] &&
         transmitter.Frequency <= frequencyRange[1];
@@ -517,38 +556,39 @@ export default function RadioTransmitterMap() {
       // Global search match
       const searchMatch =
         globalSearchTerm === "" ||
-        transmitter.CallSign.toLowerCase().includes(
-          globalSearchTerm.toLowerCase()
-        ) ||
-        transmitter.AreaServed.toLowerCase().includes(
-          globalSearchTerm.toLowerCase()
-        ) ||
-        transmitter.LicenceArea.toLowerCase().includes(
-          globalSearchTerm.toLowerCase()
-        ) ||
-        transmitter.Purpose.toLowerCase().includes(
-          globalSearchTerm.toLowerCase()
-        );
+        (transmitter.CallSign?.toLowerCase().includes(
+            globalSearchTerm.toLowerCase()
+          )) ||
+        (transmitter.AreaServed?.toLowerCase().includes(
+            globalSearchTerm.toLowerCase()
+          )) ||
+        (transmitter.LicenceArea?.toLowerCase().includes(
+            globalSearchTerm.toLowerCase()
+          )) ||
+        (transmitter.Purpose?.toLowerCase().includes(
+            globalSearchTerm.toLowerCase()
+          )) ||
+        (transmitter.FreqBlock?.toLowerCase().includes(
+            globalSearchTerm.toLowerCase()
+          ));
 
       return (
-        areaMatch &&
-        frequencyMatch &&
-        powerMatch &&
         callSignMatch &&
         areaServedMatch &&
         licenceAreaMatch &&
         purposeMatch &&
+        freqBlockMatch &&
         frequencyRangeMatch &&
         searchMatch
       );
     });
   }, [
     transmittersData,
-    filters,
     callSignFilters,
     areaServedFilters,
     licenceAreaFilters,
     purposeFilters,
+    freqBlockFilters,
     frequencyRange,
     globalSearchTerm,
   ]);
@@ -646,44 +686,47 @@ export default function RadioTransmitterMap() {
     </div>
   );
 
-  // Helper to reset all filters for a band
-  const resetAllFilters = useCallback((band: "FM" | "AM" | "DAB") => {
+  // Helper to reset all filters
+  const resetAllFilters = useCallback(() => {
     setCallSignFilters([]);
     setAreaServedFilters([]);
     setLicenceAreaFilters([]);
     setPurposeFilters([]);
+    setFreqBlockFilters([]);
     setGlobalSearchTerm("");
     setCallSignSearch("");
     setAreaServedSearch("");
     setLicenceAreaSearch("");
     setPurposeSearch("");
-    const range = getFrequencyRange(band);
+    setFreqBlockSearch("");
+    const range = getCombinedFrequencyRange(selectedTypes);
     setFrequencyRange([range.min, range.max]);
     setMinFrequency(String(range.min));
     setMaxFrequency(String(range.max));
-  }, []);
-
-  // When band changes, fetch new data and reset filters
-  useEffect(() => {
-    handleRefresh();
-    resetAllFilters(selectedType);
-  }, [selectedType, handleRefresh, resetAllFilters]);
+  }, [selectedTypes]);
 
   // --- Sidebar refactor ---
   const sidebar = (
     <SidebarContainer>
       {/* Band Switcher at the very top */}
       <div className="mb-2 flex w-full justify-center gap-2 border-border border-b py-2">
-        {["FM", "AM", "DAB"].map((band) => (
-          <button
-            className={`rounded border px-3 py-1 font-medium text-xs transition-colors duration-100 ${selectedType === band ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:bg-accent"} `}
-            key={band}
-            onClick={() => setSelectedType(band as "FM" | "AM" | "DAB")}
-            type="button"
-          >
-            {band}
-          </button>
-        ))}
+        {(["FM", "AM", "DAB"] as const).map((band) => {
+          const isSelected = selectedTypes.includes(band);
+          return (
+            <button
+              className={`rounded border px-3 py-1 font-medium text-xs transition-colors duration-100 ${isSelected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:bg-accent"} `}
+              key={band}
+              onClick={() => {
+                setSelectedTypes((prev) =>
+                  isSelected ? prev.filter((t) => t !== band) : [...prev, band]
+                );
+              }}
+              type="button"
+            >
+              {band}
+            </button>
+          );
+        })}
       </div>
       <SidebarHeader>
         <SidebarSearch
@@ -757,6 +800,22 @@ export default function RadioTransmitterMap() {
           showSearch={true}
           title="Purpose"
         />
+        <FilterSection
+          counts={freqBlockCounts}
+          filters={freqBlockFilters}
+          onFilterChange={(value) =>
+            setFreqBlockFilters((prev) =>
+              prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value]
+            )
+          }
+          onSearchChange={setFreqBlockSearch}
+          options={uniqueFreqBlocks}
+          searchValue={freqBlockSearch}
+          showSearch={true}
+          title="Frequency Block (DAB)"
+        />
         {/* Frequency as a FilterSection */}
         <FilterSection
           counts={{}}
@@ -779,8 +838,8 @@ export default function RadioTransmitterMap() {
                 <div className="flex items-center gap-1">
                   <Input
                     className="h-8 w-16 text-xs"
-                    max={getFrequencyRange(selectedType).max}
-                    min={getFrequencyRange(selectedType).min}
+                    max={getCombinedFrequencyRange(selectedTypes).max}
+                    min={getCombinedFrequencyRange(selectedTypes).min}
                     onChange={(e) => {
                       setMinFrequency(e.target.value);
                       const numValue = Number.parseFloat(e.target.value);
@@ -799,8 +858,8 @@ export default function RadioTransmitterMap() {
                 <div className="flex items-center gap-1">
                   <Input
                     className="h-8 w-16 text-xs"
-                    max={getFrequencyRange(selectedType).max}
-                    min={getFrequencyRange(selectedType).min}
+                    max={getCombinedFrequencyRange(selectedTypes).max}
+                    min={getCombinedFrequencyRange(selectedTypes).min}
                     onChange={(e) => {
                       setMaxFrequency(e.target.value);
                       const numValue = Number.parseFloat(e.target.value);
@@ -817,10 +876,10 @@ export default function RadioTransmitterMap() {
             </div>
             <Slider
               className="w-full"
-              max={getFrequencyRange(selectedType).max}
-              min={getFrequencyRange(selectedType).min}
+              max={getCombinedFrequencyRange(selectedTypes).max}
+              min={getCombinedFrequencyRange(selectedTypes).min}
               onValueChange={(val) => setFrequencyRange([val[0], val[1]])}
-              step={selectedType === "FM" ? 0.1 : 1}
+              step={selectedTypes.includes("FM") ? 0.1 : 1}
               value={frequencyRange}
             />
             <div className="flex justify-between text-muted-foreground text-xs">
@@ -833,7 +892,7 @@ export default function RadioTransmitterMap() {
       <SidebarFooter>
         <Button
           className="w-full text-xs"
-          onClick={() => resetAllFilters(selectedType)}
+          onClick={resetAllFilters}
           size="sm"
           variant="outline"
         >
@@ -880,18 +939,30 @@ export default function RadioTransmitterMap() {
 
     // Add markers imperatively
     for (const t of filteredTransmitters) {
-      const marker = L.marker([t.Lat, t.Long], {
-        icon: L.divIcon({
-          className: "custom-marker",
-          html: `<div style="background-color: ${
-            radioTypes.find((rt: RadioType) => rt.name === t.Type)?.color ||
-            "#FFEEAD"
-          }; width: 12px; height: 12px; border-radius: 50%;"></div>`,
-          iconSize: [12, 12],
-        }),
-      });
-      marker.bindPopup(createPopupContent(t));
-      clusterGroup.addLayer(marker);
+      // Validate coordinates before creating marker
+      if (
+        typeof t.Lat === "number" &&
+        typeof t.Long === "number" &&
+        !Number.isNaN(t.Lat) &&
+        !Number.isNaN(t.Long) &&
+        t.Lat >= -90 &&
+        t.Lat <= 90 &&
+        t.Long >= -180 &&
+        t.Long <= 180
+      ) {
+        const marker = L.marker([t.Lat, t.Long], {
+          icon: L.divIcon({
+            className: "custom-marker",
+            html: `<div style="background-color: ${
+              radioTypes.find((rt: RadioType) => rt.name === t.Type)?.color ||
+              "#FFEEAD"
+            }; width: 12px; height: 12px; border-radius: 50%;"></div>`,
+            iconSize: [12, 12],
+          }),
+        });
+        marker.bindPopup(createPopupContent(t));
+        clusterGroup.addLayer(marker);
+      }
     }
 
     // Add to map

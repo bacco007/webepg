@@ -4,8 +4,11 @@ import {
   type ColumnDef,
   type ColumnFiltersState,
   flexRender,
+  type GroupingState,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
+  getGroupedRowModel,
   getSortedRowModel,
   type SortingState,
   useReactTable,
@@ -17,7 +20,7 @@ import {
   ArrowUpDown,
   ChevronDown,
   ChevronUp,
-  Command,
+  Command as CommandIcon,
   Filter,
   RefreshCw,
   RotateCw,
@@ -41,6 +44,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
+  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -54,6 +58,11 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -67,6 +76,7 @@ import { cn } from "@/lib/utils";
 
 // Regex patterns for channel number parsing
 const CHANNEL_NUMBER_REGEX = /^(\d+)([a-zA-Z]*)$/;
+const TIMESHIFT_REGEX = /\+[12]/;
 
 // Helper function to sort channel numbers properly
 function sortChannelNumbers(a: string, b: string): number {
@@ -131,6 +141,55 @@ function getSortingIcon(isSorted: false | "asc" | "desc") {
   return <ArrowUpDown className="h-4 w-4" />;
 }
 
+// Helper function to get badge variant based on specs content
+function getSpecsBadgeVariant(
+  specs: string
+): "default" | "secondary" | "destructive" | "outline" {
+  const specsLower = specs.toLowerCase();
+  if (specsLower.includes("uhd") || specsLower.includes("4k")) {
+    return "default"; // Orange for UHD
+  }
+  if (specsLower.includes("hd")) {
+    return "secondary"; // Dark green for HD
+  }
+  if (specsLower.includes("streaming") || specsLower.includes("apps")) {
+    return "outline"; // Purple for Streaming/Apps
+  }
+  if (specsLower.includes("radio")) {
+    return "secondary"; // Blue for Radio
+  }
+  if (specsLower.includes("sd")) {
+    return "outline"; // Yellow for SD
+  }
+  return "secondary"; // Default fallback
+}
+
+// Helper function to get badge color class based on specs
+function getSpecsBadgeColor(specs: string): string {
+  const specsLower = specs.toLowerCase();
+  if (specsLower.includes("uhd") || specsLower.includes("4k")) {
+    return "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800";
+  }
+  if (specsLower.includes("hd")) {
+    return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800";
+  }
+  if (specsLower.includes("streaming") || specsLower.includes("apps")) {
+    return "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800";
+  }
+  if (specsLower.includes("radio")) {
+    return "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800";
+  }
+  if (specsLower.includes("sd")) {
+    return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800";
+  }
+  return ""; // Default styling
+}
+
+// Helper function to check if channel is timeshift
+function isTimeshiftChannel(channelName: string): boolean {
+  return TIMESHIFT_REGEX.test(channelName);
+}
+
 // Define the Channel interface that all pages will use
 export interface Channel {
   channel_number: string;
@@ -167,14 +226,24 @@ interface ChannelDataTableProps {
 const defaultColumns: ColumnDef<Channel>[] = [
   {
     accessorKey: "channel_number",
-    cell: ({ row }) => (
-      <div className="text-center font-medium">
-        {row.getValue("channel_number")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      if (row.getIsGrouped()) {
+        return null;
+      }
+      return (
+        <div className="flex items-center justify-center">
+          <Badge
+            className="font-mono font-semibold transition-all duration-150 hover:scale-110 hover:shadow-sm"
+            variant="secondary"
+          >
+            {row.getValue("channel_number")}
+          </Badge>
+        </div>
+      );
+    },
     header: ({ column }) => (
       <Button
-        className="flex w-full items-center justify-center gap-1 p-0 font-medium"
+        className="flex w-full items-center justify-center gap-1.5 p-0 font-medium hover:bg-transparent"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         variant="ghost"
       >
@@ -190,13 +259,20 @@ const defaultColumns: ColumnDef<Channel>[] = [
   },
   {
     accessorKey: "channel_names.real",
-    cell: ({ row }) => (
-      <div className="text-center">{row.original.channel_names.real}</div>
-    ),
+    cell: ({ row }) => {
+      if (row.getIsGrouped()) {
+        return null;
+      }
+      return (
+        <div className="flex items-center justify-center text-muted-foreground text-sm">
+          {row.original.channel_names.real}
+        </div>
+      );
+    },
     header: ({ column }) => (
-      <div className="text-center">
+      <div className="flex items-center justify-center">
         <Button
-          className="p-0 font-medium"
+          className="p-0 font-medium hover:bg-transparent"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           variant="ghost"
         >
@@ -208,40 +284,104 @@ const defaultColumns: ColumnDef<Channel>[] = [
   },
   {
     accessorKey: "channel_logo",
-    cell: ({ row }) => (
-      <div className="mx-auto flex size-12 items-center justify-center rounded-md bg-muted/50 p-1">
-        {row.original.channel_logo.light ? (
-          <img
-            alt={`${row.original.channel_name} logo`}
-            className="max-h-full max-w-full object-contain"
-            loading="lazy"
-            onError={(e) => {
-              e.currentTarget.src = "/placeholder.svg?height=40&width=40";
-            }}
-            src={row.original.channel_logo.light || "/placeholder.svg"}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground text-xs">
-            No logo
-          </div>
-        )}
-      </div>
+    cell: ({ row }) => {
+      if (row.getIsGrouped()) {
+        return null;
+      }
+      return (
+        <div className="flex items-center justify-center">
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <div className="group flex size-14 cursor-pointer items-center justify-center rounded-lg border border-border bg-muted/30 p-2 shadow-sm transition-all duration-200 hover:scale-110 hover:border-primary/50 hover:shadow-md">
+                {row.original.channel_logo.light ? (
+                  <img
+                    alt={`${row.original.channel_name} logo`}
+                    className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover:scale-110"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src =
+                        "/placeholder.svg?height=40&width=40";
+                    }}
+                    src={row.original.channel_logo.light || "/placeholder.svg"}
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground text-xs">
+                    No logo
+                  </div>
+                )}
+              </div>
+            </HoverCardTrigger>
+            <HoverCardContent
+              align="center"
+              className="z-100 w-auto! max-w-none! p-4"
+              side="right"
+              sideOffset={8}
+            >
+              <div className="flex flex-col items-center gap-2">
+                {row.original.channel_logo.light ? (
+                  <img
+                    alt={`${row.original.channel_name} logo`}
+                    className="h-40 w-40 object-contain"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src =
+                        "/placeholder.svg?height=160&width=160";
+                    }}
+                    src={row.original.channel_logo.light || "/placeholder.svg"}
+                  />
+                ) : (
+                  <div className="flex h-40 w-40 items-center justify-center rounded-lg border border-border bg-muted/30 text-muted-foreground text-sm">
+                    No logo
+                  </div>
+                )}
+                <p className="font-medium text-sm">
+                  {row.original.channel_name}
+                </p>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+        </div>
+      );
+    },
+    header: () => (
+      <div className="flex items-center justify-center font-medium">Logo</div>
     ),
-    header: () => <div className="text-center">Logo</div>,
   },
   {
     accessorKey: "channel_name",
-    cell: ({ row }) => (
-      <div className="text-center font-bold hover:text-primary hover:underline">
-        <Link href={`/channel/${row.original.channel_slug}`}>
-          {row.getValue("channel_name")}
-        </Link>
-      </div>
-    ),
+    cell: ({ row }) => {
+      if (row.getIsGrouped()) {
+        return null;
+      }
+      const channelName = row.getValue("channel_name") as string;
+      const isTimeshift = isTimeshiftChannel(channelName);
+
+      return (
+        <div className="flex items-center justify-center gap-2">
+          <Link
+            className="font-semibold text-foreground transition-all duration-150 hover:scale-105 hover:text-primary hover:underline"
+            href={`/channel/${row.original.channel_slug}`}
+          >
+            {channelName}
+          </Link>
+          {isTimeshift && (
+            <Badge
+              className={cn(
+                "border font-medium text-xs transition-all duration-150 hover:scale-105 hover:shadow-sm",
+                "border-red-200 bg-red-100 text-red-800 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300"
+              )}
+              variant="outline"
+            >
+              Timeshift
+            </Badge>
+          )}
+        </div>
+      );
+    },
     header: ({ column }) => (
-      <div className="text-center">
+      <div className="flex items-center justify-center">
         <Button
-          className="p-0 font-medium"
+          className="p-0 font-medium hover:bg-transparent"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           variant="ghost"
         >
@@ -253,13 +393,20 @@ const defaultColumns: ColumnDef<Channel>[] = [
   },
   {
     accessorKey: "channel_group",
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("channel_group")}</div>
-    ),
+    cell: ({ row }) => {
+      if (row.getIsGrouped()) {
+        return null;
+      }
+      return (
+        <div className="flex items-center justify-center text-sm">
+          {row.getValue("channel_group")}
+        </div>
+      );
+    },
     header: ({ column }) => (
-      <div className="text-center">
+      <div className="flex items-center justify-center">
         <Button
-          className="p-0 font-medium"
+          className="p-0 font-medium hover:bg-transparent"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           variant="ghost"
         >
@@ -270,18 +417,41 @@ const defaultColumns: ColumnDef<Channel>[] = [
     ),
   },
   {
-    accessorKey: "other_data.channel_type",
-    cell: ({ row }) => (
-      <div className="text-center">
-        <Badge className="font-normal" variant="outline">
-          {row.original.other_data.channel_type}
-        </Badge>
-      </div>
-    ),
+    accessorFn: (row) => row.other_data.channel_type,
+    cell: ({ row }) => {
+      if (row.getIsGrouped()) {
+        return (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              className="flex items-center gap-1.5 font-semibold transition-colors hover:text-primary"
+              onClick={row.getToggleExpandedHandler()}
+              type="button"
+            >
+              {row.getIsExpanded() ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronUp className="h-4 w-4" />
+              )}
+              {row.original.other_data.channel_type} ({row.subRows.length})
+            </button>
+          </div>
+        );
+      }
+      return (
+        <div className="flex items-center justify-center">
+          <Badge
+            className="font-medium transition-all duration-150 hover:scale-105 hover:shadow-sm"
+            variant="outline"
+          >
+            {row.original.other_data.channel_type}
+          </Badge>
+        </div>
+      );
+    },
     header: ({ column }) => (
-      <div className="text-center">
+      <div className="flex items-center justify-center">
         <Button
-          className="p-0 font-medium"
+          className="p-0 font-medium hover:bg-transparent"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           variant="ghost"
         >
@@ -290,20 +460,36 @@ const defaultColumns: ColumnDef<Channel>[] = [
         </Button>
       </div>
     ),
+    id: "channel_type",
   },
   {
     accessorKey: "other_data.channel_specs",
-    cell: ({ row }) => (
-      <div className="text-center">
-        <Badge variant="secondary">
-          {row.original.other_data.channel_specs}
-        </Badge>
-      </div>
-    ),
+    cell: ({ row }) => {
+      if (row.getIsGrouped()) {
+        return null;
+      }
+      const specs = row.original.other_data.channel_specs;
+      const variant = getSpecsBadgeVariant(specs);
+      const colorClass = getSpecsBadgeColor(specs);
+
+      return (
+        <div className="flex items-center justify-center">
+          <Badge
+            className={cn(
+              "border font-medium transition-all duration-150 hover:scale-105 hover:shadow-sm",
+              colorClass
+            )}
+            variant={variant}
+          >
+            {specs}
+          </Badge>
+        </div>
+      );
+    },
     header: ({ column }) => (
-      <div className="text-center">
+      <div className="flex items-center justify-center">
         <Button
-          className="p-0 font-medium"
+          className="p-0 font-medium hover:bg-transparent"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           variant="ghost"
         >
@@ -348,6 +534,17 @@ export function ChannelDataTable({
   );
   const [globalFilter, setGlobalFilter] = useState("");
   const [totalCount, setTotalCount] = useState(0);
+  const [grouping, setGrouping] = useState<GroupingState>([]);
+
+  // Auto-sort by channel type then channel number when grouping is enabled
+  useEffect(() => {
+    if (grouping.length > 0) {
+      setSorting([
+        { desc: false, id: "channel_type" },
+        { desc: false, id: "channel_number" },
+      ]);
+    }
+  }, [grouping]);
 
   // Filter state
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -472,11 +669,16 @@ export function ChannelDataTable({
       if (debouncedGlobalSearch) {
         const searchTerm = debouncedGlobalSearch.toLowerCase();
         return (
-          channel.channel_name.toLowerCase().includes(searchTerm) ||
-          channel.channel_names.real.toLowerCase().includes(searchTerm) ||
-          channel.channel_number.toLowerCase().includes(searchTerm) ||
-          channel.channel_group.toLowerCase().includes(searchTerm) ||
-          channel.other_data.channel_type.toLowerCase().includes(searchTerm)
+          (channel.channel_name?.toLowerCase() || "").includes(searchTerm) ||
+          (channel.channel_names?.real?.toLowerCase() || "").includes(
+            searchTerm
+          ) ||
+          (channel.channel_slug?.toLowerCase() || "").includes(searchTerm) ||
+          (channel.channel_number?.toLowerCase() || "").includes(searchTerm) ||
+          (channel.channel_group?.toLowerCase() || "").includes(searchTerm) ||
+          (channel.other_data?.channel_type?.toLowerCase() || "").includes(
+            searchTerm
+          )
         );
       }
 
@@ -501,21 +703,24 @@ export function ChannelDataTable({
       (selectedSpecs.length === 0 ||
         selectedSpecs.includes(channel.other_data.channel_specs)) &&
       (debouncedGlobalSearch === "" ||
-        channel.channel_name
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.channel_names.real
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.channel_number
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.channel_group
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.other_data.channel_type
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()));
+        (channel.channel_name?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_names?.real?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_slug?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_number?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_group?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.other_data?.channel_type?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ));
 
     // Count only channels that match all other filters
     for (const type of channelTypes) {
@@ -543,21 +748,24 @@ export function ChannelDataTable({
       (selectedSpecs.length === 0 ||
         selectedSpecs.includes(channel.other_data.channel_specs)) &&
       (debouncedGlobalSearch === "" ||
-        channel.channel_name
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.channel_names.real
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.channel_number
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.channel_group
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.other_data.channel_type
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()));
+        (channel.channel_name?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_names?.real?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_slug?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_number?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_group?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.other_data?.channel_type?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ));
 
     // Count only channels that match all other filters
     for (const group of channelGroups) {
@@ -585,21 +793,24 @@ export function ChannelDataTable({
       (selectedGroups.length === 0 ||
         selectedGroups.includes(channel.channel_group)) &&
       (debouncedGlobalSearch === "" ||
-        channel.channel_name
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.channel_names.real
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.channel_number
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.channel_group
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()) ||
-        channel.other_data.channel_type
-          .toLowerCase()
-          .includes(debouncedGlobalSearch.toLowerCase()));
+        (channel.channel_name?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_names?.real?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_slug?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_number?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.channel_group?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ) ||
+        (channel.other_data?.channel_type?.toLowerCase() || "").includes(
+          debouncedGlobalSearch.toLowerCase()
+        ));
 
     // Count only channels that match all other filters
     for (const spec of channelSpecs) {
@@ -622,16 +833,20 @@ export function ChannelDataTable({
     columns: defaultColumns,
     data: filteredData,
     getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getGroupedRowModel: getGroupedRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
+    onGroupingChange: setGrouping,
     onSortingChange: setSorting,
     state: {
       columnFilters,
       columnVisibility,
       globalFilter: debouncedGlobalSearch,
+      grouping,
       sorting,
     },
   });
@@ -688,11 +903,17 @@ export function ChannelDataTable({
   // Render loading skeleton rows
   const renderLoadingRows = () =>
     Array.from({ length: 10 }).map(() => (
-      <tr key={`skeleton-${crypto.randomUUID()}`}>
+      <tr
+        className="border-border border-b"
+        key={`skeleton-${crypto.randomUUID()}`}
+      >
         {defaultColumns.map((column, columnIndex) => (
-          <td className="p-2" key={`skeleton-cell-${column.id || columnIndex}`}>
+          <td
+            className="h-14 px-4"
+            key={`skeleton-cell-${column.id || columnIndex}`}
+          >
             <Skeleton
-              className={`h-8 w-full ${columnIndex === 2 ? "h-12" : ""}`}
+              className={`h-6 w-full ${columnIndex === 2 ? "h-10 w-14" : ""}`}
             />
           </td>
         ))}
@@ -704,9 +925,14 @@ export function ChannelDataTable({
     if (!table.getRowModel().rows?.length) {
       return (
         <tr>
-          <td className="h-24 text-center" colSpan={defaultColumns.length}>
-            <div className="flex flex-col items-center gap-2">
-              <p className="text-muted-foreground text-sm">No results found</p>
+          <td className="h-32 text-center" colSpan={defaultColumns.length}>
+            <div className="flex flex-col items-center gap-3 py-8">
+              <p className="font-medium text-base text-muted-foreground">
+                No results found
+              </p>
+              <p className="text-muted-foreground text-sm">
+                Try adjusting your filters or search terms
+              </p>
               <Button onClick={clearFilters} size="sm" variant="outline">
                 Clear Filters
               </Button>
@@ -716,23 +942,30 @@ export function ChannelDataTable({
       );
     }
 
-    return table.getRowModel().rows.map((row, index) => (
-      <tr
-        className={cn(
-          "border-b",
-          selectedRowIndex === index ? "bg-muted/50" : ""
-        )}
-        data-row-index={index}
-        data-state={row.getIsSelected() && "selected"}
-        key={row.id}
-      >
-        {row.getVisibleCells().map((cell) => (
-          <td className="h-10 px-3 text-sm" key={cell.id}>
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-          </td>
-        ))}
-      </tr>
-    ));
+    return table.getRowModel().rows.map((row, index) => {
+      const isGrouped = row.getIsGrouped();
+
+      return (
+        <tr
+          className={cn(
+            "border-border border-b transition-colors",
+            isGrouped && "bg-muted/50 font-semibold",
+            selectedRowIndex === index && !isGrouped
+              ? "bg-primary/10"
+              : !isGrouped && "hover:bg-muted/30"
+          )}
+          data-row-index={index}
+          data-state={row.getIsSelected() && "selected"}
+          key={row.id}
+        >
+          {row.getVisibleCells().map((cell) => (
+            <td className="h-14 px-4 text-sm" key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </td>
+          ))}
+        </tr>
+      );
+    });
   };
 
   // Command menu items
@@ -803,7 +1036,7 @@ export function ChannelDataTable({
               size="sm"
               variant="outline"
             >
-              <Command className="h-4 w-4" />
+              <CommandIcon className="h-4 w-4" />
               <span className="hidden sm:inline">Search</span>
             </Button>
           </TooltipTrigger>
@@ -843,6 +1076,32 @@ export function ChannelDataTable({
             })}
         </DropdownMenuContent>
       </DropdownMenu>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="gap-1"
+              onClick={() => {
+                if (grouping.length > 0) {
+                  setGrouping([]);
+                } else {
+                  setGrouping(["channel_type"]);
+                }
+              }}
+              size="sm"
+              variant={grouping.length > 0 ? "default" : "outline"}
+            >
+              <Filter className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {grouping.length > 0 ? "Ungroup" : "Group by Type"}
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Group channels by type</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       {renderCustomActions?.()}
     </div>
   );
@@ -955,15 +1214,18 @@ export function ChannelDataTable({
         <div className="flex-1 overflow-auto">
           <div className="relative">
             <table className="w-full border-collapse">
-              <thead className="sticky top-0 z-10">
+              <thead className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <tr className="border-b bg-muted/50" key={headerGroup.id}>
+                  <tr
+                    className="border-border border-b bg-muted/30"
+                    key={headerGroup.id}
+                  >
                     {headerGroup.headers.map((header) => (
                       <th
                         className={cn(
-                          "h-10 px-3 text-left font-medium text-muted-foreground text-sm",
+                          "h-12 px-4 text-left font-semibold text-foreground text-sm transition-colors",
                           header.column.getCanSort() &&
-                            "cursor-pointer select-none"
+                            "cursor-pointer select-none hover:bg-muted/50"
                         )}
                         key={header.id}
                         onClick={header.column.getToggleSortingHandler()}
@@ -988,26 +1250,28 @@ export function ChannelDataTable({
       </div>
 
       <CommandDialog onOpenChange={setShowCommandMenu} open={showCommandMenu}>
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          {commandItems.map((group) => (
-            <CommandGroup heading={group.heading} key={group.heading}>
-              {group.items.map((item) => (
-                <CommandItem
-                  key={item.name}
-                  onSelect={() => {
-                    item.action();
-                    setShowCommandMenu(false);
-                  }}
-                >
-                  {"icon" in item && <item.icon className="mr-2 h-4 w-4" />}
-                  {item.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ))}
-        </CommandList>
+        <Command>
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            {commandItems.map((group) => (
+              <CommandGroup heading={group.heading} key={group.heading}>
+                {group.items.map((item) => (
+                  <CommandItem
+                    key={item.name}
+                    onSelect={() => {
+                      item.action();
+                      setShowCommandMenu(false);
+                    }}
+                  >
+                    {"icon" in item && <item.icon className="mr-2 h-4 w-4" />}
+                    {item.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            ))}
+          </CommandList>
+        </Command>
       </CommandDialog>
     </SidebarLayout>
   );

@@ -81,7 +81,7 @@ const getProgramColorForDisplay = (
 ): string => {
   const specialTitleClass = getSpecialTitleClass(programData.title);
   if (specialTitleClass) {
-    return specialTitleClass;
+    return specialTitleClass.className;
   }
 
   if (
@@ -130,6 +130,7 @@ const ProgramItem = ({
 
   // For placeholder programs, just render a div without the dialog
   if (isPlaceholder) {
+    const specialTitleClass = getSpecialTitleClass(program.title);
     return (
       <div
         className={cn(
@@ -142,7 +143,10 @@ const ProgramItem = ({
           "hover:from-muted/90 hover:to-muted/70 hover:shadow-lg"
         )}
         key={program.guideid}
-        style={getEventStyle(program)}
+        style={{
+          ...getEventStyle(program),
+          ...(specialTitleClass?.style || {}),
+        }}
         title={`${decodeHtml(program.title)} from ${formatDate(
           parseISODate(program.start_time),
           "HH:mm"

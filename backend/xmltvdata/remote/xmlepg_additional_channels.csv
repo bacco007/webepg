@@ -1,91 +1,49 @@
-guidelink,channel_id,channel_slug,channel_name,channel_name_location,channel_name_real,chantype,chancomp,channel_url,chanbouq,chanlcnfta1,chanlcnfta2,chanlcnfta3,chanlcnfox,chanlcnfet,channel_number,chlogo_light,chlogo_dark,channel_group,channel_type,channel_availability,channel_packages
-
-bbc-world-service,bbc-world-service,bbc-world-service,BBC World Service,BBC World,BBC World Service,Audio,,,2010,0,0,0,858,0,,https://i.imgur.com/1JFeL39.png,https://i.imgur.com/1JFeL39.png,British Broadcasting Corporation,Radio,N/A,N/A
-
-394033auepg.com.au,394033auepg.com.au,394033auepg.com.au,SBS Radio 1,SBS Radio 1,SBS Radio 1,Audio,MPEG-1,,2010,0,0,0,867,0,,https://i.imgur.com/bZZA5RT.png,https://i.imgur.com/bZZA5RT.png,Special Broadcasting Service,Radio,N/A,N/A
-
-394034auepg.com.au,394034auepg.com.au,394034auepg.com.au,SBS Radio 2,SBS Radio 2,SBS Radio 2,Audio,MPEG-1,,2010,0,0,0,868,0,,https://i.imgur.com/CkDjsom.png,https://i.imgur.com/CkDjsom.png,Special Broadcasting Service,Radio,N/A,N/A
-
-sbs-chill.sbsod.au,sbs-chill.sbsod.au,sbs-chill.sbsod.au,SBS Chill,SBS Chill,SBS Chill,Audio,MPEG-1,,2010,0,0,0,869,0,,https://i.imgur.com/zG5TdVL.png,https://i.imgur.com/9smjizC.png,Special Broadcasting Service,Radio,N/A,N/A
-
-netflix,netflix,netflix,Netflix,Netflix,Netflix,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Netflix,Apps,iQ4/iQ5 Only,N/A
-
-max-app,max-app,max-app,max-app,max,max,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Warner Bros. Discovery,Apps,iQ4/iQ5 Only,N/A
-
-disney+,disney+,disney+,Disney+,Disney+,Disney+,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Disney,Apps,iQ4/iQ5 Only,N/A
-
-amazon-prime-video,amazon-prime-video,amazon-prime-video,Amazon Prime Video,Amazon Prime Video,Amazon Prime Video,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Amazon,Apps,iQ4/iQ5 Only,N/A
-
-youtube,youtube,youtube,YouTube,YouTube,YouTube,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,YouTube,Apps,iQ4/iQ5 Only,N/A
-
-paramount+,paramount+,paramount+,Paramount+,Paramount+,Paramount+,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Paramount Global,Apps,iQ4/iQ5 Only,N/A
-
-apple-tv+,apple-tv+,apple-tv+,Apple TV+,Apple TV+,Apple TV+,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Apple Inc,Apps,iQ4/iQ5 Only,N/A
-
-britbox,britbox,britbox,BritBox,BritBox,BritBox,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,BritBox,Apps,iQ4/iQ5 Only,N/A
-
-stan,stan,stan,Stan,Stan,Stan,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Nine Entertainment Co.,Apps,iQ4/iQ5 Only,N/A
-
-abc-iview,abc-iview,abc-iview,ABC iView,ABC iView,ABC iView,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/M0P76fl.png,https://i.imgur.com/86AcVqs.png,Australian Broadcasting Corporation,Apps,iQ4/iQ5 Only,N/A
-
-sbs-on-demand,sbs-on-demand,sbs-on-demand,SBS On Demand,SBS On Demand,SBS On Demand,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/c3KmY7U.png,https://i.imgur.com/FRN3rc5.png,Special Broadcasting Service,Apps,iQ4/iQ5 Only,N/A
-
-7plus,7plus,7plus,7plus,7plus,7plus,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/RuLoIvR.png,https://i.imgur.com/RuLoIvR.png,Seven West Media,Apps,iQ4/iQ5 Only,N/A
-
-9now,9now,9now,9now,9now,9now,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/ncyISu4.png,https://i.imgur.com/ncyISu4.png,Nine Entertainment Co.,Apps,iQ4/iQ5 Only,N/A
-
-10-play,10-play,10-play,10 play,10 play,10 play,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/ZnQ4BDW.png,https://i.imgur.com/gnOvrM1.png,10 Network,Apps,iQ4/iQ5 Only,N/A
-
-abc-kids-iview,abc-kids-iview,abc-kids-iview,ABC Kids iView,ABC Kids iView,ABC Kids iView,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/GPy2tEd.png,https://i.imgur.com/GPy2tEd.png,Australian Broadcasting Corporation,Apps,iQ4/iQ5 Only,N/A
-
-f1-tv,f1-tv,f1-tv,F1 TV,F1 TV,F1 TV,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,F1,Apps,iQ4/iQ5 Only,N/A
-
-optus-sport,optus-sport,optus-sport,Optus Sport,Optus Sport,Optus Sport,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/fKAgFp0.png,https://i.imgur.com/fKAgFp0.png,Optus Communications,Apps,iQ4/iQ5 Only,N/A
-
-docplay,docplay,docplay,DocPlay,DocPlay,DocPlay,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/PF9cTQx.png,https://i.imgur.com/8uc9VZg.png,Madman Entertainment Pty Ltd,Apps,iQ4/iQ5 Only,N/A
-
-youtube-kids,youtube-kids,youtube-kids,YouTube Kids,YouTube Kids,YouTube Kids,Streaming,,,3150,0,0,0,0,989,,/placeholder-image.png,/placeholder-image.png,YouTube,Streaming,N/A,N/A
-
-youtube,youtube,youtube,YouTube,YouTube,YouTube,Streaming,,,3150,0,0,0,0,990,,/placeholder-image.png,/placeholder-image.png,YouTube,Streaming,N/A,N/A
-
-hayu,hayu,hayu,hayu,hayu,hayu,Streaming,,,3150,0,0,0,0,991,,/placeholder-image.png,/placeholder-image.png,hayu,Streaming,N/A,N/A
-
-apple-tv,apple-tv,apple-tv,Apple TV+,Apple TV+,Apple TV+,Streaming,,,3150,0,0,0,0,992,,/placeholder-image.png,/placeholder-image.png,Apple Inc,Streaming,N/A,N/A
-
-prime-video,prime-video,prime-video,Amazon Prime Video,Amazon Prime Video,Amazon Prime Video,Streaming,,,3150,0,0,0,0,993,,/placeholder-image.png,/placeholder-image.png,Amazon,Streaming,N/A,N/A
-
-netflix,netflix,netflix,Netflix,Netflix,Netflix,Streaming,,,3150,0,0,0,0,995,,/placeholder-image.png,/placeholder-image.png,Netflix,Streaming,N/A,N/A
-
-disney,disney,disney,Disney+,Disney+,Disney+,Streaming,,,3150,0,0,0,0,996,,/placeholder-image.png,/placeholder-image.png,Disney,Streaming,N/A,N/A
-
-390715auepg.com.au,390715auepg.com.au,390715auepg.com.au,Double J,Double J,Double J,Radio,MPEG-1,,3150,0,0,0,0,200,,https://i.imgur.com/hYiRZj5.png,https://i.imgur.com/mjtraYc.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
-
-390716auepg.com.au,390716auepg.com.au,390716auepg.com.au,ABC Jazz,ABC Jazz,ABC Jazz,Radio,MPEG-1,,3150,0,0,0,0,201,,https://i.imgur.com/Xt8X8di.png,https://i.imgur.com/Xt8X8di.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
-
-394033auepg.com.au,394033auepg.com.au,394033auepg.com.au,SBS Radio 1,SBS Radio 1,SBS Radio 1,Radio,MPEG-1,,3150,0,0,0,0,301,,https://i.imgur.com/bZZA5RT.png,https://i.imgur.com/bZZA5RT.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
-
-394034auepg.com.au,394034auepg.com.au,394034auepg.com.au,SBS Radio 2,SBS Radio 2,SBS Radio 2,Radio,MPEG-1,,3150,0,0,0,0,302,,https://i.imgur.com/CkDjsom.png,https://i.imgur.com/CkDjsom.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
-
-abc-country,abc-country,abc-country,ABC Country,ABC Country,ABC Country,Radio,MPEG-1,,3150,0,0,0,0,203,,https://i.imgur.com/sdX2GMZ.png,https://i.imgur.com/sdX2GMZ.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
-
-abc-kids-listen,abc-kids-listen,abc-kids-listen,ABC Kids Listen,ABC Kids Listen,ABC KIDS Listen,Radio,MPEG-1,,3150,0,0,0,0,202,,https://i.imgur.com/nsE8OzK.png,https://i.imgur.com/nsE8OzK.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
-
-abc-newsradio,abc-newsradio,abc-newsradio,ABC NewsRadio,ABC NewsRadio,ABC NewsRadio,Radio,HE-AAC,,3150,0,0,0,0,204,,https://i.imgur.com/92rRxcI.png,https://i.imgur.com/92rRxcI.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
-
-sbs-chill.sbsod.au,sbs-chill.sbsod.au,sbs-chill.sbsod.au,SBS Chill,SBS Chill,SBS Chill,Radio,MPEG-1,,3150,0,0,0,0,306,,https://i.imgur.com/zG5TdVL.png,https://i.imgur.com/9smjizC.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
-
-sbs-pop-araby.sbsod.au,sbs-pop-araby.sbsod.au,sbs-pop-araby.sbsod.au,SBS Arabic 24,SBS Arabic 24,SBS Arabic24,Radio,MPEG-1,,3150,0,0,0,0,304,,https://i.imgur.com/tsbkD0K.png,https://i.imgur.com/6JFQUhi.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
-
-sbs-pop-asia.sbsod.au,sbs-pop-asia.sbsod.au,sbs-pop-asia.sbsod.au,SBS Pop Asia,SBS Pop Asia,SBS PopAsia,Radio,HE-AAC,,3150,0,0,0,0,307,,https://i.imgur.com/JGGogek.png,https://i.imgur.com/JGGogek.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
-
-sbs-pop-desi.sbsod.au,sbs-pop-desi.sbsod.au,sbs-pop-desi.sbsod.au,SBS South Asian,SBS South Asian,SBS South Asian,Radio,HE-AAC,,3150,0,0,0,0,305,,https://i.imgur.com/uWTKlon.png,https://i.imgur.com/uWTKlon.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
-
-sbs-radio-3.sbsod.au,sbs-radio-3.sbsod.au,sbs-radio-3.sbsod.au,SBS Radio 3,SBS Radio 3,SBS Radio 3,Radio,MPEG-1,,3150,0,0,0,0,303,,https://i.imgur.com/vXn3D7N.png,https://i.imgur.com/vXn3D7N.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
-
-NOEPG,NOEPG,NOEPG,Rai News24,Rai News24,Rai News24,SD 576i,,,3150,0,0,0,0,602,,https://i.imgur.com/kYAPMb2.png,https://i.imgur.com/QPeVJuW.png,Rai Internazionale,Special Interest,N/A,N/A
-
-NOEPG,NOEPG,NOEPG,Mediaset Italia,Mediaset Italia,Mediaset Italia,SD 576i,,,3150,0,0,0,0,603,,https://i.imgur.com/MvxlUyU.png,https://i.imgur.com/MvxlUyU.png,Mediaset,Special Interest,N/A,N/A
-
-NOEPG,NOEPG,NOEPG,Rai World Premium,Rai World Premium,Rai World Premium,SD 576i,,,3150,0,0,0,0,601,,https://i.imgur.com/Q2Vfbu3.png,https://i.imgur.com/z5GNBnL.png,Rai Internazionale,Special Interest,N/A,N/A
-
-RAIITA,RAIITA,RAIITA,Rai Italia,Rai Italia,Rai Italia,SD 576i,,,3150,0,0,0,0,600,,https://i.imgur.com/Uvv3tVz.png,https://i.imgur.com/DHELCyv.png,Rai Internazionale,Special Interest,N/A,N/A
+id,guidelink,channel_id,channel_slug,channel_name,channel_name_location,channel_name_real,chantype,chancomp,channel_url,chanbouq,chanlcnfta1,chanlcnfta2,chanlcnfta3,chanlcnfox,chanlcnfet,channel_number,chlogo_light,chlogo_dark,channel_group,channel_type,channel_availability,channel_packages
+2,394033auepg.com.au,394033auepg.com.au,394033auepg.com.au,SBS Radio 1,SBS Radio 1,SBS Radio 1,Audio,MPEG-1,,2010,0,0,0,867,0,,https://i.imgur.com/bZZA5RT.png,https://i.imgur.com/bZZA5RT.png,Special Broadcasting Service,Radio,N/A,N/A
+3,394034auepg.com.au,394034auepg.com.au,394034auepg.com.au,SBS Radio 2,SBS Radio 2,SBS Radio 2,Audio,MPEG-1,,2010,0,0,0,868,0,,https://i.imgur.com/CkDjsom.png,https://i.imgur.com/CkDjsom.png,Special Broadcasting Service,Radio,N/A,N/A
+5,netflix,netflix,netflix,Netflix,Netflix,Netflix,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Netflix,Apps,iQ4/iQ5 Only,N/A
+6,max-app,max-app,max-app,max-app,max,max,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Warner Bros. Discovery,Apps,iQ4/iQ5 Only,N/A
+7,disney+,disney+,disney+,Disney+,Disney+,Disney+,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Disney,Apps,iQ4/iQ5 Only,N/A
+8,amazon-prime-video,amazon-prime-video,amazon-prime-video,Amazon Prime Video,Amazon Prime Video,Amazon Prime Video,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Amazon,Apps,iQ4/iQ5 Only,N/A
+9,youtube,youtube,youtube,YouTube,YouTube,YouTube,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,YouTube,Apps,iQ4/iQ5 Only,N/A
+10,paramount+,paramount+,paramount+,Paramount+,Paramount+,Paramount+,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Paramount Global,Apps,iQ4/iQ5 Only,N/A
+11,apple-tv+,apple-tv+,apple-tv+,Apple TV+,Apple TV+,Apple TV+,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Apple Inc,Apps,iQ4/iQ5 Only,N/A
+12,britbox,britbox,britbox,BritBox,BritBox,BritBox,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,BritBox,Apps,iQ4/iQ5 Only,N/A
+13,stan,stan,stan,Stan,Stan,Stan,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,Nine Entertainment Co.,Apps,iQ4/iQ5 Only,N/A
+14,abc-iview,abc-iview,abc-iview,ABC iView,ABC iView,ABC iView,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/M0P76fl.png,https://i.imgur.com/86AcVqs.png,Australian Broadcasting Corporation,Apps,iQ4/iQ5 Only,N/A
+15,sbs-on-demand,sbs-on-demand,sbs-on-demand,SBS On Demand,SBS On Demand,SBS On Demand,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/c3KmY7U.png,https://i.imgur.com/FRN3rc5.png,Special Broadcasting Service,Apps,iQ4/iQ5 Only,N/A
+16,7plus,7plus,7plus,7plus,7plus,7plus,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/RuLoIvR.png,https://i.imgur.com/RuLoIvR.png,Seven West Media,Apps,iQ4/iQ5 Only,N/A
+17,9now,9now,9now,9now,9now,9now,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/ncyISu4.png,https://i.imgur.com/ncyISu4.png,Nine Entertainment Co.,Apps,iQ4/iQ5 Only,N/A
+18,10-play,10-play,10-play,10 play,10 play,10 play,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/ZnQ4BDW.png,https://i.imgur.com/gnOvrM1.png,10 Network,Apps,iQ4/iQ5 Only,N/A
+19,abc-kids-iview,abc-kids-iview,abc-kids-iview,ABC Kids iView,ABC Kids iView,ABC Kids iView,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/GPy2tEd.png,https://i.imgur.com/GPy2tEd.png,Australian Broadcasting Corporation,Apps,iQ4/iQ5 Only,N/A
+20,f1-tv,f1-tv,f1-tv,F1 TV,F1 TV,F1 TV,Apps,,,2010,0,0,0,APP,0,,/placeholder-image.png,/placeholder-image.png,F1,Apps,iQ4/iQ5 Only,N/A
+22,docplay,docplay,docplay,DocPlay,DocPlay,DocPlay,Apps,,,2010,0,0,0,APP,0,,https://i.imgur.com/PF9cTQx.png,https://i.imgur.com/8uc9VZg.png,Madman Entertainment Pty Ltd,Apps,iQ4/iQ5 Only,N/A
+23,youtube-kids,youtube-kids,youtube-kids,YouTube Kids,YouTube Kids,YouTube Kids,Streaming,,,3150,0,0,0,0,989,,/placeholder-image.png,/placeholder-image.png,YouTube,Streaming,N/A,N/A
+24,youtube,youtube,youtube,YouTube,YouTube,YouTube,Streaming,,,3150,0,0,0,0,990,,/placeholder-image.png,/placeholder-image.png,YouTube,Streaming,N/A,N/A
+25,hayu,hayu,hayu,hayu,hayu,hayu,Streaming,,,3150,0,0,0,0,991,,/placeholder-image.png,/placeholder-image.png,hayu,Streaming,N/A,N/A
+26,apple-tv,apple-tv,apple-tv,Apple TV+,Apple TV+,Apple TV+,Streaming,,,3150,0,0,0,0,992,,/placeholder-image.png,/placeholder-image.png,Apple Inc,Streaming,N/A,N/A
+27,prime-video,prime-video,prime-video,Amazon Prime Video,Amazon Prime Video,Amazon Prime Video,Streaming,,,3150,0,0,0,0,993,,/placeholder-image.png,/placeholder-image.png,Amazon,Streaming,N/A,N/A
+28,netflix,netflix,netflix,Netflix,Netflix,Netflix,Streaming,,,3150,0,0,0,0,995,,/placeholder-image.png,/placeholder-image.png,Netflix,Streaming,N/A,N/A
+29,disney,disney,disney,Disney+,Disney+,Disney+,Streaming,,,3150,0,0,0,0,996,,/placeholder-image.png,/placeholder-image.png,Disney,Streaming,N/A,N/A
+30,390715auepg.com.au,390715auepg.com.au,390715auepg.com.au,Double J,Double J,Double J,Radio,MPEG-1,,3150,0,0,0,0,200,,https://i.imgur.com/hYiRZj5.png,https://i.imgur.com/mjtraYc.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+31,390716auepg.com.au,390716auepg.com.au,390716auepg.com.au,ABC Jazz,ABC Jazz,ABC Jazz,Radio,MPEG-1,,3150,0,0,0,0,201,,https://i.imgur.com/Xt8X8di.png,https://i.imgur.com/Xt8X8di.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+32,394033auepg.com.au,394033auepg.com.au,394033auepg.com.au,SBS Radio 1,SBS Radio 1,SBS Radio 1,Radio,MPEG-1,,3150,0,0,0,0,301,,https://i.imgur.com/bZZA5RT.png,https://i.imgur.com/bZZA5RT.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+33,394034auepg.com.au,394034auepg.com.au,394034auepg.com.au,SBS Radio 2,SBS Radio 2,SBS Radio 2,Radio,MPEG-1,,3150,0,0,0,0,302,,https://i.imgur.com/CkDjsom.png,https://i.imgur.com/CkDjsom.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+34,abc-country,abc-country,abc-country,ABC Country,ABC Country,ABC Country,Radio,MPEG-1,,3150,0,0,0,0,203,,https://i.imgur.com/sdX2GMZ.png,https://i.imgur.com/sdX2GMZ.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+35,abc-kids-listen,abc-kids-listen,abc-kids-listen,ABC Kids Listen,ABC Kids Listen,ABC KIDS Listen,Radio,MPEG-1,,3150,0,0,0,0,202,,https://i.imgur.com/nsE8OzK.png,https://i.imgur.com/nsE8OzK.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+36,abc-newsradio,abc-newsradio,abc-newsradio,ABC NewsRadio,ABC NewsRadio,ABC NewsRadio,Radio,HE-AAC,,3150,0,0,0,0,204,,https://i.imgur.com/92rRxcI.png,https://i.imgur.com/92rRxcI.png,Australian Broadcasting Corporation,Free-to-Air - Terrestrial,N/A,N/A
+37,sbs-chill.sbsod.au,sbs-chill.sbsod.au,sbs-chill.sbsod.au,SBS Chill,SBS Chill,SBS Chill,Radio,MPEG-1,,3150,0,0,0,0,306,,https://i.imgur.com/zG5TdVL.png,https://i.imgur.com/9smjizC.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+38,sbs-pop-araby.sbsod.au,sbs-pop-araby.sbsod.au,sbs-pop-araby.sbsod.au,SBS Arabic 24,SBS Arabic 24,SBS Arabic24,Radio,MPEG-1,,3150,0,0,0,0,304,,https://i.imgur.com/tsbkD0K.png,https://i.imgur.com/6JFQUhi.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+39,sbs-pop-asia.sbsod.au,sbs-pop-asia.sbsod.au,sbs-pop-asia.sbsod.au,SBS Pop Asia,SBS Pop Asia,SBS PopAsia,Radio,HE-AAC,,3150,0,0,0,0,307,,https://i.imgur.com/JGGogek.png,https://i.imgur.com/JGGogek.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+40,sbs-pop-desi.sbsod.au,sbs-pop-desi.sbsod.au,sbs-pop-desi.sbsod.au,SBS South Asian,SBS South Asian,SBS South Asian,Radio,HE-AAC,,3150,0,0,0,0,305,,https://i.imgur.com/uWTKlon.png,https://i.imgur.com/uWTKlon.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+41,sbs-radio-3.sbsod.au,sbs-radio-3.sbsod.au,sbs-radio-3.sbsod.au,SBS Radio 3,SBS Radio 3,SBS Radio 3,Radio,MPEG-1,,3150,0,0,0,0,303,,https://i.imgur.com/vXn3D7N.png,https://i.imgur.com/vXn3D7N.png,Special Broadcasting Service,Free-to-Air - Terrestrial,N/A,N/A
+42,NOEPG,NOEPG,NOEPG,Rai News24,Rai News24,Rai News24,SD 576i,,,3150,0,0,0,0,602,,https://i.imgur.com/kYAPMb2.png,https://i.imgur.com/QPeVJuW.png,Rai Internazionale,Special Interest,N/A,N/A
+43,NOEPG,NOEPG,NOEPG,Mediaset Italia,Mediaset Italia,Mediaset Italia,SD 576i,,,3150,0,0,0,0,603,,https://i.imgur.com/MvxlUyU.png,https://i.imgur.com/MvxlUyU.png,Mediaset,Special Interest,N/A,N/A
+44,NOEPG,NOEPG,NOEPG,Rai World Premium,Rai World Premium,Rai World Premium,SD 576i,,,3150,0,0,0,0,601,,https://i.imgur.com/Q2Vfbu3.png,https://i.imgur.com/z5GNBnL.png,Rai Internazionale,Special Interest,N/A,N/A
+45,RAIITA,RAIITA,RAIITA,Rai Italia,Rai Italia,Rai Italia,SD 576i,,,3150,0,0,0,0,600,,https://i.imgur.com/Uvv3tVz.png,https://i.imgur.com/DHELCyv.png,Rai Internazionale,Special Interest,N/A,N/A
+46,more-docs,more-docs,more-docs,More Docs,More Docs,More Docs,Streaming,N/A,,2010,,,,140,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
+47,more-comedy,more-comedy,more-comedy,More Comedy,More Comedy,More Comedy,Streaming,N/A,,2010,,,,144,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
+48,more-drama,more-drama,more-drama,More Drama,More Drama,More Drama,Streaming,N/A,,2010,,,,145,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
+49,more-british,more-british,more-british,More British,More British,More British,Streaming,N/A,,2010,,,,146,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
+50,more-classics,more-classics,more-classics,More Classics,More Classics,More Classics,Streaming,N/A,,2010,,,,147,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
+51,more-movies,more-movies,more-movies,More Movies,More Movies,More Movies,Streaming,N/A,,2010,,,,424,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A

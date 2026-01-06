@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  RotateCcw,
-  Tv,
-} from "lucide-react";
+import { ChevronDown, RotateCcw, Tv } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { parseAsInteger, useQueryStates } from "nuqs";
 import { use, useEffect, useMemo, useRef, useState } from "react";
@@ -14,7 +8,6 @@ import {
   SidebarContainer,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader,
   SidebarLayout,
 } from "@/components/layouts/sidebar-layout";
 import LoadingState from "@/components/loading-state";
@@ -35,20 +28,14 @@ import {
 } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   getAllProviderIds,
-  getProvidersByCategory,
+  // getProvidersByCategory,
+  getProvidersByCountryAndCategory,
   timelineProviders,
 } from "@/lib/timeline-data";
 import { cn } from "@/lib/utils";
@@ -65,6 +52,9 @@ const extractIndicators = (name: string): string[] => {
   }
   if (name.includes(" HD")) {
     found.push("HD");
+  }
+  if (name.includes("+1")) {
+    found.push("+1");
   }
   if (name.includes("+2")) {
     found.push("+2");
@@ -119,7 +109,8 @@ function IndicatorLegend({
   const indicators = [
     { color: "#a855f7", key: "4K", label: "4K / UHD / Ultra HD" },
     { color: "#3b82f6", key: "HD", label: "HD Channels" },
-    { color: "#f97316", key: "+2", label: "+2 Channels" },
+    { color: "#f97316", key: "+1", label: "Timeshift Channels" },
+    { color: "#f97316", key: "+2", label: "Timeshift Channels" },
     { color: "#10b981", key: "Interactive", label: "Interactive Channels" },
     {
       color: "#8b5cf6",
@@ -225,7 +216,7 @@ function ChannelHistorySidebar({
   yearRange,
 }: ChannelHistorySidebarProps) {
   return (
-    <div className="space-y-3">
+    <div className="min-w-0 space-y-3">
       {/* <Separator /> */}
 
       {/* Year Range Filter */}
@@ -235,8 +226,13 @@ function ChannelHistorySidebar({
           open={isYearRangeOpen}
         >
           <div className="flex w-full items-center gap-1">
-            <CollapsibleTrigger className="flex flex-1 items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-              <h4 className="font-semibold text-xs">Filter by Year Range</h4>
+            <CollapsibleTrigger
+              className="flex flex-1 items-center justify-between rounded-md p-2 text-left transition-colors hover:bg-muted/50"
+              type="button"
+            >
+              <span className="font-semibold text-xs">
+                Filter by Year Range
+              </span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isYearRangeOpen ? "rotate-180" : ""}`}
               />
@@ -256,7 +252,7 @@ function ChannelHistorySidebar({
             </button>
           </div>
           <CollapsibleContent className="pt-2">
-            <div className="flex w-full max-w-md flex-col gap-2">
+            <div className="flex min-w-0 max-w-full flex-col gap-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="year-slider">Year Range</Label>
                 <span className="text-muted-foreground text-xs">
@@ -287,8 +283,11 @@ function ChannelHistorySidebar({
       {availableNetworks.size > 0 && (
         <Collapsible onOpenChange={onNetworksOpenChange} open={isNetworksOpen}>
           <div className="flex w-full items-center gap-1">
-            <CollapsibleTrigger className="flex flex-1 items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-              <h4 className="text-left font-semibold text-xs">
+            <CollapsibleTrigger
+              className="flex flex-1 items-center justify-between rounded-md p-2 text-left transition-colors hover:bg-muted/50"
+              type="button"
+            >
+              <span className="text-left font-semibold text-xs">
                 Filter by Network
                 <br />
                 {selectedNetworks.size > 0 && (
@@ -296,7 +295,7 @@ function ChannelHistorySidebar({
                     ({selectedNetworks.size} selected)
                   </span>
                 )}
-              </h4>
+              </span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isNetworksOpen ? "rotate-180" : ""}`}
               />
@@ -318,11 +317,14 @@ function ChannelHistorySidebar({
             )}
           </div>
           <CollapsibleContent className="pt-2">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid w-full grid-cols-2 gap-2">
               {Array.from(availableNetworks)
                 .sort()
                 .map((network) => (
-                  <div className="flex items-center space-x-2" key={network}>
+                  <div
+                    className="flex min-w-0 items-center gap-2"
+                    key={network}
+                  >
                     <Checkbox
                       checked={selectedNetworks.has(network)}
                       id={`network-${network}`}
@@ -331,7 +333,7 @@ function ChannelHistorySidebar({
                       }
                     />
                     <Label
-                      className="cursor-pointer font-normal text-xs"
+                      className="cursor-pointer truncate font-normal text-xs"
                       htmlFor={`network-${network}`}
                     >
                       {network}
@@ -351,10 +353,13 @@ function ChannelHistorySidebar({
           onOpenChange={onIndicatorsOpenChange}
           open={isIndicatorsOpen}
         >
-          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-            <h4 className="font-semibold text-xs">
+          <CollapsibleTrigger
+            className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50"
+            type="button"
+          >
+            <span className="font-semibold text-xs">
               Legend: Channel Indicators
-            </h4>
+            </span>
             <ChevronDown
               className={`h-4 w-4 transition-transform ${isIndicatorsOpen ? "rotate-180" : ""}`}
             />
@@ -370,17 +375,20 @@ function ChannelHistorySidebar({
       {/* Color Legend */}
       {activeColorValues.size > 0 && (
         <Collapsible onOpenChange={onGenresOpenChange} open={isGenresOpen}>
-          <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50">
-            <h4 className="font-semibold text-xs">
+          <CollapsibleTrigger
+            className="flex w-full items-center justify-between rounded-md p-2 transition-colors hover:bg-muted/50"
+            type="button"
+          >
+            <span className="font-semibold text-xs">
               Legend: Channel{" "}
               {colorBy === "channel_network" ? "Networks" : "Genres"}
-            </h4>
+            </span>
             <ChevronDown
               className={`h-4 w-4 transition-transform ${isGenresOpen ? "rotate-180" : ""}`}
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid w-full grid-cols-2 gap-1.5">
               {Object.entries(colorMap || GENRE_COLORS)
                 .filter(
                   ([value]) =>
@@ -388,10 +396,10 @@ function ChannelHistorySidebar({
                 )
                 .map(([value, colorClass]) => (
                   <div
-                    className={`rounded-md border px-2 py-1 text-center ${colorClass}`}
+                    className={`min-w-0 rounded-md border px-2 py-1 text-center ${colorClass}`}
                     key={value}
                   >
-                    <span className="text-xs">{value}</span>
+                    <span className="truncate text-xs">{value}</span>
                   </div>
                 ))}
             </div>
@@ -416,7 +424,11 @@ export default function ChannelHistoryClient({
   const { provider: providerId } = unwrappedParams;
   const isMobile = useIsMobile();
 
-  const providersByCategory = useMemo(() => getProvidersByCategory(), []);
+  // const providersByCategory = useMemo(() => getProvidersByCategory(), []);
+  const providersByCountryAndCategory = useMemo(
+    () => getProvidersByCountryAndCategory(),
+    []
+  );
   const validProviderIds = useMemo(() => getAllProviderIds(), []);
   const selectedProvider = timelineProviders[providerId];
 
@@ -537,21 +549,21 @@ export default function ChannelHistoryClient({
   };
 
   // Navigation functions
-  const handlePrevProvider = () => {
-    const currentIndex = validProviderIds.indexOf(providerId);
-    if (currentIndex > 0) {
-      const prevProviderId = validProviderIds[currentIndex - 1];
-      handleProviderChange(prevProviderId);
-    }
-  };
+  // const handlePrevProvider = () => {
+  //   const currentIndex = validProviderIds.indexOf(providerId);
+  //   if (currentIndex > 0) {
+  //     const prevProviderId = validProviderIds[currentIndex - 1];
+  //     handleProviderChange(prevProviderId);
+  //   }
+  // };
 
-  const handleNextProvider = () => {
-    const currentIndex = validProviderIds.indexOf(providerId);
-    if (currentIndex < validProviderIds.length - 1) {
-      const nextProviderId = validProviderIds[currentIndex + 1];
-      handleProviderChange(nextProviderId);
-    }
-  };
+  // const handleNextProvider = () => {
+  //   const currentIndex = validProviderIds.indexOf(providerId);
+  //   if (currentIndex < validProviderIds.length - 1) {
+  //     const nextProviderId = validProviderIds[currentIndex + 1];
+  //     handleProviderChange(nextProviderId);
+  //   }
+  // };
 
   // Filter timeline data based on year range and network
   const filteredTimelineData = useMemo(() => {
@@ -758,8 +770,8 @@ export default function ChannelHistoryClient({
 
   // Create the sidebar content
   const sidebar = (
-    <SidebarContainer>
-      <SidebarHeader>
+    <SidebarContainer className="overflow-visible">
+      {/* <SidebarHeader>
         {" "}
         {selectedProvider && (
           <div className="rounded-md bg-muted p-3">
@@ -783,87 +795,107 @@ export default function ChannelHistoryClient({
             </div>
           </div>
         )}
-      </SidebarHeader>
+      </SidebarHeader> */}
       <ScrollArea className="flex-1">
         <SidebarContent>
           <div className="pt-2">
-            {Object.entries(providersByCategory).map(
-              ([category, providers]) => (
-                <div className="mb-4" key={category}>
-                  <h4 className="mb-2 px-2 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                    {category}
-                  </h4>
-                  <div className="space-y-1">
-                    {providers.map((provider) => (
-                      <Button
-                        className="w-full justify-start"
-                        key={provider.id}
-                        onClick={() => handleProviderChange(provider.id)}
-                        variant={
-                          providerId === provider.id ? "secondary" : "ghost"
-                        }
-                      >
-                        <div className="flex w-full items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Tv className="h-4 w-4" />
-                            <span className="text-sm">{provider.name}</span>
-                          </div>
-                          {providerId === provider.id && (
-                            <Badge className="ml-2 text-xs" variant="default">
-                              Active
-                            </Badge>
-                          )}
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+            {Object.entries(providersByCountryAndCategory)
+              .sort(([countryA], [countryB]) =>
+                countryA.localeCompare(countryB)
               )
-            )}
+              .map(([country, categories]) => (
+                <div className="mb-6" key={country}>
+                  <h3 className="mb-3 px-2 font-semibold text-foreground text-sm">
+                    {country}
+                  </h3>
+                  {Object.entries(categories)
+                    .sort(([catA], [catB]) => catA.localeCompare(catB))
+                    .map(([category, providers]) => (
+                      <div className="mb-4" key={`${country}-${category}`}>
+                        <h4 className="mb-2 px-2 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                          {category}
+                        </h4>
+                        <div className="space-y-1">
+                          {providers.map((provider) => (
+                            <Button
+                              className="w-full justify-start"
+                              key={provider.id}
+                              onClick={() => handleProviderChange(provider.id)}
+                              variant={
+                                providerId === provider.id
+                                  ? "secondary"
+                                  : "ghost"
+                              }
+                            >
+                              <div className="flex w-full items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Tv className="h-4 w-4" />
+                                  <span className="text-sm">
+                                    {provider.name}
+                                  </span>
+                                </div>
+                                {providerId === provider.id && (
+                                  <Badge
+                                    className="ml-2 text-xs"
+                                    variant="default"
+                                  >
+                                    Active
+                                  </Badge>
+                                )}
+                              </div>
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ))}
           </div>
         </SidebarContent>
       </ScrollArea>
-      <SidebarFooter>
-        <ChannelHistorySidebar
-          activeColorValues={activeColorValues}
-          activeIndicators={activeIndicators}
-          availableNetworks={availableNetworks}
-          colorBy={colorBy}
-          colorMap={colorMap}
-          isGenresOpen={isGenresOpen}
-          isIndicatorsOpen={isIndicatorsOpen}
-          isNetworksOpen={isNetworksOpen}
-          isYearRangeOpen={isYearRangeOpen}
-          onGenresOpenChange={setIsGenresOpen}
-          onIndicatorsOpenChange={setIsIndicatorsOpen}
-          onNetworksOpenChange={setIsNetworksOpen}
-          onNetworksReset={() => setSelectedNetworks(new Set())}
-          onNetworkToggle={(network, checked) => {
-            const newNetworks = new Set(selectedNetworks);
-            if (checked) {
-              newNetworks.add(network);
-            } else {
-              newNetworks.delete(network);
+      <SidebarFooter className="min-w-0 shrink-0 overflow-visible">
+        <div className="w-full min-w-0 max-w-full">
+          <ChannelHistorySidebar
+            activeColorValues={activeColorValues}
+            activeIndicators={activeIndicators}
+            availableNetworks={availableNetworks}
+            colorBy={colorBy}
+            colorMap={colorMap}
+            isGenresOpen={isGenresOpen}
+            isIndicatorsOpen={isIndicatorsOpen}
+            isNetworksOpen={isNetworksOpen}
+            isYearRangeOpen={isYearRangeOpen}
+            onGenresOpenChange={setIsGenresOpen}
+            onIndicatorsOpenChange={setIsIndicatorsOpen}
+            onNetworksOpenChange={setIsNetworksOpen}
+            onNetworksReset={() => setSelectedNetworks(new Set())}
+            onNetworkToggle={(network, checked) => {
+              const newNetworks = new Set(selectedNetworks);
+              if (checked) {
+                newNetworks.add(network);
+              } else {
+                newNetworks.delete(network);
+              }
+              setSelectedNetworks(newNetworks);
+            }}
+            onYearRangeChange={(value) =>
+              setYearParams({
+                yearEnd: value[1],
+                yearStart: value[0],
+              })
             }
-            setSelectedNetworks(newNetworks);
-          }}
-          onYearRangeChange={(value) =>
-            setYearParams({
-              yearEnd: value[1],
-              yearStart: value[0],
-            })
-          }
-          onYearRangeOpenChange={setIsYearRangeOpen}
-          onYearRangeReset={() =>
-            setYearParams({
-              yearEnd: selectedProvider.data.axis.end,
-              yearStart: selectedProvider.data.axis.start,
-            })
-          }
-          selectedNetworks={selectedNetworks}
-          selectedProvider={selectedProvider}
-          yearRange={yearRange}
-        />
+            onYearRangeOpenChange={setIsYearRangeOpen}
+            onYearRangeReset={() =>
+              setYearParams({
+                yearEnd: selectedProvider.data.axis.end,
+                yearStart: selectedProvider.data.axis.start,
+              })
+            }
+            selectedNetworks={selectedNetworks}
+            selectedProvider={selectedProvider}
+            yearRange={yearRange}
+          />
+        </div>
       </SidebarFooter>
     </SidebarContainer>
   );
@@ -871,7 +903,7 @@ export default function ChannelHistoryClient({
   // Header actions for the sidebar layout (similar to EPG)
   const headerActions = (
     <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1">
+      {/* <div className="flex items-center gap-1">
         <Button
           disabled={validProviderIds.indexOf(providerId) === 0}
           onClick={handlePrevProvider}
@@ -915,7 +947,7 @@ export default function ChannelHistoryClient({
         >
           <ChevronRight className="size-4" />
         </Button>
-      </div>
+      </div> */}
 
       {/* Spacing selector */}
       <TimelineSpacingSelector onChange={setSpacingMode} value={spacingMode} />
@@ -928,13 +960,19 @@ export default function ChannelHistoryClient({
   }
 
   // Create the page title
-  const pageTitle = `${selectedProvider.name} Channel History`;
+  const currentYear = new Date().getFullYear();
+  const endYear = Math.floor(selectedProvider.data.axis.end);
+  const showYearRange = endYear < currentYear;
+  const pageTitle = showYearRange
+    ? `${selectedProvider.name} Channel History (${selectedProvider.data.axis.start}-${endYear})`
+    : `${selectedProvider.name} Channel History (${selectedProvider.data.axis.start}-)`;
 
   return (
     <SidebarLayout
       actions={headerActions}
       contentClassName="overflow-hidden p-0"
       sidebar={sidebar}
+      sidebarClassName="overflow-visible"
       title={pageTitle}
     >
       <div

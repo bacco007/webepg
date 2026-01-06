@@ -88,7 +88,7 @@ const ProgramContent = ({
       <div className="flex items-center gap-1">
         {/* Show a dot for currently airing programs */}
         {isCurrentlyAiring && !isVeryNarrow && !isPlaceholder && (
-          <Circle className="mr-0.5 h-2 w-2 flex-shrink-0 fill-[hsl(var(--program-current-border))] text-[hsl(var(--program-current-border))]" />
+          <Circle className="mr-0.5 h-2 w-2 shrink-0 fill-[hsl(var(--program-current-border))] text-[hsl(var(--program-current-border))]" />
         )}
 
         <div className="flex-1 truncate text-xs" ref={titleRef}>
@@ -101,11 +101,11 @@ const ProgramContent = ({
         {!(isVeryNarrow || isPlaceholder) && (
           <>
             {isPremiere && (
-              <Star className="h-3 w-3 flex-shrink-0 text-[hsl(var(--program-premiere))]" />
+              <Star className="h-3 w-3 shrink-0 text-[hsl(var(--program-premiere))]" />
             )}
             {isNew && !isPremiere && (
               <Badge
-                className="ml-1 h-4 flex-shrink-0 border-[hsl(var(--program-new))] px-1 font-bold text-[8px] text-[hsl(var(--program-new))]"
+                className="ml-1 h-4 shrink-0 border-[hsl(var(--program-new))] px-1 font-bold text-[8px] text-[hsl(var(--program-new))]"
                 variant="outline"
               >
                 NEW
@@ -326,7 +326,7 @@ export function ProgramItem({
   }, []);
 
   // Determine background color based on program status
-  const { bgColor, textColor, hoverBgColor } = getProgramColors(
+  const { bgColor, textColor, hoverBgColor, backgroundStyle } = getProgramColors(
     specialTitleClass,
     isPast,
     isCurrentlyAiring
@@ -426,6 +426,7 @@ export function ProgramItem({
         )}
         ref={cardRef}
         style={{
+          ...(backgroundStyle || {}),
           ...((isHovered && shouldExpandOnHover) ||
           (isMobile && showMobileTooltip && shouldExpandOnHover)
             ? {

@@ -49,10 +49,11 @@ function ProgramItem({
       <div
         className={cn(
           "flex items-start gap-3 rounded-md p-3",
-          specialTitleClass,
+          specialTitleClass?.className,
           getDensityPadding(density)
         )}
         key={program.guideid}
+        style={specialTitleClass?.style}
       >
         {/* Time column */}
         <div className="flex w-16 flex-col items-center text-center">

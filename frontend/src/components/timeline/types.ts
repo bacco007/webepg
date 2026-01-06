@@ -69,6 +69,7 @@ export interface TimelineSpan {
   note?: string;
   class?: string; // CSS token for styling
   genre?: string; // Channel genre for color coding
+  channelGenre?: string; // Original channel genre (preserved for icon detection)
 }
 
 export interface TimelineRow {

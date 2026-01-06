@@ -412,7 +412,7 @@ export function TVGuide({
     useState<string>("none");
 
   // Hour width in pixels - smaller on mobile
-  const hourWidth = isMobile ? 150 : 200;
+  const hourWidth = isMobile ? 150 : 300;
 
   // Update state when props change
   useEffect(() => {

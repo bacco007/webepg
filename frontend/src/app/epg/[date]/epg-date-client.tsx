@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Grid, List } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { TVGuide } from "@/components/epg";
 import { SidebarSettings } from "@/components/epg/sidebar-settings";
@@ -64,65 +64,6 @@ const isValidDateFormat = (dateStr: string): boolean => {
   return true;
 };
 
-// Helper function to extract categories from programs
-const extractCategoriesFromPrograms = (
-  channelData: Array<{
-    channel: {
-      id: string;
-      lcn: string | number | null;
-      name: {
-        clean?: string;
-        real?: string;
-        location?: string;
-      };
-    };
-    programs: Array<{
-      categories?: string[];
-    }>;
-  }>
-): string[] => {
-  const allCategoriesSet = new Set<string>();
-
-  for (const channel of channelData) {
-    for (const program of channel.programs) {
-      if (program.categories && Array.isArray(program.categories)) {
-        for (const category of program.categories) {
-          allCategoriesSet.add(category);
-        }
-      }
-    }
-  }
-
-  return Array.from(allCategoriesSet).sort();
-};
-
-// Helper function to create category counts
-const createCategoryCounts = (
-  channelData: Array<{
-    channel: {
-      id: string;
-      lcn: string | number | null;
-      name: {
-        clean?: string;
-        real?: string;
-        location?: string;
-      };
-    };
-    programs: Array<{
-      categories?: string[];
-    }>;
-  }>,
-  categoryList: string[]
-): Record<string, number> =>
-  Object.fromEntries(
-    categoryList.map((cat) => [
-      cat,
-      channelData.filter((c) =>
-        c.programs.some((p) => p.categories?.includes(cat))
-      ).length,
-    ])
-  );
-
 export default function EPGDateClient({
   params,
 }: {
@@ -136,7 +77,6 @@ export default function EPGDateClient({
 
   // State for sidebar filters
   const [channelSearch, setChannelSearch] = useState("");
-  const [categorySearch, setCategorySearch] = useState("");
   const [selectedDate, setSelectedDate] = useState<string>(date);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -145,7 +85,6 @@ export default function EPGDateClient({
 
   // Display settings
   const [sortBy, setSortBy] = useState<string>("channelNumber");
-  const [groupBy, setGroupBy] = useState<string>("none");
   const [displayName, setDisplayName] = useState<string>("clean");
 
   // Data source and timezone from cookies
@@ -156,15 +95,10 @@ export default function EPGDateClient({
 
   // Filter states
   const [channelFilters, setChannelFilters] = useState<string[]>([]);
-  const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   const [networkFilters, setNetworkFilters] = useState<string[]>([]);
 
-  // State for categories and networks
-  const [categories, setCategories] = useState<string[]>([]);
+  // State for networks
   const [networks, setNetworks] = useState<string[]>([]);
-  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>(
-    {}
-  );
   const [networkCounts, setNetworkCounts] = useState<Record<string, number>>(
     {}
   );
@@ -188,7 +122,6 @@ export default function EPGDateClient({
       const storedDataSource = await getCookie("xmltvdatasource");
       const storedTimezone = await getCookie("userTimezone");
       const storedSortBy = await getCookie("sortBy");
-      const storedGroupBy = await getCookie("groupBy");
       const storedDisplayName = await getCookie("displayName");
 
       if (storedDataSource) {
@@ -212,13 +145,6 @@ export default function EPGDateClient({
         setSortBy("channelNumber");
       }
 
-      if (storedGroupBy) {
-        setGroupBy(storedGroupBy);
-      } else {
-        await setCookie("groupBy", "none", 30);
-        setGroupBy("none");
-      }
-
       if (storedDisplayName) {
         setDisplayName(storedDisplayName);
       } else {
@@ -232,21 +158,41 @@ export default function EPGDateClient({
     loadCookies();
   }, []);
 
-  // Handle settings changes
-  const handleSortByChange = async (value: string) => {
+  // Handle settings changes - memoized with useCallback
+  const handleSortByChange = useCallback(async (value: string) => {
     setSortBy(value);
     await setCookie("sortBy", value, 30);
-  };
+  }, []);
 
-  const handleGroupByChange = async (value: string) => {
-    setGroupBy(value);
-    await setCookie("groupBy", value, 30);
-  };
-
-  const handleDisplayNameChange = async (value: string) => {
+  const handleDisplayNameChange = useCallback(async (value: string) => {
     setDisplayName(value);
     await setCookie("displayName", value, 30);
-  };
+  }, []);
+
+  // Extract network processing logic to reduce complexity
+  const processNetworkData = useCallback(
+    (channelData: Array<{ channel_id: string; channel_group?: string }>) => {
+      const networkSet = new Set<string>();
+      const networkMap: Record<string, string> = {};
+      const netCounts: Record<string, number> = {};
+
+      // Single pass to extract networks, create map, and count
+      for (const channelItem of channelData) {
+        if (channelItem.channel_group) {
+          networkSet.add(channelItem.channel_group);
+          networkMap[channelItem.channel_id] = channelItem.channel_group;
+          netCounts[channelItem.channel_group] =
+            (netCounts[channelItem.channel_group] || 0) + 1;
+        }
+      }
+
+      const extractedNetworks = Array.from(networkSet).sort();
+      setNetworks(extractedNetworks);
+      setChannelNetworkMap(networkMap);
+      setNetworkCounts(netCounts);
+    },
+    []
+  );
 
   // Fetch channel data
   useEffect(() => {
@@ -261,39 +207,14 @@ export default function EPGDateClient({
           throw new Error(`Failed to fetch channel data: ${response.status}`);
         }
         const result = await response.json();
-
-        // Extract networks from channel data
-        const networkSet = new Set<string>();
-        const networkMap: Record<string, string> = {};
-
-        for (const channel of result.data?.channels || []) {
-          if (channel.channel_group) {
-            networkSet.add(channel.channel_group);
-            // Map channel ID to network
-            networkMap[channel.channel_id] = channel.channel_group;
-          }
-        }
-
-        const extractedNetworks = Array.from(networkSet).sort();
-        setNetworks(extractedNetworks);
-        setChannelNetworkMap(networkMap);
-
-        // Create network counts
-        const netCounts: Record<string, number> = {};
-        for (const network of extractedNetworks) {
-          netCounts[network] =
-            result.data?.channels.filter(
-              (c: { channel_group: string }) => c.channel_group === network
-            ).length || 0;
-        }
-        setNetworkCounts(netCounts);
+        processNetworkData(result.data?.channels || []);
       } catch {
         // Error handling without console.log
       }
     };
 
     fetchChannelData();
-  }, [xmltvDataSource, clientTimezone, cookiesLoaded]);
+  }, [xmltvDataSource, clientTimezone, cookiesLoaded, processNetworkData]);
 
   // Fetch available dates
   useEffect(() => {
@@ -394,18 +315,6 @@ export default function EPGDateClient({
           channelIdentifiers.map((id: string) => [id, 1])
         );
         setChannelCounts(counts);
-
-        // Extract categories and create counts
-        const extractedCategories = extractCategoriesFromPrograms(
-          result.channels
-        );
-        setCategories(extractedCategories);
-
-        const catCountsObj = createCategoryCounts(
-          result.channels,
-          extractedCategories
-        );
-        setCategoryCounts(catCountsObj);
       } catch {
         // Error handling without console.log
       }
@@ -414,232 +323,287 @@ export default function EPGDateClient({
     fetchGuideData();
   }, [selectedDate, xmltvDataSource, clientTimezone, cookiesLoaded]);
 
-  // Update the handleFilterChange function to handle network filters
-  const handleFilterChange = (
-    filterType: "channel" | "category" | "network",
-    value: string
-  ) => {
-    switch (filterType) {
-      case "channel":
-        setChannelFilters((prev) =>
-          prev.includes(value)
-            ? prev.filter((v) => v !== value)
-            : [...prev, value]
-        );
-        break;
-      case "category":
-        setCategoryFilters((prev) =>
-          prev.includes(value)
-            ? prev.filter((v) => v !== value)
-            : [...prev, value]
-        );
-        break;
-      case "network":
-        setNetworkFilters((prev) =>
-          prev.includes(value)
-            ? prev.filter((v) => v !== value)
-            : [...prev, value]
-        );
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Update clearAllFilters to include network filters
-  const clearAllFilters = () => {
-    setChannelFilters([]);
-    setCategoryFilters([]);
-    setNetworkFilters([]);
-    setChannelSearch("");
-    setCategorySearch("");
-  };
-
-  const handleDateChange = (newDate: string) => {
-    // Navigate to the new date URL
-    router.push(`/epg/${newDate}`);
-  };
-
-  const handlePrevDate = () => {
-    const currentIndex = availableDates.indexOf(selectedDate);
-    if (currentIndex > 0) {
-      const newDate = availableDates[currentIndex - 1];
-      handleDateChange(newDate);
-    }
-  };
-
-  const handleNextDate = () => {
-    const currentIndex = availableDates.indexOf(selectedDate);
-    if (currentIndex < availableDates.length - 1) {
-      const newDate = availableDates[currentIndex + 1];
-      handleDateChange(newDate);
-    }
-  };
-
-  // Format date for display in dropdown
-  const getFormattedDate = (dateStr: string) => {
-    if (!dateStr) {
-      return "";
-    }
-
-    // Parse the YYYYMMDD format
-    const dateObj = parseISODate(
-      `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`
-    );
-
-    return isDateToday(dateObj) ? "Today" : formatDate(dateObj, "EEE, do MMM");
-  };
-
-  // View mode toggle actions
-  const toggleViewMode = (mode: "grid" | "list") => {
-    setViewMode(mode);
-  };
-
-  // Jump to time function
-  const jumpToTime = (hour: number) => {
-    if (tvGuideRef.current) {
-      const hourWidth = 200; // Same as in TVGuide component
-      const scrollableElement = tvGuideRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
-      ) as HTMLElement;
-
-      if (scrollableElement && viewMode === "grid") {
-        const scrollPosition = hour * hourWidth;
-        scrollableElement.scrollTo({
-          behavior: "smooth",
-          left: scrollPosition,
-        });
+  // Update the handleFilterChange function to handle network filters - memoized
+  const handleFilterChange = useCallback(
+    (filterType: "channel" | "network", value: string) => {
+      switch (filterType) {
+        case "channel":
+          setChannelFilters((prev) =>
+            prev.includes(value)
+              ? prev.filter((v) => v !== value)
+              : [...prev, value]
+          );
+          break;
+        case "network":
+          setNetworkFilters((prev) =>
+            prev.includes(value)
+              ? prev.filter((v) => v !== value)
+              : [...prev, value]
+          );
+          break;
+        default:
+          break;
       }
-    }
-  };
-
-  // Header actions for the sidebar layout
-  const headerActions = (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1">
-        <Button
-          disabled={availableDates.indexOf(selectedDate) === 0}
-          onClick={handlePrevDate}
-          size="icon"
-          variant="outline"
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
-
-        <Select onValueChange={handleDateChange} value={selectedDate}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Select date" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableDates.map((dateItem) => (
-              <SelectItem key={dateItem} value={dateItem}>
-                {getFormattedDate(dateItem)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Button
-          disabled={
-            availableDates.indexOf(selectedDate) === availableDates.length - 1
-          }
-          onClick={handleNextDate}
-          size="icon"
-          variant="outline"
-        >
-          <ChevronRight className="size-4" />
-        </Button>
-      </div>
-
-      <div className="ml-2 flex items-center overflow-hidden rounded-md border">
-        <Button
-          className="rounded-none"
-          onClick={() => toggleViewMode("grid")}
-          size="sm"
-          variant={viewMode === "grid" ? "default" : "ghost"}
-        >
-          <Grid className="mr-2 size-4" />
-          Grid
-        </Button>
-        <Button
-          className="rounded-none"
-          onClick={() => toggleViewMode("list")}
-          size="sm"
-          variant={viewMode === "list" ? "default" : "ghost"}
-        >
-          <List className="mr-2 size-4" />
-          List
-        </Button>
-      </div>
-    </div>
+    },
+    []
   );
 
-  // Add network filter to the sidebar content
-  const sidebar = (
-    <SidebarContainer>
-      <SidebarHeader>
-        <SidebarSearch
-          onValueChange={setChannelSearch}
-          placeholder="Search channels..."
-          searchValue={channelSearch}
-        />
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarTimeNavigation onJumpToTime={jumpToTime} />
-        <FilterSection
-          counts={channelCounts}
-          filters={channelFilters}
-          onFilterChange={(value) => handleFilterChange("channel", value)}
-          onSearchChange={setChannelSearch}
-          options={channels}
-          searchValue={channelSearch}
-          showSearch={true}
-          title="Channels"
-        />
-        <FilterSection
-          counts={networkCounts}
-          filters={networkFilters}
-          onFilterChange={(value) => handleFilterChange("network", value)}
-          onSearchChange={() => {
-            // No-op function for compatibility
-          }}
-          options={networks}
-          searchValue=""
-          showSearch={false}
-          title="Networks"
-        />
-        <FilterSection
-          counts={categoryCounts}
-          filters={categoryFilters}
-          onFilterChange={(value) => handleFilterChange("category", value)}
-          onSearchChange={setCategorySearch}
-          options={categories}
-          searchValue={categorySearch}
-          showSearch={false}
-          title="Categories"
-        />
+  // Update clearAllFilters to include network filters - memoized
+  const clearAllFilters = useCallback(() => {
+    setChannelFilters([]);
+    setNetworkFilters([]);
+    setChannelSearch("");
+  }, []);
 
-        {/* Add Settings Section */}
-        <SidebarSettings
-          displayName={displayName}
-          groupBy={groupBy}
-          onDisplayNameChange={handleDisplayNameChange}
-          onGroupByChange={handleGroupByChange}
-          onSortByChange={handleSortByChange}
-          sortBy={sortBy}
-        />
-      </SidebarContent>
-      <SidebarFooter>
-        <Button
-          className="w-full text-xs"
-          onClick={clearAllFilters}
-          size="sm"
-          variant="outline"
-        >
-          Clear All Filters
-        </Button>
-      </SidebarFooter>
-    </SidebarContainer>
+  const handleDateChange = useCallback(
+    (newDate: string) => {
+      // Navigate to the new date URL
+      router.push(`/epg/${newDate}`);
+    },
+    [router]
+  );
+
+  // Memoize current date index to avoid recalculating
+  const currentDateIndex = useMemo(
+    () => availableDates.indexOf(selectedDate),
+    [availableDates, selectedDate]
+  );
+
+  const handlePrevDate = useCallback(() => {
+    if (currentDateIndex > 0) {
+      const newDate = availableDates[currentDateIndex - 1];
+      handleDateChange(newDate);
+    }
+  }, [currentDateIndex, availableDates, handleDateChange]);
+
+  const handleNextDate = useCallback(() => {
+    if (currentDateIndex < availableDates.length - 1) {
+      const newDate = availableDates[currentDateIndex + 1];
+      handleDateChange(newDate);
+    }
+  }, [currentDateIndex, availableDates, handleDateChange]);
+
+  // Memoize formatted dates for dropdown to avoid recalculating on every render
+  const formattedDateMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const dateStr of availableDates) {
+      if (!dateStr) {
+        map.set(dateStr, "");
+        continue;
+      }
+
+      // Parse the YYYYMMDD format
+      const dateObj = parseISODate(
+        `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`
+      );
+
+      map.set(
+        dateStr,
+        isDateToday(dateObj) ? "Today" : formatDate(dateObj, "EEE, do MMM")
+      );
+    }
+    return map;
+  }, [availableDates]);
+
+  // Format date for display in dropdown - now uses memoized map
+  const getFormattedDate = useCallback(
+    (dateStr: string) => {
+      return formattedDateMap.get(dateStr) || "";
+    },
+    [formattedDateMap]
+  );
+
+  // View mode toggle actions - memoized
+  const toggleViewMode = useCallback((mode: "grid" | "list") => {
+    setViewMode(mode);
+  }, []);
+
+  // Jump to time function - memoized
+  const jumpToTime = useCallback(
+    (hour: number) => {
+      if (tvGuideRef.current) {
+        const hourWidth = 200; // Same as in TVGuide component
+        const scrollableElement = tvGuideRef.current.querySelector(
+          "[data-radix-scroll-area-viewport]"
+        ) as HTMLElement;
+
+        if (scrollableElement && viewMode === "grid") {
+          const scrollPosition = hour * hourWidth;
+          scrollableElement.scrollTo({
+            behavior: "smooth",
+            left: scrollPosition,
+          });
+        }
+      }
+    },
+    [viewMode]
+  );
+
+  // Memoize date select items to avoid recreating on every render
+  const dateSelectItems = useMemo(
+    () =>
+      availableDates.map((dateItem) => (
+        <SelectItem key={dateItem} value={dateItem}>
+          {getFormattedDate(dateItem)}
+        </SelectItem>
+      )),
+    [availableDates, getFormattedDate]
+  );
+
+  // Header actions for the sidebar layout - memoized
+  const headerActions = useMemo(
+    () => (
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          <Button
+            disabled={currentDateIndex === 0}
+            onClick={handlePrevDate}
+            size="icon"
+            variant="outline"
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+
+          <Select onValueChange={handleDateChange} value={selectedDate}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Select date" />
+            </SelectTrigger>
+            <SelectContent>{dateSelectItems}</SelectContent>
+          </Select>
+
+          <Button
+            disabled={currentDateIndex === availableDates.length - 1}
+            onClick={handleNextDate}
+            size="icon"
+            variant="outline"
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+
+        <div className="ml-2 flex items-center overflow-hidden rounded-md border">
+          <Button
+            className="rounded-none"
+            onClick={() => toggleViewMode("grid")}
+            size="sm"
+            variant={viewMode === "grid" ? "default" : "ghost"}
+          >
+            <Grid className="mr-2 size-4" />
+            Grid
+          </Button>
+          <Button
+            className="rounded-none"
+            onClick={() => toggleViewMode("list")}
+            size="sm"
+            variant={viewMode === "list" ? "default" : "ghost"}
+          >
+            <List className="mr-2 size-4" />
+            List
+          </Button>
+        </div>
+      </div>
+    ),
+    [
+      currentDateIndex,
+      handlePrevDate,
+      handleDateChange,
+      selectedDate,
+      dateSelectItems,
+      handleNextDate,
+      availableDates.length,
+      toggleViewMode,
+      viewMode,
+    ]
+  );
+
+  // Memoize filter change handlers to prevent FilterSection re-renders
+  const handleChannelFilterChange = useCallback(
+    (value: string) => handleFilterChange("channel", value),
+    [handleFilterChange]
+  );
+
+  const handleNetworkFilterChange = useCallback(
+    (value: string) => handleFilterChange("network", value),
+    [handleFilterChange]
+  );
+
+  // No-op function for network search - memoized to prevent re-renders
+  const networkSearchNoOp = useCallback(() => {
+    // No-op function for compatibility
+  }, []);
+
+  // Add network filter to the sidebar content - memoized
+  const sidebar = useMemo(
+    () => (
+      <SidebarContainer>
+        <SidebarHeader>
+          <SidebarSearch
+            onValueChange={setChannelSearch}
+            placeholder="Search channels..."
+            searchValue={channelSearch}
+          />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarTimeNavigation onJumpToTime={jumpToTime} />
+          <FilterSection
+            counts={channelCounts}
+            filters={channelFilters}
+            onFilterChange={handleChannelFilterChange}
+            onSearchChange={setChannelSearch}
+            options={channels}
+            searchValue={channelSearch}
+            showSearch={true}
+            title="Channels"
+          />
+          <FilterSection
+            counts={networkCounts}
+            filters={networkFilters}
+            onFilterChange={handleNetworkFilterChange}
+            onSearchChange={networkSearchNoOp}
+            options={networks}
+            searchValue=""
+            showSearch={false}
+            title="Networks"
+          />
+
+          {/* Add Settings Section */}
+          <SidebarSettings
+            displayName={displayName}
+            onDisplayNameChange={handleDisplayNameChange}
+            onSortByChange={handleSortByChange}
+            sortBy={sortBy}
+          />
+        </SidebarContent>
+        <SidebarFooter>
+          <Button
+            className="w-full text-xs"
+            onClick={clearAllFilters}
+            size="sm"
+            variant="outline"
+          >
+            Clear All Filters
+          </Button>
+        </SidebarFooter>
+      </SidebarContainer>
+    ),
+    [
+      channelSearch,
+      jumpToTime,
+      channelCounts,
+      channelFilters,
+      handleChannelFilterChange,
+      channels,
+      networkCounts,
+      networkFilters,
+      handleNetworkFilterChange,
+      networks,
+      networkSearchNoOp,
+      displayName,
+      handleDisplayNameChange,
+      handleSortByChange,
+      sortBy,
+      clearAllFilters,
+    ]
   );
 
   const pageTitle = formattedDate ? `Daily EPG - ${formattedDate}` : "TV Guide";
@@ -659,13 +623,11 @@ export default function EPGDateClient({
       <div className="h-full p-0.5" ref={tvGuideRef}>
         {/* Pass settings to the TVGuide component */}
         <TVGuide
-          categoryFilters={categoryFilters}
           channelFilters={channelFilters}
           channelNetworkMap={channelNetworkMap}
           className="h-full"
           dataSource={xmltvDataSource}
           displayNameType={displayName as "clean" | "real" | "location"}
-          groupBy={groupBy}
           hideDateHeader={true}
           initialDate={selectedDate}
           initialViewMode={viewMode}

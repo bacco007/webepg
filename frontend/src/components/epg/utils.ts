@@ -1,3 +1,4 @@
+import type React from "react";
 import {
   Award,
   Film,
@@ -260,17 +261,38 @@ export function sortChannelsWithinNetwork(
 // ============================================================================
 
 // Special styling for placeholder program titles
-export const titleColorMappings: Record<string, string> = {
-  "No Data Available":
-    'bg-[hsl(var(--placeholder-bg))] text-muted-foreground bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23888888" stroke-opacity="0.4" strokeWidth="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
-  "To Be Advised":
-    'bg-[hsl(var(--placeholder-bg))] text-muted-foreground bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23888888" stroke-opacity="0.4" strokeWidth="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
-  "To Be Advised (cont)":
-    'bg-[hsl(var(--placeholder-bg))] text-muted-foreground bg-[length:4px_4px] bg-[position:1px_1px] bg-[url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="none" stroke="%23888888" stroke-opacity="0.4" strokeWidth="1" d="M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3"/></svg>\')]',
+// Background pattern SVG for diagonal stripes
+const placeholderPattern = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'><path fill='none' stroke='%23888888' stroke-opacity='0.4' stroke-width='1' d='M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3'/></svg>";
+
+export const titleColorMappings: Record<string, { className: string; style: React.CSSProperties }> = {
+  "No Data Available": {
+    className: "bg-[hsl(var(--placeholder-bg))] text-muted-foreground",
+    style: {
+      backgroundImage: `url('${placeholderPattern}')`,
+      backgroundSize: "4px 4px",
+      backgroundPosition: "1px 1px",
+    },
+  },
+  "To Be Advised": {
+    className: "bg-[hsl(var(--placeholder-bg))] text-muted-foreground",
+    style: {
+      backgroundImage: `url('${placeholderPattern}')`,
+      backgroundSize: "4px 4px",
+      backgroundPosition: "1px 1px",
+    },
+  },
+  "To Be Advised (cont)": {
+    className: "bg-[hsl(var(--placeholder-bg))] text-muted-foreground",
+    style: {
+      backgroundImage: `url('${placeholderPattern}')`,
+      backgroundSize: "4px 4px",
+      backgroundPosition: "1px 1px",
+    },
+  },
 };
 
 // Helper function to check if a program title has special styling
-export function getSpecialTitleClass(title: string): string | null {
+export function getSpecialTitleClass(title: string): { className: string; style: React.CSSProperties } | null {
   return titleColorMappings[decodeHtml(title)] || null;
 }
 
@@ -280,16 +302,18 @@ export function isPlaceholderProgram(title: string): boolean {
 }
 
 export function getProgramColors(
-  specialTitleClass: string | null,
+  specialTitleClass: { className: string; style: React.CSSProperties } | null,
   isPast: boolean,
   isCurrentlyAiring: boolean
 ) {
   let bgColor = "";
   let textColor = "";
   let hoverBgColor = "hover:bg-accent";
+  let backgroundStyle: React.CSSProperties | undefined;
 
   if (specialTitleClass) {
-    bgColor = specialTitleClass;
+    bgColor = specialTitleClass.className;
+    backgroundStyle = specialTitleClass.style;
     textColor = "";
     hoverBgColor = "";
   } else if (isPast) {
@@ -302,7 +326,7 @@ export function getProgramColors(
     hoverBgColor = "hover:bg-[hsl(var(--program-current))]";
   }
 
-  return { bgColor, hoverBgColor, textColor };
+  return { bgColor, hoverBgColor, textColor, backgroundStyle };
 }
 
 export function getMobileProgramStyling(

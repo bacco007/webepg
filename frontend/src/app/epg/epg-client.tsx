@@ -7,10 +7,7 @@ import updateLocale from "dayjs/plugin/updateLocale";
 import { Calendar, ChevronRight, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { memo, Suspense, useCallback, useEffect, useState } from "react";
-import {
-  SidebarContainer,
-  SidebarLayout,
-} from "@/components/layouts/sidebar-layout";
+import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import LoadingSpinner from "@/components/loading-spinner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,9 +29,17 @@ dayjs.extend(advancedFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
 
-// Update dayjs locale to use shorter day names
+//Update dayjs locale to use shorter day names
 dayjs.updateLocale("en", {
-  weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  weekdays: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ],
 });
 
 // Constants
@@ -101,82 +106,86 @@ const DateCard = memo(({ date, xmltvDataSource }: DateCardProps) => {
       return "Yesterday";
     }
     if (diffDays > 0 && diffDays < RELATIVE_DAY_THRESHOLD) {
-      return `In ${diffDays}d`;
+      return `In ${diffDays} days`;
     }
     if (diffDays < 0 && diffDays > -RELATIVE_DAY_THRESHOLD) {
-      return `${Math.abs(diffDays)}d ago`;
+      return `${Math.abs(diffDays)} days ago`;
     }
 
     return "";
   };
 
   const getDayOfWeek = (dateString: string): string =>
-    formatDateFromYYYYMMDD(dateString, "ddd");
-
-  const getFormattedDate = (dateString: string): string =>
-    formatDateFromYYYYMMDD(dateString, "MMM D, YYYY");
+    formatDateFromYYYYMMDD(dateString, "dddd, MMMM D YYYY");
 
   const getCardClassName = () => {
     if (isToday(date)) {
-      return "border-primary bg-primary/5 shadow-sm";
+      return "border-2 border-primary/30 bg-background shadow-md";
     }
     if (isPast(date)) {
-      return "border-muted/50 bg-muted/5";
+      return "border border-border/50 bg-background opacity-60";
     }
-    return "border-border";
+    return "border border-border/50 bg-background hover:border-primary/20 hover:shadow-md";
+  };
+
+  // Get a color for the day number icon based on day of week
+  const getDayColor = () => {
+    const dayOfWeek = dayjs(date, "YYYYMMDD").day();
+    const colors = [
+      "bg-blue-500", // Sunday
+      "bg-green-500", // Monday
+      "bg-purple-500", // Tuesday
+      "bg-orange-500", // Wednesday
+      "bg-pink-500", // Thursday
+      "bg-cyan-500", // Friday
+      "bg-indigo-500", // Saturday
+    ];
+    return colors[dayOfWeek];
   };
 
   return (
     <Link href={`/epg/${date}?source=${xmltvDataSource}`} key={date} passHref>
       <Card
         className={cn(
-          "group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg",
+          "group relative h-full overflow-hidden transition-all duration-200 hover:shadow-lg",
           getCardClassName()
         )}
       >
-        <div
-          className={cn(
-            "absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100",
-            "bg-linear-to-r from-primary/10 to-transparent"
-          )}
-        />
-
-        <CardContent className="flex flex-col p-4">
-          <div className="mb-3 flex items-center justify-between">
+        <CardContent className="flex h-full flex-col">
+          <div className="mb-3 flex items-start justify-between">
             <div
               className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-full font-semibold text-sm",
-                isToday(date)
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
+                "flex h-8 w-14 shrink-0 items-center justify-center rounded-lg font-bold text-base text-white shadow-sm",
+                isToday(date) ? "bg-primary" : getDayColor()
               )}
             >
-              {dayjs(date, "YYYYMMDD").format("D")}
+              {dayjs(date, "YYYYMMDD").format("D/M")}
             </div>
 
-            {getRelativeDay(date) && (
+            <ChevronRight className="size-8 text-muted-foreground/90 transition-all group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
+          </div>
+
+          <div className="mb-3 flex-1 space-y-0.5">
+            <h3 className="font-semibold text-base text-foreground">
+              {getDayOfWeek(date)}
+            </h3>
+          </div>
+
+          {getRelativeDay(date) && (
+            <div className="mt-auto">
               <Badge
-                className="px-2 text-[10px]"
-                variant={isToday(date) ? "default" : "outline"}
+                className={cn(
+                  "text-sm",
+                  isToday(date)
+                    ? "bg-primary"
+                    : "bg-muted text-muted-foreground"
+                )}
+                variant={isToday(date) ? "default" : "secondary"}
               >
                 {getRelativeDay(date)}
               </Badge>
-            )}
-          </div>
-
-          <div className="mb-3 space-y-1">
-            <h3 className="font-semibold text-base">{getDayOfWeek(date)}</h3>
-
-            <p className="text-muted-foreground text-sm">
-              {getFormattedDate(date)}
-            </p>
-          </div>
-
-          <div className="mt-auto flex items-center text-muted-foreground text-xs">
-            <Calendar className="mr-1.5 size-3.5" />
-            <span>View Guide</span>
-            <ChevronRight className="ml-auto size-3.5" />
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>
@@ -214,7 +223,7 @@ const DateListItem = memo(({ date, xmltvDataSource }: DateListItemProps) => {
   };
 
   const getDayOfWeek = (dateString: string): string =>
-    formatDateFromYYYYMMDD(dateString, "ddd");
+    formatDateFromYYYYMMDD(dateString, "dddd");
 
   const getFormattedDate = (dateString: string): string =>
     formatDateFromYYYYMMDD(dateString, "MMM D, YYYY");
@@ -243,7 +252,7 @@ const DateListItem = memo(({ date, xmltvDataSource }: DateListItemProps) => {
             </div>
 
             <div>
-              <h3 className="mb-1 flex items-center font-semibold text-base">
+              <h3 className="mb-1 flex items-center font-bold text-base">
                 {getDayOfWeek(date)}
                 {getRelativeDay(date) && (
                   <Badge className="ml-2 px-2 text-[10px]" variant="outline">
@@ -251,7 +260,7 @@ const DateListItem = memo(({ date, xmltvDataSource }: DateListItemProps) => {
                   </Badge>
                 )}
               </h3>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xl">
                 {getFormattedDate(date)}
               </p>
             </div>
@@ -316,7 +325,7 @@ function EPGDayListContent() {
     return (
       <SidebarLayout
         contentClassName="overflow-auto"
-        sidebar={<SidebarContainer>{null}</SidebarContainer>}
+        sidebar={null}
         title="EPG Guide"
       >
         <div className="flex h-full items-center justify-center p-6">
@@ -417,23 +426,14 @@ function EPGDayListContent() {
     return <LoadingState />;
   }
 
-  const sidebar = <SidebarContainer>{null}</SidebarContainer>;
-
   return (
     <SidebarLayout
       actions={headerActions}
       contentClassName="overflow-auto"
-      sidebar={sidebar}
+      sidebar={null}
       title="EPG Guide"
     >
       <div className="p-4 pb-4">
-        {/* Description */}
-        <div className="mb-6">
-          <p className="text-muted-foreground text-sm">
-            Browse electronic program guide dates and schedules for television
-            channels.
-          </p>
-        </div>
         {/* Content */}
         {renderContent()}
         <div aria-hidden="true" className="h-24" /> {/* Spacer element */}

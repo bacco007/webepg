@@ -43,6 +43,7 @@ export interface ChannelSpan {
 }
 
 // Import individual providers
+// Note: Static imports are required for TypeScript type checking and Next.js tree-shaking
 import { austar } from "./timeline-providers/austar";
 import { ectv } from "./timeline-providers/ectv";
 import { fetchtv } from "./timeline-providers/fetchtv";
@@ -58,7 +59,11 @@ import { tarbs } from "./timeline-providers/tarbs";
 import { transact } from "./timeline-providers/transact";
 import { ubiworldtv } from "./timeline-providers/ubiworldtv";
 
-// Export all providers
+// Build providers object from imports
+// To add a new provider:
+// 1. Create the provider file in timeline-providers/ with an export matching the filename
+// 2. Add the import above
+// 3. Add it to the object below using the same name
 export const timelineProviders: Record<string, TimelineProvider> = {
   austar,
   ectv,
@@ -85,6 +90,33 @@ export function getProvidersByCategory(): Record<string, TimelineProvider[]> {
       grouped[provider.category] = [];
     }
     grouped[provider.category].push(provider);
+  }
+
+  return grouped;
+}
+
+// Helper function to get providers grouped by country and category
+export function getProvidersByCountryAndCategory(): Record<
+  string,
+  Record<string, TimelineProvider[]>
+> {
+  const grouped: Record<string, Record<string, TimelineProvider[]>> = {};
+
+  for (const provider of Object.values(timelineProviders)) {
+    if (!grouped[provider.country]) {
+      grouped[provider.country] = {};
+    }
+    if (!grouped[provider.country][provider.category]) {
+      grouped[provider.country][provider.category] = [];
+    }
+    grouped[provider.country][provider.category].push(provider);
+  }
+
+  // Sort providers within each category by name
+  for (const country of Object.keys(grouped)) {
+    for (const category of Object.keys(grouped[country])) {
+      grouped[country][category].sort((a, b) => a.name.localeCompare(b.name));
+    }
   }
 
   return grouped;

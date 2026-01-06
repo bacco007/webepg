@@ -70,54 +70,58 @@ export function SidebarLayout({
       <div className="sticky top-0 z-50 flex h-12 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center gap-2">
           {/* Mobile menu with improved trigger */}
-          <Sheet onOpenChange={setSidebarOpen} open={sidebarOpen}>
-            <SheetTrigger asChild>
-              <Button
-                className="hover:bg-muted/50 lg:hidden"
-                size="icon"
-                variant="ghost"
-              >
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle sidebar</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              className="w-64 border-r bg-background/95 p-0 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-              side="left"
-            >
-              {sidebar}
-            </SheetContent>
-          </Sheet>
-
-          {/* Desktop sidebar toggle with tooltip */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
+          {sidebar && (
+            <Sheet onOpenChange={setSidebarOpen} open={sidebarOpen}>
+              <SheetTrigger asChild>
                 <Button
-                  className="hidden hover:bg-muted/50 lg:flex"
-                  onClick={toggleSidebar}
+                  className="hover:bg-muted/50 lg:hidden"
                   size="icon"
                   variant="ghost"
                 >
-                  {desktopSidebarCollapsed ? (
-                    <PanelLeftOpenIcon className="h-5 w-5" />
-                  ) : (
-                    <PanelLeftCloseIcon className="h-5 w-5" />
-                  )}
-                  <span className="sr-only">
-                    {desktopSidebarCollapsed
-                      ? "Expand sidebar"
-                      : "Collapse sidebar"}
-                  </span>
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle sidebar</span>
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {desktopSidebarCollapsed
-                  ? "Expand sidebar"
-                  : "Collapse sidebar"}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+              </SheetTrigger>
+              <SheetContent
+                className="w-64 overflow-visible border-r bg-background/95 p-0 backdrop-blur supports-backdrop-filter:bg-background/60"
+                side="left"
+              >
+                {sidebar}
+              </SheetContent>
+            </Sheet>
+          )}
+
+          {/* Desktop sidebar toggle with tooltip */}
+          {sidebar && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    className="hidden hover:bg-muted/50 lg:flex"
+                    onClick={toggleSidebar}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    {desktopSidebarCollapsed ? (
+                      <PanelLeftOpenIcon className="h-5 w-5" />
+                    ) : (
+                      <PanelLeftCloseIcon className="h-5 w-5" />
+                    )}
+                    <span className="sr-only">
+                      {desktopSidebarCollapsed
+                        ? "Expand sidebar"
+                        : "Collapse sidebar"}
+                    </span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  {desktopSidebarCollapsed
+                    ? "Expand sidebar"
+                    : "Collapse sidebar"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
 
           <span className="font-medium text-lg">{title}</span>
         </div>
@@ -129,15 +133,17 @@ export function SidebarLayout({
       {/* Main content area with improved transitions */}
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar with improved transitions */}
-        <div
-          className={cn(
-            "hidden w-64 shrink-0 border-r bg-card transition-all duration-300 ease-in-out lg:block",
-            desktopSidebarCollapsed && "lg:w-0 lg:border-r-0 lg:opacity-0",
-            sidebarClassName
-          )}
-        >
-          {sidebar}
-        </div>
+        {sidebar && (
+          <div
+            className={cn(
+              "hidden w-64 shrink-0 overflow-visible border-r bg-card transition-all duration-300 ease-in-out lg:block",
+              desktopSidebarCollapsed && "lg:w-0 lg:border-r-0 lg:opacity-0",
+              sidebarClassName
+            )}
+          >
+            {sidebar}
+          </div>
+        )}
 
         {/* Main content with improved scrolling */}
         <div className={cn("flex h-full flex-1 flex-col", contentClassName)}>
@@ -160,7 +166,7 @@ export function SidebarContainer({
   return (
     <div
       className={cn(
-        "flex h-full flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "flex h-full min-h-0 flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         className
       )}
     >
@@ -196,7 +202,7 @@ export function SidebarContent({
   className?: string;
 }) {
   return (
-    <ScrollArea className={cn("flex-1", className)}>
+    <ScrollArea className={cn("min-h-0 flex-1", className)}>
       <div className="divide-y divide-border/40">{children}</div>
     </ScrollArea>
   );
@@ -212,11 +218,13 @@ export function SidebarFooter({
   return (
     <div
       className={cn(
-        "border-t bg-background/95 p-3 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "w-full min-w-0 max-w-full shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         className
       )}
     >
-      {children}
+      <ScrollArea className="max-h-[50vh] min-h-0">
+        <div className="p-3">{children}</div>
+      </ScrollArea>
     </div>
   );
 }

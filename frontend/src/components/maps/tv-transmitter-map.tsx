@@ -1,8 +1,15 @@
 "use client";
 
-import "leaflet/dist/leaflet.css";
-
 import L from "leaflet";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMap } from "react-leaflet";
+import "leaflet.markercluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+
+// biome-ignore lint/suspicious/noExplicitAny: Leaflet markercluster types
+const markerClusterGroup = (L as any).markerClusterGroup;
+
 import {
   ChevronDown,
   ChevronUp,
@@ -12,15 +19,7 @@ import {
   Search,
   Target,
 } from "lucide-react";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { Marker, Popup, useMap } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-cluster";
+import React from "react";
 
 import "@drustack/leaflet.resetview";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -34,7 +33,6 @@ import {
   SidebarLayout,
   SidebarSearch,
 } from "@/components/layouts/sidebar-layout";
-import { TransmitterPopup } from "@/components/maps/transmitter-popup";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -56,6 +54,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "@/hooks/use-toast";
+import "leaflet/dist/leaflet.css";
 
 // Add custom styles for marker clusters
 const clusterStyles = `
@@ -97,33 +96,145 @@ if (typeof document !== "undefined") {
   document.head.appendChild(style);
 }
 
-// Helper function to get marker icon SVG
-const createMarkerIconSVG = (type: string) => {
-  // SVG icons for each network
-  const networkSVGs: Record<string, string> = {
-    ABC: `<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10" fill="#FF0000" stroke="white" stroke-width="2"/><text x="11" y="15" text-anchor="middle" font-size="10" fill="white" font-family="Arial" font-weight="bold">A</text></svg>`,
-    Community: `<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10" fill="#808080" stroke="white" stroke-width="2"/><text x="11" y="15" text-anchor="middle" font-size="8" fill="white" font-family="Arial" font-weight="bold">C</text></svg>`,
-    Nine: `<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="11" cy="11" rx="10" ry="8" fill="#FFFF00" stroke="white" stroke-width="2"/><text x="11" y="15" text-anchor="middle" font-size="10" fill="#333" font-family="Arial" font-weight="bold">9</text></svg>`,
-    SBS: `<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="18" height="18" rx="6" fill="#00FF00" stroke="white" stroke-width="2"/><text x="11" y="15" text-anchor="middle" font-size="10" fill="white" font-family="Arial" font-weight="bold">S</text></svg>`,
-    Seven: `<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="11,2 20,20 2,20" fill="#0000FF" stroke="white" stroke-width="2"/><text x="11" y="16" text-anchor="middle" font-size="10" fill="white" font-family="Arial" font-weight="bold">7</text></svg>`,
-    Ten: `<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="18" height="18" rx="9" fill="#FF00FF" stroke="white" stroke-width="2"/><text x="11" y="15" text-anchor="middle" font-size="10" fill="white" font-family="Arial" font-weight="bold">10</text></svg>`,
-  };
-  // Network matching
-  let svg = networkSVGs.Community;
-  if (type.includes("ABC")) {
-    svg = networkSVGs.ABC;
-  } else if (type.includes("SBS")) {
-    svg = networkSVGs.SBS;
-  } else if (type.includes("Seven Network")) {
-    svg = networkSVGs.Seven;
-  } else if (type.includes("Nine Network")) {
-    svg = networkSVGs.Nine;
-  } else if (type.includes("Ten Network")) {
-    svg = networkSVGs.Ten;
-  } else if (type.includes("Community") || type.includes("Narrowcasting")) {
-    svg = networkSVGs.Community;
+// Helper function to get network color for markers
+const getNetworkMarkerColor = (network: string | undefined) => {
+  if (!network) {
+    return "#808080";
   }
-  return svg;
+  if (network.includes("ABC")) {
+    return "#FF0000";
+  }
+  if (network.includes("SBS")) {
+    return "#00FF00";
+  }
+  if (network.includes("Seven Network")) {
+    return "#0000FF";
+  }
+  if (network.includes("Nine Network")) {
+    return "#FFFF00";
+  }
+  if (network.includes("Ten Network")) {
+    return "#FF00FF";
+  }
+  if (network.includes("Community") || network.includes("Narrowcasting")) {
+    return "#808080";
+  }
+  return "#808080";
+};
+
+// Create cluster icon function
+const createClusterIcon = (cluster: { getChildCount: () => number }) => {
+  const count = cluster.getChildCount();
+  let size = "large";
+  if (count < 10) {
+    size = "small";
+  } else if (count < 100) {
+    size = "medium";
+  }
+  return L.divIcon({
+    className: "custom-marker-cluster",
+    html: `<div class="cluster-icon ${size}">${count}</div>`,
+    iconSize: L.point(40, 40, true),
+  });
+};
+
+// Helper function to get network color
+const getNetworkColor = (network: string | undefined) => {
+  if (!network) {
+    return "#808080";
+  }
+  if (network.includes("ABC")) {
+    return "#FF0000";
+  }
+  if (network.includes("SBS")) {
+    return "#00FF00";
+  }
+  if (network.includes("Seven Network")) {
+    return "#0000FF";
+  }
+  if (network.includes("Nine Network")) {
+    return "#FFFF00";
+  }
+  if (network.includes("Ten Network")) {
+    return "#FF00FF";
+  }
+  if (network.includes("Community") || network.includes("Narrowcasting")) {
+    return "#808080";
+  }
+  return "#808080";
+};
+
+// Create popup content function for TV transmitters
+const createPopupContent = (transmitter: Transmitter) => {
+  return `
+    <div class="bg-white shadow-lg p-4 rounded-lg min-w-[220px] max-w-[320px]">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="rounded-full w-3 h-3" style="background-color: ${getNetworkColor(transmitter.Network)}"></div>
+        <h3 class="font-bold text-base">${transmitter.CallSign || "Unknown"}</h3>
+      </div>
+      <div class="space-y-1 text-sm">
+        ${transmitter.SiteName ? `<div><span class='font-semibold'>Site:</span> ${transmitter.SiteName}</div>` : ""}
+        ${transmitter.AreaServed ? `<div><span class='font-semibold'>Area:</span> ${transmitter.AreaServed}</div>` : ""}
+        ${transmitter.Frequency ? `<div><span class='font-semibold'>Frequency:</span> <span class='font-bold text-blue-700'>${transmitter.Frequency} MHz</span></div>` : ""}
+        ${transmitter.Channel ? `<div><span class='font-semibold'>Channel:</span> ${transmitter.Channel}</div>` : ""}
+        ${transmitter.Network ? `<div><span class='font-semibold'>Network:</span> ${transmitter.Network}</div>` : ""}
+        ${transmitter.MaxERP ? `<div><span class='font-semibold'>Power:</span> <span class='font-bold text-green-700'>${transmitter.MaxERP}</span></div>` : ""}
+        ${transmitter.AntennaHeight ? `<div><span class='font-semibold'>Antenna Height:</span> ${transmitter.AntennaHeight}m</div>` : ""}
+        ${transmitter.LicenceArea ? `<div><span class='font-semibold'>Licence Area:</span> ${transmitter.LicenceArea}</div>` : ""}
+      </div>
+    </div>
+  `;
+};
+
+// Helper function to validate coordinates
+const isValidCoordinate = (value: number | string | null | undefined) => {
+  const num = typeof value === "number" ? value : Number.parseFloat(String(value));
+  return !Number.isNaN(num) && typeof num === "number";
+};
+
+// Helper function to create a marker from transmitter
+const createTransmitterMarker = (
+  transmitter: Transmitter,
+  clusterGroup: ReturnType<typeof markerClusterGroup>
+) => {
+  const lat =
+    typeof transmitter.Lat === "number"
+      ? transmitter.Lat
+      : Number.parseFloat(String(transmitter.Lat));
+  const lng =
+    typeof transmitter.Long === "number"
+      ? transmitter.Long
+      : Number.parseFloat(String(transmitter.Long));
+
+  if (!isValidCoordinate(lat)) {
+    return false;
+  }
+  if (!isValidCoordinate(lng)) {
+    return false;
+  }
+  if (lat < -90 || lat > 90) {
+    return false;
+  }
+  if (lng < -180 || lng > 180) {
+    return false;
+  }
+
+  try {
+    const marker = L.marker([lat, lng], {
+      icon: L.divIcon({
+        className: "custom-marker",
+        html: `<div style="background-color: ${
+          getNetworkMarkerColor(transmitter.Network)
+        }; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>`,
+        iconSize: [12, 12],
+      }),
+    });
+    marker.bindPopup(createPopupContent(transmitter));
+    clusterGroup.addLayer(marker);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 // Add custom marker styles and drop animation
@@ -218,7 +329,7 @@ function MapControls({
   }, [bounds, map]);
 
   return (
-    <div className="absolute top-16 left-1 z-[1000]">
+    <div className="absolute top-16 left-1 z-1000">
       <div className="flex flex-col gap-2">
         <Button
           className="border"
@@ -367,7 +478,7 @@ function MapLegend() {
   ];
 
   return (
-    <div className="absolute bottom-5 left-5 z-[1000]">
+    <div className="absolute bottom-5 left-5 z-1000">
       <Card className="w-28 rounded-lg border border-border bg-background/90 py-1 shadow-md">
         <CardContent className="p-2">
           <h3 className="mb-1 font-bold text-xs">Networks</h3>
@@ -437,7 +548,7 @@ function MinimapControl() {
   }, [map, resolvedTheme]);
 
   return (
-    <div className="absolute right-20 bottom-16 z-[1000]">
+    <div className="absolute right-20 bottom-16 z-1000">
       <div
         className="h-20 w-20 rounded-lg border border-border bg-background/90 shadow-lg"
         ref={minimapRef}
@@ -549,35 +660,54 @@ export default function TVTransmitterMap() {
   const filterTransmitters = useCallback(
     (transmitters: Transmitter[]) =>
       transmitters.filter(
-        (transmitter) =>
-          (callSignFilters.length === 0 ||
-            callSignFilters.includes(transmitter.CallSign)) &&
-          (areaServedFilters.length === 0 ||
-            areaServedFilters.includes(transmitter.AreaServed)) &&
-          (licenceAreaFilters.length === 0 ||
-            licenceAreaFilters.includes(transmitter.LicenceArea)) &&
-          (operatorFilters.length === 0 ||
-            operatorFilters.includes(transmitter.Operator)) &&
-          (networkFilters.length === 0 ||
-            networkFilters.includes(transmitter.Network)) &&
-          transmitter.Frequency >= frequencyRange[0] &&
-          transmitter.Frequency <= frequencyRange[1] &&
-          (debouncedGlobalSearch === "" ||
-            transmitter.CallSign.toLowerCase().includes(
-              debouncedGlobalSearch.toLowerCase()
-            ) ||
-            transmitter.AreaServed.toLowerCase().includes(
-              debouncedGlobalSearch.toLowerCase()
-            ) ||
-            transmitter.LicenceArea.toLowerCase().includes(
-              debouncedGlobalSearch.toLowerCase()
-            ) ||
-            transmitter.Operator.toLowerCase().includes(
-              debouncedGlobalSearch.toLowerCase()
-            ) ||
-            transmitter.Network.toLowerCase().includes(
-              debouncedGlobalSearch.toLowerCase()
-            ))
+        (transmitter) => {
+          // Validate coordinates - check for null, undefined, or NaN
+          if (
+            transmitter.Lat == null ||
+            transmitter.Long == null ||
+            Number.isNaN(transmitter.Lat) ||
+            Number.isNaN(transmitter.Long)
+          ) {
+            return false;
+          }
+
+          // Validate frequency exists and is within range
+          const frequencyValid =
+            transmitter.Frequency != null &&
+            !Number.isNaN(transmitter.Frequency) &&
+            transmitter.Frequency >= frequencyRange[0] &&
+            transmitter.Frequency <= frequencyRange[1];
+
+          return (
+            (callSignFilters.length === 0 ||
+              callSignFilters.includes(transmitter.CallSign)) &&
+            (areaServedFilters.length === 0 ||
+              areaServedFilters.includes(transmitter.AreaServed)) &&
+            (licenceAreaFilters.length === 0 ||
+              licenceAreaFilters.includes(transmitter.LicenceArea)) &&
+            (operatorFilters.length === 0 ||
+              operatorFilters.includes(transmitter.Operator)) &&
+            (networkFilters.length === 0 ||
+              networkFilters.includes(transmitter.Network)) &&
+            frequencyValid &&
+            (debouncedGlobalSearch === "" ||
+              transmitter.CallSign?.toLowerCase().includes(
+                debouncedGlobalSearch.toLowerCase()
+              ) ||
+              transmitter.AreaServed?.toLowerCase().includes(
+                debouncedGlobalSearch.toLowerCase()
+              ) ||
+              transmitter.LicenceArea?.toLowerCase().includes(
+                debouncedGlobalSearch.toLowerCase()
+              ) ||
+              transmitter.Operator?.toLowerCase().includes(
+                debouncedGlobalSearch.toLowerCase()
+              ) ||
+              transmitter.Network?.toLowerCase().includes(
+                debouncedGlobalSearch.toLowerCase()
+              ))
+          );
+        }
       ),
     [
       callSignFilters,
@@ -590,14 +720,26 @@ export default function TVTransmitterMap() {
     ]
   );
 
-  // Update the useEffect that sets frequency range to respect the 150-670 bounds
+  // Calculate frequency range from actual data
   useEffect(() => {
     if (transmittersData.length > 0) {
-      // Don't automatically set the frequency range from data
-      // Keep the 150-670 range as specified
-      setFrequencyRange([150, 670]);
-      setMinFrequency("150");
-      setMaxFrequency("670");
+      const validFrequencies = transmittersData
+        .map((t) => t.Frequency)
+        .filter(
+          (freq) =>
+            freq != null && !Number.isNaN(freq) && typeof freq === "number"
+        );
+      
+      if (validFrequencies.length > 0) {
+        const minFreq = Math.min(...validFrequencies);
+        const maxFreq = Math.max(...validFrequencies);
+        // Use actual data range, but ensure reasonable bounds
+        const calculatedMin = Math.max(0, Math.floor(minFreq));
+        const calculatedMax = Math.ceil(maxFreq);
+        setFrequencyRange([calculatedMin, calculatedMax]);
+        setMinFrequency(String(calculatedMin));
+        setMaxFrequency(String(calculatedMax));
+      }
     }
   }, [transmittersData]);
 
@@ -1254,6 +1396,98 @@ export default function TVTransmitterMap() {
     </SidebarContainer>
   );
 
+  // Add markerLayerRef for the cluster group
+  const markerLayerRef = useRef<L.Layer | null>(null);
+  const searchMarkerRef = useRef<L.Marker | null>(null);
+
+  // Imperative marker management for performance
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || filteredTransmitters.length === 0) {
+      return;
+    }
+
+    // Remove old marker layer if it exists
+    if (markerLayerRef.current) {
+      map.removeLayer(markerLayerRef.current);
+      markerLayerRef.current = null;
+    }
+
+    // Create a new marker cluster group
+    const clusterGroup = markerClusterGroup({
+      animate: true,
+      animateAddingMarkers: true,
+      chunkDelay: 50,
+      chunkedLoading: true,
+      chunkInterval: 100,
+      disableClusteringAtZoom: 15,
+      iconCreateFunction: createClusterIcon,
+      maxClusterRadius: 60,
+      removeOutsideVisibleBounds: true,
+      showCoverageOnHover: false,
+      spiderfyOnMaxZoom: true,
+      zoomToBoundsOnClick: true,
+    });
+
+    // Add markers imperatively
+    let markerCount = 0;
+    for (const transmitter of filteredTransmitters) {
+      if (createTransmitterMarker(transmitter, clusterGroup)) {
+        markerCount++;
+      }
+    }
+
+    // Only add to map if we have markers
+    if (markerCount > 0) {
+      clusterGroup.addTo(map);
+      markerLayerRef.current = clusterGroup;
+    }
+
+    // Clean up on unmount or update
+    return () => {
+      if (markerLayerRef.current && map) {
+        map.removeLayer(markerLayerRef.current);
+        markerLayerRef.current = null;
+      }
+    };
+  }, [filteredTransmitters]);
+
+  // Handle search result marker imperatively
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    // Remove old search marker if it exists
+    if (searchMarkerRef.current) {
+      map.removeLayer(searchMarkerRef.current);
+      searchMarkerRef.current = null;
+    }
+
+    // Add new search marker if searchResult exists
+    if (searchResult) {
+      const searchMarker = L.marker([searchResult.lat, searchResult.lon], {
+        icon: L.divIcon({
+          className: "custom-marker-container",
+          html: `<div class='custom-marker custom-marker-drop' style='background-color:#3b82f6;border:2px solid white;width:22px;height:22px;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.2);'></div>`,
+          iconSize: L.point(22, 22, true),
+        }),
+      });
+      searchMarker.bindPopup(searchResult.display_name);
+      searchMarker.addTo(map);
+      searchMarkerRef.current = searchMarker;
+    }
+
+    // Clean up on unmount or update
+    return () => {
+      if (searchMarkerRef.current) {
+        map.removeLayer(searchMarkerRef.current);
+        searchMarkerRef.current = null;
+      }
+    };
+  }, [searchResult]);
+
   if (localIsLoading || isLoading) {
     return (
       <div className="flex h-screen">
@@ -1348,77 +1582,10 @@ export default function TVTransmitterMap() {
                 />
               )}
             </React.Suspense>
-            <MarkerClusterGroup
-              animate={true}
-              chunkedLoading
-              iconCreateFunction={(cluster: {
-                getChildCount: () => number;
-              }) => {
-                const count = cluster.getChildCount();
-                let size = "large";
-                if (count < 10) {
-                  size = "small";
-                } else if (count < 100) {
-                  size = "medium";
-                }
-                return L.divIcon({
-                  className: "custom-marker-cluster",
-                  html: `<div class="cluster-icon ${size}">${count}</div>`,
-                  iconSize: L.point(40, 40, true),
-                });
-              }}
-              maxClusterRadius={60}
-              removeOutsideVisibleBounds={true}
-              showCoverageOnHover={true}
-              spiderfyOnMaxZoom={true}
-              zoomToBoundsOnClick={true}
-            >
-              {filteredTransmitters.map((transmitter) => {
-                const markerId = `${transmitter.ACMASiteID}-${transmitter.CallSignChannel}`;
-                const markerIcon = L.divIcon({
-                  className: "custom-marker-container",
-                  html: `<div class="custom-marker custom-marker-drop">${createMarkerIconSVG(transmitter.Network)}</div>`,
-                  iconSize: L.point(22, 22, true),
-                });
-
-                return (
-                  <Marker
-                    eventHandlers={{
-                      mouseout: (e) => {
-                        e.target.closePopup();
-                      },
-                      mouseover: (e) => {
-                        e.target.openPopup();
-                      },
-                    }}
-                    icon={markerIcon}
-                    key={markerId}
-                    position={[transmitter.Lat, transmitter.Long]}
-                  >
-                    <Popup maxWidth={350}>
-                      <TransmitterPopup transmitter={transmitter} />
-                    </Popup>
-                  </Marker>
-                );
-              })}
-            </MarkerClusterGroup>
-            {/* Show a marker for the searched location */}
-            {searchResult && (
-              <Marker
-                icon={L.divIcon({
-                  className: "custom-marker-container",
-                  html: `<div class='custom-marker custom-marker-drop' style='background-color:#3b82f6;border:2px solid white;width:22px;height:22px;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.2);'></div>`,
-                  iconSize: L.point(22, 22, true),
-                })}
-                position={[searchResult.lat, searchResult.lon]}
-              >
-                <Popup>{searchResult.display_name}</Popup>
-              </Marker>
-            )}
           </MapLayers>
         </LeafletMapComponent>
         {selectedArea && (
-          <div className="absolute top-4 right-4 z-[1000] rounded bg-background p-2 shadow-sm">
+          <div className="absolute top-4 right-4 z-1000 rounded bg-background p-2 shadow-sm">
             <p className="font-medium text-sm">Selected Area: {selectedArea}</p>
           </div>
         )}
