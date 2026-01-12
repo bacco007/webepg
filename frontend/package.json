@@ -65,7 +65,7 @@
     "react-hook-form": "^7.70.0",
     "react-hotkeys-hook": "^5.2.1",
     "react-leaflet": "^5.0.0",
-    "react-resizable-panels": "^3.0.6",
+    "react-resizable-panels": "^4.4.0",
     "react-use-measure": "^2.1.7",
     "recharts": "2.15.4",
     "shadcn": "^3.6.2",
