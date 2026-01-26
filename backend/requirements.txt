@@ -89,7 +89,7 @@ multidict==6.7.0
     #   yarl
 mysql-connector-python==9.5.0
     # via webepg-backend
-packaging==25.0
+packaging==26.0
     # via limits
 propcache==0.4.1
     # via
