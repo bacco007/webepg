@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     RADIO_AM_TRANSMITTER_DATA: str = "xmltvdata/transmitters/radio_am.json"
     RADIO_FM_TRANSMITTER_DATA: str = "xmltvdata/transmitters/radio_fm.json"
     RADIO_DAB_TRANSMITTER_DATA: str = "xmltvdata/transmitters/radio_dab.json"
+    RADIO_TRANSMITTER_DATA: str = "xmltvdata/transmitters/radio.json"
     TV_TRANSMITTER_DATA: str = "xmltvdata/transmitters/television.json"
 
     # MySQL settings

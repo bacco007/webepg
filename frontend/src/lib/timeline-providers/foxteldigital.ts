@@ -1492,6 +1492,12 @@ export const foxteldigital: TimelineProvider = {
           channel_genre: "Shopping",
           channel_name: "Expo Channel",
           from: "2006.10",
+          to: 2026.3,
+        },
+        {
+          channel_genre: "Shopping",
+          channel_name: "TVSN +2",
+          from: "2026.3",
         },
       ],
       "178": [

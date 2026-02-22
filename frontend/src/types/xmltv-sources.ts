@@ -50,4 +50,3 @@ export interface DeleteSourceResponse {
 }
 
 export type SourceType = "remote" | "local";
-

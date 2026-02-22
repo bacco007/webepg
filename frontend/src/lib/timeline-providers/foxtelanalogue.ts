@@ -115,9 +115,16 @@ export const foxtelanalogue: TimelineProvider = {
       ],
       "8": [
         {
+          channel_genre: "Entertainment",
+          channel_name: "Fox",
+          from: 1995.1,
+          to: 1996.3,
+        },
+        {
           channel_genre: "Shared",
           channel_name: "Fox / Fox Kids",
-          from: 1995.1,
+          channel_notes: "Fox Kids launches on FOX8",
+          from: 1996.3,
           to: 1997.4,
         },
         {
@@ -665,12 +672,12 @@ export const foxtelanalogue: TimelineProvider = {
           channel_genre: "Shopping",
           channel_name: "The Value Channel",
           from: 1995.12,
-          to: 1996.6,
+          to: 1996.8,
         },
         {
           channel_genre: "Shopping",
           channel_name: "TVSN",
-          from: 1996.6,
+          from: 1996.8,
           to: 1997.9,
         },
         {
@@ -709,7 +716,7 @@ export const foxtelanalogue: TimelineProvider = {
           channel_genre: "Kids",
           channel_name: "Cartoon Network",
           from: 2000.12,
-          to: 2001,
+          to: 2001.12,
         },
         {
           channel_genre: "Movies",
@@ -719,6 +726,14 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "32": [
+        {
+          channel_genre: "Sports",
+          channel_name: "Fox Sports Two (Super League Channel)",
+          channel_notes:
+            "CAB CH 32 May 1997 lineup; Fox Sports Two starts February 1997",
+          from: 1997.2,
+          to: 1997.9,
+        },
         {
           channel_genre: "Movies",
           channel_name: "fx / FXM: Movies From Fox",
@@ -746,6 +761,14 @@ export const foxtelanalogue: TimelineProvider = {
       ],
       "33": [
         {
+          channel_genre: "PPV",
+          channel_name: "Event TV",
+          channel_notes:
+            "Pay-per-view; Event TV starts April 1997; CAB CH 33 May 1997 lineup",
+          from: 1997.4,
+          to: 1997.9,
+        },
+        {
           channel_genre: "Entertainment",
           channel_name: "The Comedy Channel",
           from: 1997.9,
@@ -759,6 +782,12 @@ export const foxtelanalogue: TimelineProvider = {
         },
       ],
       "34": [
+        {
+          channel_genre: "PPV",
+          channel_name: "Event TV",
+          from: 1997.4,
+          to: 1997.9,
+        },
         {
           channel_genre: "Movies",
           channel_name: "World Movies",
@@ -880,7 +909,7 @@ export const foxtelanalogue: TimelineProvider = {
         {
           channel_genre: "News",
           channel_name: "Fox News Channel",
-          from: 1999.8,
+          from: "1998.12",
           to: 2000.12,
         },
         {
@@ -900,8 +929,9 @@ export const foxtelanalogue: TimelineProvider = {
         {
           channel_genre: "FTA",
           channel_name: "Prime Television (Gold Coast Only)",
-          channel_notes: "Gold Coast Cable only",
-          from: "1995.10",
+          channel_notes:
+            "Gold Coast Cable only; Foxtel Brisbane & Gold Coast November 1995",
+          from: "1998.11",
           to: 2000.7,
         },
         {
@@ -928,8 +958,9 @@ export const foxtelanalogue: TimelineProvider = {
         {
           channel_genre: "FTA",
           channel_name: "NBN Television (Gold Coast Only)",
-          channel_notes: "Gold Coast Cable only",
-          from: "1995.10",
+          channel_notes:
+            "Gold Coast Cable only; Foxtel Brisbane & Gold Coast November 1995",
+          from: "1998.11",
           to: 2000.7,
         },
         {
@@ -951,8 +982,9 @@ export const foxtelanalogue: TimelineProvider = {
         {
           channel_genre: "FTA",
           channel_name: "Ten Northern NSW (Gold Coast Only)",
-          channel_notes: "Gold Coast Cable only",
-          from: "1995.10",
+          channel_notes:
+            "Gold Coast Cable only; Foxtel Brisbane & Gold Coast November 1995",
+          from: "1998.11",
           to: 2000.7,
         },
         {
@@ -1052,7 +1084,7 @@ export const foxtelanalogue: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "Antenna Pacific",
+          channel_name: "Antenna Pacific (Greek)",
           from: 2002.12,
           to: 2003.12,
         },
@@ -1066,14 +1098,15 @@ export const foxtelanalogue: TimelineProvider = {
       "49": [
         {
           channel_genre: "Adult",
-          channel_name: "nightmoves",
-          from: 1997,
-          to: 1998,
+          channel_name: "NIGHTMOVES",
+          channel_notes: "CAB CH 49 May 1998 lineup",
+          from: 1997.7,
+          to: 1998.12,
         },
         {
           channel_genre: "Adult",
           channel_name: "Adults Only",
-          from: 1998,
+          from: 1999.1,
           to: 2001.12,
         },
         {
@@ -1106,7 +1139,7 @@ export const foxtelanalogue: TimelineProvider = {
       "51": [
         {
           channel_genre: "International",
-          channel_name: "RAI Internazionale",
+          channel_name: "RAI Internazionale (Italian)",
           from: 2003,
           to: 2007,
         },
@@ -1162,10 +1195,52 @@ export const foxtelanalogue: TimelineProvider = {
         when: 1994.11,
       },
       {
-        label: "Foxtel Launches",
+        label: "Foxtel Launches Melbourne & Sydney",
         note: "Foxtel launches on 23rd October 1995",
         type: "Launch",
-        when: 1995.1,
+        when: "1995.10",
+      },
+      {
+        label: "Foxtel Launches Brisbane & Gold Coast",
+        note: "Foxtel launches in Brisbane and Gold Coast",
+        type: "Launch",
+        when: "1995.11",
+      },
+      {
+        label: "Foxtel Launches Adelaide",
+        note: "Foxtel launches in Adelaide",
+        type: "Launch",
+        when: 1996.7,
+      },
+      {
+        label: "Foxtel Launches Perth",
+        note: "Foxtel launches in Perth",
+        type: "Launch",
+        when: 1997.2,
+      },
+      {
+        label: "Interim Satellite Service",
+        note: "Interim Satellite Service launches",
+        type: "Launch",
+        when: 1998.7,
+      },
+      {
+        label: "Prime, NBN & Channel 10 Gold Coast",
+        note: "Prime, NBN & Channel 10 Gold Coast launch",
+        type: "Launch",
+        when: "1998.11",
+      },
+      {
+        label: "Fox News Launches",
+        note: "Fox News Channel launches",
+        type: "Launch",
+        when: "1998.12",
+      },
+      {
+        label: "Foxtel Newcastle/Central Coast",
+        note: "Foxtel expands into former East Coast TV area in Newcastle/Central Coast NSW",
+        type: "Launch",
+        when: "1998.12",
       },
       {
         label: "Proposed Merger with Galaxy",

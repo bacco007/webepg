@@ -730,6 +730,12 @@ export const ncable: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Antenna Pacific (Greek)",
           from: 1999.1,
+          to: 2002.5,
+        },
+        {
+          channel_genre: "Religious",
+          channel_name: "EWTN",
+          from: 2002.5,
           to: 2005.5,
         },
         {
@@ -834,12 +840,12 @@ export const ncable: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Showtime",
           from: "2001.10",
-          to: 2003,
+          to: 2003.6,
         },
         {
           channel_genre: "Movies",
           channel_name: "Movie One",
-          from: 2003,
+          from: 2003.6,
           to: 2006.8,
         },
         {
@@ -860,12 +866,12 @@ export const ncable: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Encore",
           from: 1998.7,
-          to: 2003,
+          to: 2003.6,
         },
         {
           channel_genre: "Movies",
           channel_name: "Movie Extra",
-          from: 2003,
+          from: 2003.6,
           to: 2006.8,
         },
         {

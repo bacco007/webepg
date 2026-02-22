@@ -49,7 +49,6 @@ import {
   MapTileLayer,
   MapZoomControl,
 } from "@/components/ui/map";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -96,32 +95,6 @@ if (typeof document !== "undefined") {
   document.head.appendChild(style);
 }
 
-// Helper function to get network color for markers
-const getNetworkMarkerColor = (network: string | undefined) => {
-  if (!network) {
-    return "#808080";
-  }
-  if (network.includes("ABC")) {
-    return "#FF0000";
-  }
-  if (network.includes("SBS")) {
-    return "#00FF00";
-  }
-  if (network.includes("Seven Network")) {
-    return "#0000FF";
-  }
-  if (network.includes("Nine Network")) {
-    return "#FFFF00";
-  }
-  if (network.includes("Ten Network")) {
-    return "#FF00FF";
-  }
-  if (network.includes("Community") || network.includes("Narrowcasting")) {
-    return "#808080";
-  }
-  return "#808080";
-};
-
 // Create cluster icon function
 const createClusterIcon = (cluster: { getChildCount: () => number }) => {
   const count = cluster.getChildCount();
@@ -138,49 +111,99 @@ const createClusterIcon = (cluster: { getChildCount: () => number }) => {
   });
 };
 
-// Helper function to get network color
-const getNetworkColor = (network: string | undefined) => {
-  if (!network) {
-    return "#808080";
-  }
-  if (network.includes("ABC")) {
-    return "#FF0000";
-  }
-  if (network.includes("SBS")) {
-    return "#00FF00";
-  }
-  if (network.includes("Seven Network")) {
-    return "#0000FF";
-  }
-  if (network.includes("Nine Network")) {
-    return "#FFFF00";
-  }
-  if (network.includes("Ten Network")) {
-    return "#FF00FF";
-  }
-  if (network.includes("Community") || network.includes("Narrowcasting")) {
-    return "#808080";
-  }
-  return "#808080";
-};
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
-// Create popup content function for TV transmitters
-const createPopupContent = (transmitter: Transmitter) => {
+// Create popup content for a site: header (site info) + expandable table of services (licences)
+const createSitePopupContent = (site: TransmitterSite) => {
+  const siteName = escapeHtml(site.SiteName || "");
+  const areaServed = escapeHtml(site.AreaServed || "");
+
+  // Sort licences by channel number
+  const sortedLicences = [...site.licences].sort((a, b) => {
+    const channelA = Number.parseInt(a.Channel || "0", 10) || 0;
+    const channelB = Number.parseInt(b.Channel || "0", 10) || 0;
+    return channelA - channelB;
+  });
+
+  const rows = sortedLicences
+    .map((l, index) => {
+      const detailsId = `details-${index}`;
+      const purpose = l.Purpose || "";
+      const isInactive =
+        purpose === "Unallocated" || purpose === "Licenced, Not on Air";
+      const rowClass = isInactive
+        ? "expandable-row border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors text-gray-400"
+        : "expandable-row border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors";
+      return `
+    <tr class="${rowClass}" data-details-id="${detailsId}" data-index="${index}">
+      <td class="px-3 py-2 text-left text-sm font-medium">${escapeHtml(l.Callsign)}</td>
+      <td class="px-3 py-2 text-left text-sm">${escapeHtml(l.Channel)}</td>
+      <td class="px-3 py-2 text-left text-sm">${escapeHtml(l.Network)}</td>
+      <td class="px-3 py-2 text-right text-sm font-medium">${l.Frequency} MHz</td>
+      <td class="px-3 py-2 text-left text-sm">${escapeHtml(l.MaxERP)}</td>
+      <td class="px-3 py-2 text-center text-sm">
+        <span class="expand-icon" data-icon-id="icon-${index}">▼</span>
+      </td>
+    </tr>
+    <tr id="${detailsId}" class="details-row hidden bg-gray-50 border-b border-gray-200">
+      <td colspan="6" class="px-3 py-3">
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div><span class="font-semibold">Callsign Channel:</span> ${escapeHtml(l.CallsignChannel || "")}</div>
+          <div><span class="font-semibold">Operator:</span> ${escapeHtml(l.Operator || "")}</div>
+          <div><span class="font-semibold">Purpose:</span> ${escapeHtml(purpose)}</div>
+          <div><span class="font-semibold">Polarisation:</span> ${escapeHtml(l.Polarisation || "")}</div>
+          <div><span class="font-semibold">Antenna Height:</span> ${l.AntennaHeight ? `${l.AntennaHeight}m` : ""}</div>
+          <div><span class="font-semibold">Licence No:</span> ${l.LicenceNo || ""}</div>
+          <div><span class="font-semibold">Licence Area:</span> ${escapeHtml(l.LicenceArea || "")}</div>
+        </div>
+      </td>
+    </tr>`;
+    })
+    .join("");
+
+  const googleMapsUrl = `https://www.google.com/maps?q=${site.Lat},${site.Long}`;
+  const headerParts: string[] = [];
+  if (areaServed) {
+    headerParts.push(`<span class="text-gray-600">${areaServed}</span>`);
+  }
+  headerParts.push(
+    `<span class="text-gray-600">ACMA Site ID: <span class="font-semibold">${site.ACMASiteID}</span></span>`
+  );
+  headerParts.push(
+    `<a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">View on Google Maps</a>`
+  );
+  const headerContent = headerParts.join(
+    '<span class="text-gray-400">•</span>'
+  );
+
   return `
-    <div class="bg-white shadow-lg p-4 rounded-lg min-w-[220px] max-w-[320px]">
-      <div class="flex items-center gap-2 mb-2">
-        <div class="rounded-full w-3 h-3" style="background-color: ${getNetworkColor(transmitter.Network)}"></div>
-        <h3 class="font-bold text-base">${transmitter.CallSign || "Unknown"}</h3>
+    <div class="bg-white shadow-lg rounded-lg min-w-[600px] max-w-[800px] overflow-hidden">
+      <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+        <h3 class="font-bold text-base">${siteName || "Unknown site"}</h3>
+        <div class="mt-1 flex items-center gap-2 text-sm flex-wrap">
+          ${headerContent}
+        </div>
       </div>
-      <div class="space-y-1 text-sm">
-        ${transmitter.SiteName ? `<div><span class='font-semibold'>Site:</span> ${transmitter.SiteName}</div>` : ""}
-        ${transmitter.AreaServed ? `<div><span class='font-semibold'>Area:</span> ${transmitter.AreaServed}</div>` : ""}
-        ${transmitter.Frequency ? `<div><span class='font-semibold'>Frequency:</span> <span class='font-bold text-blue-700'>${transmitter.Frequency} MHz</span></div>` : ""}
-        ${transmitter.Channel ? `<div><span class='font-semibold'>Channel:</span> ${transmitter.Channel}</div>` : ""}
-        ${transmitter.Network ? `<div><span class='font-semibold'>Network:</span> ${transmitter.Network}</div>` : ""}
-        ${transmitter.MaxERP ? `<div><span class='font-semibold'>Power:</span> <span class='font-bold text-green-700'>${transmitter.MaxERP}</span></div>` : ""}
-        ${transmitter.AntennaHeight ? `<div><span class='font-semibold'>Antenna Height:</span> ${transmitter.AntennaHeight}m</div>` : ""}
-        ${transmitter.LicenceArea ? `<div><span class='font-semibold'>Licence Area:</span> ${transmitter.LicenceArea}</div>` : ""}
+      <div class="max-h-[400px] overflow-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-100 sticky top-0">
+            <tr>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700">Callsign</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700">Ch</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700">Network</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700 text-right">Freq</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700">Power</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700 text-center w-8"></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
       </div>
     </div>
   `;
@@ -188,23 +211,53 @@ const createPopupContent = (transmitter: Transmitter) => {
 
 // Helper function to validate coordinates
 const isValidCoordinate = (value: number | string | null | undefined) => {
-  const num = typeof value === "number" ? value : Number.parseFloat(String(value));
+  const num =
+    typeof value === "number" ? value : Number.parseFloat(String(value));
   return !Number.isNaN(num) && typeof num === "number";
 };
 
-// Helper function to create a marker from transmitter
-const createTransmitterMarker = (
-  transmitter: Transmitter,
+// Helper function to toggle row details
+const toggleRowDetails = (
+  popupElement: HTMLElement,
+  detailsId: string,
+  index: string
+) => {
+  const detailsRow = popupElement.querySelector(`#${detailsId}`) as HTMLElement;
+  const icon = popupElement.querySelector(
+    `[data-icon-id="icon-${index}"]`
+  ) as HTMLElement;
+
+  if (!detailsRow) {
+    return;
+  }
+
+  const isHidden = detailsRow.classList.contains("hidden");
+  if (isHidden) {
+    detailsRow.classList.remove("hidden");
+    if (icon) {
+      icon.textContent = "▲";
+    }
+  } else {
+    detailsRow.classList.add("hidden");
+    if (icon) {
+      icon.textContent = "▼";
+    }
+  }
+};
+
+// Helper to create a marker for a site (one per site; popup shows table of services)
+const createSiteMarker = (
+  site: TransmitterSite,
   clusterGroup: ReturnType<typeof markerClusterGroup>
 ) => {
   const lat =
-    typeof transmitter.Lat === "number"
-      ? transmitter.Lat
-      : Number.parseFloat(String(transmitter.Lat));
+    typeof site.Lat === "number"
+      ? site.Lat
+      : Number.parseFloat(String(site.Lat));
   const lng =
-    typeof transmitter.Long === "number"
-      ? transmitter.Long
-      : Number.parseFloat(String(transmitter.Long));
+    typeof site.Long === "number"
+      ? site.Long
+      : Number.parseFloat(String(site.Long));
 
   if (!isValidCoordinate(lat)) {
     return false;
@@ -212,24 +265,51 @@ const createTransmitterMarker = (
   if (!isValidCoordinate(lng)) {
     return false;
   }
-  if (lat < -90 || lat > 90) {
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
     return false;
   }
-  if (lng < -180 || lng > 180) {
-    return false;
-  }
+
+  // Use consistent color for all transmitters
+  const color = "#3b82f6"; // Blue color for all markers
 
   try {
     const marker = L.marker([lat, lng], {
       icon: L.divIcon({
         className: "custom-marker",
-        html: `<div style="background-color: ${
-          getNetworkMarkerColor(transmitter.Network)
-        }; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>`,
-        iconSize: [12, 12],
+        html: `<div style="background-color: ${color}; width: 18px; height: 18px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>`,
+        iconSize: [18, 18],
       }),
     });
-    marker.bindPopup(createPopupContent(transmitter));
+    const popupContent = createSitePopupContent(site);
+    marker.bindPopup(popupContent, { maxHeight: 500, maxWidth: 850 });
+
+    // Attach event listeners when popup opens
+    marker.on("popupopen", () => {
+      const popup = marker.getPopup();
+      const popupElement = popup?.getElement();
+      if (!popupElement) {
+        return;
+      }
+
+      const handleRowClick = (e: Event) => {
+        const row = (e.target as HTMLElement).closest(
+          ".expandable-row"
+        ) as HTMLElement;
+        if (!row) {
+          return;
+        }
+
+        const detailsId = row.getAttribute("data-details-id");
+        const index = row.getAttribute("data-index");
+        if (detailsId && index !== null) {
+          toggleRowDetails(popupElement, detailsId, index);
+        }
+      };
+
+      // Use event delegation on the popup container
+      popupElement.addEventListener("click", handleRowClick);
+    });
+
     clusterGroup.addLayer(marker);
     return true;
   } catch {
@@ -273,26 +353,31 @@ if (typeof document !== "undefined") {
   document.head.appendChild(style);
 }
 
-interface Transmitter {
-  AreaServed: string;
-  CallSignChannel: string;
-  CallSign: string;
+// API response structure
+interface Licence {
+  CallsignChannel: string;
+  Callsign: string;
   Operator: string;
   Network: string;
-  Purpose: string;
-  Channel: string;
   Frequency: number;
-  Polarity: string;
-  SiteName: string;
-  Site: string;
-  ACMASiteID: number;
-  Lat: number;
-  Long: number;
+  Purpose: string;
+  Polarisation: string;
   AntennaHeight: number;
   MaxERP: string;
+  LicenceNo: number;
+  Channel: string;
   LicenceArea: string;
-  LicenceNo: string;
-  OnAirDate: string;
+}
+
+interface TransmitterSite {
+  ACMASiteID: number;
+  SiteName: string;
+  AreaServed: string;
+  Lat: number;
+  Long: number;
+  State: string;
+  ServiceCnt: number;
+  licences: Licence[];
 }
 
 interface GeoJsonData {
@@ -309,6 +394,95 @@ interface GeoJsonData {
       coordinates: number[][][];
     };
   }>;
+}
+
+interface BaseMatchOpts {
+  skipCallSign?: boolean;
+  skipAreaServed?: boolean;
+  skipLicenceArea?: boolean;
+  skipOperator?: boolean;
+  skipNetwork?: boolean;
+}
+
+interface BaseMatchState {
+  frequencyRange: [number, number];
+  debouncedGlobalSearch: string;
+  callSignFilters: string[];
+  areaServedFilters: string[];
+  licenceAreaFilters: string[];
+  operatorFilters: string[];
+  networkFilters: string[];
+}
+
+function licenceSiteBaseMatch(
+  l: Licence,
+  s: TransmitterSite,
+  opts: BaseMatchOpts,
+  state: BaseMatchState
+): boolean {
+  if (
+    s.Lat == null ||
+    s.Long == null ||
+    Number.isNaN(s.Lat) ||
+    Number.isNaN(s.Long)
+  ) {
+    return false;
+  }
+  const freqOk =
+    l.Frequency != null &&
+    !Number.isNaN(l.Frequency) &&
+    l.Frequency >= state.frequencyRange[0] &&
+    l.Frequency <= state.frequencyRange[1];
+  if (!freqOk) {
+    return false;
+  }
+  const q = state.debouncedGlobalSearch.toLowerCase();
+  const searchOk =
+    state.debouncedGlobalSearch === "" ||
+    l.Callsign?.toLowerCase().includes(q) ||
+    s.AreaServed?.toLowerCase().includes(q) ||
+    l.LicenceArea?.toLowerCase().includes(q) ||
+    l.Operator?.toLowerCase().includes(q) ||
+    l.Network?.toLowerCase().includes(q);
+  if (!searchOk) {
+    return false;
+  }
+  if (
+    !opts.skipCallSign &&
+    state.callSignFilters.length > 0 &&
+    !state.callSignFilters.includes(l.Callsign)
+  ) {
+    return false;
+  }
+  if (
+    !opts.skipAreaServed &&
+    state.areaServedFilters.length > 0 &&
+    !state.areaServedFilters.includes(s.AreaServed)
+  ) {
+    return false;
+  }
+  if (
+    !opts.skipLicenceArea &&
+    state.licenceAreaFilters.length > 0 &&
+    !state.licenceAreaFilters.includes(l.LicenceArea)
+  ) {
+    return false;
+  }
+  if (
+    !opts.skipOperator &&
+    state.operatorFilters.length > 0 &&
+    !state.operatorFilters.includes(l.Operator)
+  ) {
+    return false;
+  }
+  if (
+    !opts.skipNetwork &&
+    state.networkFilters.length > 0 &&
+    !state.networkFilters.includes(l.Network)
+  ) {
+    return false;
+  }
+  return true;
 }
 
 function MapControls({
@@ -464,37 +638,18 @@ function FrequencyRangeFilter({
 }
 
 function MapLegend() {
-  const networks = [
-    { color: "#FF0000", name: "ABC", patterns: ["ABC"] },
-    { color: "#00FF00", name: "SBS", patterns: ["SBS"] },
-    { color: "#0000FF", name: "Seven", patterns: ["Seven Network"] },
-    { color: "#FFFF00", name: "Nine", patterns: ["Nine Network"] },
-    { color: "#FF00FF", name: "Ten", patterns: ["Ten Network"] },
-    {
-      color: "#808080",
-      name: "Community",
-      patterns: ["Community", "Narrowcasting"],
-    },
-  ];
-
   return (
     <div className="absolute bottom-5 left-5 z-1000">
-      <Card className="w-28 rounded-lg border border-border bg-background/90 py-1 shadow-md">
+      <Card className="w-32 rounded-lg border border-border bg-background/90 py-1 shadow-md">
         <CardContent className="p-2">
-          <h3 className="mb-1 font-bold text-xs">Networks</h3>
-          <ScrollArea className="h-[120px]">
-            <div className="space-y-1">
-              {networks.map((network) => (
-                <div className="flex items-center gap-2" key={network.name}>
-                  <div
-                    className="h-2.5 w-2.5 rounded-full border border-white shadow-sm"
-                    style={{ backgroundColor: network.color }}
-                  />
-                  <span className="text-xs">{network.name}</span>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+          <h3 className="mb-1 font-bold text-xs">Transmitters</h3>
+          <div className="flex items-center gap-2">
+            <div
+              className="h-2.5 w-2.5 rounded-full border border-white shadow-sm"
+              style={{ backgroundColor: "#3b82f6" }}
+            />
+            <span className="text-xs">TV Transmitter</span>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -578,7 +733,7 @@ export default function TVTransmitterMap() {
   const [licenceAreaFilters, setLicenceAreaFilters] = useState<string[]>([]);
   const [operatorFilters, setOperatorFilters] = useState<string[]>([]);
   const [networkFilters, setNetworkFilters] = useState<string[]>([]);
-  const [transmittersData, setTransmittersData] = useState<Transmitter[]>([]);
+  const [sitesData, setSitesData] = useState<TransmitterSite[]>([]);
   const [geoJsonData, setGeoJsonData] = useState<GeoJsonData | null>(null);
   const [localIsLoading, setLocalIsLoading] = useState(true);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -598,7 +753,7 @@ export default function TVTransmitterMap() {
   const debouncedGlobalSearch = useDebounce(globalSearchTerm, 300);
 
   const {
-    transmittersData: fetchedTransmittersData,
+    sitesData: fetchedSitesData,
     geoJsonData: fetchedGeoJsonData,
     isLoading,
     error,
@@ -614,14 +769,14 @@ export default function TVTransmitterMap() {
 
   useEffect(() => {
     if (!isLoading) {
-      setTransmittersData(fetchedTransmittersData);
+      setSitesData(fetchedSitesData);
       setGeoJsonData(fetchedGeoJsonData);
       setLocalIsLoading(false);
     }
     if (error) {
       setLocalError(error);
     }
-  }, [fetchedTransmittersData, fetchedGeoJsonData, isLoading, error]);
+  }, [fetchedSitesData, fetchedGeoJsonData, isLoading, error]);
 
   // On mount, set map view from URL if present
   useEffect(() => {
@@ -657,83 +812,66 @@ export default function TVTransmitterMap() {
     }
   };
 
-  const filterTransmitters = useCallback(
-    (transmitters: Transmitter[]) =>
-      transmitters.filter(
-        (transmitter) => {
-          // Validate coordinates - check for null, undefined, or NaN
-          if (
-            transmitter.Lat == null ||
-            transmitter.Long == null ||
-            Number.isNaN(transmitter.Lat) ||
-            Number.isNaN(transmitter.Long)
-          ) {
-            return false;
-          }
-
-          // Validate frequency exists and is within range
-          const frequencyValid =
-            transmitter.Frequency != null &&
-            !Number.isNaN(transmitter.Frequency) &&
-            transmitter.Frequency >= frequencyRange[0] &&
-            transmitter.Frequency <= frequencyRange[1];
-
-          return (
-            (callSignFilters.length === 0 ||
-              callSignFilters.includes(transmitter.CallSign)) &&
-            (areaServedFilters.length === 0 ||
-              areaServedFilters.includes(transmitter.AreaServed)) &&
-            (licenceAreaFilters.length === 0 ||
-              licenceAreaFilters.includes(transmitter.LicenceArea)) &&
-            (operatorFilters.length === 0 ||
-              operatorFilters.includes(transmitter.Operator)) &&
-            (networkFilters.length === 0 ||
-              networkFilters.includes(transmitter.Network)) &&
-            frequencyValid &&
-            (debouncedGlobalSearch === "" ||
-              transmitter.CallSign?.toLowerCase().includes(
-                debouncedGlobalSearch.toLowerCase()
-              ) ||
-              transmitter.AreaServed?.toLowerCase().includes(
-                debouncedGlobalSearch.toLowerCase()
-              ) ||
-              transmitter.LicenceArea?.toLowerCase().includes(
-                debouncedGlobalSearch.toLowerCase()
-              ) ||
-              transmitter.Operator?.toLowerCase().includes(
-                debouncedGlobalSearch.toLowerCase()
-              ) ||
-              transmitter.Network?.toLowerCase().includes(
-                debouncedGlobalSearch.toLowerCase()
-              ))
-          );
-        }
-      ),
-    [
-      callSignFilters,
+  const filterState = useMemo(
+    () => ({
       areaServedFilters,
-      licenceAreaFilters,
-      operatorFilters,
-      networkFilters,
-      frequencyRange,
+      callSignFilters,
       debouncedGlobalSearch,
+      frequencyRange,
+      licenceAreaFilters,
+      networkFilters,
+      operatorFilters,
+    }),
+    [
+      areaServedFilters,
+      callSignFilters,
+      debouncedGlobalSearch,
+      frequencyRange,
+      licenceAreaFilters,
+      networkFilters,
+      operatorFilters,
     ]
+  );
+
+  const licenceMatchesFilters = useCallback(
+    (licence: Licence, site: TransmitterSite) =>
+      licenceSiteBaseMatch(licence, site, {}, filterState),
+    [filterState]
+  );
+
+  const siteMatchesFilters = useCallback(
+    (site: TransmitterSite) =>
+      Array.isArray(site.licences) &&
+      site.licences.length > 0 &&
+      site.licences.some((l) => licenceMatchesFilters(l, site)),
+    [licenceMatchesFilters]
+  );
+
+  const filterSites = useCallback(
+    (sites: TransmitterSite[]) => sites.filter(siteMatchesFilters),
+    [siteMatchesFilters]
+  );
+
+  const allLicences = useMemo(
+    () =>
+      sitesData.flatMap((s) =>
+        (s.licences ?? []).map((l) => ({ licence: l, site: s }))
+      ),
+    [sitesData]
   );
 
   // Calculate frequency range from actual data
   useEffect(() => {
-    if (transmittersData.length > 0) {
-      const validFrequencies = transmittersData
-        .map((t) => t.Frequency)
+    if (allLicences.length > 0) {
+      const validFrequencies = allLicences
+        .map(({ licence }) => licence.Frequency)
         .filter(
           (freq) =>
             freq != null && !Number.isNaN(freq) && typeof freq === "number"
         );
-      
       if (validFrequencies.length > 0) {
         const minFreq = Math.min(...validFrequencies);
         const maxFreq = Math.max(...validFrequencies);
-        // Use actual data range, but ensure reasonable bounds
         const calculatedMin = Math.max(0, Math.floor(minFreq));
         const calculatedMax = Math.ceil(maxFreq);
         setFrequencyRange([calculatedMin, calculatedMax]);
@@ -741,306 +879,140 @@ export default function TVTransmitterMap() {
         setMaxFrequency(String(calculatedMax));
       }
     }
-  }, [transmittersData]);
+  }, [allLicences]);
 
   const uniqueCallSigns = useMemo(
-    () => [...new Set(transmittersData.map((t) => t.CallSign))].sort(),
-    [transmittersData]
+    () =>
+      [...new Set(allLicences.map(({ licence }) => licence.Callsign))]
+        .filter(Boolean)
+        .sort() as string[],
+    [allLicences]
   );
-
   const uniqueAreaServed = useMemo(
-    () => [...new Set(transmittersData.map((t) => t.AreaServed))].sort(),
-    [transmittersData]
+    () =>
+      [...new Set(sitesData.map((s) => s.AreaServed))].filter(Boolean).sort(),
+    [sitesData]
   );
-
   const uniqueLicenceAreas = useMemo(
-    () => [...new Set(transmittersData.map((t) => t.LicenceArea))].sort(),
-    [transmittersData]
+    () =>
+      [...new Set(allLicences.map(({ licence }) => licence.LicenceArea))]
+        .filter(Boolean)
+        .sort() as string[],
+    [allLicences]
   );
-
   const uniqueOperators = useMemo(
-    () => [...new Set(transmittersData.map((t) => t.Operator))].sort(),
-    [transmittersData]
+    () =>
+      [...new Set(allLicences.map(({ licence }) => licence.Operator))]
+        .filter(Boolean)
+        .sort() as string[],
+    [allLicences]
   );
-
   const uniqueNetworks = useMemo(
-    () => [...new Set(transmittersData.map((t) => t.Network))].sort(),
-    [transmittersData]
+    () =>
+      [...new Set(allLicences.map(({ licence }) => licence.Network))]
+        .filter(Boolean)
+        .sort() as string[],
+    [allLicences]
   );
 
-  // Filter counts
+  type LicenceSitePred = (l: Licence, s: TransmitterSite) => boolean;
+
+  const countSitesWithMatchingLicence = useCallback(
+    (pred: LicenceSitePred) => {
+      const seen = new Set<number>();
+      for (const site of sitesData) {
+        const match = site.licences?.some((l) => pred(l, site));
+        if (match) {
+          seen.add(site.ACMASiteID);
+        }
+      }
+      return seen.size;
+    },
+    [sitesData]
+  );
+
+  const baseMatch = useCallback(
+    (opts: BaseMatchOpts) => (l: Licence, s: TransmitterSite) =>
+      licenceSiteBaseMatch(l, s, opts, filterState),
+    [filterState]
+  );
+
   const callSignCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-
-    // Create a version of the filter function that excludes callSign filter
-    const filterWithoutCallSign = (transmitter: Transmitter) =>
-      (areaServedFilters.length === 0 ||
-        areaServedFilters.includes(transmitter.AreaServed)) &&
-      (licenceAreaFilters.length === 0 ||
-        licenceAreaFilters.includes(transmitter.LicenceArea)) &&
-      (operatorFilters.length === 0 ||
-        operatorFilters.includes(transmitter.Operator)) &&
-      (networkFilters.length === 0 ||
-        networkFilters.includes(transmitter.Network)) &&
-      transmitter.Frequency >= frequencyRange[0] &&
-      transmitter.Frequency <= frequencyRange[1] &&
-      (debouncedGlobalSearch === "" ||
-        transmitter.CallSign.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.AreaServed.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.LicenceArea.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Operator.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Network.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ));
-
-    // Count only transmitters that match all other filters
+    const match = baseMatch({ skipCallSign: true });
     for (const callSign of uniqueCallSigns) {
-      counts[callSign] = transmittersData.filter(
-        (t) => t.CallSign === callSign && filterWithoutCallSign(t)
-      ).length;
+      counts[callSign] = countSitesWithMatchingLicence(
+        (l, s) => l.Callsign === callSign && match(l, s)
+      );
     }
-
     return counts;
-  }, [
-    transmittersData,
-    uniqueCallSigns,
-    areaServedFilters,
-    licenceAreaFilters,
-    operatorFilters,
-    networkFilters,
-    frequencyRange,
-    debouncedGlobalSearch,
-  ]);
+  }, [uniqueCallSigns, countSitesWithMatchingLicence, baseMatch]);
 
   const areaServedCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-
-    // Create a version of the filter function that excludes areaServed filter
-    const filterWithoutAreaServed = (transmitter: Transmitter) =>
-      (callSignFilters.length === 0 ||
-        callSignFilters.includes(transmitter.CallSign)) &&
-      (licenceAreaFilters.length === 0 ||
-        licenceAreaFilters.includes(transmitter.LicenceArea)) &&
-      (operatorFilters.length === 0 ||
-        operatorFilters.includes(transmitter.Operator)) &&
-      (networkFilters.length === 0 ||
-        networkFilters.includes(transmitter.Network)) &&
-      transmitter.Frequency >= frequencyRange[0] &&
-      transmitter.Frequency <= frequencyRange[1] &&
-      (debouncedGlobalSearch === "" ||
-        transmitter.CallSign.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.AreaServed.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.LicenceArea.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Operator.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Network.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ));
-
-    // Count only transmitters that match all other filters
+    const match = baseMatch({ skipAreaServed: true });
     for (const area of uniqueAreaServed) {
-      counts[area] = transmittersData.filter(
-        (t) => t.AreaServed === area && filterWithoutAreaServed(t)
-      ).length;
+      counts[area] = countSitesWithMatchingLicence(
+        (l, s) => s.AreaServed === area && match(l, s)
+      );
     }
-
     return counts;
-  }, [
-    transmittersData,
-    uniqueAreaServed,
-    callSignFilters,
-    licenceAreaFilters,
-    operatorFilters,
-    networkFilters,
-    frequencyRange,
-    debouncedGlobalSearch,
-  ]);
+  }, [uniqueAreaServed, countSitesWithMatchingLicence, baseMatch]);
 
   const licenceAreaCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-
-    // Create a version of the filter function that excludes licenceArea filter
-    const filterWithoutLicenceArea = (transmitter: Transmitter) =>
-      (callSignFilters.length === 0 ||
-        callSignFilters.includes(transmitter.CallSign)) &&
-      (areaServedFilters.length === 0 ||
-        areaServedFilters.includes(transmitter.AreaServed)) &&
-      (operatorFilters.length === 0 ||
-        operatorFilters.includes(transmitter.Operator)) &&
-      (networkFilters.length === 0 ||
-        networkFilters.includes(transmitter.Network)) &&
-      transmitter.Frequency >= frequencyRange[0] &&
-      transmitter.Frequency <= frequencyRange[1] &&
-      (debouncedGlobalSearch === "" ||
-        transmitter.CallSign.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.AreaServed.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.LicenceArea.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Operator.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Network.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ));
-
-    // Count only transmitters that match all other filters
+    const match = baseMatch({ skipLicenceArea: true });
     for (const area of uniqueLicenceAreas) {
-      counts[area] = transmittersData.filter(
-        (t) => t.LicenceArea === area && filterWithoutLicenceArea(t)
-      ).length;
+      counts[area] = countSitesWithMatchingLicence(
+        (l, s) => l.LicenceArea === area && match(l, s)
+      );
     }
-
     return counts;
-  }, [
-    transmittersData,
-    uniqueLicenceAreas,
-    callSignFilters,
-    areaServedFilters,
-    operatorFilters,
-    networkFilters,
-    frequencyRange,
-    debouncedGlobalSearch,
-  ]);
+  }, [uniqueLicenceAreas, countSitesWithMatchingLicence, baseMatch]);
 
   const operatorCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-
-    // Create a version of the filter function that excludes operator filter
-    const filterWithoutOperator = (transmitter: Transmitter) =>
-      (callSignFilters.length === 0 ||
-        callSignFilters.includes(transmitter.CallSign)) &&
-      (areaServedFilters.length === 0 ||
-        areaServedFilters.includes(transmitter.AreaServed)) &&
-      (licenceAreaFilters.length === 0 ||
-        licenceAreaFilters.includes(transmitter.LicenceArea)) &&
-      (networkFilters.length === 0 ||
-        networkFilters.includes(transmitter.Network)) &&
-      transmitter.Frequency >= frequencyRange[0] &&
-      transmitter.Frequency <= frequencyRange[1] &&
-      (debouncedGlobalSearch === "" ||
-        transmitter.CallSign.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.AreaServed.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.LicenceArea.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Operator.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Network.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ));
-
-    // Count only transmitters that match all other filters
-    for (const operator of uniqueOperators) {
-      counts[operator] = transmittersData.filter(
-        (t) => t.Operator === operator && filterWithoutOperator(t)
-      ).length;
+    const match = baseMatch({ skipOperator: true });
+    for (const op of uniqueOperators) {
+      counts[op] = countSitesWithMatchingLicence(
+        (l, s) => l.Operator === op && match(l, s)
+      );
     }
-
     return counts;
-  }, [
-    transmittersData,
-    uniqueOperators,
-    callSignFilters,
-    areaServedFilters,
-    licenceAreaFilters,
-    networkFilters,
-    frequencyRange,
-    debouncedGlobalSearch,
-  ]);
+  }, [uniqueOperators, countSitesWithMatchingLicence, baseMatch]);
 
   const networkCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-
-    // Create a version of the filter function that excludes network filter
-    const filterWithoutNetwork = (transmitter: Transmitter) =>
-      (callSignFilters.length === 0 ||
-        callSignFilters.includes(transmitter.CallSign)) &&
-      (areaServedFilters.length === 0 ||
-        areaServedFilters.includes(transmitter.AreaServed)) &&
-      (licenceAreaFilters.length === 0 ||
-        licenceAreaFilters.includes(transmitter.LicenceArea)) &&
-      (operatorFilters.length === 0 ||
-        operatorFilters.includes(transmitter.Operator)) &&
-      transmitter.Frequency >= frequencyRange[0] &&
-      transmitter.Frequency <= frequencyRange[1] &&
-      (debouncedGlobalSearch === "" ||
-        transmitter.CallSign.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.AreaServed.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.LicenceArea.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Operator.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ) ||
-        transmitter.Network.toLowerCase().includes(
-          debouncedGlobalSearch.toLowerCase()
-        ));
-
-    // Count only transmitters that match all other filters
-    for (const network of uniqueNetworks) {
-      counts[network] = transmittersData.filter(
-        (t) => t.Network === network && filterWithoutNetwork(t)
-      ).length;
+    const match = baseMatch({ skipNetwork: true });
+    for (const net of uniqueNetworks) {
+      counts[net] = countSitesWithMatchingLicence(
+        (l, s) => l.Network === net && match(l, s)
+      );
     }
-
     return counts;
-  }, [
-    transmittersData,
-    uniqueNetworks,
-    callSignFilters,
-    areaServedFilters,
-    licenceAreaFilters,
-    operatorFilters,
-    frequencyRange,
-    debouncedGlobalSearch,
-  ]);
+  }, [uniqueNetworks, countSitesWithMatchingLicence, baseMatch]);
 
-  const filteredTransmitters = useMemo(
-    () => filterTransmitters(transmittersData),
-    [transmittersData, filterTransmitters]
+  const filteredSites = useMemo(
+    () => filterSites(sitesData),
+    [sitesData, filterSites]
   );
 
   const bounds = useMemo(() => {
-    if (filteredTransmitters.length === 0) {
+    if (filteredSites.length === 0) {
       return null;
     }
-    return L.latLngBounds(filteredTransmitters.map((t) => [t.Lat, t.Long]));
-  }, [filteredTransmitters]);
+    return L.latLngBounds(filteredSites.map((s) => [s.Lat, s.Long]));
+  }, [filteredSites]);
 
-  // Fit map to bounds on initial load and when filteredTransmitters changes
+  // Fit map to bounds on initial load and when filteredSites changes
   useEffect(() => {
-    if (mapRef.current && bounds) {
-      mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+    if (!mapRef.current) {
+      return;
     }
+    if (!bounds) {
+      return;
+    }
+    mapRef.current.fitBounds(bounds, { padding: [50, 50] });
   }, [bounds]);
 
   const center: [number, number] = [-25.2744, 133.7751];
@@ -1139,15 +1111,15 @@ export default function TVTransmitterMap() {
         throw new Error("Failed to fetch TV Licence Areas data");
       }
 
-      const transmittersDataResult = await transmittersResponse.json();
+      const sites = await transmittersResponse.json();
       const geoJsonDataResult = await geoJsonResponse.json();
 
-      setTransmittersData(transmittersDataResult);
+      setSitesData(sites);
       setGeoJsonData(geoJsonDataResult);
       setLocalError(null);
 
       toast({
-        description: `Loaded ${transmittersDataResult.length} transmitters.`,
+        description: `Loaded ${sites.length} sites.`,
         title: "Data refreshed",
       });
     } catch (_error) {
@@ -1389,8 +1361,7 @@ export default function TVTransmitterMap() {
           Clear All Filters
         </Button>
         <div className="mt-2 text-center text-muted-foreground text-xs">
-          Showing {filteredTransmitters.length} of {transmittersData.length}{" "}
-          transmitters
+          Showing {filteredSites.length} of {sitesData.length} sites
         </div>
       </SidebarFooter>
     </SidebarContainer>
@@ -1400,57 +1371,52 @@ export default function TVTransmitterMap() {
   const markerLayerRef = useRef<L.Layer | null>(null);
   const searchMarkerRef = useRef<L.Marker | null>(null);
 
-  // Imperative marker management for performance
+  // Imperative marker management for performance (one marker per site)
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || filteredTransmitters.length === 0) {
+    if (!map || filteredSites.length === 0) {
       return;
     }
 
-    // Remove old marker layer if it exists
     if (markerLayerRef.current) {
       map.removeLayer(markerLayerRef.current);
       markerLayerRef.current = null;
     }
 
-    // Create a new marker cluster group
     const clusterGroup = markerClusterGroup({
       animate: true,
       animateAddingMarkers: true,
       chunkDelay: 50,
       chunkedLoading: true,
       chunkInterval: 100,
-      disableClusteringAtZoom: 15,
+      disableClusteringAtZoom: 12,
       iconCreateFunction: createClusterIcon,
-      maxClusterRadius: 60,
+      maxClusterRadius: 40,
       removeOutsideVisibleBounds: true,
-      showCoverageOnHover: false,
+      showCoverageOnHover: true,
       spiderfyOnMaxZoom: true,
       zoomToBoundsOnClick: true,
     });
 
-    // Add markers imperatively
     let markerCount = 0;
-    for (const transmitter of filteredTransmitters) {
-      if (createTransmitterMarker(transmitter, clusterGroup)) {
+    for (const site of filteredSites) {
+      if (createSiteMarker(site, clusterGroup)) {
         markerCount++;
       }
     }
 
-    // Only add to map if we have markers
     if (markerCount > 0) {
       clusterGroup.addTo(map);
       markerLayerRef.current = clusterGroup;
     }
 
-    // Clean up on unmount or update
     return () => {
       if (markerLayerRef.current && map) {
         map.removeLayer(markerLayerRef.current);
         markerLayerRef.current = null;
       }
     };
-  }, [filteredTransmitters]);
+  }, [filteredSites]);
 
   // Handle search result marker imperatively
   useEffect(() => {
@@ -1594,9 +1560,9 @@ export default function TVTransmitterMap() {
   );
 }
 
-// Custom hook for data fetching
+// Custom hook for data fetching (returns sites; one marker per site)
 function useTransmitterData() {
-  const [transmittersData, setTransmittersData] = useState<Transmitter[]>([]);
+  const [sitesData, setSitesData] = useState<TransmitterSite[]>([]);
   const [geoJsonData, setGeoJsonData] = useState<GeoJsonData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1616,8 +1582,8 @@ function useTransmitterData() {
         return response.json();
       }),
     ])
-      .then(([transmittersDataResult, geoJsonDataResult]) => {
-        setTransmittersData(transmittersDataResult);
+      .then(([sites, geoJsonDataResult]) => {
+        setSitesData(sites);
         setGeoJsonData(geoJsonDataResult);
         setIsLoading(false);
       })
@@ -1627,5 +1593,5 @@ function useTransmitterData() {
       });
   }, []);
 
-  return { error, geoJsonData, isLoading, transmittersData };
+  return { error, geoJsonData, isLoading, sitesData };
 }

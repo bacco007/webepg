@@ -1,7 +1,14 @@
 "use client";
 
 import L from "leaflet";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useMap } from "react-leaflet";
 import "leaflet.markercluster";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -29,12 +36,12 @@ import {
   MapTileLayer,
   MapZoomControl,
 } from "@/components/ui/map";
+import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "@/hooks/use-toast";
 import "leaflet/dist/leaflet.css";
 
 import "@drustack/leaflet.resetview";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 
 // Add custom styles for marker clusters
@@ -113,42 +120,52 @@ if (typeof document !== "undefined") {
   document.head.appendChild(style);
 }
 
-// Types
-interface RadioTransmitter {
-  LicenceNo: string;
-  CallSign: string;
-  AreaServed: string;
-  SiteName: string;
-  Lat: number;
-  Long: number;
-  AntennaHeight: number;
-  LicenceArea: string;
-  Frequency: number;
+// API types
+interface RadioServiceBase {
+  Callsign: string;
+  Operator: string;
+  Network: string;
+  Frequency: string;
   Purpose: string;
-  Type?: "FM" | "AM" | "DAB";
-  Polarity: string;
-  Site: string;
+  Polarisation: string;
+  AntennaHeight: string;
   MaxERP: string;
-  TransmitPower?: string;
-  HoursOfOperaton?: string;
+  LicenceNo: string;
+  LicenceArea: string;
+}
+
+interface AmService extends RadioServiceBase {
+  DayNight?: string;
+}
+
+interface FmService extends RadioServiceBase {}
+
+interface DrService extends RadioServiceBase {
   FreqBlock?: string;
-  BSL?: string;
-  "Licence Area"?: string;
-  uniqueKey: string;
 }
 
-interface RadioType {
-  name: string;
-  color: string;
+interface RadioSite {
+  ACMASiteID: number;
+  SiteName: string;
+  AreaServed: string;
+  Lat: string;
+  Long: string;
+  State: string;
+  FMServiceCnt: string;
+  AMServiceCnt: string;
+  DRServiceCnt: string;
+  am: AmService[];
+  fm: FmService[];
+  dr: DrService[];
 }
 
-const radioTypes: RadioType[] = [
-  { color: "#FF6B6B", name: "AM" },
-  { color: "#4ECDC4", name: "FM" },
-  { color: "#45B7D1", name: "DAB" },
-  { color: "#96CEB4", name: "DRM" },
-  { color: "#FFEEAD", name: "Other" },
-];
+type RadioServiceType = "AM" | "FM" | "DR";
+
+interface NormalizedRadioService extends RadioServiceBase {
+  Type: RadioServiceType;
+  DayNight?: string;
+  FreqBlock?: string;
+}
 
 // Create cluster icon function
 const createClusterIcon = (cluster: { getChildCount: () => number }) => {
@@ -165,6 +182,160 @@ const createClusterIcon = (cluster: { getChildCount: () => number }) => {
     iconSize: L.point(40, 40, true),
   });
 };
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function getServicesForSite(site: RadioSite): NormalizedRadioService[] {
+  const am = (site.am ?? []).map((s) => ({
+    ...s,
+    DayNight: (s as AmService).DayNight,
+    Type: "AM" as RadioServiceType,
+  }));
+  const fm = (site.fm ?? []).map((s) => ({
+    ...s,
+    Type: "FM" as RadioServiceType,
+  }));
+  const dr = (site.dr ?? []).map((s) => ({
+    ...s,
+    FreqBlock: (s as DrService).FreqBlock,
+    Type: "DR" as RadioServiceType,
+  }));
+  return [...am, ...fm, ...dr];
+}
+
+function servicesForSelectedTypes(
+  site: RadioSite,
+  selected: ("FM" | "AM" | "DAB")[]
+): NormalizedRadioService[] {
+  const all = getServicesForSite(site);
+  const want = new Set<RadioServiceType>();
+  if (selected.includes("FM")) {
+    want.add("FM");
+  }
+  if (selected.includes("AM")) {
+    want.add("AM");
+  }
+  if (selected.includes("DAB")) {
+    want.add("DR");
+  }
+  return all.filter((s) => want.has(s.Type));
+}
+
+function parseCoord(v: string | number): number {
+  const n = typeof v === "number" ? v : Number.parseFloat(String(v));
+  return Number.isNaN(n) ? 0 : n;
+}
+
+interface RadioFilterState {
+  callSignFilters: string[];
+  areaServedFilters: string[];
+  licenceAreaFilters: string[];
+  purposeFilters: string[];
+  freqBlockFilters: string[];
+  networkFilters: string[];
+  operatorFilters: string[];
+  frequencyRange: [number, number];
+  debouncedGlobalSearch: string;
+}
+
+function radioSearchMatches(
+  s: NormalizedRadioService,
+  site: RadioSite,
+  q: string
+): boolean {
+  if (!q) {
+    return true;
+  }
+  const l = q.toLowerCase();
+  return (
+    s.Callsign?.toLowerCase().includes(l) ||
+    site.AreaServed?.toLowerCase().includes(l) ||
+    s.LicenceArea?.toLowerCase().includes(l) ||
+    s.Purpose?.toLowerCase().includes(l) ||
+    s.Network?.toLowerCase().includes(l) ||
+    s.Operator?.toLowerCase().includes(l) ||
+    (s.FreqBlock?.toLowerCase().includes(l) ?? false)
+  );
+}
+
+function radioFilterChecksMatch(
+  s: NormalizedRadioService,
+  site: RadioSite,
+  state: RadioFilterState
+): boolean {
+  if (
+    state.callSignFilters.length > 0 &&
+    !state.callSignFilters.includes(s.Callsign)
+  ) {
+    return false;
+  }
+  if (
+    state.areaServedFilters.length > 0 &&
+    !state.areaServedFilters.includes(site.AreaServed)
+  ) {
+    return false;
+  }
+  if (
+    state.licenceAreaFilters.length > 0 &&
+    !state.licenceAreaFilters.includes(s.LicenceArea)
+  ) {
+    return false;
+  }
+  if (
+    state.purposeFilters.length > 0 &&
+    !state.purposeFilters.includes(s.Purpose)
+  ) {
+    return false;
+  }
+  if (
+    state.networkFilters.length > 0 &&
+    !state.networkFilters.includes(s.Network)
+  ) {
+    return false;
+  }
+  if (
+    state.operatorFilters.length > 0 &&
+    !state.operatorFilters.includes(s.Operator)
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function radioServiceMatchesFilters(
+  s: NormalizedRadioService,
+  site: RadioSite,
+  state: RadioFilterState
+): boolean {
+  const lat = parseCoord(site.Lat);
+  const lng = parseCoord(site.Long);
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    return false;
+  }
+  const freq = Number.parseFloat(s.Frequency || "0") || 0;
+  if (freq < state.frequencyRange[0] || freq > state.frequencyRange[1]) {
+    return false;
+  }
+  if (!radioSearchMatches(s, site, state.debouncedGlobalSearch)) {
+    return false;
+  }
+  if (!radioFilterChecksMatch(s, site, state)) {
+    return false;
+  }
+  const fbOk =
+    state.freqBlockFilters.length === 0 ||
+    Boolean(s.FreqBlock && state.freqBlockFilters.includes(s.FreqBlock));
+  if (!fbOk) {
+    return false;
+  }
+  return true;
+}
 
 // Map Controls Component
 function MapControls({
@@ -239,30 +410,18 @@ const getCombinedFrequencyRange = (types: ("FM" | "AM" | "DAB")[]) => {
 
 // Map Legend Component
 function MapLegend() {
-  const legendRadioTypes = [
-    { color: "#ff0000", name: "FM" },
-    { color: "#0000ff", name: "AM" },
-    { color: "#00ff00", name: "DAB" },
-  ];
-
   return (
     <div className="absolute bottom-5 left-5 z-1000">
-      <Card className="w-28 rounded-lg border border-border bg-background/90 py-1 shadow-md">
+      <Card className="w-32 rounded-lg border border-border bg-background/90 py-1 shadow-md">
         <CardContent className="p-2">
-          <h3 className="mb-1 font-bold text-xs">Radio Types</h3>
-          <ScrollArea className="h-[120px]">
-            <div className="space-y-1">
-              {legendRadioTypes.map((type) => (
-                <div className="flex items-center gap-2" key={type.name}>
-                  <div
-                    className="h-2.5 w-2.5 rounded-full border border-white shadow-sm"
-                    style={{ backgroundColor: type.color }}
-                  />
-                  <span className="text-xs">{type.name}</span>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+          <h3 className="mb-1 font-bold text-xs">Transmitters</h3>
+          <div className="flex items-center gap-2">
+            <div
+              className="h-2.5 w-2.5 rounded-full border border-white shadow-sm"
+              style={{ backgroundColor: "#3b82f6" }}
+            />
+            <span className="text-xs">Radio Transmitter</span>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -323,82 +482,212 @@ const MinimapControl = () => {
   );
 };
 
-// Update the createPopupContent function for a modern, card-like popup
-const createPopupContent = (transmitter: RadioTransmitter) => {
-  const getNetworkColor = (type: string | undefined) => {
-    switch (type?.toLowerCase()) {
-      case "fm":
-        return "#ff0000";
-      case "am":
-        return "#0000ff";
-      case "dab":
-        return "#00ff00";
-      default:
-        return "#FFEEAD";
+const typeLabel = (t: RadioServiceType) => (t === "DR" ? "DAB" : t);
+
+function toggleRowDetails(
+  popupElement: HTMLElement,
+  detailsId: string,
+  index: string
+) {
+  const detailsRow = popupElement.querySelector(`#${detailsId}`) as HTMLElement;
+  const icon = popupElement.querySelector(
+    `[data-icon-id="icon-${index}"]`
+  ) as HTMLElement;
+  if (!detailsRow) {
+    return;
+  }
+  const isHidden = detailsRow.classList.contains("hidden");
+  if (isHidden) {
+    detailsRow.classList.remove("hidden");
+    if (icon) {
+      icon.textContent = "▲";
     }
-  };
+  } else {
+    detailsRow.classList.add("hidden");
+    if (icon) {
+      icon.textContent = "▼";
+    }
+  }
+}
+
+function createSitePopupContent(
+  site: RadioSite,
+  services: NormalizedRadioService[]
+) {
+  const siteName = escapeHtml(site.SiteName || "");
+  const areaServed = escapeHtml(site.AreaServed || "");
+  const lat = parseCoord(site.Lat);
+  const lng = parseCoord(site.Long);
+  const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
+  const sorted = [...services].sort((a, b) => {
+    const fa = Number.parseFloat(a.Frequency || "0") || 0;
+    const fb = Number.parseFloat(b.Frequency || "0") || 0;
+    return fa - fb;
+  });
+
+  const rows = sorted
+    .map((s, index) => {
+      const detailsId = `details-${index}`;
+      const purpose = s.Purpose || "";
+      const isInactive =
+        purpose === "Unallocated" || purpose === "Licenced, Not on Air";
+      const rowClass = isInactive
+        ? "expandable-row border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors text-gray-400"
+        : "expandable-row border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors";
+      const detailsCells: string[] = [
+        `<div><span class="font-semibold">Operator:</span> ${escapeHtml(s.Operator || "")}</div>`,
+        `<div><span class="font-semibold">Purpose:</span> ${escapeHtml(purpose)}</div>`,
+        `<div><span class="font-semibold">Polarisation:</span> ${escapeHtml(s.Polarisation || "")}</div>`,
+        `<div><span class="font-semibold">Antenna Height:</span> ${s.AntennaHeight ? `${s.AntennaHeight}m` : ""}</div>`,
+        `<div><span class="font-semibold">Licence No:</span> ${s.LicenceNo || ""}</div>`,
+        `<div><span class="font-semibold">Licence Area:</span> ${escapeHtml(s.LicenceArea || "")}</div>`,
+      ];
+      if (s.DayNight) {
+        detailsCells.push(
+          `<div><span class="font-semibold">Day/Night:</span> ${escapeHtml(s.DayNight)}</div>`
+        );
+      }
+      if (s.FreqBlock) {
+        detailsCells.push(
+          `<div><span class="font-semibold">Freq Block:</span> ${escapeHtml(s.FreqBlock)}</div>`
+        );
+      }
+      const detailsSimple = detailsCells.join("");
+      return `
+    <tr class="${rowClass}" data-details-id="${detailsId}" data-index="${index}">
+      <td class="px-3 py-2 text-left text-sm font-medium">${typeLabel(s.Type)}</td>
+      <td class="px-3 py-2 text-left text-sm font-medium">${escapeHtml(s.Callsign)}</td>
+      <td class="px-3 py-2 text-right text-sm font-medium">${s.Frequency} MHz</td>
+      <td class="px-3 py-2 text-left text-sm">${escapeHtml(s.Network)}</td>
+      <td class="px-3 py-2 text-left text-sm">${escapeHtml(s.MaxERP)}</td>
+      <td class="px-3 py-2 text-center text-sm">
+        <span class="expand-icon" data-icon-id="icon-${index}">▼</span>
+      </td>
+    </tr>
+    <tr id="${detailsId}" class="details-row hidden bg-gray-50 border-b border-gray-200">
+      <td colspan="6" class="px-3 py-3">
+        <div class="grid grid-cols-2 gap-2 text-xs">${detailsSimple}</div>
+      </td>
+    </tr>`;
+    })
+    .join("");
+
+  const headerParts: string[] = [];
+  if (areaServed) {
+    headerParts.push(`<span class="text-gray-600">${areaServed}</span>`);
+  }
+  headerParts.push(
+    `<span class="text-gray-600">ACMA Site ID: <span class="font-semibold">${site.ACMASiteID}</span></span>`
+  );
+  headerParts.push(
+    `<a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">View on Google Maps</a>`
+  );
+  const headerContent = headerParts.join(
+    '<span class="text-gray-400">•</span>'
+  );
 
   return `
-    <div class="bg-white shadow-lg p-4 rounded-lg min-w-[220px] max-w-[320px]">
-      <div class="flex items-center gap-2 mb-2">
-        <div class="rounded-full w-3 h-3" style="background-color: ${getNetworkColor(transmitter.Type)}"></div>
-        <h3 class="font-bold text-base">${transmitter.CallSign || "Unknown"}</h3>
+    <div class="bg-white shadow-lg rounded-lg min-w-[600px] max-w-[800px] overflow-hidden">
+      <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+        <h3 class="font-bold text-base">${siteName || "Unknown site"}</h3>
+        <div class="mt-1 flex items-center gap-2 text-sm flex-wrap">${headerContent}</div>
       </div>
-      <div class="space-y-1 text-sm">
-        ${transmitter.SiteName ? `<div><span class='font-semibold'>Site:</span> ${transmitter.SiteName}</div>` : ""}
-        ${transmitter.AreaServed ? `<div><span class='font-semibold'>Area:</span> ${transmitter.AreaServed}</div>` : ""}
-        ${transmitter.Frequency ? `<div><span class='font-semibold'>Frequency:</span> <span class='font-bold text-blue-700'>${transmitter.Frequency} MHz</span></div>` : ""}
-        ${transmitter.MaxERP ? `<div><span class='font-semibold'>Power:</span> <span class='font-bold text-green-700'>${transmitter.MaxERP}</span></div>` : ""}
-        ${transmitter.AntennaHeight ? `<div><span class='font-semibold'>Antenna Height:</span> ${transmitter.AntennaHeight}m</div>` : ""}
-        ${transmitter.Purpose ? `<div><span class='font-semibold'>Purpose:</span> ${transmitter.Purpose}</div>` : ""}
+      <div class="max-h-[400px] overflow-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-100 sticky top-0">
+            <tr>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700">Type</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700">Callsign</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700 text-right">Freq</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700">Network</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700">Power</th>
+              <th class="px-3 py-2 text-xs font-semibold text-gray-700 text-center w-8"></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
       </div>
-    </div>
-  `;
-};
+    </div>`;
+}
+
+function createSiteMarker(
+  site: RadioSite,
+  services: NormalizedRadioService[],
+  clusterGroup: ReturnType<typeof markerClusterGroup>
+) {
+  const lat = parseCoord(site.Lat);
+  const lng = parseCoord(site.Long);
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    return false;
+  }
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return false;
+  }
+  const color = "#3b82f6";
+  try {
+    const marker = L.marker([lat, lng], {
+      icon: L.divIcon({
+        className: "custom-marker",
+        html: `<div style="background-color: ${color}; width: 18px; height: 18px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>`,
+        iconSize: [18, 18],
+      }),
+    });
+    marker.bindPopup(createSitePopupContent(site, services), {
+      maxHeight: 500,
+      maxWidth: 850,
+    });
+    marker.on("popupopen", () => {
+      const popup = marker.getPopup();
+      const el = popup?.getElement();
+      if (!el) {
+        return;
+      }
+      const handleRowClick = (e: Event) => {
+        const row = (e.target as HTMLElement).closest(
+          ".expandable-row"
+        ) as HTMLElement;
+        if (!row) {
+          return;
+        }
+        const detailsId = row.getAttribute("data-details-id");
+        const index = row.getAttribute("data-index");
+        if (detailsId && index !== null) {
+          toggleRowDetails(el, detailsId, index);
+        }
+      };
+      el.addEventListener("click", handleRowClick);
+    });
+    clusterGroup.addLayer(marker);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export default function RadioTransmitterMap() {
   const [isLoading, setIsLoading] = useState(true);
-  const [transmittersData, setTransmittersData] = useState<RadioTransmitter[]>(
-    []
-  );
+  const [sitesData, setSitesData] = useState<RadioSite[]>([]);
   const [searchLocation, setSearchLocation] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [showLegend, setShowLegend] = useState(true);
   const [selectedTypes, setSelectedTypes] = useState<("FM" | "AM" | "DAB")[]>([
+    "AM",
+    "DAB",
     "FM",
   ]);
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
 
-  const handleRefresh = useCallback(async () => {
-    if (selectedTypes.length === 0) {
-      setTransmittersData([]);
-      setIsLoading(false);
-      return;
-    }
-
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Fetch data for all selected types in parallel
-      const fetchPromises = selectedTypes.map(async (type) => {
-        const response = await fetch(
-          `/api/py/transmitters/${type.toLowerCase()}`
-        );
-        if (!response.ok) {
-          throw new Error(`Failed to fetch ${type} data`);
-        }
-        const data = await response.json();
-        // Add type information and ensure unique keys
-        return data.map((t: RadioTransmitter) => ({
-          ...t,
-          Type: type,
-          uniqueKey: `${type}-${t.LicenceNo}`,
-        }));
-      });
-
-      const results = await Promise.all(fetchPromises);
-      // Combine all data from different types
-      const combinedData = results.flat();
-      setTransmittersData(combinedData);
+      const res = await fetch("/api/py/transmitters/radio");
+      if (!res.ok) {
+        throw new Error("Failed to fetch radio transmitter data");
+      }
+      const data = await res.json();
+      setSitesData(data);
     } catch (_err) {
       toast({
         description: "Failed to load transmitters",
@@ -408,36 +697,40 @@ export default function RadioTransmitterMap() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedTypes]);
+  }, []);
 
-  // Load data when radio types change
   useEffect(() => {
-    handleRefresh();
-  }, [handleRefresh]);
+    fetchData();
+  }, [fetchData]);
 
-  // Memoize the unique areas to prevent unnecessary recalculations
-  const uniqueAreaServed = useMemo(() => {
-    const areas = new Set<string>();
-    for (const transmitter of transmittersData) {
-      if (transmitter.AreaServed) {
-        areas.add(transmitter.AreaServed);
+  const debouncedGlobalSearch = useDebounce(globalSearchTerm, 300);
+
+  const allServices = useMemo(() => {
+    const out: { service: NormalizedRadioService; site: RadioSite }[] = [];
+    for (const site of sitesData) {
+      const svc = servicesForSelectedTypes(site, selectedTypes);
+      for (const s of svc) {
+        out.push({ service: s, site });
       }
     }
-    return Array.from(areas).sort();
-  }, [transmittersData]);
+    return out;
+  }, [sitesData, selectedTypes]);
 
   // --- Add state for each filter section ---
-  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const [callSignSearch, setCallSignSearch] = useState("");
   const [areaServedSearch, setAreaServedSearch] = useState("");
   const [licenceAreaSearch, setLicenceAreaSearch] = useState("");
   const [purposeSearch, setPurposeSearch] = useState("");
   const [freqBlockSearch, setFreqBlockSearch] = useState("");
+  const [networkSearch, setNetworkSearch] = useState("");
+  const [operatorSearch, setOperatorSearch] = useState("");
   const [callSignFilters, setCallSignFilters] = useState<string[]>([]);
   const [areaServedFilters, setAreaServedFilters] = useState<string[]>([]);
   const [licenceAreaFilters, setLicenceAreaFilters] = useState<string[]>([]);
   const [purposeFilters, setPurposeFilters] = useState<string[]>([]);
   const [freqBlockFilters, setFreqBlockFilters] = useState<string[]>([]);
+  const [networkFilters, setNetworkFilters] = useState<string[]>([]);
+  const [operatorFilters, setOperatorFilters] = useState<string[]>([]);
   const [minFrequency, setMinFrequency] = useState("");
   const [maxFrequency, setMaxFrequency] = useState("");
   const [frequencyRange, setFrequencyRange] = useState<[number, number]>([
@@ -453,189 +746,228 @@ export default function RadioTransmitterMap() {
     setMaxFrequency(String(range.max));
   }, [selectedTypes]);
 
-  // --- Unique options for each filter ---
+  const uniqueAreaServed = useMemo(
+    () =>
+      [...new Set(sitesData.map((s) => s.AreaServed))]
+        .filter(Boolean)
+        .sort() as string[],
+    [sitesData]
+  );
   const uniqueCallSigns = useMemo(
-    () => [...new Set(transmittersData.map((t) => t.CallSign))].sort(),
-    [transmittersData]
+    () =>
+      [...new Set(allServices.map(({ service }) => service.Callsign))]
+        .filter(Boolean)
+        .sort() as string[],
+    [allServices]
   );
   const uniqueLicenceAreas = useMemo(
-    () => [...new Set(transmittersData.map((t) => t.LicenceArea))].sort(),
-    [transmittersData]
+    () =>
+      [...new Set(allServices.map(({ service }) => service.LicenceArea))]
+        .filter(Boolean)
+        .sort() as string[],
+    [allServices]
   );
   const uniquePurposes = useMemo(
-    () => [...new Set(transmittersData.map((t) => t.Purpose))].sort(),
-    [transmittersData]
+    () =>
+      [...new Set(allServices.map(({ service }) => service.Purpose))]
+        .filter(Boolean)
+        .sort() as string[],
+    [allServices]
   );
   const uniqueFreqBlocks = useMemo(
     () =>
       [
-        ...new Set(transmittersData
-            .map((t) => t.FreqBlock)
-            .filter((fb): fb is string => Boolean(fb))),
+        ...new Set(
+          allServices
+            .map(({ service }) => service.FreqBlock)
+            .filter((fb): fb is string => Boolean(fb))
+        ),
       ].sort(),
-    [transmittersData]
+    [allServices]
+  );
+  const uniqueNetworks = useMemo(
+    () =>
+      [...new Set(allServices.map(({ service }) => service.Network))]
+        .filter(Boolean)
+        .sort() as string[],
+    [allServices]
+  );
+  const uniqueOperators = useMemo(
+    () =>
+      [...new Set(allServices.map(({ service }) => service.Operator))]
+        .filter(Boolean)
+        .sort() as string[],
+    [allServices]
   );
 
-  // --- Counts for each filter ---
+  const filterState = useMemo<RadioFilterState>(
+    () => ({
+      areaServedFilters,
+      callSignFilters,
+      debouncedGlobalSearch,
+      freqBlockFilters,
+      frequencyRange,
+      licenceAreaFilters,
+      networkFilters,
+      operatorFilters,
+      purposeFilters,
+    }),
+    [
+      areaServedFilters,
+      callSignFilters,
+      debouncedGlobalSearch,
+      frequencyRange,
+      freqBlockFilters,
+      licenceAreaFilters,
+      networkFilters,
+      operatorFilters,
+      purposeFilters,
+    ]
+  );
+
+  const serviceMatchesFilters = useCallback(
+    (s: NormalizedRadioService, site: RadioSite) =>
+      radioServiceMatchesFilters(s, site, filterState),
+    [filterState]
+  );
+
+  const siteMatchesFilters = useCallback(
+    (site: RadioSite) => {
+      const svc = servicesForSelectedTypes(site, selectedTypes);
+      return svc.some((s) => serviceMatchesFilters(s, site));
+    },
+    [selectedTypes, serviceMatchesFilters]
+  );
+
+  const filteredSites = useMemo(
+    () => sitesData.filter(siteMatchesFilters),
+    [sitesData, siteMatchesFilters]
+  );
+
   const callSignCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
+    const c: Record<string, number> = {};
     for (const cs of uniqueCallSigns) {
-      counts[cs] = transmittersData.filter((t) => t.CallSign === cs).length;
+      c[cs] = sitesData.filter((site) =>
+        servicesForSelectedTypes(site, selectedTypes).some(
+          (s) => s.Callsign === cs
+        )
+      ).length;
     }
-    return counts;
-  }, [transmittersData, uniqueCallSigns]);
+    return c;
+  }, [sitesData, selectedTypes, uniqueCallSigns]);
   const areaServedCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
+    const c: Record<string, number> = {};
     for (const area of uniqueAreaServed) {
-      counts[area] = transmittersData.filter(
-        (t) => t.AreaServed === area
+      c[area] = sitesData.filter(
+        (site) =>
+          site.AreaServed === area &&
+          servicesForSelectedTypes(site, selectedTypes).length > 0
       ).length;
     }
-    return counts;
-  }, [transmittersData, uniqueAreaServed]);
+    return c;
+  }, [sitesData, selectedTypes, uniqueAreaServed]);
   const licenceAreaCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const area of uniqueLicenceAreas) {
-      counts[area] = transmittersData.filter(
-        (t) => t.LicenceArea === area
+    const c: Record<string, number> = {};
+    for (const la of uniqueLicenceAreas) {
+      c[la] = sitesData.filter((site) =>
+        servicesForSelectedTypes(site, selectedTypes).some(
+          (s) => s.LicenceArea === la
+        )
       ).length;
     }
-    return counts;
-  }, [transmittersData, uniqueLicenceAreas]);
+    return c;
+  }, [sitesData, selectedTypes, uniqueLicenceAreas]);
   const purposeCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
+    const c: Record<string, number> = {};
     for (const p of uniquePurposes) {
-      counts[p] = transmittersData.filter((t) => t.Purpose === p).length;
+      c[p] = sitesData.filter((site) =>
+        servicesForSelectedTypes(site, selectedTypes).some(
+          (s) => s.Purpose === p
+        )
+      ).length;
     }
-    return counts;
-  }, [transmittersData, uniquePurposes]);
+    return c;
+  }, [sitesData, selectedTypes, uniquePurposes]);
   const freqBlockCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
+    const c: Record<string, number> = {};
     for (const fb of uniqueFreqBlocks) {
-      if (fb) {
-        counts[fb] = transmittersData.filter((t) => t.FreqBlock === fb).length;
-      }
+      c[fb] = sitesData.filter((site) =>
+        servicesForSelectedTypes(site, selectedTypes).some(
+          (s) => s.FreqBlock === fb
+        )
+      ).length;
     }
-    return counts;
-  }, [transmittersData, uniqueFreqBlocks]);
+    return c;
+  }, [sitesData, selectedTypes, uniqueFreqBlocks]);
+  const networkCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const net of uniqueNetworks) {
+      c[net] = sitesData.filter((site) =>
+        servicesForSelectedTypes(site, selectedTypes).some(
+          (s) => s.Network === net
+        )
+      ).length;
+    }
+    return c;
+  }, [sitesData, selectedTypes, uniqueNetworks]);
+  const operatorCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const op of uniqueOperators) {
+      c[op] = sitesData.filter((site) =>
+        servicesForSelectedTypes(site, selectedTypes).some(
+          (s) => s.Operator === op
+        )
+      ).length;
+    }
+    return c;
+  }, [sitesData, selectedTypes, uniqueOperators]);
 
-  // --- Consolidated filtering logic ---
-  const filteredTransmitters = useMemo(() => {
-    return transmittersData.filter((transmitter) => {
-      // Validate coordinates - check for null, undefined, or NaN
-      if (
-        transmitter.Lat == null ||
-        transmitter.Long == null ||
-        Number.isNaN(transmitter.Lat) ||
-        Number.isNaN(transmitter.Long)
-      ) {
-        return false;
-      }
-
-      // Advanced filter matches
-      const callSignMatch =
-        callSignFilters.length === 0 ||
-        callSignFilters.includes(transmitter.CallSign);
-      const areaServedMatch =
-        areaServedFilters.length === 0 ||
-        areaServedFilters.includes(transmitter.AreaServed);
-      const licenceAreaMatch =
-        licenceAreaFilters.length === 0 ||
-        licenceAreaFilters.includes(transmitter.LicenceArea);
-      const purposeMatch =
-        purposeFilters.length === 0 ||
-        purposeFilters.includes(transmitter.Purpose);
-      const freqBlockMatch =
-        freqBlockFilters.length === 0 ||
-        (transmitter.FreqBlock &&
-          freqBlockFilters.includes(transmitter.FreqBlock));
-      const frequencyRangeMatch =
-        transmitter.Frequency >= frequencyRange[0] &&
-        transmitter.Frequency <= frequencyRange[1];
-
-      // Global search match
-      const searchMatch =
-        globalSearchTerm === "" ||
-        (transmitter.CallSign?.toLowerCase().includes(
-            globalSearchTerm.toLowerCase()
-          )) ||
-        (transmitter.AreaServed?.toLowerCase().includes(
-            globalSearchTerm.toLowerCase()
-          )) ||
-        (transmitter.LicenceArea?.toLowerCase().includes(
-            globalSearchTerm.toLowerCase()
-          )) ||
-        (transmitter.Purpose?.toLowerCase().includes(
-            globalSearchTerm.toLowerCase()
-          )) ||
-        (transmitter.FreqBlock?.toLowerCase().includes(
-            globalSearchTerm.toLowerCase()
-          ));
-
-      return (
-        callSignMatch &&
-        areaServedMatch &&
-        licenceAreaMatch &&
-        purposeMatch &&
-        freqBlockMatch &&
-        frequencyRangeMatch &&
-        searchMatch
-      );
-    });
-  }, [
-    transmittersData,
-    callSignFilters,
-    areaServedFilters,
-    licenceAreaFilters,
-    purposeFilters,
-    freqBlockFilters,
-    frequencyRange,
-    globalSearchTerm,
-  ]);
-
-  // Use a ref to store the map instance
   const mapRef = useRef<L.Map | null>(null);
 
-  // Update the map bounds when filtered transmitters change
-  useEffect(() => {
-    if (mapRef.current && filteredTransmitters.length > 0) {
-      const bounds = L.latLngBounds(
-        filteredTransmitters.map((t) => [t.Lat, t.Long])
-      );
-      mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+  const bounds = useMemo(() => {
+    if (filteredSites.length === 0) {
+      return null;
     }
-  }, [filteredTransmitters]);
+    return L.latLngBounds(
+      filteredSites.map((s) => [parseCoord(s.Lat), parseCoord(s.Long)])
+    );
+  }, [filteredSites]);
 
-  const handleLocationSearch = async () => {
+  useEffect(() => {
+    if (!mapRef.current) {
+      return;
+    }
+    if (!bounds) {
+      return;
+    }
+    mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+  }, [bounds]);
+
+  const handleLocationSearch = async (e: FormEvent) => {
+    e.preventDefault();
     if (!searchLocation.trim()) {
       return;
     }
-
     setSearchLoading(true);
     setSearchError(null);
-
     try {
-      const response = await fetch(
+      const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
           searchLocation
         )}&countrycodes=au&limit=1`
       );
-      const data = await response.json();
-
-      if (data.length > 0) {
-        const { lat, lon } = data[0];
-        const mapElement = document.querySelector(".leaflet-container");
-        if (mapElement) {
-          const map = (mapElement as unknown as { _leaflet_map: L.Map })
-            ._leaflet_map;
-          if (map) {
-            map.setView([lat, lon], 13);
-          }
+      const data = await res.json();
+      if (data?.length > 0) {
+        const lat = Number.parseFloat(data[0].lat);
+        const lon = Number.parseFloat(data[0].lon);
+        setSearchError(null);
+        if (mapRef.current) {
+          mapRef.current.setView([lat, lon], 13);
         }
       } else {
         setSearchError("Location not found");
       }
-    } catch (_error) {
+    } catch {
       setSearchError("Error searching location");
     } finally {
       setSearchLoading(false);
@@ -669,7 +1001,7 @@ export default function RadioTransmitterMap() {
       <Button
         className="h-8 w-8"
         disabled={isLoading}
-        onClick={handleRefresh}
+        onClick={() => fetchData()}
         size="icon"
         variant="outline"
       >
@@ -686,19 +1018,22 @@ export default function RadioTransmitterMap() {
     </div>
   );
 
-  // Helper to reset all filters
   const resetAllFilters = useCallback(() => {
     setCallSignFilters([]);
     setAreaServedFilters([]);
     setLicenceAreaFilters([]);
     setPurposeFilters([]);
     setFreqBlockFilters([]);
+    setNetworkFilters([]);
+    setOperatorFilters([]);
     setGlobalSearchTerm("");
     setCallSignSearch("");
     setAreaServedSearch("");
     setLicenceAreaSearch("");
     setPurposeSearch("");
     setFreqBlockSearch("");
+    setNetworkSearch("");
+    setOperatorSearch("");
     const range = getCombinedFrequencyRange(selectedTypes);
     setFrequencyRange([range.min, range.max]);
     setMinFrequency(String(range.min));
@@ -801,6 +1136,38 @@ export default function RadioTransmitterMap() {
           title="Purpose"
         />
         <FilterSection
+          counts={networkCounts}
+          filters={networkFilters}
+          onFilterChange={(value) =>
+            setNetworkFilters((prev) =>
+              prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value]
+            )
+          }
+          onSearchChange={setNetworkSearch}
+          options={uniqueNetworks}
+          searchValue={networkSearch}
+          showSearch={true}
+          title="Networks"
+        />
+        <FilterSection
+          counts={operatorCounts}
+          filters={operatorFilters}
+          onFilterChange={(value) =>
+            setOperatorFilters((prev) =>
+              prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value]
+            )
+          }
+          onSearchChange={setOperatorSearch}
+          options={uniqueOperators}
+          searchValue={operatorSearch}
+          showSearch={true}
+          title="Operators"
+        />
+        <FilterSection
           counts={freqBlockCounts}
           filters={freqBlockFilters}
           onFilterChange={(value) =>
@@ -899,83 +1266,61 @@ export default function RadioTransmitterMap() {
           Clear All Filters
         </Button>
         <div className="mt-2 text-center text-muted-foreground text-xs">
-          Showing {filteredTransmitters.length} of {transmittersData.length}{" "}
-          transmitters
+          Showing {filteredSites.length} of {sitesData.length} sites
         </div>
       </SidebarFooter>
     </SidebarContainer>
   );
 
-  // Add markerLayerRef for the cluster group
   const markerLayerRef = useRef<L.Layer | null>(null);
 
-  // Imperative marker management for performance
   useEffect(() => {
     const map = mapRef.current;
     if (!map) {
       return;
     }
-
-    // Remove old marker layer if it exists
     if (markerLayerRef.current) {
       map.removeLayer(markerLayerRef.current);
+      markerLayerRef.current = null;
+    }
+    if (filteredSites.length === 0) {
+      return;
     }
 
-    // Create a new marker cluster group
     const clusterGroup = markerClusterGroup({
       animate: true,
       animateAddingMarkers: true,
       chunkDelay: 50,
       chunkedLoading: true,
       chunkInterval: 100,
-      disableClusteringAtZoom: 15,
+      disableClusteringAtZoom: 12,
       iconCreateFunction: createClusterIcon,
-      maxClusterRadius: 60,
+      maxClusterRadius: 40,
       removeOutsideVisibleBounds: true,
-      showCoverageOnHover: false,
+      showCoverageOnHover: true,
       spiderfyOnMaxZoom: true,
       zoomToBoundsOnClick: true,
     });
 
-    // Add markers imperatively
-    for (const t of filteredTransmitters) {
-      // Validate coordinates before creating marker
-      if (
-        typeof t.Lat === "number" &&
-        typeof t.Long === "number" &&
-        !Number.isNaN(t.Lat) &&
-        !Number.isNaN(t.Long) &&
-        t.Lat >= -90 &&
-        t.Lat <= 90 &&
-        t.Long >= -180 &&
-        t.Long <= 180
-      ) {
-        const marker = L.marker([t.Lat, t.Long], {
-          icon: L.divIcon({
-            className: "custom-marker",
-            html: `<div style="background-color: ${
-              radioTypes.find((rt: RadioType) => rt.name === t.Type)?.color ||
-              "#FFEEAD"
-            }; width: 12px; height: 12px; border-radius: 50%;"></div>`,
-            iconSize: [12, 12],
-          }),
-        });
-        marker.bindPopup(createPopupContent(t));
-        clusterGroup.addLayer(marker);
+    for (const site of filteredSites) {
+      const svc = servicesForSelectedTypes(site, selectedTypes).filter((s) =>
+        serviceMatchesFilters(s, site)
+      );
+      if (svc.length > 0 && createSiteMarker(site, svc, clusterGroup)) {
+        // marker added
       }
     }
 
-    // Add to map
     clusterGroup.addTo(map);
     markerLayerRef.current = clusterGroup;
 
-    // Clean up on unmount or update
     return () => {
-      if (markerLayerRef.current) {
+      if (markerLayerRef.current && map) {
         map.removeLayer(markerLayerRef.current);
+        markerLayerRef.current = null;
       }
     };
-  }, [filteredTransmitters]);
+  }, [filteredSites, selectedTypes, serviceMatchesFilters]);
 
   return (
     <SidebarLayout
@@ -1019,9 +1364,7 @@ export default function RadioTransmitterMap() {
               }}
             />
             <MapControls
-              bounds={L.latLngBounds(
-                filteredTransmitters.map((t) => [t.Lat, t.Long])
-              )}
+              bounds={bounds}
               center={[-25.2744, 133.7751]}
               zoom={4}
             />

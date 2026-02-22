@@ -5,7 +5,7 @@ export const optus: TimelineProvider = {
   country: "Australia",
   data: {
     axis: {
-      end: 2007,
+      end: 2010,
       start: 1995,
       unit: "year",
     },
@@ -32,9 +32,8 @@ export const optus: TimelineProvider = {
       "2": [
         {
           channel_genre: "FTA",
-          channel_name: "ABC Television",
+          channel_name: "ABC TV",
           from: 1995.9,
-          to: 2007,
         },
       ],
       "3": [
@@ -42,19 +41,18 @@ export const optus: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Movie Greats",
           from: 1995.9,
-          to: 1997,
+          to: 1997.6,
         },
         {
           channel_genre: "Arts",
           channel_name: "Ovation",
-          from: 1997,
+          from: 1997.6,
           to: 1999,
         },
         {
           channel_genre: "Movies",
           channel_name: "Movie One",
           from: 1999,
-          to: 2007,
         },
       ],
       "4": [
@@ -68,21 +66,19 @@ export const optus: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Movie Extra",
           from: 1999,
-          to: 2007,
         },
       ],
       "5": [
         {
           channel_genre: "Documentary",
           channel_name: "Odyssey",
-          from: 1997,
+          from: 1997.7,
           to: 1999,
         },
         {
           channel_genre: "Movies",
           channel_name: "Movie Greats",
           from: 1999,
-          to: 2007,
         },
       ],
       "6": [
@@ -108,7 +104,6 @@ export const optus: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "Turner Classic Movies",
           from: 2001.7,
-          to: 2007,
         },
       ],
       "7": [
@@ -116,7 +111,6 @@ export const optus: TimelineProvider = {
           channel_genre: "FTA",
           channel_name: "Seven Network",
           from: 1995.9,
-          to: 2007,
         },
       ],
       "8": [
@@ -143,7 +137,6 @@ export const optus: TimelineProvider = {
           channel_genre: "FTA",
           channel_name: "Nine Network",
           from: 1995.9,
-          to: 2007,
         },
       ],
       "10": [
@@ -151,7 +144,6 @@ export const optus: TimelineProvider = {
           channel_genre: "FTA",
           channel_name: "Network Ten",
           from: 1995.9,
-          to: 2007,
         },
       ],
       "11": [
@@ -163,7 +155,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "ESPN",
+          channel_name: "ESPN Australia",
           from: 1997,
           to: 1999,
         },
@@ -175,9 +167,8 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports One",
+          channel_name: "Fox Sports 1",
           from: 2002.12,
-          to: 2007,
         },
       ],
       "12": [
@@ -201,7 +192,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Fox Sports Two",
+          channel_name: "Fox Sports 2",
           from: 2002.12,
         },
       ],
@@ -210,12 +201,6 @@ export const optus: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Sports AFL",
           from: 1996,
-          to: 1998,
-        },
-        {
-          channel_genre: "Sports",
-          channel_name: "Sports Australia 2",
-          from: 1998,
           to: 1999.4,
         },
         {
@@ -232,9 +217,8 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "ESPN",
+          channel_name: "ESPN Australia",
           from: 2002.12,
-          to: 2007,
         },
       ],
       "14": [
@@ -246,14 +230,20 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Sports",
-          channel_name: "Sports Australia 2",
+          channel_name: "Sports Australia II",
           from: 1998,
           to: 1999,
         },
         {
           channel_genre: "Sports",
-          channel_name: "C7 Sport 3 / Main Attraction",
+          channel_name: "Sports Australia 3",
           from: 1999,
+          to: 1999.4,
+        },
+        {
+          channel_genre: "Sports",
+          channel_name: "C7 Sport 3 / Main Attraction",
+          from: 1999.4,
           to: 1999.9,
         },
         {
@@ -266,7 +256,6 @@ export const optus: TimelineProvider = {
           channel_genre: "Sports",
           channel_name: "Fox Footy Channel",
           from: 2002.12,
-          to: 2007,
         },
       ],
       "15": [
@@ -277,9 +266,17 @@ export const optus: TimelineProvider = {
           to: 1998,
         },
         {
+          channel_genre: "Information",
+          channel_name: "Sports Electronic Page Guide",
+          from: 1998,
+          to: 1999,
+        },
+        {
           channel_genre: "Sports",
           channel_name: "Sky Racing",
-          from: 1998,
+          channel_notes:
+            "Racing service; formerly Sky Channel Australia (1997)",
+          from: 1999,
           to: 2001.7,
         },
         {
@@ -304,7 +301,6 @@ export const optus: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "The Comedy Channel",
           from: 2004,
-          to: 2007,
         },
       ],
       "16": [
@@ -342,6 +338,12 @@ export const optus: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "Hallmark Channel",
           from: 2004,
+          to: 2007,
+        },
+        {
+          channel_genre: "Entertainment",
+          channel_name: "Universal Channel",
+          from: 2007,
         },
       ],
       "17": [
@@ -349,12 +351,13 @@ export const optus: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "The Movie Network",
           from: 1995.9,
-          to: 1997,
+          to: 1997.9,
         },
         {
           channel_genre: "Movies",
           channel_name: "Movie One",
-          from: 1997,
+          channel_notes: "Renamed from TMN, September 1997",
+          from: 1997.9,
           to: 1999,
         },
         {
@@ -386,12 +389,13 @@ export const optus: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "The Movie Network 2",
           from: 1995.9,
-          to: 1997,
+          to: 1997.9,
         },
         {
           channel_genre: "Movies",
           channel_name: "Movie Extra",
-          from: 1997,
+          channel_notes: "Renamed from TMN2, September 1997",
+          from: 1997.9,
           to: 2001.7,
         },
         {
@@ -402,7 +406,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Documentary",
-          channel_name: "Discovery Channel",
+          channel_name: "The Discovery Channel",
           from: 2002.12,
         },
       ],
@@ -410,7 +414,7 @@ export const optus: TimelineProvider = {
         {
           channel_genre: "Movies",
           channel_name: "Movie Greats",
-          from: 1997,
+          from: 1997.9,
           to: 1999,
         },
         {
@@ -485,6 +489,12 @@ export const optus: TimelineProvider = {
           channel_genre: "Music",
           channel_name: "VH1",
           from: 2004,
+          to: 2007,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "MTV Classic",
+          from: 2007,
         },
       ],
       "22": [
@@ -512,13 +522,23 @@ export const optus: TimelineProvider = {
           from: 2000,
           to: 2001.7,
         },
-        { channel_genre: "Music", channel_name: "MTV", from: 2001.7 },
+        {
+          channel_genre: "Music",
+          channel_name: "MTV Australia",
+          from: 2001.7,
+        },
       ],
       "23": [
         {
           channel_genre: "Music",
           channel_name: "ARC Music Television",
           from: 1996.8,
+          to: 1997,
+        },
+        {
+          channel_genre: "Arts",
+          channel_name: "Ovation",
+          from: 1997,
           to: 1998,
         },
         {
@@ -661,7 +681,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Lifestyle",
-          channel_name: "Lifestyle Channel",
+          channel_name: "The Lifestyle Channel",
           from: 2002.12,
         },
       ],
@@ -674,7 +694,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Entertainment",
-          channel_name: "Arena",
+          channel_name: "Arena TV",
           from: 2002.12,
         },
       ],
@@ -710,7 +730,11 @@ export const optus: TimelineProvider = {
           from: 1999,
           to: 2002.12,
         },
-        { channel_genre: "Movies", channel_name: "Showtime", from: 2002.12 },
+        {
+          channel_genre: "Movies",
+          channel_name: "Showtime Australia",
+          from: 2002.12,
+        },
       ],
       "31": [
         {
@@ -728,7 +752,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Showtime 2",
+          channel_name: "Showtime Australia 2 (Timeshift)",
           from: 2002.12,
         },
       ],
@@ -754,7 +778,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Movies",
-          channel_name: "Showtime Greats",
+          channel_name: "Showtime Greats Australia",
           from: 2004,
         },
       ],
@@ -784,7 +808,11 @@ export const optus: TimelineProvider = {
           from: 2001.7,
           to: 2002.12,
         },
-        { channel_genre: "Kids", channel_name: "Nickelodeon", from: 2002.12 },
+        {
+          channel_genre: "Kids",
+          channel_name: "Nickelodeon Australia",
+          from: 2002.12,
+        },
       ],
       "35": [
         {
@@ -795,7 +823,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Kids",
-          channel_name: "Disney Channel",
+          channel_name: "Disney Channel Australia",
           from: 2002.12,
         },
       ],
@@ -822,13 +850,13 @@ export const optus: TimelineProvider = {
       "38": [
         {
           channel_genre: "International",
-          channel_name: "CTN",
+          channel_name: "CTN (Chinese)",
           from: 1996,
           to: 1998,
         },
         {
           channel_genre: "International",
-          channel_name: "TVBJ",
+          channel_name: "TVBJ (Chinese)",
           from: 1998,
           to: 1999,
         },
@@ -847,13 +875,13 @@ export const optus: TimelineProvider = {
       "39": [
         {
           channel_genre: "International",
-          channel_name: "CCTV",
+          channel_name: "CCTV (Chinese)",
           from: 1997,
           to: 1999,
         },
         {
           channel_genre: "International",
-          channel_name: "TVBS",
+          channel_name: "TVBS (Chinese)",
           from: 1999,
           to: 2001.7,
         },
@@ -878,13 +906,13 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "Mega - Greek",
+          channel_name: "Mega (Greek)",
           from: 1999,
           to: 2001.7,
         },
         {
           channel_genre: "International",
-          channel_name: "CCTV - Chinese",
+          channel_name: "CCTV (Chinese)",
           from: 2001.7,
           to: 2002.12,
         },
@@ -899,7 +927,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "Antenna Pacific",
+          channel_name: "Antenna Pacific (Greek)",
           from: 1999,
           to: 2002.12,
         },
@@ -911,7 +939,7 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "News",
-          channel_name: "Fox News",
+          channel_name: "Fox News Channel",
           from: 2004,
         },
       ],
@@ -936,26 +964,26 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "News",
-          channel_name: "CNBC Asia",
+          channel_name: "CNBC Australia",
           from: 2004,
         },
       ],
       "43": [
         {
           channel_genre: "Adult",
-          channel_name: "Adults Only",
+          channel_name: "Nightmoves",
           from: 1998,
           to: 1999,
         },
         {
-          channel_genre: "International",
-          channel_name: "CCTV",
+          channel_genre: "Adult",
+          channel_name: "Adults Only",
           from: 1999,
           to: 2001.7,
         },
         {
           channel_genre: "News",
-          channel_name: "Al Jazeera - Arabic",
+          channel_name: "Al Jazeera (Arabic)",
           from: 2001.7,
           to: 2002.12,
         },
@@ -968,7 +996,7 @@ export const optus: TimelineProvider = {
       "44": [
         {
           channel_genre: "International",
-          channel_name: "LBC International",
+          channel_name: "LBC International (Lebanese)",
           from: 1998,
           to: 2002.12,
         },
@@ -979,24 +1007,28 @@ export const optus: TimelineProvider = {
           to: 2004,
         },
         {
-          channel_genre: "Shared",
-          channel_name: "Main Event / Fashion TV",
+          channel_genre: "PPV",
+          channel_name: "Main Event",
           from: 2004,
         },
       ],
       "45": [
         {
           channel_genre: "International",
-          channel_name: "ART Australia",
+          channel_name: "ART Australia (Arabic)",
           from: 1997.3,
           to: 2002.12,
         },
-        { channel_genre: "FTA", channel_name: "SBS", from: 2002.12 },
+        {
+          channel_genre: "FTA",
+          channel_name: "SBS TV",
+          from: 2002.12,
+        },
       ],
       "46": [
         {
           channel_genre: "International",
-          channel_name: "RAI International",
+          channel_name: "RAI International (Italian)",
           from: 1997,
           to: 2002.12,
         },
@@ -1009,21 +1041,22 @@ export const optus: TimelineProvider = {
       "47": [
         {
           channel_genre: "International",
-          channel_name: "NHK",
+          channel_name: "NHK (Japanese)",
           from: 1996,
           to: 2002.12,
         },
         {
           channel_genre: "Shopping",
-          channel_name: "Expo (Shopping Channel)",
+          channel_name: "Expo Channel",
           from: 2002.12,
         },
       ],
       "48": [
         {
           channel_genre: "International",
-          channel_name: "Antenna Pacific",
-          from: 1997,
+          channel_name: "Antenna Pacific (Greek)",
+          channel_notes: "Antenna (Greek); launched 17 July 1997, 13:15",
+          from: 1997.7,
           to: 1999,
         },
         {
@@ -1034,14 +1067,14 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "Shopping",
-          channel_name: "TVSN (Shopping Channel)",
+          channel_name: "TVSN",
           from: 2002.12,
         },
       ],
       "49": [
         {
           channel_genre: "International",
-          channel_name: "Mega Australia",
+          channel_name: "Mega Australia (Greek)",
           from: 1997,
           to: 1999,
         },
@@ -1066,14 +1099,14 @@ export const optus: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "LBC (Lebanese)",
+          channel_name: "LBC International (Lebanese)",
           from: 2002.12,
         },
       ],
       "51": [
         {
           channel_genre: "International",
-          channel_name: "ART (Arabic)",
+          channel_name: "ART Australia (Arabic)",
           from: 2002.12,
         },
       ],
@@ -1087,7 +1120,7 @@ export const optus: TimelineProvider = {
       "53": [
         {
           channel_genre: "International",
-          channel_name: "Antenna (Greek)",
+          channel_name: "ANT1 Pacific (Greek)",
           from: 2002.12,
         },
       ],
@@ -1103,7 +1136,7 @@ export const optus: TimelineProvider = {
           channel_genre: "Education",
           channel_name: "The Education Channel",
           from: 1997,
-          to: 1998,
+          to: 1999,
         },
         {
           channel_genre: "PPV",
@@ -1127,7 +1160,7 @@ export const optus: TimelineProvider = {
       "57": [
         {
           channel_genre: "Information",
-          channel_name: "Optus Electronic Program Guide",
+          channel_name: "Electronic Program Guide",
           from: 2002.12,
         },
       ],
@@ -1149,20 +1182,38 @@ export const optus: TimelineProvider = {
       "99": [
         {
           channel_genre: "Information",
-          channel_name: "Customer Exchange",
-          from: 1999,
+          channel_name: "Electronic Customer Exchange",
+          from: 1998,
           to: 2001.7,
         },
       ],
     },
 
-    description: "Optus [Tele]vision's Analogue Service - 1995 to 2007",
+    description: "Optus [Tele]vision's Analogue Service - 1995 to 2010",
     events: [
       {
         label: "Optus Vision Launches",
         note: "Optus Vision Launches",
         type: "Launch",
         when: 1995.9,
+      },
+      {
+        label: "Antenna (Greek) Launches",
+        note: "Antenna Pacific launches on Optus Vision, 17 July 1997, 13:15",
+        type: "Launch",
+        when: 1997.58,
+      },
+      {
+        label: "TMN Rebrand to Movie One / Movie Extra",
+        note: "The Movie Network and TMN2 renamed to Movie One and Movie Extra (September 1997)",
+        type: "Launch",
+        when: 1997.75,
+      },
+      {
+        label: "Sky Channel Australia (Racing)",
+        note: "Sky Channel Australia racing service launches on Optus Vision and Foxtel (1997)",
+        type: "Launch",
+        when: 1997.5,
       },
       {
         label: "Optus iTV Trial Starts",
@@ -1189,9 +1240,9 @@ export const optus: TimelineProvider = {
         when: 2005.12,
       },
     ],
-    title: "Optus [Tele]vision History (1995-2007)",
+    title: "Optus [Tele]vision History (1995-2010)",
   },
-  description: "Optus [Tele]vision's Analogue Service - 1995 to 2007",
+  description: "Optus [Tele]vision's Analogue Service - 1995 to 2010",
   id: "optus",
   name: "Optus (Analogue)",
 };

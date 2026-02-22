@@ -21,10 +21,82 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type {
   AdditionalChannel,
   CreateChannelRequest,
 } from "@/types/additional-channels";
+
+function getDefaultFormValues(): CreateChannelRequest {
+  return {
+    chanbouq: "",
+    chancomp: "",
+    chanlcnfet: "",
+    chanlcnfox: "",
+    chanlcnfta1: "",
+    chanlcnfta2: "",
+    chanlcnfta3: "",
+    channel_availability: "",
+    channel_group: "",
+    channel_id: "",
+    channel_name: "",
+    channel_name_location: "",
+    channel_name_real: "",
+    channel_number: "",
+    channel_packages: "",
+    channel_slug: "",
+    channel_type: "",
+    channel_url: "",
+    chantype: "",
+    chlogo_dark: "",
+    chlogo_light: "",
+    guidelink: "",
+  };
+}
+
+function getChannelFormValues(
+  channel: AdditionalChannel | null | undefined
+): CreateChannelRequest {
+  const defaults = getDefaultFormValues();
+  if (!channel) {
+    return defaults;
+  }
+
+  const channelFields: (keyof AdditionalChannel)[] = [
+    "chanbouq",
+    "chancomp",
+    "chanlcnfet",
+    "chanlcnfox",
+    "chanlcnfta1",
+    "chanlcnfta2",
+    "chanlcnfta3",
+    "channel_availability",
+    "channel_group",
+    "channel_id",
+    "channel_name",
+    "channel_name_location",
+    "channel_name_real",
+    "channel_number",
+    "channel_packages",
+    "channel_slug",
+    "channel_type",
+    "channel_url",
+    "chantype",
+    "chlogo_dark",
+    "chlogo_light",
+    "guidelink",
+  ];
+
+  const result: CreateChannelRequest = { ...defaults };
+  for (const field of channelFields) {
+    const value = channel[field];
+    if (value !== undefined && value !== null) {
+      result[field] = String(value);
+    }
+  }
+
+  return result;
+}
 
 interface ChannelFormDialogProps {
   open: boolean;
@@ -70,35 +142,10 @@ export function ChannelFormDialog({
   });
 
   useEffect(() => {
-    if (channel) {
-      form.reset({
-        chanbouq: channel.chanbouq,
-        chancomp: channel.chancomp,
-        chanlcnfet: channel.chanlcnfet,
-        chanlcnfox: channel.chanlcnfox,
-        chanlcnfta1: channel.chanlcnfta1,
-        chanlcnfta2: channel.chanlcnfta2,
-        chanlcnfta3: channel.chanlcnfta3,
-        channel_availability: channel.channel_availability,
-        channel_group: channel.channel_group,
-        channel_id: channel.channel_id,
-        channel_name: channel.channel_name,
-        channel_name_location: channel.channel_name_location,
-        channel_name_real: channel.channel_name_real,
-        channel_number: channel.channel_number,
-        channel_packages: channel.channel_packages,
-        channel_slug: channel.channel_slug,
-        channel_type: channel.channel_type,
-        channel_url: channel.channel_url,
-        chantype: channel.chantype,
-        chlogo_dark: channel.chlogo_dark,
-        chlogo_light: channel.chlogo_light,
-        guidelink: channel.guidelink,
-      });
-    } else {
-      form.reset();
+    if (open) {
+      form.reset(getChannelFormValues(channel));
     }
-  }, [channel, form]);
+  }, [channel, form, open]);
 
   const handleSubmit = async (data: CreateChannelRequest) => {
     try {
@@ -128,7 +175,7 @@ export function ChannelFormDialog({
 
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="flex max-h-[95vh] max-w-4xl flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             {channel ? "Edit Channel" : "Create New Channel"}
@@ -141,311 +188,313 @@ export function ChannelFormDialog({
         </DialogHeader>
         <Form {...form}>
           <form
-            className="space-y-4"
+            className="flex min-h-0 flex-1 flex-col"
             onSubmit={form.handleSubmit(handleSubmit)}
           >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="guidelink"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Guidelink *</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-                rules={{ required: "Guidelink is required" }}
-              />
-              <FormField
-                control={form.control}
-                name="channel_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel ID *</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-                rules={{ required: "Channel ID is required" }}
-              />
-              <FormField
-                control={form.control}
-                name="channel_slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Slug *</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-                rules={{ required: "Channel slug is required" }}
-              />
-              <FormField
-                control={form.control}
-                name="channel_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Name *</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-                rules={{ required: "Channel name is required" }}
-              />
-              <FormField
-                control={form.control}
-                name="channel_name_location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Name (Location)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="channel_name_real"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Name (Real)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chantype"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Type</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="e.g., Audio, SD 576i, HD 720p"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chancomp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Compression</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., MPEG-1, HE-AAC" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="channel_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel URL</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="url" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chanbouq"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bouquet Numbers</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Comma-separated" />
-                    </FormControl>
-                    <FormDescription>
-                      Comma-separated bouquet numbers
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chanlcnfta1"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>LCN FTA 1</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chanlcnfta2"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>LCN FTA 2</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chanlcnfta3"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>LCN FTA 3</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chanlcnfox"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>LCN Foxtel</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chanlcnfet"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>LCN Fetch</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="channel_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Number</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chlogo_light"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo (Light)</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="url" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chlogo_dark"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo (Dark)</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="url" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="channel_group"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Group</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="channel_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Type Category</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="e.g., Radio, Streaming, Apps, Television"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="channel_availability"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Availability</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., N/A" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="channel_packages"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel Packages</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., N/A" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <DialogFooter>
+            <ScrollArea className="flex-1 pr-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="guidelink"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Guidelink *</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                  rules={{ required: "Guidelink is required" }}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel ID *</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                  rules={{ required: "Channel ID is required" }}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Slug *</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                  rules={{ required: "Channel slug is required" }}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Name *</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                  rules={{ required: "Channel name is required" }}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_name_location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Name (Location)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_name_real"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Name (Real)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chantype"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Type</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="e.g., Audio, SD 576i, HD 720p"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chancomp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Compression</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., MPEG-1, HE-AAC" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel URL</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="URL or N/A" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chanbouq"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bouquet Numbers</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Comma-separated" />
+                      </FormControl>
+                      <FormDescription>
+                        Comma-separated bouquet numbers
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chanlcnfta1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>LCN FTA 1</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="number" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chanlcnfta2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>LCN FTA 2</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="number" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chanlcnfta3"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>LCN FTA 3</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="number" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chanlcnfox"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>LCN Foxtel</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="number" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chanlcnfet"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>LCN Fetch</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="number" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Number</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chlogo_light"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Logo (Light)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="URL" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="chlogo_dark"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Logo (Dark)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="URL" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_group"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Group</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Type Category</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="e.g., Radio, Streaming, Apps, Television"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_availability"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Availability</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., N/A" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="channel_packages"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel Packages</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., N/A" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </ScrollArea>
+            <DialogFooter className="mt-4">
               <Button
                 disabled={loading}
                 onClick={() => onOpenChange(false)}

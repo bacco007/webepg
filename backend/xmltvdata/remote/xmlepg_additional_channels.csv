@@ -42,8 +42,9 @@ id,guidelink,channel_id,channel_slug,channel_name,channel_name_location,channel_
 44,NOEPG,NOEPG,NOEPG,Rai World Premium,Rai World Premium,Rai World Premium,SD 576i,,,3150,0,0,0,0,601,,https://i.imgur.com/Q2Vfbu3.png,https://i.imgur.com/z5GNBnL.png,Rai Internazionale,Special Interest,N/A,N/A
 45,RAIITA,RAIITA,RAIITA,Rai Italia,Rai Italia,Rai Italia,SD 576i,,,3150,0,0,0,0,600,,https://i.imgur.com/Uvv3tVz.png,https://i.imgur.com/DHELCyv.png,Rai Internazionale,Special Interest,N/A,N/A
 46,more-docs,more-docs,more-docs,More Docs,More Docs,More Docs,Streaming,N/A,,2010,,,,140,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
-47,more-comedy,more-comedy,more-comedy,More Comedy,More Comedy,More Comedy,Streaming,N/A,,2010,,,,144,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
+47,more-comedy,more-comedy,more-comedy,More Comedy,More Comedy,More Comedy,Streaming,N/A,,2010,,,,144,,,https://i.imgur.com/WjVNMFN.png,https://i.imgur.com/IIOOH3f.png,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
 48,more-drama,more-drama,more-drama,More Drama,More Drama,More Drama,Streaming,N/A,,2010,,,,145,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
 49,more-british,more-british,more-british,More British,More British,More British,Streaming,N/A,,2010,,,,146,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
 50,more-classics,more-classics,more-classics,More Classics,More Classics,More Classics,Streaming,N/A,,2010,,,,147,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
-51,more-movies,more-movies,more-movies,More Movies,More Movies,More Movies,Streaming,N/A,,2010,,,,424,,,,,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
+51,more-movies,more-movies,more-movies,More Movies,More Movies,More Movies,Streaming,N/A,,2010,,,,424,,,https://i.imgur.com/jtMuGP7.png,https://i.imgur.com/8avvrth.png,Foxtel Networks,Streaming,iQ4/iQ5 Only,N/A
+52,more-lifestyle,more-lifestyle,more-lifestyle,More Lifestyle,More Lifestyle,More Lifestyle,Streaming,,,2010,,,,127,,127,,,Foxtel Networks,Entertainment,,

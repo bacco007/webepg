@@ -104,7 +104,9 @@ export function NavMain({
                             href={subItem.url}
                             key={subItem.title}
                           >
-                            {subItem.icon && <subItem.icon className="h-4 w-4" />}
+                            {subItem.icon && (
+                              <subItem.icon className="h-4 w-4" />
+                            )}
                             <span>{subItem.title}</span>
                           </a>
                         ))}

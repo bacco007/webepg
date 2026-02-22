@@ -27,7 +27,7 @@ export const galaxy: TimelineProvider = {
       "2": [
         {
           channel_genre: "Movies",
-          channel_name: "Showtime",
+          channel_name: "Showtime Australia",
           from: 1995.3,
           to: 1998.5,
         },
@@ -35,7 +35,7 @@ export const galaxy: TimelineProvider = {
       "3": [
         {
           channel_genre: "Movies",
-          channel_name: "Encore",
+          channel_name: "Encore Australia",
           from: 1995.3,
           to: 1998.5,
         },
@@ -79,7 +79,7 @@ export const galaxy: TimelineProvider = {
         },
         {
           channel_genre: "Shared",
-          channel_name: "Nickelodeon & Nick @ Nite",
+          channel_name: "Nickelodeon & Nick at Nite",
           from: 1996,
           to: 1998.5,
         },
@@ -121,7 +121,7 @@ export const galaxy: TimelineProvider = {
         },
         {
           channel_genre: "Shopping",
-          channel_name: "TVSN",
+          channel_name: "TVSN (TV Shopping Network)",
           from: 1996.6,
           to: 1998.5,
         },
@@ -137,7 +137,7 @@ export const galaxy: TimelineProvider = {
       "12": [
         {
           channel_genre: "Entertainment",
-          channel_name: "thecomedychannel",
+          channel_name: "The Comedy Channel",
           from: 1996.6,
           to: 1998.5,
         },
@@ -145,7 +145,7 @@ export const galaxy: TimelineProvider = {
       "13": [
         {
           channel_genre: "Shared",
-          channel_name: "Galaxy Preview & Nightmoves",
+          channel_name: "Nightmoves & Galaxy Preview",
           from: 1996,
           to: 1998.5,
         },
@@ -153,7 +153,7 @@ export const galaxy: TimelineProvider = {
       "14": [
         {
           channel_genre: "Music",
-          channel_name: "CMT",
+          channel_name: "CMT (Country Music Television)",
           from: 1996,
           to: 1998.5,
         },
@@ -161,25 +161,25 @@ export const galaxy: TimelineProvider = {
       "15": [
         {
           channel_genre: "Shared",
-          channel_name: "Cartoon Network & TNT",
-          from: 1997,
+          channel_name: "TNT & Cartoon Network",
+          from: 1997.8,
           to: 1998.5,
         },
       ],
       "16": [
         {
           channel_genre: "Lifestyle",
-          channel_name: "The LifeStyle Channel",
-          from: 1997,
+          channel_name: "The Lifestyle Channel",
+          from: 1996,
           to: 1998.5,
         },
       ],
       "17": [
         {
           channel_genre: "International",
-          channel_name: "New World Television",
+          channel_name: "New World Television (Chinese)",
           from: 1996,
-          to: 1997,
+          to: 1998.5,
         },
       ],
       "18": [
@@ -193,7 +193,7 @@ export const galaxy: TimelineProvider = {
       "19": [
         {
           channel_genre: "International",
-          channel_name: "TeleItalia Television",
+          channel_name: "TeleItalia Television (Italian)",
           from: 1996,
           to: 1998.5,
         },
@@ -215,9 +215,201 @@ export const galaxy: TimelineProvider = {
         },
         {
           channel_genre: "PPV",
-          channel_name: "Pay Per View",
-          from: 1997,
+          channel_name: "Pay-Per-View",
+          from: 1997.7,
           to: 1998.5,
+        },
+      ],
+      "22": [
+        {
+          channel_genre: "Extra",
+          channel_name: "Engineering Tests",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R1: [
+        {
+          channel_genre: "Radio",
+          channel_name: "BBC World Service",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Light Classical",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R2: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Voice Of America",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "New Age",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R3: [
+        {
+          channel_genre: "Radio",
+          channel_name: "3UZ National Racing",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Radio Italia",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R4: [
+        {
+          channel_genre: "Radio",
+          channel_name: "TBA",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Sport 927",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R5: [
+        {
+          channel_genre: "Radio",
+          channel_name: "TBA",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Radio News Extra",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R6: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Easy Listening",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "High Energy",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R7: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Top 100",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Country",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R8: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Light Classical",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Top 100",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R9: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Jazz",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Cafe Jazz",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R10: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Classic Rock",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Easy Listening",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R11: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Country Music",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Classic Hits",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R12: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Dance Music",
+          from: 1995.1,
+          to: 1998,
+        },
+        {
+          channel_genre: "Radio",
+          channel_name: "Special Occasion",
+          from: 1998,
+          to: 1998.5,
+        },
+      ],
+      R13: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Environmental",
+          from: 1995.1,
+          to: 1998,
+        },
+      ],
+      R14: [
+        {
+          channel_genre: "Radio",
+          channel_name: "Test Transmission",
+          from: 1995.1,
+          to: 1998,
         },
       ],
     },

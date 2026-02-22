@@ -640,48 +640,57 @@ export function ChannelDataTable({
 
   // Apply filters in a memoized function to prevent recalculation
   const filteredData = useMemo(() => {
+    // Helper functions to reduce complexity
+    const matchesTypeFilter = (channel: Channel): boolean => {
+      if (selectedTypes.length === 0) {
+        return true;
+      }
+      return selectedTypes.includes(channel.other_data.channel_type);
+    };
+
+    const matchesGroupFilter = (channel: Channel): boolean => {
+      if (selectedGroups.length === 0) {
+        return true;
+      }
+      return selectedGroups.includes(channel.channel_group);
+    };
+
+    const matchesSpecsFilter = (channel: Channel): boolean => {
+      if (selectedSpecs.length === 0) {
+        return true;
+      }
+      return selectedSpecs.includes(channel.other_data.channel_specs);
+    };
+
+    const matchesGlobalSearch = (
+      channel: Channel,
+      searchTerm: string
+    ): boolean => {
+      const lowerSearch = searchTerm.toLowerCase();
+      const fields = [
+        channel.channel_name?.toLowerCase() || "",
+        channel.channel_names?.real?.toLowerCase() || "",
+        channel.channel_slug?.toLowerCase() || "",
+        channel.channel_number?.toLowerCase() || "",
+        channel.channel_group?.toLowerCase() || "",
+        channel.other_data?.channel_type?.toLowerCase() || "",
+      ];
+      return fields.some((field) => field.includes(lowerSearch));
+    };
+
     return channels.filter((channel) => {
-      // Apply type filter
-      if (
-        selectedTypes.length > 0 &&
-        !selectedTypes.includes(channel.other_data.channel_type)
-      ) {
+      if (!matchesTypeFilter(channel)) {
         return false;
       }
-
-      // Apply group filter
-      if (
-        selectedGroups.length > 0 &&
-        !selectedGroups.includes(channel.channel_group)
-      ) {
+      if (!matchesGroupFilter(channel)) {
         return false;
       }
-
-      // Apply specs filter
-      if (
-        selectedSpecs.length > 0 &&
-        !selectedSpecs.includes(channel.other_data.channel_specs)
-      ) {
+      if (!matchesSpecsFilter(channel)) {
         return false;
       }
-
-      // Apply global filter (search)
       if (debouncedGlobalSearch) {
-        const searchTerm = debouncedGlobalSearch.toLowerCase();
-        return (
-          (channel.channel_name?.toLowerCase() || "").includes(searchTerm) ||
-          (channel.channel_names?.real?.toLowerCase() || "").includes(
-            searchTerm
-          ) ||
-          (channel.channel_slug?.toLowerCase() || "").includes(searchTerm) ||
-          (channel.channel_number?.toLowerCase() || "").includes(searchTerm) ||
-          (channel.channel_group?.toLowerCase() || "").includes(searchTerm) ||
-          (channel.other_data?.channel_type?.toLowerCase() || "").includes(
-            searchTerm
-          )
-        );
+        return matchesGlobalSearch(channel, debouncedGlobalSearch);
       }
-
       return true;
     });
   }, [

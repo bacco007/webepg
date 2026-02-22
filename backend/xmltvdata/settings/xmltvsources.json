@@ -201,6 +201,20 @@
     "url": "http://170.64.142.170:8080/abc_radio_guide.xml"
   },
   {
+    "id": "mjh-au-all",
+    "group": "Australia",
+    "subgroup": "Streaming",
+    "location": "All Streaming (MJH)",
+    "url": "https://i.mjh.nz/au/all/epg.xml"
+  },
+  {
+    "id": "mjh-nz-all",
+    "group": "New Zealand",
+    "subgroup": "Streaming",
+    "location": "All Streaming (MJH)",
+    "url": "https://i.mjh.nz/nz/epg.xml"
+  },
+  {
     "id": "fetch-sub-test",
     "group": "Testing",
     "subgroup": "Australia",
@@ -293,17 +307,6 @@
     "logo": {
       "light": "logos/kayo.png",
       "dark": "logos/kayo.png"
-    }
-  },
-  {
-    "id": "mjh-binge",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Binge (MJH)",
-    "url": "https://i.mjh.nz/Binge/epg.xml",
-    "logo": {
-      "light": "logos/binge.png",
-      "dark": "logos/binge.png"
     }
   },
   {

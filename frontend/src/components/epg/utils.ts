@@ -1,4 +1,3 @@
-import type React from "react";
 import {
   Award,
   Film,
@@ -11,6 +10,7 @@ import {
   Users,
   Utensils,
 } from "lucide-react";
+import type React from "react";
 import { formatDate, parseISODate } from "@/lib/date-utils";
 import { decodeHtml } from "@/lib/html-utils";
 import type { ProgramStatus } from "./program-tooltip";
@@ -262,37 +262,43 @@ export function sortChannelsWithinNetwork(
 
 // Special styling for placeholder program titles
 // Background pattern SVG for diagonal stripes
-const placeholderPattern = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'><path fill='none' stroke='%23888888' stroke-opacity='0.4' stroke-width='1' d='M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3'/></svg>";
+const placeholderPattern =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'><path fill='none' stroke='%23888888' stroke-opacity='0.4' stroke-width='1' d='M0 4L4 0ZM-1 1L1 -1ZM3 5L5 3'/></svg>";
 
-export const titleColorMappings: Record<string, { className: string; style: React.CSSProperties }> = {
+export const titleColorMappings: Record<
+  string,
+  { className: string; style: React.CSSProperties }
+> = {
   "No Data Available": {
     className: "bg-[hsl(var(--placeholder-bg))] text-muted-foreground",
     style: {
       backgroundImage: `url('${placeholderPattern}')`,
-      backgroundSize: "4px 4px",
       backgroundPosition: "1px 1px",
+      backgroundSize: "4px 4px",
     },
   },
   "To Be Advised": {
     className: "bg-[hsl(var(--placeholder-bg))] text-muted-foreground",
     style: {
       backgroundImage: `url('${placeholderPattern}')`,
-      backgroundSize: "4px 4px",
       backgroundPosition: "1px 1px",
+      backgroundSize: "4px 4px",
     },
   },
   "To Be Advised (cont)": {
     className: "bg-[hsl(var(--placeholder-bg))] text-muted-foreground",
     style: {
       backgroundImage: `url('${placeholderPattern}')`,
-      backgroundSize: "4px 4px",
       backgroundPosition: "1px 1px",
+      backgroundSize: "4px 4px",
     },
   },
 };
 
 // Helper function to check if a program title has special styling
-export function getSpecialTitleClass(title: string): { className: string; style: React.CSSProperties } | null {
+export function getSpecialTitleClass(
+  title: string
+): { className: string; style: React.CSSProperties } | null {
   return titleColorMappings[decodeHtml(title)] || null;
 }
 
@@ -326,7 +332,7 @@ export function getProgramColors(
     hoverBgColor = "hover:bg-[hsl(var(--program-current))]";
   }
 
-  return { bgColor, hoverBgColor, textColor, backgroundStyle };
+  return { backgroundStyle, bgColor, hoverBgColor, textColor };
 }
 
 export function getMobileProgramStyling(

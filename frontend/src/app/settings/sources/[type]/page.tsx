@@ -21,8 +21,9 @@ export default async function SourcesPage({
   params: Promise<{ type: string }>;
 }) {
   const { type } = await params;
-  const sourceType = (type === "remote" ? "remote" : "local") as "remote" | "local";
+  const sourceType = (type === "remote" ? "remote" : "local") as
+    | "remote"
+    | "local";
 
   return <SourcesClient sourceType={sourceType} />;
 }
-

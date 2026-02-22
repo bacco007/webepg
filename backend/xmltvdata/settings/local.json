@@ -33,17 +33,6 @@
     }
   },
   {
-    "id": "xmlepg_HUBFLA",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Hubbl - Flash",
-    "url": "local",
-    "logo": {
-      "light": "logos/flash.png",
-      "dark": "logos/flash.png"
-    }
-  },
-  {
     "id": "xmlepg_FOXHD",
     "group": "Australia",
     "subgroup": "Subscription",
@@ -85,17 +74,6 @@
     "logo": {
       "light": "logos/kayo.png",
       "dark": "logos/kayo.png"
-    }
-  },
-  {
-    "id": "xmlepg_HUBLIF",
-    "group": "Australia",
-    "subgroup": "Subscription",
-    "location": "Hubbl - LifeStyle",
-    "url": "local",
-    "logo": {
-      "light": "https://i.imgur.com/nhMOZY2.png",
-      "dark": "https://i.imgur.com/nhMOZY2.png"
     }
   },
   {

@@ -2893,7 +2893,6 @@ export const skynz: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "FM 99.4",
           from: 2018,
-          to: 2020,
         },
       ],
       "312": [
@@ -2913,7 +2912,6 @@ export const skynz: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "New Supremo AM936",
           from: 2018,
-          to: 2020,
         },
       ],
       "313": [
@@ -2921,7 +2919,6 @@ export const skynz: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "FM 104.2",
           from: 1999,
-          to: 2020,
         },
       ],
       "315": [

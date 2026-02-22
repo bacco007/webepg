@@ -11,6 +11,7 @@ import { SkipLink } from "@/components/skip-link";
 import { ThemeProvider } from "@/components/theme-provider";
 import TopLoader from "@/components/top-loader";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { SITE_CONFIG } from "@/config/constants";
 import {
   metadata as siteMetadata,
@@ -65,26 +66,28 @@ export default async function RootLayout({
           <FontSizeProvider>
             <GlobalErrorBoundary>
               <NuqsAdapter>
-                <SidebarProvider
-                  className="flex h-screen w-full overflow-hidden"
-                  defaultOpen={defaultOpen}
-                >
-                  <AppSidebar variant="inset" />
-                  <SidebarInset className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-                    <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-hidden lg:p-2">
-                      <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col justify-start overflow-hidden bg-container lg:rounded-md lg:border">
-                        <Header />
-                        <main
-                          aria-label="Main content"
-                          className="main-content flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-background"
-                          id="main-content"
-                        >
-                          {children}
-                        </main>
+                <TooltipProvider>
+                  <SidebarProvider
+                    className="flex h-screen w-full overflow-hidden"
+                    defaultOpen={defaultOpen}
+                  >
+                    <AppSidebar variant="inset" />
+                    <SidebarInset className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+                      <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-hidden lg:p-2">
+                        <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col justify-start overflow-hidden bg-container lg:rounded-md lg:border">
+                          <Header />
+                          <main
+                            aria-label="Main content"
+                            className="main-content flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-background"
+                            id="main-content"
+                          >
+                            {children}
+                          </main>
+                        </div>
                       </div>
-                    </div>
-                  </SidebarInset>
-                </SidebarProvider>
+                    </SidebarInset>
+                  </SidebarProvider>
+                </TooltipProvider>
               </NuqsAdapter>
             </GlobalErrorBoundary>
           </FontSizeProvider>

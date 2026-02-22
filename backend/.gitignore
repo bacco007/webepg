@@ -172,6 +172,7 @@ xmlepg_error_log.txt
 /xmltvdata/remote/chan*.csv
 /xmltvdata/remote/networks.csv
 /xmltvdata/remote/providers.csv
+/xmltvdata/remote/*.zip
 
 # SSH password file for download script
 tools/.ssh_password

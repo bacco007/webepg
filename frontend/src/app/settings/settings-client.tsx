@@ -188,6 +188,28 @@ export default function SettingsPageClient() {
                 </CardContent>
               </Link>
             </Card>
+            <Card className="group transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+              <Link href="/settings/additional-data" passHref>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                      <Database className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle>Additional Data</CardTitle>
+                      <CardDescription>
+                        Manage additional data files that override channel data
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-sm">
+                    View and manage additional data files for channel overrides
+                  </p>
+                </CardContent>
+              </Link>
+            </Card>
           </div>
         </div>
       </ScrollArea>

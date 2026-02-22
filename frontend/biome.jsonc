@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.3/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -127,7 +127,10 @@
         "useRegexLiterals": "error",
         "useSimpleNumberKeys": "error",
         "useSimplifiedLogicExpression": "error",
-        "useWhile": "error"
+        "useWhile": "error",
+        "noUselessUndefined": "error",
+        //"useImageSize": "off",
+        "useMaxParams": "off"
       },
       "correctness": {
         "noChildrenProp": "error",
@@ -187,11 +190,11 @@
         "noReactPropAssignments": "error",
         "useJsonImportAttributes": "error",
         "noSolidDestructuredProps": "off",
-        "useImageSize": "off"
+        "useImageSize": "off",
+        "noUnresolvedImports": "off"
       },
       "nursery": {
         "noShadow": "error",
-        "noUselessUndefined": "error",
         "useExhaustiveSwitchCases": "error",
         //"noSecrets": "off",
         "useExplicitType": "off",
@@ -204,10 +207,6 @@
           }
         },
         "noFloatingPromises": "off",
-        "noUnresolvedImports": "off",
-        "noImportCycles": "off",
-        //"useImageSize": "off",
-        "useMaxParams": "off",
         //"noNoninteractiveElementInteractions": "off",
         //"useIndexOf": "error",
         //"noImportantStyles": "off",
@@ -402,7 +401,8 @@
         "noShorthandPropertyOverrides": "error",
         "noConstantBinaryExpressions": "error",
         "useStaticResponseMethods": "error",
-        "noUnknownAtRules": "off"
+        "noUnknownAtRules": "off",
+        "noImportCycles": "off"
       }
     }
   },

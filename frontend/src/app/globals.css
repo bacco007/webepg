@@ -293,7 +293,7 @@
   }
 
   /* Test class to verify Public Sans is working */
-    .font-test {
+  .font-test {
     font-family: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
   }
 
@@ -498,13 +498,13 @@
 }
 
 /* Focus Styles */
-  :focus-visible {
+:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
 /* Map marker cluster styles */
-  .custom-marker-cluster {
+.custom-marker-cluster {
   background-clip: padding-box;
   border-radius: 20px;
 }

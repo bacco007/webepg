@@ -326,11 +326,8 @@ export function ProgramItem({
   }, []);
 
   // Determine background color based on program status
-  const { bgColor, textColor, hoverBgColor, backgroundStyle } = getProgramColors(
-    specialTitleClass,
-    isPast,
-    isCurrentlyAiring
-  );
+  const { bgColor, textColor, hoverBgColor, backgroundStyle } =
+    getProgramColors(specialTitleClass, isPast, isCurrentlyAiring);
 
   // Determine if we should show expanded view on hover
   const shouldExpandOnHover =

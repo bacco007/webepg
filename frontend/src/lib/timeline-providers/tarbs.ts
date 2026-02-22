@@ -13,10 +13,16 @@ export const tarbs: TimelineProvider = {
       "1": [
         {
           channel_genre: "Shared",
-          channel_name: "Sky Racing / Nightmoves",
+          channel_name: "Sky Racing/Nightmoves",
           channel_notes:
             "Sky Racing on-air 04:00 to 22:45, Nightmoves on-air 22:45 to 04:00",
           from: 2000,
+          to: 2003,
+        },
+        {
+          channel_genre: "Shared",
+          channel_name: "Sky Racing & Nightmove",
+          from: 2003,
         },
       ],
       "2": [
@@ -31,6 +37,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "News",
           channel_name: "CNN International",
           from: 2000,
+          to: 2003,
+        },
+        {
+          channel_genre: "News",
+          channel_name: "CNN (Cable News Network)",
+          from: 2003,
         },
       ],
       "4": [
@@ -38,20 +50,31 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Music",
           channel_name: "MCM",
           from: 2000,
+          to: 2003,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "MCM Europe",
+          from: 2003,
         },
       ],
       "5": [
         {
           channel_genre: "Shared",
-          channel_name: "Cartoon Network / TCM",
+          channel_name: "Cartoon Network Australia / TCM",
           from: 2000,
           to: 2002,
         },
         {
           channel_genre: "Kids",
-          channel_name: "Cartoon Network",
+          channel_name: "Cartoon Network Australia",
           from: 2002,
-          to: 2004,
+          to: 2003,
+        },
+        {
+          channel_genre: "Kids",
+          channel_name: "Cartoon Network",
+          from: 2003,
         },
       ],
       "6": [
@@ -59,27 +82,44 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Movies",
           channel_name: "TCM",
           from: 2002,
-          to: 2004,
+          to: 2003,
+        },
+        {
+          channel_genre: "Movies",
+          channel_name: "TCM (Turner Classic Movies)",
+          from: 2003,
         },
       ],
       "7": [
         {
           channel_genre: "International",
-          channel_name: "Egyptian Space Channel 1 (Arabic)",
+          channel_name: "Egyptian Satellite Channel (Arabic)",
           from: 2000,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Egyptian Space Channel (Arabic)",
+          from: 2003,
         },
       ],
       "8": [
         {
           channel_genre: "International",
-          channel_name: "Nile Drama Movies (Arabic)",
+          channel_name: "Nile Drama (Arabic)",
           from: 2000,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Nile Drama Channel (Arabic)",
+          from: 2003,
         },
       ],
       "9": [
         {
           channel_genre: "International",
-          channel_name: "Future TV (Arabic)",
+          channel_name: "Future Television (Arabic)",
           from: 2000,
         },
       ],
@@ -92,7 +132,7 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "RTV International (Russian)",
+          channel_name: "NTV (Russian)",
           from: 2003,
         },
       ],
@@ -101,19 +141,19 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "NTV Plus (Russian)",
           from: 2000,
-          to: 2003,
-        },
-        {
-          channel_genre: "International",
-          channel_name: "NTV MIR (Russian)",
-          from: 2003,
         },
       ],
       "12": [
         {
           channel_genre: "International",
-          channel_name: "Kanal D (Turkish)",
+          channel_name: "Kanal D International (Turkish)",
           from: 2000,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Kanal D (Turkish)",
+          from: 2003,
         },
       ],
       "13": [
@@ -126,14 +166,33 @@ export const tarbs: TimelineProvider = {
       "14": [
         {
           channel_genre: "International",
-          channel_name: "TRT International (Turkish)",
+          channel_name: "TGRT (Turkish)",
           from: 2000,
           to: 2002,
         },
         {
           channel_genre: "International",
-          channel_name: "Show TV / Samonyolu TV (Turkish)",
+          channel_name: "Show Türk (Turkish)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "TGRT (Turkish)",
+          from: 2003,
+        },
+      ],
+      "15": [
+        {
+          channel_genre: "International",
+          channel_name: "TRT International (Turkish)",
+          from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Kanal 7 (Turkish)",
+          from: 2003,
         },
       ],
       "16": [
@@ -145,14 +204,20 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "Vizyon / Lig TV / TGRT (Turkish)",
+          channel_name: "Vizyon Türk (Turkish)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Vizyon (Turkish)",
+          from: 2003,
         },
       ],
       "17": [
         {
           channel_genre: "International",
-          channel_name: "National Iranian TV (Persian)",
+          channel_name: "NITV (Persian)",
           from: 2002,
         },
       ],
@@ -172,14 +237,20 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "Egyptian Space Channel 2 (Arabic)",
+          channel_name: "ESC 2 (Arabic)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Egyptian 2 (Arabic)",
+          from: 2003,
         },
       ],
       "20": [
         {
           channel_genre: "International",
-          channel_name: "TV Chile International (Spanish)",
+          channel_name: "TV Chile (Spanish)",
           from: 2000,
         },
       ],
@@ -188,6 +259,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "TVE Internacional (Spanish)",
           from: 2000,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "TVE (Spanish)",
+          from: 2003,
         },
       ],
       "22": [
@@ -199,8 +276,14 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "TeleItalia (Italian)",
+          channel_name: "Teleitalia (Italian)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "TARBS Italiano (Italian)",
+          from: 2003,
         },
       ],
       "23": [
@@ -219,8 +302,14 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "TV Globo International (Portuguese)",
+          channel_name: "TV Globo Internacional (Portuguese)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "TV Globo (Portuguese)",
+          from: 2003,
         },
       ],
       "25": [
@@ -242,12 +331,24 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Televizija BK (Serbian)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "BKTV (Serbian)",
+          from: 2003,
         },
       ],
       "28": [
         {
           channel_genre: "International",
-          channel_name: "RTS Serbia (Serbian)",
+          channel_name: "RTS Sat (Serbian)",
+          from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "RTS (Serbian)",
           from: 2003,
         },
       ],
@@ -256,13 +357,31 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Arirang TV (Korean)",
           from: 2000,
+          to: 2002,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "KOTV (Korean)",
+          from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Arirang TV (Korean)",
+          from: 2003,
         },
       ],
       "30": [
         {
           channel_genre: "International",
-          channel_name: "Tele-Liban (Arabic)",
+          channel_name: "Télé Liban (Arabic)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Teleliban (Lebanese)",
+          from: 2003,
         },
       ],
       "31": [
@@ -270,6 +389,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Phoenix Chinese Channel (Cantonese)",
           from: 2000,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Phoenix TV (Cantonese)",
+          from: 2003,
         },
       ],
       "32": [
@@ -283,6 +408,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "CCTV-4 (Mandarin)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "BTV (Mandarin)",
+          from: 2003,
         },
       ],
       "33": [
@@ -290,13 +421,31 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "The Filipino Channel (Tagalog)",
           from: 2000,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "The Filipino Channel (Filipino)",
+          from: 2003,
         },
       ],
       "34": [
         {
           channel_genre: "International",
-          channel_name: "Cinema One (Tagalog)",
+          channel_name: "Pinoy Blockbuster Channel (Tagalog)",
           from: 2000,
+          to: 2002,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Cinema One (Tagalog)",
+          from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Cinema One (Filipino)",
+          from: 2003,
         },
       ],
       "35": [
@@ -308,7 +457,7 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "NBN World (Tagalog)",
+          channel_name: "Syrian Channel (Arabic)",
           from: 2003,
         },
       ],
@@ -317,6 +466,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Alpha GATV (Greek)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Alpha TV (Greek)",
+          from: 2003,
         },
       ],
       "37": [
@@ -331,6 +486,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "ERT Sat (Greek)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "ERT Satellite (Greek)",
+          from: 2003,
         },
       ],
       "39": [
@@ -343,8 +504,14 @@ export const tarbs: TimelineProvider = {
       "40": [
         {
           channel_genre: "International",
-          channel_name: "SIC International (Portuguese)",
+          channel_name: "SIC Internacional (Portuguese)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "SIC International (Portuguese)",
+          from: 2003,
         },
       ],
       "41": [
@@ -352,6 +519,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Armenia 1 (Armenian)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "C1 (Armenian)",
+          from: 2003,
         },
       ],
       "42": [
@@ -359,6 +532,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "ESC 3 (Arabic)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Nile News (Arabic)",
+          from: 2003,
         },
       ],
       "43": [
@@ -373,6 +552,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Channel One Russia Worldwide (Russian)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "ORT (Russian)",
+          from: 2003,
         },
       ],
       "45": [
@@ -380,12 +565,6 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Palestinian Channel (Arabic)",
           from: 2000,
-          to: 2003,
-        },
-        {
-          channel_genre: "International",
-          channel_name: "Syrian Television (Arabic)",
-          from: 2003,
         },
       ],
       "46": [
@@ -393,13 +572,25 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "MBC (Arabic)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "MTV Lebanon (Arabic)",
+          from: 2003,
         },
       ],
       "47": [
         {
           channel_genre: "International",
-          channel_name: "AL Manar (Arabic)",
+          channel_name: "Al-Manar (Arabic)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Al-Manar TV Lebanon (Arabic)",
+          from: 2003,
         },
       ],
       "55": [
@@ -409,6 +600,11 @@ export const tarbs: TimelineProvider = {
           from: 2000,
           to: 2003,
         },
+        {
+          channel_genre: "International",
+          channel_name: "Power TV Zhong Tian Channel (Mandarin)",
+          from: 2003,
+        },
       ],
       "56": [
         {
@@ -417,13 +613,23 @@ export const tarbs: TimelineProvider = {
           from: 2000,
           to: 2003,
         },
+        {
+          channel_genre: "International",
+          channel_name: "Sicilia International (Italian)",
+          from: 2003,
+        },
       ],
       "57": [
         {
           channel_genre: "Sports",
-          channel_name: "EurosportNews",
+          channel_name: "Eurosport News",
           from: 2000,
           to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Napoli International (Italian)",
+          from: 2003,
         },
       ],
       "58": [
@@ -433,12 +639,23 @@ export const tarbs: TimelineProvider = {
           from: 2000,
           to: 2003,
         },
+        {
+          channel_genre: "International",
+          channel_name: "24 Ore (Italian)",
+          from: 2003,
+        },
       ],
       "59": [
         {
           channel_genre: "International",
           channel_name: "Thai Global Network (Thai)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "TV5 Thai TV Global Network (Thai)",
+          from: 2003,
         },
       ],
 
@@ -447,6 +664,12 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "IRIB Jaam-e-Jam 3 (Persian)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "IRIB 3 (Iranian)",
+          from: 2003,
         },
       ],
       "61": [
@@ -458,8 +681,14 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "Telefe (Spanish)",
+          channel_name: "Telefe Internacional (Spanish)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "CCTV (Central Chinese Television)",
+          from: 2003,
         },
       ],
       "62": [
@@ -471,8 +700,9 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "Other",
-          channel_name: "Test Card",
+          channel_name: "TARBS Test Card",
           from: 2002,
+          to: 2004,
         },
       ],
       "63": [
@@ -484,8 +714,9 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "Other",
-          channel_name: "Test Card",
+          channel_name: "TARBS Test Card",
           from: 2002,
+          to: 2004,
         },
       ],
       "64": [
@@ -504,8 +735,14 @@ export const tarbs: TimelineProvider = {
       "65": [
         {
           channel_genre: "International",
-          channel_name: "Alice / Leonardo (Italian)",
+          channel_name: "Alice/Leonardo (Italian)",
           from: 2002,
+          to: 2003,
+        },
+        {
+          channel_genre: "International",
+          channel_name: "Alice (Italian)",
+          from: 2003,
         },
       ],
       "66": [
@@ -517,8 +754,9 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "RAI International (Italian)",
+          channel_name: "Rai International (Italian)",
           from: 2002,
+          to: 2004,
         },
       ],
       "67": [
@@ -532,6 +770,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Telepace (Italian)",
           from: 2002,
+          to: 2004,
         },
       ],
       "68": [
@@ -539,6 +778,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "TV Moda (Italian)",
           from: 2002,
+          to: 2004,
         },
       ],
       "69": [
@@ -546,6 +786,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Power TV (Mandarin)",
           from: 2002,
+          to: 2004,
         },
       ],
       "70": [
@@ -553,6 +794,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "International",
           channel_name: "Asia Plus (Mandarin)",
           from: 2002,
+          to: 2004,
         },
       ],
       "71": [
@@ -564,8 +806,9 @@ export const tarbs: TimelineProvider = {
         },
         {
           channel_genre: "International",
-          channel_name: "HunanTV (Mandarin)",
+          channel_name: "Hunan Television (Mandarin)",
           from: 2002,
+          to: 2004,
         },
       ],
       "72": [
@@ -576,9 +819,16 @@ export const tarbs: TimelineProvider = {
           to: 2002,
         },
         {
+          channel_genre: "Other",
+          channel_name: "TARBS Test Card",
+          from: 2002,
+          to: 2003,
+        },
+        {
           channel_genre: "International",
-          channel_name: "Tele-Liban (Arabic)",
+          channel_name: "Télé Liban (Arabic)",
           from: 2003,
+          to: 2004,
         },
       ],
       "73": [
@@ -602,6 +852,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "El Bernamege Elaan (Arabic)",
           from: 2002,
+          to: 2004,
         },
       ],
       "103": [
@@ -609,6 +860,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Quran Al Kareem (Arabic)",
           from: 2002,
+          to: 2004,
         },
       ],
       "104": [
@@ -616,6 +868,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "El Sharq (Arabic)",
           from: 2002,
+          to: 2004,
         },
       ],
       "105": [
@@ -623,6 +876,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Future Radio (Arabic)",
           from: 2002,
+          to: 2004,
         },
       ],
       "106": [
@@ -630,6 +884,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "TGR FM (Turkish)",
           from: 2002,
+          to: 2004,
         },
       ],
       "107": [
@@ -637,6 +892,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Radyo D (Turkish)",
           from: 2003,
+          to: 2004,
         },
       ],
       "108": [
@@ -644,6 +900,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Radyo D Sport (Turkish)",
           from: 2002,
+          to: 2004,
         },
       ],
       "109": [
@@ -651,6 +908,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Voice of Turkey (Turkish)",
           from: 2002,
+          to: 2004,
         },
       ],
       "110": [
@@ -658,6 +916,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "2 Middle East (Arabic)",
           from: 2002,
+          to: 2004,
         },
       ],
       "112": [
@@ -665,6 +924,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Quran Al Kareem (Arabic)",
           from: 2002,
+          to: 2004,
         },
       ],
       "113": [
@@ -672,6 +932,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "REE (Spanish)",
           from: 2002,
+          to: 2004,
         },
       ],
       "114": [
@@ -679,6 +940,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Radio Austral (Spanish)",
           from: 2002,
+          to: 2004,
         },
       ],
       "116": [
@@ -686,6 +948,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "DZMM Filipino (Tagalog)",
           from: 2002,
+          to: 2004,
         },
       ],
       "119": [
@@ -693,6 +956,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "ERA 5 (Greek)",
           from: 2002,
+          to: 2004,
         },
       ],
       "120": [
@@ -700,6 +964,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Antenna Radio (Greek)",
           from: 2002,
+          to: 2004,
         },
       ],
       "121": [
@@ -707,6 +972,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "ERA 1 (Greek)",
           from: 2002,
+          to: 2004,
         },
       ],
       "122": [
@@ -714,6 +980,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "ERA Sport (Greek)",
           from: 2003,
+          to: 2004,
         },
       ],
       "123": [
@@ -721,6 +988,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Radio Greece (Greek)",
           from: 2002,
+          to: 2004,
         },
       ],
       "125": [
@@ -728,6 +996,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Dimensione Suono (Italian)",
           from: 2002,
+          to: 2004,
         },
       ],
       "126": [
@@ -735,6 +1004,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Radio Italia (Radio)",
           from: 2002,
+          to: 2004,
         },
       ],
       "127": [
@@ -742,6 +1012,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Anni 60 (Italian)",
           from: 2002,
+          to: 2004,
         },
       ],
       "128": [
@@ -749,6 +1020,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "Radio Melodia (Russian)",
           from: 2003,
+          to: 2004,
         },
       ],
       "129": [
@@ -756,6 +1028,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "TRT FM (Turkish)",
           from: 2002,
+          to: 2004,
         },
       ],
       "130": [
@@ -763,6 +1036,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "RFI 1 (French)",
           from: 2002,
+          to: 2004,
         },
       ],
       "131": [
@@ -770,6 +1044,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "RFI 2 (French)",
           from: 2002,
+          to: 2004,
         },
       ],
       "132": [
@@ -777,6 +1052,7 @@ export const tarbs: TimelineProvider = {
           channel_genre: "Radio",
           channel_name: "RFI Music (French)",
           from: 2002,
+          to: 2004,
         },
       ],
     },

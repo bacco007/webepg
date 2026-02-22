@@ -103,4 +103,3 @@ export interface UpdateChannelResponse {
 export interface DeleteChannelResponse {
   message: string;
 }
-

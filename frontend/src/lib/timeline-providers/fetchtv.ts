@@ -1236,6 +1236,7 @@ export const fetchtv: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "FailArmy",
           from: 2022.3,
+          to: 2026.1,
         },
       ],
       "216": [
@@ -1256,6 +1257,7 @@ export const fetchtv: TimelineProvider = {
           channel_genre: "Entertainment",
           channel_name: "The Pet Collective",
           from: 2022.3,
+          to: 2026.1,
         },
       ],
       "218": [
@@ -1404,53 +1406,77 @@ export const fetchtv: TimelineProvider = {
         },
         {
           channel_genre: "Music",
-          channel_name: "NOW 70s",
+          channel_name: "Now 70s",
           from: 2025.6,
+          to: 2026.2,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "That's 70s",
+          from: 2026.2,
         },
       ],
       "233": [
         {
           channel_genre: "Music",
-          channel_name: "NOW 70s",
+          channel_name: "Now 70s",
           from: 2023.3,
           to: 2023.11,
         },
         {
           channel_genre: "Music",
-          channel_name: "NOW Christmas",
+          channel_name: "Now Christmas",
           from: 2023.11,
           to: 2024.1,
         },
         {
           channel_genre: "Music",
-          channel_name: "NOW 70s",
+          channel_name: "Now 70s",
           from: 2024.1,
           to: 2025.6,
         },
         {
           channel_genre: "Music",
-          channel_name: "NOW 80s",
+          channel_name: "Now 80s",
           from: 2025.6,
+          to: 2026.2,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "That's 80s",
+          from: 2026.2,
         },
       ],
       "234": [
         {
           channel_genre: "Music",
-          channel_name: "NOW 80s",
+          channel_name: "Now 80s",
           from: 2023.3,
           to: 2025.6,
         },
         {
           channel_genre: "Music",
-          channel_name: "NOW 90s & 00s",
+          channel_name: "Now 90s & 00s",
           from: 2025.6,
+          to: 2026.2,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "That's 90s & 00s",
+          from: 2026.2,
         },
       ],
       "235": [
         {
           channel_genre: "Music",
-          channel_name: "NOW Rock",
+          channel_name: "Now Rock",
           from: 2023.3,
+          to: 2026.2,
+        },
+        {
+          channel_genre: "Music",
+          channel_name: "That's Rock",
+          from: 2026.2,
         },
       ],
       "236": [
@@ -2838,7 +2864,8 @@ export const fetchtv: TimelineProvider = {
         {
           channel_genre: "Movies",
           channel_name: "Movies Now Showing",
-          from: 2019.6, to: 2024.5
+          from: 2019.6,
+          to: 2024.5,
         },
         {
           channel_genre: "Information",

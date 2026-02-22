@@ -98,7 +98,11 @@ const MobileProgramItem = ({
     className={cn(
       "relative flex cursor-pointer items-center px-3 py-2 hover:bg-muted/50",
       "border-l-[3px]",
-      getMobileProgramStyling(isPlaceholder, specialTitleClass?.className || null, status)
+      getMobileProgramStyling(
+        isPlaceholder,
+        specialTitleClass?.className || null,
+        status
+      )
     )}
     key={`${channelId}-${channelLcn}-${program.guideid}`}
     onClick={() => onProgramClick(program)}
