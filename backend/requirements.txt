@@ -187,7 +187,7 @@ watchfiles==1.1.1
     # via uvicorn
 websockets==16.0
     # via uvicorn
-wrapt==2.1.1
+wrapt==2.1.2
     # via deprecated
 yarl==1.22.0
     # via aiohttp
