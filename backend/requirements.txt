@@ -21,7 +21,7 @@ apscheduler==3.11.2
     # via webepg-backend
 attrs==25.4.0
     # via aiohttp
-certifi==2026.1.4
+certifi==2026.4.22
     # via
     #   httpcore
     #   httpx
