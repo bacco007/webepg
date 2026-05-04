@@ -144,7 +144,7 @@ shellingham==1.5.4
     # via typer
 slowapi==0.1.9
     # via webepg-backend
-starlette==0.52.1
+starlette==1.0.0
     # via fastapi
 typer==0.24.1
     # via
