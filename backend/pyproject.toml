@@ -9,11 +9,11 @@ dependencies = [
     "uvicorn[standard]>=0.38.0",
     "slowapi>=0.1.9",
     # HTTP clients (aiohttp for async, httpx might be transitive from fastapi)
-    "aiohttp>=3.13.1",
+    "aiohttp>=3.14.0",
     # Scheduling
     "APScheduler>=3.11.0",
     # XML processing
-    "lxml>=5.3.0",
+    "lxml>=6.1.0",
     # Database
     "mysql-connector-python>=9.5.0",
     # System monitoring
@@ -23,7 +23,7 @@ dependencies = [
     "tzlocal>=5.3.1",
     # Configuration
     "pydantic-settings>=2.11.0",
-    "python-dotenv>=1.1.1",
+    "python-dotenv>=1.2.2",
     "PyYAML>=6.0.3",
 ]
 
