@@ -189,5 +189,5 @@ websockets==16.0
     # via uvicorn
 wrapt==2.1.1
     # via deprecated
-yarl==1.22.0
+yarl==1.24.2
     # via aiohttp
