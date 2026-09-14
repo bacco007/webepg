@@ -6,7 +6,7 @@ aiohttp==3.13.3
     # via webepg-backend
 aiosignal==1.4.0
     # via aiohttp
-annotated-doc==0.0.4
+annotated-doc==0.0.5
     # via
     #   fastapi
     #   typer
