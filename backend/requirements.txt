@@ -142,7 +142,7 @@ sentry-sdk==2.53.0
     # via fastapi-cloud-cli
 shellingham==1.5.4
     # via typer
-slowapi==0.1.9
+slowapi==0.1.10
     # via webepg-backend
 starlette==0.52.1
     # via fastapi
