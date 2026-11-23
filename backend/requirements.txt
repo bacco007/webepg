@@ -173,7 +173,7 @@ tzlocal==5.3.1
     # via
     #   apscheduler
     #   webepg-backend
-urllib3==2.6.3
+urllib3==2.8.0
     # via sentry-sdk
 uvicorn==0.41.0
     # via
