@@ -162,7 +162,7 @@ typing-extensions==4.15.0
     #   rich-toolkit
     #   starlette
     #   typing-inspection
-typing-inspection==0.4.2
+typing-inspection==0.4.5
     # via
     #   fastapi
     #   pydantic
